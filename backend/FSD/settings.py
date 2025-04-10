@@ -59,7 +59,13 @@ ROOT_URLCONF = 'FSD.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [ BASE_DIR / 'templates'],
+        'DIRS': [
+            BASE_DIR / 'templates',
+            BASE_DIR / 'students' / 'templates',
+            BASE_DIR / 'mentor' / 'templates',
+            BASE_DIR / 'college' / 'templates',
+            BASE_DIR / 'collabrators' / 'templates',
+        ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [

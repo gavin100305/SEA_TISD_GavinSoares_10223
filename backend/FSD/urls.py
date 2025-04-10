@@ -16,12 +16,13 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from students.views import landing_page
 
 urlpatterns = [
+    path('', landing_page, name='landing'),
     path('admin/', admin.site.urls),
     path('collabrators/', include('collabrators.urls')),
     path('students/', include('students.urls')),
     path('mentor/', include('mentor.urls')),
     path('college/', include('college.urls')),
-    
 ]

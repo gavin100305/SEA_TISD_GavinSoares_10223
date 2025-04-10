@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Choose Your Role</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #1a1a2e;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+        }
+
+        .container {
+            padding: 2rem;
+            width: 100%;
+            max-width: 1200px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #9d4edd;
+            margin-bottom: 2rem;
+            font-size: 2.5rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #c77dff;
+            margin-bottom: 3rem;
+            font-size: 1.2rem;
+        }
+
+        .cards-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            padding: 1rem;
+        }
+
+        .card {
+            background: rgba(157, 78, 221, 0.1);
+            border: 2px solid #9d4edd;
+            border-radius: 15px;
+            padding: 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 10px 20px rgba(157, 78, 221, 0.3);
+        }
+
+        .card:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, #9d4edd, #c77dff);
+            opacity: 0;
+            transition: 0.3s;
+            z-index: 1;
+        }
+
+        .card:hover:before {
+            opacity: 0.1;
+        }
+
+        .card * {
+            position: relative;
+            z-index: 2;
+        }
+
+        .card i {
+            font-size: 3rem;
+            color: #9d4edd;
+            margin-bottom: 1rem;
+        }
+
+        .card h2 {
+            color: #c77dff;
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+        }
+
+        .card p {
+            color: #b5b5b5;
+            margin-bottom: 1.5rem;
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+
+        .card button {
+            background: #9d4edd;
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 25px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .card button:hover {
+            background: #c77dff;
+            transform: scale(1.05);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .cards-container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Welcome to Learning Platform</h1>
+        <p class="subtitle">Choose your role to get started</p>
+        
+        <div class="cards-container">
+            <div class="card" onclick="navigateToLogin('student')">
+                <i>👨‍🎓</i>
+                <h2>Student</h2>
+                <p>Access your courses, assignments, and track your learning progress</p>
+                <button>Get Started</button>
+            </div>
+
+            <div class="card" onclick="navigateToLogin('mentor')">
+                <i>👨‍🏫</i>
+                <h2>Mentor</h2>
+                <p>Guide students, manage courses, and share your expertise</p>
+                <button>Get Started</button>
+            </div>
+
+            <div class="card" onclick="navigateToLogin('collaborator')">
+                <i>🤝</i>
+                <h2>Collaborator</h2>
+                <p>Partner with us to create and enhance learning experiences</p>
+                <button>Get Started</button>
+            </div>
+
+            <div class="card" onclick="navigateToLogin('college')">
+                <i>🏛️</i>
+                <h2>College</h2>
+                <p>Manage institution resources and oversee academic programs</p>
+                <button>Get Started</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function navigateToLogin(role) {
+            const loginUrls = {
+                'student': '/students/login/',
+                'mentor': '/mentor/login/',
+                'collaborator': '/collabrators/login/',
+                'college': '/college/college_login/'
+            };
+            
+            window.location.href = loginUrls[role];
+        }
+
+        document.querySelectorAll('.card').forEach(card => {
+            card.addEventListener('mouseenter', () => {
+                // You can add sound effects here if desired
+            });
+        });
+    </script>
+</body>
+</html> 

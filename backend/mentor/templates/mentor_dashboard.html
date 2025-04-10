@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+
+{% block title %}Mentor Dashboard{% endblock %}
+
+{% block content %}
+<div class="welcome-section">
+    <h1>Welcome to Your Dashboard!</h1>
+    
+    {% if mentor.verification_status == 'pending' %}
+    <p class="message">Your application is under review. Please wait for college verification.</p>
+    {% elif mentor.verification_status == 'rejected' %}
+    <p class="message">Unfortunately, your application has been rejected.</p>
+    {% else %}
+    <p class="message">You are now verified as a mentor!</p>
+    <a href="{% url 'mentor_profile' %}?mode=update" class="btn btn-custom mt-3">
+        <i class="fas fa-user-edit"></i> Update Profile
+    </a>
+    {% endif %}
+</div>
+
+<div class="row">
+    <div class="col-md-4 mb-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title text-center mb-3">Total Students</h5>
+                <p class="h2 text-center">0</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title text-center mb-3">Upcoming Sessions</h5>
+                <p class="h2 text-center">0</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title text-center mb-3">Completed Sessions</h5>
+                <p class="h2 text-center">0</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title mb-3">Your Profile Summary</h5>
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>Name:</strong> {{ mentor.full_name }}</p>
+                        <p><strong>Specialization:</strong> {{ mentor.specialization }}</p>
+                        <p><strong>Experience:</strong> {{ mentor.experience_years }} years</p>
+                        <p><strong>Teaching Branch:</strong> {{ mentor.teaching_branch }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Current Role:</strong> {{ mentor.current_role }}</p>
+                        <p><strong>Qualification:</strong> {{ mentor.highest_qualification }}</p>
+                        <p><strong>University:</strong> {{ mentor.university }}</p>
+                        <p><strong>Areas of Expertise:</strong> {{ mentor.expertise_areas }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

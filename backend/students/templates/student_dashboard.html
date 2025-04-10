@@ -1,0 +1,139 @@
+{% extends 'base.html' %}
+
+{% block title %}Student Dashboard{% endblock %}
+
+{% block extra_css %}
+<style>
+    .dashboard-container {
+        padding: 1rem;
+    }
+
+    .welcome-section {
+        background: rgba(157, 78, 221, 0.1);
+        border: 2px solid #9d4edd;
+        border-radius: 15px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+    }
+
+    .welcome-section h1 {
+        color: #9d4edd;
+        margin-bottom: 1rem;
+        font-size: 2rem;
+    }
+
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 1.5rem;
+        margin-top: 2rem;
+    }
+
+    .info-card {
+        background: rgba(157, 78, 221, 0.1);
+        border: 1px solid #9d4edd;
+        border-radius: 10px;
+        padding: 1.5rem;
+    }
+
+    .info-card h2 {
+        color: #c77dff;
+        margin-bottom: 1rem;
+        font-size: 1.2rem;
+        border-bottom: 1px solid rgba(157, 78, 221, 0.3);
+        padding-bottom: 0.5rem;
+    }
+
+    .info-item {
+        margin-bottom: 0.8rem;
+    }
+
+    .info-label {
+        color: #c77dff;
+        font-size: 0.9rem;
+        margin-bottom: 0.2rem;
+    }
+
+    .info-value {
+        color: #fff;
+        font-size: 1rem;
+    }
+
+    .success-message {
+        background: rgba(78, 221, 152, 0.1);
+        border: 1px solid #4edd98;
+        color: #4edd98;
+        padding: 1rem;
+        border-radius: 5px;
+        margin-bottom: 1rem;
+        text-align: center;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    {% if messages %}
+    <div class="success-message">
+        {% for message in messages %}
+            {{ message }}
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="welcome-section">
+        <h1>Welcome, {{ profile.full_name }}!</h1>
+        <p>Roll Number: {{ profile.roll_number }}</p>
+    </div>
+
+    <div class="info-grid">
+        <div class="info-card">
+            <h2>Academic Information</h2>
+            <div class="info-item">
+                <div class="info-label">Branch</div>
+                <div class="info-value">{{ profile.get_branch_display }}</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">Section</div>
+                <div class="info-value">{{ profile.get_section_display }}</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">Current Semester</div>
+                <div class="info-value">{{ profile.semester }}</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">Admission Year</div>
+                <div class="info-value">{{ profile.admission_year }}</div>
+            </div>
+        </div>
+
+        <div class="info-card">
+            <h2>Personal Information</h2>
+            <div class="info-item">
+                <div class="info-label">Phone Number</div>
+                <div class="info-value">{{ profile.phone }}</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">Date of Birth</div>
+                <div class="info-value">{{ profile.dob|date:"F j, Y" }}</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">Address</div>
+                <div class="info-value">{{ profile.address }}</div>
+            </div>
+        </div>
+
+        <div class="info-card">
+            <h2>Parent/Guardian Information</h2>
+            <div class="info-item">
+                <div class="info-label">Name</div>
+                <div class="info-value">{{ profile.parent_name }}</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">Phone Number</div>
+                <div class="info-value">{{ profile.parent_phone }}</div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 
