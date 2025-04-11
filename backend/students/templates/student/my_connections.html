@@ -1,0 +1,193 @@
+{% extends '../base.html' %}
+{% load static %}
+
+{% block title %}My Mentor Connections{% endblock %}
+
+{% block extra_css %}
+<style>
+    .connections-container {
+        padding: 2rem;
+    }
+
+    .mentor-card {
+        background: rgba(157, 78, 221, 0.1);
+        border: 1px solid #9d4edd;
+        border-radius: 10px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        transition: all 0.3s ease;
+    }
+
+    .mentor-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 5px 15px rgba(157, 78, 221, 0.2);
+    }
+
+    .mentor-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+
+    .mentor-image {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        margin-right: 1rem;
+        border: 2px solid #9d4edd;
+        object-fit: cover;
+    }
+
+    .mentor-info h3 {
+        color: #9d4edd;
+        margin-bottom: 0.5rem;
+    }
+
+    .mentor-info p {
+        color: #c77dff;
+        margin-bottom: 0.2rem;
+    }
+
+    .mentor-details {
+        margin: 1rem 0;
+        padding: 1rem;
+        background: rgba(157, 78, 221, 0.05);
+        border-radius: 5px;
+        color: #fff;
+    }
+
+    .connection-date {
+        color: #c77dff;
+        font-size: 0.9rem;
+        margin-top: 1rem;
+        text-align: right;
+    }
+
+    .contact-info {
+        margin-top: 1rem;
+        padding: 1rem;
+        background: rgba(157, 78, 221, 0.05);
+        border-radius: 5px;
+        color: #fff;
+    }
+
+    .contact-info a {
+        color: #9d4edd;
+        text-decoration: none;
+    }
+
+    .contact-info a:hover {
+        text-decoration: underline;
+    }
+
+    .status-badge {
+        display: inline-block;
+        padding: 0.25rem 1rem;
+        border-radius: 15px;
+        font-size: 0.9rem;
+        margin-left: 1rem;
+    }
+
+    .status-pending {
+        background: rgba(255, 193, 7, 0.2);
+        color: #ffc107;
+        border: 1px solid #ffc107;
+    }
+
+    .status-accepted {
+        background: rgba(40, 167, 69, 0.2);
+        color: #28a745;
+        border: 1px solid #28a745;
+    }
+
+    .status-rejected {
+        background: rgba(220, 53, 69, 0.2);
+        color: #dc3545;
+        border: 1px solid #dc3545;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="connections-container">
+    <h1 class="mb-4" style="color: #9d4edd;">My Mentor Connections</h1>
+    
+    {% if messages %}
+    <div class="messages mb-4">
+        {% for message in messages %}
+        <div class="alert {% if message.tags == 'success' %}alert-success{% elif message.tags == 'error' %}alert-danger{% else %}alert-info{% endif %}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="row">
+        {% for connection in connections %}
+        <div class="col-md-6 mb-4">
+            <div class="mentor-card">
+                <div class="mentor-header">
+                    <img src="{% if connection.mentor.profile_picture %}{{ connection.mentor.profile_picture.url }}{% else %}https://ui-avatars.com/api/?name={{ connection.mentor.full_name|default:connection.mentor.user.username }}&background=9d4edd&color=fff{% endif %}" 
+                         alt="{{ connection.mentor.full_name }}" 
+                         class="mentor-image">
+                    <div class="mentor-info">
+                        <h3>{{ connection.mentor.full_name }}</h3>
+                        <p>{{ connection.mentor.current_role }}</p>
+                        <p>{{ connection.mentor.specialization }}</p>
+                        <span class="status-badge status-{{ connection.status }}">
+                            {{ connection.status|title }}
+                        </span>
+                    </div>
+                </div>
+
+                {% if connection.status == 'accepted' %}
+                <div class="mentor-details">
+                    <p><strong>Experience:</strong> {{ connection.mentor.experience_years }} years</p>
+                    <p><strong>Teaching Branch:</strong> {{ connection.mentor.teaching_branch }}</p>
+                    <p><strong>Qualification:</strong> {{ connection.mentor.highest_qualification }}</p>
+                    <p><strong>University:</strong> {{ connection.mentor.university }}</p>
+                    {% if connection.mentor.expertise_areas %}
+                    <p><strong>Areas of Expertise:</strong> {{ connection.mentor.expertise_areas }}</p>
+                    {% endif %}
+                    {% if connection.mentor.bio %}
+                    <p><strong>Bio:</strong> {{ connection.mentor.bio }}</p>
+                    {% endif %}
+                </div>
+
+                <div class="contact-info">
+                    <p><strong>Email:</strong> <a href="mailto:{{ connection.mentor.user.email }}">{{ connection.mentor.user.email }}</a></p>
+                    {% if connection.mentor.phone %}
+                    <p><strong>Phone:</strong> {{ connection.mentor.phone }}</p>
+                    {% endif %}
+                    {% if connection.mentor.linkedin %}
+                    <p><strong>LinkedIn:</strong> <a href="{{ connection.mentor.linkedin }}" target="_blank">View Profile</a></p>
+                    {% endif %}
+                    {% if connection.mentor.website %}
+                    <p><strong>Website:</strong> <a href="{{ connection.mentor.website }}" target="_blank">Visit Website</a></p>
+                    {% endif %}
+                </div>
+
+                <div class="connection-date">
+                    Connected since: {{ connection.updated_at|date:"F j, Y" }}
+                </div>
+                {% else %}
+                <div class="mentor-details">
+                    <p><strong>Message:</strong> {{ connection.message }}</p>
+                    <p class="connection-date">Requested on: {{ connection.created_at|date:"F j, Y" }}</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <p class="text-center" style="color: #fff;">You don't have any mentor connections yet.</p>
+            <div class="text-center mt-4">
+                <a href="{% url 'list_mentors' %}" class="btn btn-custom">
+                    <i class="fas fa-search"></i> Find Mentors
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %} 

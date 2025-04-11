@@ -1,10 +1,11 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.contrib.auth.models import User
-from .models import StudentProfile
+from .models import StudentProfile, MentorConnection
+from mentor.models import MentorProfile
 
 # Create your views here.
 def landing_page(request):
@@ -112,5 +113,56 @@ def student_dashboard(request):
 def student_logout(request):
     logout(request)
     return redirect('landing_page')
+
+@login_required
+def list_mentors(request):
+    # Get all approved mentors
+    mentors = MentorProfile.objects.filter(verification_status='approved')
+    
+    # Get current student's connections
+    student = request.user.student_profile
+    connections = MentorConnection.objects.filter(student=student)
+    
+    # Create a list of mentors with their connection status
+    mentors_with_status = []
+    for mentor in mentors:
+        connection = connections.filter(mentor=mentor).first()
+        status = connection.status if connection else None
+        mentors_with_status.append({
+            'mentor': mentor,
+            'connection_status': status
+        })
+    
+    context = {
+        'mentors': mentors_with_status
+    }
+    return render(request, 'student/list_mentors.html', context)
+
+@login_required
+def send_connection_request(request, mentor_id):
+    if request.method == 'POST':
+        mentor = get_object_or_404(MentorProfile, id=mentor_id, verification_status='approved')
+        student = request.user.student_profile
+        message = request.POST.get('message', '')
+
+        # Check if connection already exists
+        connection, created = MentorConnection.objects.get_or_create(
+            student=student,
+            mentor=mentor,
+            defaults={'message': message}
+        )
+
+        if created:
+            messages.success(request, f'Connection request sent to {mentor.full_name}')
+        else:
+            messages.info(request, f'You already have a {connection.status} connection with {mentor.full_name}')
+
+    return redirect('list_mentors')
+
+@login_required
+def my_connections(request):
+    student = request.user.student_profile
+    connections = MentorConnection.objects.filter(student=student)
+    return render(request, 'student/my_connections.html', {'connections': connections})
 
 

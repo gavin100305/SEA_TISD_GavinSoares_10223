@@ -129,6 +129,8 @@
         <ul class="nav-links">
             <li><a href="{% url 'student_dashboard' %}" {% if request.resolver_match.url_name == 'student_dashboard' %}class="active"{% endif %}>Dashboard</a></li>
             <li><a href="{% url 'student_profile' %}" {% if request.resolver_match.url_name == 'student_profile' %}class="active"{% endif %}>Profile</a></li>
+            <li><a href="{% url 'list_mentors' %}" {% if request.resolver_match.url_name == 'list_mentors' %}class="active"{% endif %}>Find Mentors</a></li>
+            <li><a href="{% url 'my_connections' %}" {% if request.resolver_match.url_name == 'my_connections' %}class="active"{% endif %}>My Connections</a></li>
             <li><a href="#">Courses</a></li>
             <li><a href="#">Assignments</a></li>
             <li><a href="#">Grades</a></li>

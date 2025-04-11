@@ -158,3 +158,120 @@ def mentor_logout(request):
     logout(request)
     messages.success(request, 'You have been logged out successfully.')
     return redirect('landing')
+
+@login_required
+def list_students(request):
+    try:
+        mentor = request.user.mentor_profile
+        
+        # Only approved mentors can view students
+        if mentor.verification_status != 'approved':
+            messages.error(request, 'You need to be approved by the college to view students.')
+            return redirect('mentor_dashboard')
+
+        # Get all students and their connection status with this mentor
+        from students.models import StudentProfile, MentorConnection
+        students = StudentProfile.objects.all()
+        
+        students_with_status = []
+        for student in students:
+            connection = MentorConnection.objects.filter(
+                student=student,
+                mentor=mentor
+            ).first()
+            students_with_status.append({
+                'student': student,
+                'connection_status': connection.status if connection else None
+            })
+        
+        context = {
+            'students': students_with_status
+        }
+        return render(request, 'mentor/list_students.html', context)
+        
+    except Exception as e:
+        messages.error(request, f'An error occurred: {str(e)}')
+        return redirect('mentor_dashboard')
+
+@login_required
+def connection_requests(request):
+    try:
+        mentor = request.user.mentor_profile
+        
+        # Only approved mentors can view connection requests
+        if mentor.verification_status != 'approved':
+            messages.error(request, 'You need to be approved by the college to manage connection requests.')
+            return redirect('mentor_dashboard')
+
+        # Get all connection requests for this mentor
+        from students.models import MentorConnection
+        connections = MentorConnection.objects.filter(mentor=mentor).order_by('-created_at')
+        
+        context = {
+            'connections': connections
+        }
+        return render(request, 'mentor/connection_requests.html', context)
+        
+    except Exception as e:
+        messages.error(request, f'An error occurred: {str(e)}')
+        return redirect('mentor_dashboard')
+
+@login_required
+def handle_connection_request(request, connection_id, action):
+    if request.method != 'POST':
+        return redirect('connection_requests')
+        
+    try:
+        mentor = request.user.mentor_profile
+        
+        # Only approved mentors can handle requests
+        if mentor.verification_status != 'approved':
+            messages.error(request, 'You need to be approved by the college to handle connection requests.')
+            return redirect('mentor_dashboard')
+
+        # Get the connection request
+        from students.models import MentorConnection
+        connection = get_object_or_404(MentorConnection, id=connection_id, mentor=mentor)
+        
+        # Handle the action
+        if action == 'accept' and connection.status == 'pending':
+            connection.status = 'accepted'
+            messages.success(request, f'You have accepted the connection request from {connection.student.full_name}.')
+        elif action == 'reject' and connection.status == 'pending':
+            connection.status = 'rejected'
+            messages.success(request, f'You have rejected the connection request from {connection.student.full_name}.')
+        else:
+            messages.error(request, 'Invalid action or connection request status.')
+            
+        connection.save()
+        
+    except Exception as e:
+        messages.error(request, f'An error occurred: {str(e)}')
+    
+    return redirect('connection_requests')
+
+@login_required
+def connected_students(request):
+    try:
+        mentor = request.user.mentor_profile
+        
+        # Only approved mentors can view connected students
+        if mentor.verification_status != 'approved':
+            messages.error(request, 'You need to be approved by the college to view connected students.')
+            return redirect('mentor_dashboard')
+
+        # Get all accepted connections for this mentor
+        from students.models import MentorConnection
+        connections = MentorConnection.objects.filter(
+            mentor=mentor,
+            status='accepted'
+        ).order_by('-updated_at')
+        
+        context = {
+            'connections': connections
+        }
+        return render(request, 'mentor/connected_students.html', context)
+        
+    except Exception as e:
+        messages.error(request, f'An error occurred: {str(e)}')
+        return redirect('mentor_dashboard')

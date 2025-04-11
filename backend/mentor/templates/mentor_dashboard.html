@@ -2,6 +2,49 @@
 
 {% block title %}Mentor Dashboard{% endblock %}
 
+{% block extra_css %}
+<style>
+    .feature-card {
+        background: rgba(157, 78, 221, 0.1);
+        border: 1px solid #9d4edd;
+        border-radius: 10px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        transition: all 0.3s ease;
+        text-align: center;
+        color: #fff;
+    }
+
+    .feature-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 5px 15px rgba(157, 78, 221, 0.2);
+    }
+
+    .feature-card i {
+        font-size: 2rem;
+        color: #9d4edd;
+        margin-bottom: 1rem;
+    }
+
+    .feature-card h3 {
+        color: #9d4edd;
+        margin-bottom: 0.5rem;
+    }
+
+    .feature-card p {
+        color: #c77dff;
+    }
+
+    .feature-link {
+        text-decoration: none;
+    }
+
+    .feature-link:hover {
+        text-decoration: none;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="welcome-section">
     <h1>Welcome to Your Dashboard!</h1>
@@ -47,6 +90,45 @@
 </div>
 
 <div class="row mt-4">
+    <div class="col-md-3">
+        <a href="{% url 'list_students' %}" class="feature-link">
+            <div class="feature-card">
+                <i class="fas fa-users"></i>
+                <h3>View Students</h3>
+                <p>Browse all registered students and their profiles</p>
+            </div>
+        </a>
+    </div>
+    <div class="col-md-3">
+        <a href="{% url 'connection_requests' %}" class="feature-link">
+            <div class="feature-card">
+                <i class="fas fa-user-plus"></i>
+                <h3>Connection Requests</h3>
+                <p>Manage student connection requests</p>
+            </div>
+        </a>
+    </div>
+    <div class="col-md-3">
+        <a href="{% url 'connected_students' %}" class="feature-link">
+            <div class="feature-card">
+                <i class="fas fa-user-check"></i>
+                <h3>Connected Students</h3>
+                <p>View your connected students</p>
+            </div>
+        </a>
+    </div>
+    <div class="col-md-3">
+        <a href="{% url 'mentor_profile' %}?mode=update" class="feature-link">
+            <div class="feature-card">
+                <i class="fas fa-user-edit"></i>
+                <h3>Update Profile</h3>
+                <p>Keep your mentor profile up to date</p>
+            </div>
+        </a>
+    </div>
+</div>
+
+<div class="row mt-4">
     <div class="col-12">
         <div class="card">
             <div class="card-body">
@@ -68,6 +150,8 @@
             </div>
         </div>
     </div>
-</div>
+</div> 
+ 
+
 {% endif %}
 {% endblock %} 

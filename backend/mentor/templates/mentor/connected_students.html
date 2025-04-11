@@ -1,0 +1,142 @@
+{% extends '../base.html' %}
+{% load static %}
+
+{% block title %}Connected Students{% endblock %}
+
+{% block extra_css %}
+<style>
+    .connected-container {
+        padding: 2rem;
+    }
+
+    .student-card {
+        background: rgba(157, 78, 221, 0.1);
+        border: 1px solid #9d4edd;
+        border-radius: 10px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        transition: all 0.3s ease;
+    }
+
+    .student-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 5px 15px rgba(157, 78, 221, 0.2);
+    }
+
+    .student-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+
+    .student-image {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        margin-right: 1rem;
+        border: 2px solid #9d4edd;
+        object-fit: cover;
+    }
+
+    .student-info h3 {
+        color: #9d4edd;
+        margin-bottom: 0.5rem;
+    }
+
+    .student-info p {
+        color: #c77dff;
+        margin-bottom: 0.2rem;
+    }
+
+    .student-details {
+        margin: 1rem 0;
+        padding: 1rem;
+        background: rgba(157, 78, 221, 0.05);
+        border-radius: 5px;
+        color: #fff;
+    }
+
+    .connection-date {
+        color: #c77dff;
+        font-size: 0.9rem;
+        margin-top: 1rem;
+        text-align: right;
+    }
+
+    .contact-info {
+        margin-top: 1rem;
+        padding: 1rem;
+        background: rgba(157, 78, 221, 0.05);
+        border-radius: 5px;
+        color: #fff;
+    }
+
+    .contact-info a {
+        color: #9d4edd;
+        text-decoration: none;
+    }
+
+    .contact-info a:hover {
+        text-decoration: underline;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="connected-container">
+    <h1 class="mb-4" style="color: #9d4edd;">Connected Students</h1>
+    
+    {% if messages %}
+    <div class="messages mb-4">
+        {% for message in messages %}
+        <div class="alert {% if message.tags == 'success' %}alert-success{% elif message.tags == 'error' %}alert-danger{% else %}alert-info{% endif %}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="row">
+        {% for connection in connections %}
+        <div class="col-md-6 mb-4">
+            <div class="student-card">
+                <div class="student-header">
+                    <img src="{% if connection.student.profile_picture %}{{ connection.student.profile_picture.url }}{% else %}https://ui-avatars.com/api/?name={{ connection.student.full_name|default:connection.student.user.username }}&background=9d4edd&color=fff{% endif %}" 
+                         alt="{{ connection.student.full_name }}" 
+                         class="student-image">
+                    <div class="student-info">
+                        <h3>{{ connection.student.full_name }}</h3>
+                        <p>Roll Number: {{ connection.student.roll_number }}</p>
+                        <p>Branch: {{ connection.student.branch }}</p>
+                    </div>
+                </div>
+
+                <div class="student-details">
+                    <p><strong>Semester:</strong> {{ connection.student.semester }}</p>
+                    <p><strong>Section:</strong> {{ connection.student.section }}</p>
+                    <p><strong>Admission Year:</strong> {{ connection.student.admission_year }}</p>
+                    {% if connection.student.bio %}
+                    <p><strong>Bio:</strong> {{ connection.student.bio }}</p>
+                    {% endif %}
+                </div>
+
+                <div class="contact-info">
+                    <p><strong>Email:</strong> <a href="mailto:{{ connection.student.user.email }}">{{ connection.student.user.email }}</a></p>
+                    {% if connection.student.phone %}
+                    <p><strong>Phone:</strong> {{ connection.student.phone }}</p>
+                    {% endif %}
+                </div>
+
+                <div class="connection-date">
+                    Connected since: {{ connection.updated_at|date:"F j, Y" }}
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <p class="text-center" style="color: #fff;">You don't have any connected students yet.</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %} 

@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from mentor.models import MentorProfile
 
 class StudentProfile(models.Model):
     SECTION_CHOICES = [
@@ -55,3 +56,24 @@ def create_or_update_student_profile(sender, instance, created, **kwargs):
             instance.student_profile.save()
         except StudentProfile.DoesNotExist:
             StudentProfile.objects.create(user=instance)
+
+class MentorConnection(models.Model):
+    STATUS_CHOICES = (
+        ('pending', 'Pending'),
+        ('accepted', 'Accepted'),
+        ('rejected', 'Rejected')
+    )
+
+    student = models.ForeignKey(StudentProfile, on_delete=models.CASCADE, related_name='mentor_connections')
+    mentor = models.ForeignKey(MentorProfile, on_delete=models.CASCADE, related_name='student_connections')
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    message = models.TextField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = ('student', 'mentor')
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.student.full_name} -> {self.mentor.full_name} ({self.status})"

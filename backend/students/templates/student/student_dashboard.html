@@ -94,90 +94,121 @@
         color: white;
         transform: scale(1.05);
     }
+
+    .feature-card {
+        background: rgba(157, 78, 221, 0.1);
+        border: 1px solid #9d4edd;
+        border-radius: 10px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        transition: all 0.3s ease;
+        text-align: center;
+        color: #fff;
+    }
+
+    .feature-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 5px 15px rgba(157, 78, 221, 0.2);
+    }
+
+    .feature-card i {
+        font-size: 2rem;
+        color: #9d4edd;
+        margin-bottom: 1rem;
+    }
+
+    .feature-card h3 {
+        color: #9d4edd;
+        margin-bottom: 0.5rem;
+    }
+
+    .feature-card p {
+        color: #c77dff;
+    }
+
+    .feature-link {
+        text-decoration: none;
+    }
+
+    .feature-link:hover {
+        text-decoration: none;
+    }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="dashboard-container">
+<div class="container py-4">
+    <h1 class="mb-4" style="color: #9d4edd;">Welcome, {{ profile.full_name }}!</h1>
+
     {% if messages %}
-    <div class="alert alert-success">
+    <div class="messages mb-4">
         {% for message in messages %}
+        <div class="alert {% if message.tags == 'success' %}alert-success{% elif message.tags == 'error' %}alert-danger{% else %}alert-info{% endif %}">
             {{ message }}
+        </div>
         {% endfor %}
     </div>
     {% endif %}
 
-    <div class="welcome-section">
-        <h1>Welcome, {{ profile.full_name }}!</h1>
-        <p>Roll Number: {{ profile.roll_number }}</p>
-    </div>
-
-    <div class="row">
-        <div class="col-md-6">
-            <div class="info-card">
-                <h2>Personal Information</h2>
-                <div class="info-item">
-                    <div class="info-label">Full Name</div>
-                    <div class="info-value">{{ profile.full_name }}</div>
+    <div class="row mt-4">
+        <div class="col-md-3">
+            <a href="{% url 'list_mentors' %}" class="feature-link">
+                <div class="feature-card">
+                    <i class="fas fa-search"></i>
+                    <h3>Find Mentors</h3>
+                    <p>Browse and connect with mentors</p>
                 </div>
-                <div class="info-item">
-                    <div class="info-label">Email</div>
-                    <div class="info-value">{{ profile.user.email }}</div>
-                </div>
-                <div class="info-item">
-                    <div class="info-label">Phone</div>
-                    <div class="info-value">{{ profile.phone }}</div>
-                </div>
-                <div class="info-item">
-                    <div class="info-label">Date of Birth</div>
-                    <div class="info-value">{{ profile.dob }}</div>
-                </div>
-            </div>
+            </a>
         </div>
-
-        <div class="col-md-6">
-            <div class="info-card">
-                <h2>Academic Information</h2>
-                <div class="info-item">
-                    <div class="info-label">Branch</div>
-                    <div class="info-value">{{ profile.branch }}</div>
+        <div class="col-md-3">
+            <a href="{% url 'my_connections' %}" class="feature-link">
+                <div class="feature-card">
+                    <i class="fas fa-user-friends"></i>
+                    <h3>My Connections</h3>
+                    <p>View your mentor connections</p>
                 </div>
-                <div class="info-item">
-                    <div class="info-label">Section</div>
-                    <div class="info-value">{{ profile.section }}</div>
+            </a>
+        </div>
+        <div class="col-md-3">
+            <a href="{% url 'student_profile' %}?mode=update" class="feature-link">
+                <div class="feature-card">
+                    <i class="fas fa-user-edit"></i>
+                    <h3>Update Profile</h3>
+                    <p>Keep your profile up to date</p>
                 </div>
-                <div class="info-item">
-                    <div class="info-label">Semester</div>
-                    <div class="info-value">{{ profile.semester }}</div>
+            </a>
+        </div>
+        <div class="col-md-3">
+            <a href="#" class="feature-link">
+                <div class="feature-card">
+                    <i class="fas fa-calendar-alt"></i>
+                    <h3>Sessions</h3>
+                    <p>View upcoming mentoring sessions</p>
                 </div>
-                <div class="info-item">
-                    <div class="info-label">Admission Year</div>
-                    <div class="info-value">{{ profile.admission_year }}</div>
-                </div>
-            </div>
+            </a>
         </div>
     </div>
 
     <div class="row mt-4">
-        <div class="col-md-4">
-            <div class="action-card">
-                <h3><i class="fas fa-book"></i> My Courses</h3>
-                <p>View your enrolled courses and materials</p>
-                <a href="#" class="action-btn">View Courses</a>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="action-card">
-                <h3><i class="fas fa-tasks"></i> Assignments</h3>
-                <p>Check your pending assignments</p>
-                <a href="#" class="action-btn">View Assignments</a>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="action-card">
-                <h3><i class="fas fa-chart-line"></i> Progress</h3>
-                <p>Track your academic progress</p>
-                <a href="#" class="action-btn">View Progress</a>
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">Your Profile Summary</h5>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>Name:</strong> {{ profile.full_name }}</p>
+                            <p><strong>Roll Number:</strong> {{ profile.roll_number }}</p>
+                            <p><strong>Branch:</strong> {{ profile.branch }}</p>
+                            <p><strong>Semester:</strong> {{ profile.semester }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>Section:</strong> {{ profile.section }}</p>
+                            <p><strong>Admission Year:</strong> {{ profile.admission_year }}</p>
+                            <p><strong>Phone:</strong> {{ profile.phone }}</p>
+                            <p><strong>Email:</strong> {{ profile.user.email }}</p>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

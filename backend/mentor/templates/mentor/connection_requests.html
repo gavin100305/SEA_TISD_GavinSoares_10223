@@ -1,0 +1,175 @@
+{% extends '../base.html' %}
+{% load static %}
+
+{% block title %}Connection Requests{% endblock %}
+
+{% block extra_css %}
+<style>
+    .requests-container {
+        padding: 2rem;
+    }
+
+    .request-card {
+        background: rgba(157, 78, 221, 0.1);
+        border: 1px solid #9d4edd;
+        border-radius: 10px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        transition: all 0.3s ease;
+    }
+
+    .request-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 5px 15px rgba(157, 78, 221, 0.2);
+    }
+
+    .student-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+
+    .student-image {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        margin-right: 1rem;
+        border: 2px solid #9d4edd;
+        object-fit: cover;
+    }
+
+    .student-info h3 {
+        color: #9d4edd;
+        margin-bottom: 0.5rem;
+    }
+
+    .student-info p {
+        color: #c77dff;
+        margin-bottom: 0.2rem;
+    }
+
+    .request-message {
+        margin: 1rem 0;
+        padding: 1rem;
+        background: rgba(157, 78, 221, 0.05);
+        border-radius: 5px;
+        color: #fff;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+
+    .accept-btn, .reject-btn {
+        padding: 0.5rem 1.5rem;
+        border-radius: 25px;
+        border: none;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        flex: 1;
+    }
+
+    .accept-btn {
+        background: #28a745;
+        color: white;
+    }
+
+    .reject-btn {
+        background: #dc3545;
+        color: white;
+    }
+
+    .accept-btn:hover, .reject-btn:hover {
+        transform: scale(1.05);
+        opacity: 0.9;
+    }
+
+    .status-badge {
+        display: inline-block;
+        padding: 0.25rem 1rem;
+        border-radius: 15px;
+        font-size: 0.9rem;
+        margin-left: 1rem;
+    }
+
+    .status-pending {
+        background: rgba(255, 193, 7, 0.2);
+        color: #ffc107;
+        border: 1px solid #ffc107;
+    }
+
+    .status-accepted {
+        background: rgba(40, 167, 69, 0.2);
+        color: #28a745;
+        border: 1px solid #28a745;
+    }
+
+    .status-rejected {
+        background: rgba(220, 53, 69, 0.2);
+        color: #dc3545;
+        border: 1px solid #dc3545;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="requests-container">
+    <h1 class="mb-4" style="color: #9d4edd;">Connection Requests</h1>
+    
+    {% if messages %}
+    <div class="messages mb-4">
+        {% for message in messages %}
+        <div class="alert {% if message.tags == 'success' %}alert-success{% elif message.tags == 'error' %}alert-danger{% else %}alert-info{% endif %}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="row">
+        {% for connection in connections %}
+        <div class="col-md-6 mb-4">
+            <div class="request-card">
+                <div class="student-header">
+                    <img src="{% if connection.student.profile_picture %}{{ connection.student.profile_picture.url }}{% else %}https://ui-avatars.com/api/?name={{ connection.student.full_name|default:connection.student.user.username }}&background=9d4edd&color=fff{% endif %}" 
+                         alt="{{ connection.student.full_name }}" 
+                         class="student-image">
+                    <div class="student-info">
+                        <h3>{{ connection.student.full_name }}</h3>
+                        <p>Roll Number: {{ connection.student.roll_number }}</p>
+                        <p>Branch: {{ connection.student.branch }} - Semester {{ connection.student.semester }}</p>
+                        <span class="status-badge status-{{ connection.status }}">
+                            {{ connection.status|title }}
+                        </span>
+                    </div>
+                </div>
+
+                <div class="request-message">
+                    <strong>Message:</strong><br>
+                    {{ connection.message }}
+                </div>
+
+                {% if connection.status == 'pending' %}
+                <div class="action-buttons">
+                    <form action="{% url 'handle_connection_request' connection.id 'accept' %}" method="POST" style="flex: 1;">
+                        {% csrf_token %}
+                        <button type="submit" class="accept-btn w-100">Accept Request</button>
+                    </form>
+                    <form action="{% url 'handle_connection_request' connection.id 'reject' %}" method="POST" style="flex: 1;">
+                        {% csrf_token %}
+                        <button type="submit" class="reject-btn w-100">Reject Request</button>
+                    </form>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <p class="text-center" style="color: #fff;">No connection requests at the moment.</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %} 
