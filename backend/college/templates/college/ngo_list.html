@@ -1,0 +1,148 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="container mx-auto py-8">
+  <div class="flex justify-between items-center mb-6">
+    <h1 class="text-2xl font-bold">NGO List</h1>
+    <a href="{% url 'add_ngo' %}" class="bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded">Add New NGO</a>
+  </div>
+
+  {% if ngos %}
+    <!-- Carousel Container -->
+    <div class="relative">
+      <!-- Previous Button -->
+      <button id="prev-btn" class="absolute left-0 top-1/2 transform -translate-y-1/2 bg-white p-2 rounded-full shadow-md z-10">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+        </svg>
+      </button>
+      
+      <!-- Carousel -->
+      <div class="carousel-container overflow-hidden">
+        <div class="carousel-track flex transition-transform duration-300 gap-4">
+          {% for ngo in ngos %}
+            <div class="carousel-card flex-shrink-0 w-80 bg-white rounded-lg shadow-md overflow-hidden border border-gray-200">
+              <div class="p-5">
+                <h3 class="text-xl font-semibold text-gray-800 mb-2">{{ ngo.name }}</h3>
+                <div class="mb-3">
+                  <p class="text-sm text-gray-600 font-medium mb-1">Description:</p>
+                  <p class="text-gray-700">{{ ngo.description|truncatechars:100 }}</p>
+                </div>
+                <div class="mb-3">
+                  <p class="text-sm text-gray-600 font-medium mb-1">Requirements:</p>
+                  <p class="text-gray-700">{{ ngo.requirements|truncatechars:80 }}</p>
+                </div>
+                <div class="mb-4">
+                  <p class="text-sm text-gray-600 font-medium mb-1">Contact Person:</p>
+                  <p class="text-gray-700">{{ ngo.contact_person }}</p>
+                </div>
+                <div class="flex justify-between mt-4">
+                  <a href="#" class="text-blue-500 hover:text-blue-700 font-medium">Edit</a>
+                  <a href="#" class="text-red-500 hover:text-red-700 font-medium">Delete</a>
+                </div>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+      
+      <!-- Next Button -->
+      <button id="next-btn" class="absolute right-0 top-1/2 transform -translate-y-1/2 bg-white p-2 rounded-full shadow-md z-10">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+        </svg>
+      </button>
+    </div>
+    
+    <!-- Pagination Dots -->
+    <div class="flex justify-center mt-6" id="pagination-dots">
+      <!-- Dots will be added dynamically with JavaScript -->
+    </div>
+  {% else %}
+    <div class="bg-gray-50 rounded-lg border border-gray-200 p-8 text-center">
+      <p class="text-gray-600">No NGOs added yet. Click the "Add New NGO" button to add one.</p>
+    </div>
+  {% endif %}
+</div>
+
+<!-- Carousel JavaScript -->
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const track = document.querySelector('.carousel-track');
+    const cards = document.querySelectorAll('.carousel-card');
+    const prevButton = document.getElementById('prev-btn');
+    const nextButton = document.getElementById('next-btn');
+    const dotsContainer = document.getElementById('pagination-dots');
+    
+    if (!track || cards.length === 0) return;
+    
+    let currentIndex = 0;
+    const cardWidth = 320; // width + gap
+    const visibleCards = Math.floor(track.offsetWidth / cardWidth);
+    const maxIndex = Math.max(0, cards.length - visibleCards);
+    
+    // Create pagination dots
+    for (let i = 0; i <= maxIndex; i++) {
+      const dot = document.createElement('button');
+      dot.classList.add('h-2', 'w-2', 'rounded-full', 'bg-gray-300', 'mx-1');
+      if (i === 0) dot.classList.add('bg-blue-500');
+      dot.addEventListener('click', () => goToIndex(i));
+      dotsContainer.appendChild(dot);
+    }
+    
+    // Update dots
+    function updateDots() {
+      const dots = dotsContainer.querySelectorAll('button');
+      dots.forEach((dot, i) => {
+        if (i === currentIndex) {
+          dot.classList.remove('bg-gray-300');
+          dot.classList.add('bg-blue-500');
+        } else {
+          dot.classList.remove('bg-blue-500');
+          dot.classList.add('bg-gray-300');
+        }
+      });
+    }
+    
+    // Move to specific index
+    function goToIndex(index) {
+      currentIndex = Math.max(0, Math.min(index, maxIndex));
+      track.style.transform = `translateX(-${currentIndex * cardWidth}px)`;
+      updateDots();
+    }
+    
+    // Previous slide
+    prevButton.addEventListener('click', () => {
+      goToIndex(currentIndex - 1);
+    });
+    
+    // Next slide
+    nextButton.addEventListener('click', () => {
+      goToIndex(currentIndex + 1);
+    });
+    
+    // Show/hide navigation buttons based on position
+    function updateButtons() {
+      prevButton.style.display = currentIndex === 0 ? 'none' : 'block';
+      nextButton.style.display = currentIndex === maxIndex ? 'none' : 'block';
+    }
+    
+    // Initial update
+    updateButtons();
+    
+    // Handle window resize
+    window.addEventListener('resize', () => {
+      const newVisibleCards = Math.floor(track.offsetWidth / cardWidth);
+      const newMaxIndex = Math.max(0, cards.length - newVisibleCards);
+      
+      if (currentIndex > newMaxIndex) {
+        goToIndex(newMaxIndex);
+      }
+      
+      updateButtons();
+    });
+  });
+</script>
+{% endblock %}
+
+

@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-6 offset-md-3">
+            <div class="card">
+                <div class="card-header bg-danger text-white">
+                    <h4>Delete NGO</h4>
+                </div>
+                <div class="card-body">
+                    <h5>Are you sure you want to delete the NGO "{{ ngo.name }}"?</h5>
+                    <p>This action cannot be undone.</p>
+                    
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <button type="submit" class="btn btn-danger">Yes, Delete</button>
+                            <a href="{% url 'ngo_list' %}" class="btn btn-secondary">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

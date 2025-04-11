@@ -4,12 +4,14 @@ from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.utils import timezone
-from .models import CollegeProfile
+from .models import CollegeProfile,NGO
 from mentor.models import MentorProfile
 from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from .serializers import CollegeProfileSerializer
+from django.forms import ModelForm
+
 
 def college_signup(request):
     if request.method == 'POST':
@@ -225,3 +227,98 @@ class CollegeProfileViewSet(viewsets.ModelViewSet):
         college.save()
         serializer = self.get_serializer(college)
         return Response(serializer.data)
+
+class NGOForm(ModelForm):
+    class Meta:
+        model = NGO
+        fields = ['name', 'description', 'requirements', 'contact_person', 
+                 'contact_email', 'contact_phone', 'website', 'address', 'image']
+
+@login_required
+def ngo_list(request):
+    """View to list all NGOs added by the college"""
+    try:
+        profile = CollegeProfile.objects.get(user=request.user)
+        ngos = NGO.objects.filter(college=profile)
+        
+        context = {
+            'profile': profile,
+            'ngos': ngos
+        }
+        return render(request, 'college/ngo_list.html', context)
+    except CollegeProfile.DoesNotExist:
+        messages.error(request, 'College profile not found!')
+        return redirect('college_login')
+
+@login_required
+def add_ngo(request):
+    """View to add a new NGO"""
+    try:
+        profile = CollegeProfile.objects.get(user=request.user)
+        
+        if request.method == 'POST':
+            form = NGOForm(request.POST, request.FILES)
+            if form.is_valid():
+                ngo = form.save(commit=False)
+                ngo.college = profile
+                ngo.save()
+                messages.success(request, 'NGO added successfully!')
+                return redirect('ngo_list')
+        else:
+            form = NGOForm()
+        
+        context = {
+            'profile': profile,
+            'form': form
+        }
+        return render(request, 'college/add_ngo.html', context)
+    except CollegeProfile.DoesNotExist:
+        messages.error(request, 'College profile not found!')
+        return redirect('college_login')
+
+@login_required
+def edit_ngo(request, ngo_id):
+    """View to edit an existing NGO"""
+    try:
+        profile = CollegeProfile.objects.get(user=request.user)
+        ngo = get_object_or_404(NGO, id=ngo_id, college=profile)
+        
+        if request.method == 'POST':
+            form = NGOForm(request.POST, request.FILES, instance=ngo)
+            if form.is_valid():
+                form.save()
+                messages.success(request, 'NGO updated successfully!')
+                return redirect('ngo_list')
+        else:
+            form = NGOForm(instance=ngo)
+        
+        context = {
+            'profile': profile,
+            'form': form,
+            'ngo': ngo
+        }
+        return render(request, 'college/edit_ngo.html', context)
+    except CollegeProfile.DoesNotExist:
+        messages.error(request, 'College profile not found!')
+        return redirect('college_login')
+
+@login_required
+def delete_ngo(request, ngo_id):
+    """View to delete an NGO"""
+    try:
+        profile = CollegeProfile.objects.get(user=request.user)
+        ngo = get_object_or_404(NGO, id=ngo_id, college=profile)
+        
+        if request.method == 'POST':
+            ngo.delete()
+            messages.success(request, 'NGO deleted successfully!')
+            return redirect('ngo_list')
+        
+        context = {
+            'profile': profile,
+            'ngo': ngo
+        }
+        return render(request, 'college/delete_ngo.html', context)
+    except CollegeProfile.DoesNotExist:
+        messages.error(request, 'College profile not found!')
+        return redirect('college_login')

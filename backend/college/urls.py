@@ -9,4 +9,10 @@ urlpatterns = [
     path('dashboard/', views.college_dashboard, name='college_dashboard'),
     path('mentor-requests/', views.mentor_requests, name='mentor_requests'),
     path('verify_mentor/<int:mentor_id>/', views.verify_mentor, name='verify_mentor'),
+
+    path('college/ngos/', views.ngo_list, name='ngo_list'),
+    path('college/ngos/add/', views.add_ngo, name='add_ngo'),
+    path('college/ngos/edit/<int:ngo_id>/', views.edit_ngo, name='edit_ngo'),
+    path('college/ngos/delete/<int:ngo_id>/', views.delete_ngo, name='delete_ngo'),
+
 ]

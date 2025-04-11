@@ -3,178 +3,501 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Choose Your Role</title>
+    <title>Choose Your Role | Learning Platform</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Inter', sans-serif;
+        }
+
+        :root {
+            --primary: #8B5CF6;
+            --primary-hover: #7C3AED;
+            --primary-light: rgba(139, 92, 246, 0.2);
+            --text-light: #F3F4F6;
+            --text-secondary: #D1D5DB;
+            --card-bg: rgba(30, 30, 30, 0.5);
+            --card-border: rgba(139, 92, 246, 0.3);
+            --card-shadow: rgba(0, 0, 0, 0.4);
         }
 
         body {
-            background-color: #1a1a2e;
+            background-color: #000000;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
-            color: #fff;
-        }
-
-        .container {
-            padding: 2rem;
-            width: 100%;
-            max-width: 1200px;
-        }
-
-        h1 {
-            text-align: center;
-            color: #9d4edd;
-            margin-bottom: 2rem;
-            font-size: 2.5rem;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-        }
-
-        .subtitle {
-            text-align: center;
-            color: #c77dff;
-            margin-bottom: 3rem;
-            font-size: 1.2rem;
-        }
-
-        .cards-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 2rem;
-            padding: 1rem;
-        }
-
-        .card {
-            background: rgba(157, 78, 221, 0.1);
-            border: 2px solid #9d4edd;
-            border-radius: 15px;
-            padding: 2rem;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
+            justify-content: flex-start;
+            color: var(--text-light);
             position: relative;
-            overflow: hidden;
+            overflow-x: hidden;
+            padding-top: 3rem;
         }
 
-        .card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 10px 20px rgba(157, 78, 221, 0.3);
-        }
-
-        .card:before {
-            content: '';
+        /* Updated Background Elements to match signup page */
+        .bg-elements {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: linear-gradient(45deg, #9d4edd, #c77dff);
-            opacity: 0;
-            transition: 0.3s;
-            z-index: 1;
+            z-index: -1;
+            overflow: hidden;
         }
 
-        .card:hover:before {
-            opacity: 0.1;
+        .bg-gradient {
+            position: absolute;
+            width: 24rem;
+            height: 24rem;
+            border-radius: 50%;
+            filter: blur(7rem);
+            z-index: -1;
         }
 
-        .card * {
+        .bg-gradient:nth-child(1) {
+            top: -10%;
+            right: 5%;
+            background: rgba(168, 85, 247, 0.2);
+        }
+
+        .bg-gradient:nth-child(2) {
+            bottom: -5%;
+            left: 10%;
+            background: rgba(168, 85, 247, 0.1);
+        }
+
+        /* Static pattern background like signup page */
+        .static-pattern {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0.15;
+            z-index: -1;
+            background-image: radial-gradient(#a855f7 1px, transparent 1px);
+            background-size: 30px 30px;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: white;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+        }
+
+        .logo i {
+            margin-right: 0.5rem;
+            color: var(--primary);
+        }
+
+        .logo span {
+            color: var(--primary);
+            font-weight: 800;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.95rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            padding: 0.5rem 0.8rem;
+            border-radius: 6px;
+        }
+
+        .nav-links a:hover {
+            color: var(--text-light);
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+
+        .nav-links a.active {
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            padding: 0 2rem;
             position: relative;
             z-index: 2;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .header-content {
+            text-align: center;
+            max-width: 800px;
+            margin: 0 auto 4rem;
+        }
+
+        h1 {
+            color: white;
+            font-size: 3.5rem;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            line-height: 1.2;
+            margin-bottom: 1.5rem;
+        }
+
+        h1 span {
+            color: var(--primary);
+            position: relative;
+            display: inline-block;
+        }
+
+        h1 span::after {
+            content: "";
+            position: absolute;
+            bottom: 5px;
+            left: 0;
+            width: 100%;
+            height: 8px;
+            background-color: var(--primary-light);
+            z-index: -1;
+            border-radius: 4px;
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 1.2rem;
+            line-height: 1.6;
+            max-width: 700px;
+            margin: 0 auto;
+            font-weight: 400;
+        }
+
+        /* Modified cards container to create two rows */
+        .cards-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 2rem;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        /* Top row with 3 cards */
+        .top-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2rem;
+            width: 100%;
+            margin-bottom: 2rem;
+        }
+
+        /* Bottom row with college card centered */
+        .bottom-row {
+            display: flex;
+            justify-content: center;
+            width: 100%;
+        }
+
+        /* College card specific - make it the same width as other cards */
+        .college-card {
+            width: 33%;
+            min-width: 280px;
+        }
+
+        .card {
+            background: rgba(12, 10, 20, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(168, 85, 247, 0.3);
+            border-radius: 16px;
+            padding: 2.5rem 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.3s ease, border-color 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            box-shadow: 0 8px 32px rgba(31, 38, 135, 0.15);
+        }
+
+        .card:hover {
+            transform: translateY(-10px);
+            border-color: var(--primary);
+        }
+
+        .card-icon-wrapper {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, var(--primary-light), rgba(139, 92, 246, 0.3));
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+            position: relative;
+            z-index: 2;
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover .card-icon-wrapper {
+            transform: scale(1.1);
         }
 
         .card i {
-            font-size: 3rem;
-            color: #9d4edd;
-            margin-bottom: 1rem;
+            font-size: 2.5rem;
+            color: var(--primary);
+            transition: color 0.3s ease;
+        }
+
+        .card:hover i {
+            color: white;
         }
 
         .card h2 {
-            color: #c77dff;
+            color: white;
             margin-bottom: 1rem;
-            font-size: 1.5rem;
+            font-size: 1.7rem;
+            font-weight: 600;
+            transition: color 0.3s ease;
+        }
+
+        .card:hover h2 {
+            color: var(--primary);
         }
 
         .card p {
-            color: #b5b5b5;
-            margin-bottom: 1.5rem;
-            font-size: 0.9rem;
-            line-height: 1.4;
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+            font-size: 1rem;
+            line-height: 1.6;
+            flex-grow: 1;
+            text-align: center;
         }
 
         .card button {
-            background: #9d4edd;
+            background: linear-gradient(90deg, #a855f7 0%, #8b5cf6 100%);
             color: white;
             border: none;
-            padding: 0.8rem 1.5rem;
-            border-radius: 25px;
+            padding: 0.9rem 1.8rem;
+            border-radius: 8px;
             font-size: 1rem;
+            font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(168, 85, 247, 0.25);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
         }
 
         .card button:hover {
-            background: #c77dff;
-            transform: scale(1.05);
+            background: var(--primary-hover);
+            transform: translateY(-3px);
         }
 
-        @media (max-width: 768px) {
-            .container {
-                padding: 1rem;
+        .card button i {
+            margin-left: 8px;
+            font-size: 1rem;
+            color: white;
+            transition: transform 0.2s ease;
+        }
+
+        .card button:hover i {
+            transform: translateX(4px);
+        }
+
+        /* Make sure the college card is properly centered in content too */
+        .college-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .college-card p {
+            text-align: center;
+        }
+
+        /* Footer styles */
+        footer {
+            margin-top: 6rem;
+            padding: 2rem 0;
+            text-align: center;
+            width: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            position: relative;
+            z-index: 2;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .footer-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.3s ease;
+        }
+
+        .footer-links a:hover {
+            color: var(--primary);
+        }
+
+        .social-icons {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .social-icons a {
+            color: var(--text-secondary);
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+
+        .social-icons a:hover {
+            color: var(--primary);
+            background-color: rgba(255, 255, 255, 0.1);
+            transform: translateY(-3px);
+        }
+
+        footer p {
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 0.9rem;
+        }
+
+        /* Ripple effect styles */
+        @keyframes ripple {
+            to {
+                transform: translate(-50%, -50%) scale(15);
+                opacity: 0;
             }
-            
-            h1 {
-                font-size: 2rem;
+        }
+
+        .ripple {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            animation: ripple 0.6s linear forwards;
+            pointer-events: none;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 900px) {
+            .top-row {
+                grid-template-columns: repeat(2, 1fr);
             }
-            
-            .cards-container {
+        }
+
+        @media (max-width: 600px) {
+            .top-row {
                 grid-template-columns: 1fr;
+            }
+            
+            .college-card {
+                width: 100%;
             }
         }
     </style>
 </head>
 <body>
+    <!-- Updated Background Elements to match signup page -->
+    <div class="bg-elements">
+        <div class="bg-gradient"></div>
+        <div class="bg-gradient"></div>
+        
+        <!-- Static dot pattern like signup page -->
+        <div class="static-pattern"></div>
+    </div>
+
     <div class="container">
-        <h1>Welcome to Learning Platform</h1>
-        <p class="subtitle">Choose your role to get started</p>
+        <div class="header-content">
+            <h1>Welcome to <span>TISD</span></h1>
+            <p class="subtitle">Choose your role to get started and contribute to sustainable development through innovative learning experiences and impactful projects</p>
+        </div>
         
         <div class="cards-container">
-            <div class="card" onclick="navigateToLogin('student')">
-                <i>👨‍🎓</i>
-                <h2>Student</h2>
-                <p>Access your courses, assignments, and track your learning progress</p>
-                <button>Get Started</button>
-            </div>
+            <!-- Top row with 3 cards -->
+            <div class="top-row">
+                <div class="card" onclick="navigateToLogin('student')">
+                    <div class="card-icon-wrapper">
+                        <i class="fas fa-user-graduate"></i>
+                    </div>
+                    <h2>Student</h2>
+                    <p>Access your courses, assignments, track your learning progress, and collaborate with peers on projects</p>
+                    <button>Get Started <i class="fas fa-arrow-right"></i></button>
+                </div>
 
-            <div class="card" onclick="navigateToLogin('mentor')">
-                <i>👨‍🏫</i>
-                <h2>Mentor</h2>
-                <p>Guide students, manage courses, and share your expertise</p>
-                <button>Get Started</button>
-            </div>
+                <div class="card" onclick="navigateToLogin('mentor')">
+                    <div class="card-icon-wrapper">
+                        <i class="fas fa-chalkboard-teacher"></i>
+                    </div>
+                    <h2>Mentor</h2>
+                    <p>Guide students, manage courses, share your expertise, and help shape the next generation of innovators</p>
+                    <button>Get Started <i class="fas fa-arrow-right"></i></button>
+                </div>
 
-            <div class="card" onclick="navigateToLogin('collaborator')">
-                <i>🤝</i>
-                <h2>Collaborator</h2>
-                <p>Partner with us to create and enhance learning experiences</p>
-                <button>Get Started</button>
+                <div class="card" onclick="navigateToLogin('collaborator')">
+                    <div class="card-icon-wrapper">
+                        <i class="fas fa-handshake"></i>
+                    </div>
+                    <h2>Collaborator</h2>
+                    <p>Partner with us to create and enhance learning experiences, and contribute to impactful educational projects</p>
+                    <button>Get Started <i class="fas fa-arrow-right"></i></button>
+                </div>
             </div>
-
-            <div class="card" onclick="navigateToLogin('college')">
-                <i>🏛️</i>
-                <h2>College</h2>
-                <p>Manage institution resources and oversee academic programs</p>
-                <button>Get Started</button>
+            
+            <!-- Bottom row with centered college card -->
+            <div class="bottom-row">
+                <div class="card college-card" onclick="navigateToLogin('college')">
+                    <div class="card-icon-wrapper">
+                        <i class="fas fa-university"></i>
+                    </div>
+                    <h2>College</h2>
+                    <p>Manage institution resources, oversee academic programs, and create opportunities for students to excel</p>
+                    <button>Get Started <i class="fas fa-arrow-right"></i></button>
+                </div>
             </div>
         </div>
     </div>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content">
+            <p>© 2025 TISD. All rights reserved.</p>
+        </div>
+    </footer>
 
     <script>
         function navigateToLogin(role) {
@@ -188,11 +511,31 @@
             window.location.href = loginUrls[role];
         }
 
+        // Add improved ripple effect on cards
         document.querySelectorAll('.card').forEach(card => {
-            card.addEventListener('mouseenter', () => {
-                // You can add sound effects here if desired
+            card.addEventListener('click', function(e) {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                const ripple = document.createElement('span');
+                ripple.classList.add('ripple');
+                ripple.style.left = `${x}px`;
+                ripple.style.top = `${y}px`;
+                
+                // Use this for better performance instead of adding/removing many elements
+                if (card.querySelectorAll('.ripple').length > 0) {
+                    card.querySelector('.ripple').remove();
+                }
+                
+                card.appendChild(ripple);
+                
+                // Clean up ripple after animation completes
+                setTimeout(() => {
+                    ripple.remove();
+                }, 700);
             });
         });
     </script>
 </body>
-</html> 
+</html>

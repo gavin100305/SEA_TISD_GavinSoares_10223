@@ -9,6 +9,7 @@ from mentor.models import MentorProfile
 from college.models import CollegeProfile
 
 
+
 # Create your views here.
 def landing_page(request):
     return render(request, 'landing.html')
@@ -351,5 +352,6 @@ def share_project(request, project_id):
     except Exception as e:
         messages.error(request, f'An error occurred: {str(e)}')
         return redirect('my_projects')
+
 
 
