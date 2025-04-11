@@ -21,6 +21,7 @@ class StudentProfile(models.Model):
     ]
 
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='student_profile')
+    profile_picture = models.ImageField(upload_to='student_profiles/', null=True, blank=True)
     full_name = models.CharField(max_length=100, null=True, blank=True)
     phone = models.CharField(max_length=15, null=True, blank=True)
     dob = models.DateField(null=True, blank=True)

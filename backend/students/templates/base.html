@@ -45,6 +45,7 @@
             border-radius: 50%;
             margin-bottom: 1rem;
             border: 2px solid #9d4edd;
+            object-fit: cover;
         }
 
         .sidebar .profile-brief h3 {
@@ -121,7 +122,7 @@
     {% if user.is_authenticated %}
     <div class="sidebar">
         <div class="profile-brief">
-            <img src="https://ui-avatars.com/api/?name={{ user.student_profile.full_name|default:user.username }}&background=9d4edd&color=fff" alt="Profile">
+            <img src="{% if user.student_profile.profile_picture %}{{ user.student_profile.profile_picture.url }}{% else %}https://ui-avatars.com/api/?name={{ user.student_profile.full_name|default:user.username }}&background=9d4edd&color=fff{% endif %}" alt="Profile">
             <h3>{{ user.student_profile.full_name|default:user.username }}</h3>
             <p>{{ user.student_profile.roll_number|default:"Roll Number Not Set" }}</p>
         </div>

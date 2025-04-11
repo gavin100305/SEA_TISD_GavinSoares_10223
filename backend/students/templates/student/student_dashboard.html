@@ -1,0 +1,189 @@
+{% extends '../base.html' %}
+{% load static %}
+
+{% block title %}Student Dashboard{% endblock %}
+
+{% block extra_css %}
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+<style>
+    .dashboard-container {
+        padding: 2rem;
+    }
+
+    .welcome-section {
+        background: rgba(157, 78, 221, 0.1);
+        border: 2px solid #9d4edd;
+        border-radius: 15px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+    }
+
+    .welcome-section h1 {
+        color: #9d4edd;
+        margin-bottom: 1rem;
+    }
+
+    .info-card {
+        background: rgba(157, 78, 221, 0.1);
+        border: 1px solid #9d4edd;
+        border-radius: 10px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .info-card h2 {
+        color: #c77dff;
+        margin-bottom: 1rem;
+        font-size: 1.2rem;
+        border-bottom: 1px solid rgba(157, 78, 221, 0.3);
+        padding-bottom: 0.5rem;
+    }
+
+    .info-item {
+        margin-bottom: 1rem;
+    }
+
+    .info-label {
+        color: #c77dff;
+        font-size: 0.9rem;
+        margin-bottom: 0.2rem;
+    }
+
+    .info-value {
+        color: #fff;
+        font-size: 1rem;
+    }
+
+    .action-card {
+        background: rgba(157, 78, 221, 0.1);
+        border: 1px solid #9d4edd;
+        border-radius: 10px;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+        transition: all 0.3s ease;
+    }
+
+    .action-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 5px 15px rgba(157, 78, 221, 0.2);
+    }
+
+    .action-card h3 {
+        color: #9d4edd;
+        margin-bottom: 1rem;
+    }
+
+    .action-card p {
+        color: #c77dff;
+        margin-bottom: 1rem;
+    }
+
+    .action-btn {
+        background: #9d4edd;
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 5px;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        display: inline-block;
+    }
+
+    .action-btn:hover {
+        background: #c77dff;
+        color: white;
+        transform: scale(1.05);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    {% if messages %}
+    <div class="alert alert-success">
+        {% for message in messages %}
+            {{ message }}
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="welcome-section">
+        <h1>Welcome, {{ profile.full_name }}!</h1>
+        <p>Roll Number: {{ profile.roll_number }}</p>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="info-card">
+                <h2>Personal Information</h2>
+                <div class="info-item">
+                    <div class="info-label">Full Name</div>
+                    <div class="info-value">{{ profile.full_name }}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Email</div>
+                    <div class="info-value">{{ profile.user.email }}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Phone</div>
+                    <div class="info-value">{{ profile.phone }}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Date of Birth</div>
+                    <div class="info-value">{{ profile.dob }}</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="info-card">
+                <h2>Academic Information</h2>
+                <div class="info-item">
+                    <div class="info-label">Branch</div>
+                    <div class="info-value">{{ profile.branch }}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Section</div>
+                    <div class="info-value">{{ profile.section }}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Semester</div>
+                    <div class="info-value">{{ profile.semester }}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Admission Year</div>
+                    <div class="info-value">{{ profile.admission_year }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-md-4">
+            <div class="action-card">
+                <h3><i class="fas fa-book"></i> My Courses</h3>
+                <p>View your enrolled courses and materials</p>
+                <a href="#" class="action-btn">View Courses</a>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="action-card">
+                <h3><i class="fas fa-tasks"></i> Assignments</h3>
+                <p>Check your pending assignments</p>
+                <a href="#" class="action-btn">View Assignments</a>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="action-card">
+                <h3><i class="fas fa-chart-line"></i> Progress</h3>
+                <p>Track your academic progress</p>
+                <a href="#" class="action-btn">View Progress</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+{% endblock %}
+{% endblock %}

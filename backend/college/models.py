@@ -1,7 +1,5 @@
 from django.db import models
 from django.contrib.auth.models import User
-from django.db.models.signals import post_save
-from django.dispatch import receiver
 
 class CollegeProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
@@ -20,16 +18,3 @@ class CollegeProfile(models.Model):
 
     def __str__(self):
         return f"{self.college_name or 'Unnamed College'} - {self.college_code or 'No Code'}"
-
-@receiver(post_save, sender=User)
-def create_college_profile(sender, instance, created, **kwargs):
-    if created:
-        CollegeProfile.objects.create(user=instance)
-
-@receiver(post_save, sender=User)
-def save_college_profile(sender, instance, **kwargs):
-    try:
-        if hasattr(instance, 'collegeprofile'):
-            instance.collegeprofile.save()
-    except CollegeProfile.DoesNotExist:
-        CollegeProfile.objects.create(user=instance)

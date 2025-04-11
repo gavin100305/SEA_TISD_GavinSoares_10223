@@ -23,7 +23,7 @@ def mentor_login(request):
                     return redirect('mentor_dashboard')
                 elif mentor.verification_status == 'approved':
                     # Check if profile is complete
-                    if all([mentor.full_name, mentor.highest_qualification, mentor.specialization]):
+                    if mentor.full_name and mentor.highest_qualification and mentor.specialization:
                         messages.success(request, f'Welcome back, {mentor.full_name}!')
                         return redirect('mentor_dashboard')
                     else:
@@ -42,45 +42,49 @@ def mentor_signup(request):
         email = request.POST['email']
         password1 = request.POST['password1']
         password2 = request.POST['password2']
+        college_code = request.POST.get('college_code')  # Get college code from form
 
         if password1 != password2:
             messages.error(request, 'Passwords do not match.')
-            return render(request, 'mentor_signup.html')
+            return render(request, 'mentor/mentor_signup.html')
 
         if User.objects.filter(username=username).exists():
             messages.error(request, 'Username already exists.')
-            return render(request, 'mentor_signup.html')
+            return render(request, 'mentor/mentor_signup.html')
 
         if User.objects.filter(email=email).exists():
             messages.error(request, 'Email already exists.')
-            return render(request, 'mentor_signup.html')
+            return render(request, 'mentor/mentor_signup.html')
 
         try:
-            # Get the first college (since there's only one)
-            college = CollegeProfile.objects.first()
+            # Find college by college code
+            college = CollegeProfile.objects.filter(college_code=college_code).first()
             if not college:
-                messages.error(request, 'College profile not found. Please contact administrator.')
-                return render(request, 'mentor_signup.html')
+                messages.error(request, 'Invalid college code. Please check and try again.')
+                return render(request, 'mentor/mentor_signup.html')
             
             # Create user and mentor profile
             user = User.objects.create_user(username=username, email=email, password=password1)
             mentor = MentorProfile.objects.create(
                 user=user,
                 verification_status='pending',
-                college=college
+                college=college,
+                full_name=username  # Set initial full name as username
             )
             
             login(request, user)
-            messages.info(request, f'Account created successfully! Your application is under review.')
+            messages.info(request, f'Account created successfully! Your application is under review by {college.college_name}. Please wait for verification.')
             return redirect('mentor_dashboard')
             
         except Exception as e:
             if 'user' in locals():
                 user.delete()
             messages.error(request, 'An error occurred during signup. Please try again.')
-            return render(request, 'mentor_signup.html')
+            return render(request, 'mentor/mentor_signup.html')
 
-    return render(request, 'mentor_signup.html')
+    # Get list of colleges for the form
+    colleges = CollegeProfile.objects.all()
+    return render(request, 'mentor/mentor_signup.html', {'colleges': colleges})
 
 @login_required
 def mentor_profile(request):
@@ -131,9 +135,20 @@ def mentor_dashboard(request):
         mentor = request.user.mentor_profile
         context = {
             'mentor': mentor,
-            'verification_status': mentor.get_verification_status_display()
+            'verification_status': mentor.get_verification_status_display(),
+            'college_name': mentor.college.college_name if mentor.college else 'Unknown College'
         }
-        return render(request, 'mentor_dashboard.html', context)
+        
+        # If mentor is not approved, show limited dashboard with pending message
+        if mentor.verification_status == 'pending':
+            messages.info(request, '.')
+            return render(request, 'mentor/mentor_pending_dashboard.html', context)
+        elif mentor.verification_status == 'rejected':
+            messages.error(request, 'Your application has been rejected by the college.')
+            return render(request, 'mentor/mentor_rejected_dashboard.html', context)
+        elif mentor.verification_status == 'approved':
+            return render(request, 'mentor_dashboard.html', context)
+            
     except MentorProfile.DoesNotExist:
         messages.error(request, 'Mentor profile not found.')
         return redirect('mentor_login')

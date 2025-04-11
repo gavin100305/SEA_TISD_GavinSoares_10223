@@ -17,15 +17,21 @@ def student_login(request):
         user = authenticate(request, username=username, password=password)
         if user is not None:
             login(request, user)
-            # Check if profile is complete
             try:
                 profile = user.student_profile
                 if profile.full_name and profile.roll_number:  # If profile is complete
                     messages.success(request, f'Welcome back, {profile.full_name}!')
                     return redirect('student_dashboard')
+                messages.info(request, 'Please complete your profile.')
                 return redirect('student_profile')
             except StudentProfile.DoesNotExist:
+                # Create profile if it doesn't exist
+                profile = StudentProfile.objects.create(user=user)
+                messages.info(request, 'Please complete your profile.')
                 return redirect('student_profile')
+            except Exception as e:
+                messages.error(request, f'An error occurred: {str(e)}')
+                return redirect('student_login')
         else:
             messages.error(request, 'Invalid username or password.')
     return render(request, 'student_login.html')
@@ -69,6 +75,10 @@ def student_profile(request):
         profile.dob = request.POST.get('dob')
         profile.bio = request.POST.get('bio')
         
+        # Handle profile picture upload
+        if 'profile_picture' in request.FILES:
+            profile.profile_picture = request.FILES['profile_picture']
+        
         # Academic Information
         profile.roll_number = request.POST.get('roll_number')
         profile.branch = request.POST.get('branch')
@@ -89,7 +99,7 @@ def student_profile(request):
     context = {
         'profile': profile
     }
-    return render(request, 'student_profile.html', context)
+    return render(request, 'student/student_profile.html', context)
 
 @login_required
 def student_dashboard(request):
@@ -97,4 +107,10 @@ def student_dashboard(request):
     context = {
         'profile': profile
     }
-    return render(request, 'student_dashboard.html', context)
+    return render(request, 'student/student_dashboard.html', context)
+
+def student_logout(request):
+    logout(request)
+    return redirect('landing_page')
+
+
