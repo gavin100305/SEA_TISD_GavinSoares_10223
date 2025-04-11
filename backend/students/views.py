@@ -6,6 +6,7 @@ from django.contrib import messages
 from django.contrib.auth.models import User
 from .models import StudentProfile, MentorConnection, Project
 from mentor.models import MentorProfile
+from college.models import CollegeProfile
 
 
 # Create your views here.
@@ -168,20 +169,23 @@ def my_connections(request):
 
 @login_required
 def my_projects(request):
-    student = request.user.student_profile
-    projects = student.projects.all()
-    
-    # Get connected mentors for the project form
-    connected_mentors = MentorConnection.objects.filter(
-        student=student,
-        status='accepted'
-    ).select_related('mentor')
-    
-    context = {
-        'projects': projects,
-        'connected_mentors': connected_mentors
-    }
-    return render(request, 'student/my_projects.html', context)
+    try:
+        student = request.user.student_profile
+        projects = Project.objects.filter(student=student)
+        connected_mentors = MentorProfile.objects.filter(
+            student_connections__student=student,
+            student_connections__status='accepted'
+        )
+        
+        context = {
+            'projects': projects,
+            'connected_mentors': connected_mentors,
+        }
+        return render(request, 'student/my_projects.html', context)
+        
+    except Exception as e:
+        messages.error(request, f'An error occurred: {str(e)}')
+        return redirect('student_dashboard')
 
 @login_required
 def add_project(request):
@@ -294,5 +298,58 @@ def delete_project(request, project_id):
         project.delete()
         messages.success(request, 'Project deleted successfully!')
     return redirect('my_projects')
+
+@login_required
+def share_project(request, project_id):
+    if request.method != 'POST':
+        return redirect('my_projects')
+        
+    try:
+        student = request.user.student_profile
+        project = get_object_or_404(Project, id=project_id, student=student)
+        
+        # Check if project is already shared
+        if project.mentor or project.college or project.collaborator:
+            messages.error(request, 'This project is already shared.')
+            return redirect('my_projects')
+        
+        share_with = request.POST.get('share_with', '')
+        
+        if share_with.startswith('mentor_'):
+            mentor_id = share_with.split('_')[1]
+            mentor = get_object_or_404(MentorProfile, id=mentor_id)
+            
+            # Verify connection exists
+            connection = MentorConnection.objects.filter(
+                student=student,
+                mentor=mentor,
+                status='accepted'
+            ).exists()
+            
+            if not connection:
+                messages.error(request, 'You can only share projects with connected mentors.')
+                return redirect('my_projects')
+                
+            project.mentor = mentor
+            messages.success(request, f'Project shared with mentor {mentor.full_name}.')
+            
+        elif share_with == 'college':
+            project.college = student.college
+            messages.success(request, 'Project shared with college.')
+            
+        elif share_with == 'collaborator':
+            project.collaborator = True
+            messages.success(request, 'Project shared with collaborators.')
+            
+        else:
+            messages.error(request, 'Invalid sharing option selected.')
+            return redirect('my_projects')
+            
+        project.save()
+        return redirect('my_projects')
+        
+    except Exception as e:
+        messages.error(request, f'An error occurred: {str(e)}')
+        return redirect('my_projects')
 
 

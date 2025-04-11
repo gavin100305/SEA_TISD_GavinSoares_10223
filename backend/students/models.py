@@ -4,6 +4,7 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from mentor.models import MentorProfile
 from django.core.validators import MinValueValidator, MaxValueValidator
+from college.models import CollegeProfile
 
 class StudentProfile(models.Model):
     SECTION_CHOICES = [
@@ -81,7 +82,9 @@ class MentorConnection(models.Model):
 
 class Project(models.Model):
     student = models.ForeignKey(StudentProfile, on_delete=models.CASCADE, related_name='projects')
-    mentor = models.ForeignKey('mentor.MentorProfile', on_delete=models.SET_NULL, null=True, related_name='guided_projects')
+    mentor = models.ForeignKey('mentor.MentorProfile', on_delete=models.SET_NULL, null=True, blank=True, related_name='guided_projects')
+    college = models.ForeignKey(CollegeProfile, on_delete=models.SET_NULL, null=True, blank=True, related_name='college_projects')
+    collaborator = models.BooleanField(default=False)
     title = models.CharField(max_length=200)
     description = models.TextField()
     sdgs = models.CharField(max_length=500, help_text='Sustainable Development Goals')
