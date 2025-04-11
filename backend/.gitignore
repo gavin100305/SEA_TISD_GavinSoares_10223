@@ -58,3 +58,5 @@ coverage.xml
 *.bak
 *.tmp
 *.orig
+db.sqlite3
+*.sqlite3
