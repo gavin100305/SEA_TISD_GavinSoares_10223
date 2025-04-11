@@ -1,0 +1,172 @@
+{% extends '../base.html' %}
+{% load static %}
+
+{% block title %}Add Project{% endblock %}
+
+{% block extra_css %}
+<style>
+    .form-container {
+        padding: 2rem;
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    .form-card {
+        background: rgba(157, 78, 221, 0.1);
+        border: 1px solid #9d4edd;
+        border-radius: 10px;
+        padding: 2rem;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-label {
+        color: #9d4edd;
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+    }
+
+    .form-control {
+        background: rgba(157, 78, 221, 0.05);
+        border: 1px solid #9d4edd;
+        color: #fff;
+        border-radius: 5px;
+        padding: 0.5rem 1rem;
+    }
+
+    .form-control:focus {
+        background: rgba(157, 78, 221, 0.1);
+        border-color: #c77dff;
+        color: #fff;
+        box-shadow: 0 0 0 0.2rem rgba(157, 78, 221, 0.25);
+    }
+
+    .form-text {
+        color: #c77dff;
+        font-size: 0.875rem;
+        margin-top: 0.25rem;
+    }
+
+    .btn-custom {
+        background: #9d4edd;
+        color: white;
+        border: none;
+        padding: 0.5rem 1.5rem;
+        border-radius: 25px;
+        transition: all 0.3s ease;
+    }
+
+    .btn-custom:hover {
+        background: #c77dff;
+        color: white;
+        transform: scale(1.05);
+    }
+
+    .btn-secondary {
+        background: #6c757d;
+    }
+
+    .btn-secondary:hover {
+        background: #5a6268;
+    }
+
+    textarea.form-control {
+        min-height: 120px;
+    }
+
+    .form-select {
+        background-color: rgba(157, 78, 221, 0.05);
+        border: 1px solid #9d4edd;
+        color: #fff;
+    }
+
+    .form-select:focus {
+        background-color: rgba(157, 78, 221, 0.1);
+        border-color: #c77dff;
+        box-shadow: 0 0 0 0.2rem rgba(157, 78, 221, 0.25);
+    }
+
+    .form-select option {
+        background-color: #2b2b2b;
+        color: #fff;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <h1 class="mb-4" style="color: #9d4edd;">Add New Project</h1>
+
+    {% if messages %}
+    <div class="messages mb-4">
+        {% for message in messages %}
+        <div class="alert {% if message.tags == 'success' %}alert-success{% elif message.tags == 'error' %}alert-danger{% else %}alert-info{% endif %}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="form-card">
+        <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            
+            <div class="form-group">
+                <label for="mentor" class="form-label">Share with Mentor</label>
+                <select name="mentor" id="mentor" class="form-select" required>
+                    <option value="">Select a mentor</option>
+                    {% for connection in connected_mentors %}
+                    <option value="{{ connection.mentor.id }}">{{ connection.mentor.full_name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="title" class="form-label">Project Title</label>
+                <input type="text" class="form-control" id="title" name="title" required>
+            </div>
+
+            <div class="form-group">
+                <label for="description" class="form-label">Project Description</label>
+                <textarea class="form-control" id="description" name="description" required></textarea>
+                <div class="form-text">Describe your project, its objectives, and what you aim to achieve.</div>
+            </div>
+
+            <div class="form-group">
+                <label for="sdgs" class="form-label">Sustainable Development Goals (SDGs)</label>
+                <input type="text" class="form-control" id="sdgs" name="sdgs" required>
+                <div class="form-text">List the SDGs your project addresses (e.g., "Quality Education, Climate Action")</div>
+            </div>
+
+            <div class="form-group">
+                <label for="tech_stack" class="form-label">Tech Stack</label>
+                <input type="text" class="form-control" id="tech_stack" name="tech_stack" required>
+                <div class="form-text">List the technologies, frameworks, and tools used in your project</div>
+            </div>
+
+            <div class="form-group">
+                <label for="github_link" class="form-label">GitHub Repository Link</label>
+                <input type="url" class="form-control" id="github_link" name="github_link">
+                <div class="form-text">Optional: Link to your project's GitHub repository</div>
+            </div>
+
+            <div class="form-group">
+                <label for="project_file" class="form-label">Project Files</label>
+                <input type="file" class="form-control" id="project_file" name="project_file">
+                <div class="form-text">Optional: Upload project documentation, presentations, or other relevant files</div>
+            </div>
+
+            <div class="mt-4">
+                <button type="submit" class="btn btn-custom">
+                    <i class="fas fa-plus"></i> Add Project
+                </button>
+                <a href="{% url 'my_projects' %}" class="btn btn-custom btn-secondary ms-2">
+                    <i class="fas fa-times"></i> Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %} 

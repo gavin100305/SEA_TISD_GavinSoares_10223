@@ -4,8 +4,9 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.contrib.auth.models import User
-from .models import StudentProfile, MentorConnection
+from .models import StudentProfile, MentorConnection, Project
 from mentor.models import MentorProfile
+
 
 # Create your views here.
 def landing_page(request):
@@ -164,5 +165,134 @@ def my_connections(request):
     student = request.user.student_profile
     connections = MentorConnection.objects.filter(student=student)
     return render(request, 'student/my_connections.html', {'connections': connections})
+
+@login_required
+def my_projects(request):
+    student = request.user.student_profile
+    projects = student.projects.all()
+    
+    # Get connected mentors for the project form
+    connected_mentors = MentorConnection.objects.filter(
+        student=student,
+        status='accepted'
+    ).select_related('mentor')
+    
+    context = {
+        'projects': projects,
+        'connected_mentors': connected_mentors
+    }
+    return render(request, 'student/my_projects.html', context)
+
+@login_required
+def add_project(request):
+    student = request.user.student_profile
+    
+    # Get connected mentors
+    connected_mentors = MentorConnection.objects.filter(
+        student=student,
+        status='accepted'
+    ).select_related('mentor')
+    
+    if request.method == 'POST':
+        try:
+            mentor_id = request.POST.get('mentor')
+            mentor = MentorProfile.objects.get(id=mentor_id)
+            
+            # Verify mentor connection
+            if not MentorConnection.objects.filter(
+                student=student,
+                mentor=mentor,
+                status='accepted'
+            ).exists():
+                messages.error(request, 'You can only share projects with connected mentors.')
+                return redirect('my_projects')
+            
+            # Create project
+            project = Project.objects.create(
+                student=student,
+                mentor=mentor,
+                title=request.POST.get('title'),
+                description=request.POST.get('description'),
+                sdgs=request.POST.get('sdgs'),
+                tech_stack=request.POST.get('tech_stack'),
+                github_link=request.POST.get('github_link')
+            )
+            
+            # Handle project file
+            if 'project_file' in request.FILES:
+                project.project_file = request.FILES['project_file']
+                project.save()
+            
+            messages.success(request, 'Project added successfully!')
+            return redirect('my_projects')
+            
+        except Exception as e:
+            messages.error(request, f'An error occurred: {str(e)}')
+            return redirect('my_projects')
+    
+    context = {
+        'connected_mentors': connected_mentors
+    }
+    return render(request, 'student/add_project.html', context)
+
+@login_required
+def edit_project(request, project_id):
+    student = request.user.student_profile
+    project = get_object_or_404(Project, id=project_id, student=student)
+    
+    # Get connected mentors
+    connected_mentors = MentorConnection.objects.filter(
+        student=student,
+        status='accepted'
+    ).select_related('mentor')
+    
+    if request.method == 'POST':
+        try:
+            mentor_id = request.POST.get('mentor')
+            mentor = MentorProfile.objects.get(id=mentor_id)
+            
+            # Verify mentor connection
+            if not MentorConnection.objects.filter(
+                student=student,
+                mentor=mentor,
+                status='accepted'
+            ).exists():
+                messages.error(request, 'You can only share projects with connected mentors.')
+                return redirect('my_projects')
+            
+            # Update project
+            project.mentor = mentor
+            project.title = request.POST.get('title')
+            project.description = request.POST.get('description')
+            project.sdgs = request.POST.get('sdgs')
+            project.tech_stack = request.POST.get('tech_stack')
+            project.github_link = request.POST.get('github_link')
+            project.status = request.POST.get('status', 'in_progress')
+            
+            # Handle project file
+            if 'project_file' in request.FILES:
+                project.project_file = request.FILES['project_file']
+            
+            project.save()
+            messages.success(request, 'Project updated successfully!')
+            return redirect('my_projects')
+            
+        except Exception as e:
+            messages.error(request, f'An error occurred: {str(e)}')
+    
+    context = {
+        'project': project,
+        'connected_mentors': connected_mentors
+    }
+    return render(request, 'student/edit_project.html', context)
+
+@login_required
+def delete_project(request, project_id):
+    if request.method == 'POST':
+        student = request.user.student_profile
+        project = get_object_or_404(Project, id=project_id, student=student)
+        project.delete()
+        messages.success(request, 'Project deleted successfully!')
+    return redirect('my_projects')
 
 

@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from mentor.models import MentorProfile
+from django.core.validators import MinValueValidator, MaxValueValidator
 
 class StudentProfile(models.Model):
     SECTION_CHOICES = [
@@ -77,3 +78,31 @@ class MentorConnection(models.Model):
 
     def __str__(self):
         return f"{self.student.full_name} -> {self.mentor.full_name} ({self.status})"
+
+class Project(models.Model):
+    student = models.ForeignKey(StudentProfile, on_delete=models.CASCADE, related_name='projects')
+    mentor = models.ForeignKey('mentor.MentorProfile', on_delete=models.SET_NULL, null=True, related_name='guided_projects')
+    title = models.CharField(max_length=200)
+    description = models.TextField()
+    sdgs = models.CharField(max_length=500, help_text='Sustainable Development Goals')
+    tech_stack = models.CharField(max_length=500, help_text='Technologies used')
+    github_link = models.URLField(blank=True, null=True)
+    project_file = models.FileField(upload_to='project_files/', blank=True, null=True)
+    status = models.CharField(max_length=20, choices=[
+        ('in_progress', 'In Progress'),
+        ('completed', 'Completed'),
+        ('under_review', 'Under Review')
+    ], default='in_progress')
+    mentor_feedback = models.TextField(blank=True, null=True)
+    mentor_grade = models.IntegerField(blank=True, null=True, validators=[
+        MinValueValidator(0),
+        MaxValueValidator(100)
+    ])
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.title} by {self.student.full_name}"
+
+    class Meta:
+        ordering = ['-created_at']

@@ -5,6 +5,7 @@ from django.contrib import messages
 from django.contrib.auth.models import User
 from .models import MentorProfile
 from college.models import CollegeProfile
+from students.models import StudentProfile, MentorConnection, Project
 
 def mentor_login(request):
     if request.method == 'POST':
@@ -275,3 +276,73 @@ def connected_students(request):
     except Exception as e:
         messages.error(request, f'An error occurred: {str(e)}')
         return redirect('mentor_dashboard')
+
+@login_required
+def mentor_projects(request):
+    try:
+        mentor = request.user.mentor_profile
+        
+        # Only approved mentors can view projects
+        if mentor.verification_status != 'approved':
+            messages.error(request, 'You need to be approved by the college to view projects.')
+            return redirect('mentor_dashboard')
+
+        # Get all projects shared with this mentor
+        projects = Project.objects.filter(mentor=mentor).select_related('student')
+        
+        context = {
+            'projects': projects
+        }
+        return render(request, 'mentor/mentor_projects.html', context)
+        
+    except Exception as e:
+        messages.error(request, f'An error occurred: {str(e)}')
+        return redirect('mentor_dashboard')
+
+@login_required
+def review_project(request, project_id):
+    try:
+        mentor = request.user.mentor_profile
+        
+        # Only approved mentors can review projects
+        if mentor.verification_status != 'approved':
+            messages.error(request, 'You need to be approved by the college to review projects.')
+            return redirect('mentor_dashboard')
+            
+        project = get_object_or_404(Project, id=project_id, mentor=mentor)
+        
+        if request.method == 'POST':
+            feedback = request.POST.get('feedback')
+            grade = request.POST.get('grade')
+            status = request.POST.get('status')
+            
+            if feedback:
+                project.mentor_feedback = feedback
+            
+            if grade:
+                try:
+                    grade = int(grade)
+                    if 0 <= grade <= 100:
+                        project.mentor_grade = grade
+                    else:
+                        messages.error(request, 'Grade must be between 0 and 100.')
+                        return redirect('review_project', project_id=project_id)
+                except ValueError:
+                    messages.error(request, 'Invalid grade value.')
+                    return redirect('review_project', project_id=project_id)
+            
+            if status in ['in_progress', 'completed', 'under_review']:
+                project.status = status
+            
+            project.save()
+            messages.success(request, 'Project review submitted successfully!')
+            return redirect('mentor_projects')
+        
+        context = {
+            'project': project
+        }
+        return render(request, 'mentor/review_project.html', context)
+        
+    except Exception as e:
+        messages.error(request, f'An error occurred: {str(e)}')
+        return redirect('mentor_projects')

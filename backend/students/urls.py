@@ -11,6 +11,10 @@ urlpatterns = [
     path('logout/', LogoutView.as_view(next_page='landing_page'), name='logout'),
     path('logout/', views.student_logout, name='student_logout'),
     path('mentors/', views.list_mentors, name='list_mentors'),
-    path('mentors/connect/<int:mentor_id>/', views.send_connection_request, name='send_connection_request'),
+    path('mentors/<int:mentor_id>/connect/', views.send_connection_request, name='send_connection_request'),
     path('connections/', views.my_connections, name='my_connections'),
+    path('projects/', views.my_projects, name='my_projects'),
+    path('projects/add/', views.add_project, name='add_project'),
+    path('projects/<int:project_id>/edit/', views.edit_project, name='edit_project'),
+    path('projects/<int:project_id>/delete/', views.delete_project, name='delete_project'),
 ]

@@ -1,0 +1,178 @@
+{% extends '../base.html' %}
+{% load static %}
+
+{% block title %}My Students' Projects{% endblock %}
+
+{% block extra_css %}
+<style>
+    .projects-container {
+        padding: 2rem;
+    }
+
+    .project-card {
+        background: rgba(157, 78, 221, 0.1);
+        border: 1px solid #9d4edd;
+        border-radius: 10px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        transition: all 0.3s ease;
+    }
+
+    .project-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 5px 15px rgba(157, 78, 221, 0.2);
+    }
+
+    .project-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 1rem;
+    }
+
+    .project-title {
+        color: #9d4edd;
+        margin-bottom: 0.5rem;
+    }
+
+    .project-status {
+        display: inline-block;
+        padding: 0.25rem 1rem;
+        border-radius: 15px;
+        font-size: 0.9rem;
+    }
+
+    .status-in_progress {
+        background: rgba(255, 193, 7, 0.2);
+        color: #ffc107;
+        border: 1px solid #ffc107;
+    }
+
+    .status-completed {
+        background: rgba(40, 167, 69, 0.2);
+        color: #28a745;
+        border: 1px solid #28a745;
+    }
+
+    .status-under_review {
+        background: rgba(13, 110, 253, 0.2);
+        color: #0d6efd;
+        border: 1px solid #0d6efd;
+    }
+
+    .project-details {
+        margin: 1rem 0;
+        padding: 1rem;
+        background: rgba(157, 78, 221, 0.05);
+        border-radius: 5px;
+        color: #fff;
+    }
+
+    .project-meta {
+        color: #c77dff;
+        font-size: 0.9rem;
+        margin-top: 1rem;
+    }
+
+    .project-meta p {
+        margin-bottom: 0.3rem;
+    }
+
+    .btn-custom {
+        background: #9d4edd;
+        color: white;
+        border: none;
+        padding: 0.5rem 1.5rem;
+        border-radius: 25px;
+        transition: all 0.3s ease;
+    }
+
+    .btn-custom:hover {
+        background: #c77dff;
+        color: white;
+        transform: scale(1.05);
+    }
+
+    .grade-badge {
+        display: inline-block;
+        padding: 0.5rem 1rem;
+        border-radius: 15px;
+        background: rgba(157, 78, 221, 0.2);
+        color: #9d4edd;
+        border: 1px solid #9d4edd;
+        font-weight: bold;
+        margin-left: 1rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="projects-container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 style="color: #9d4edd;">My Students' Projects</h1>
+    </div>
+
+    {% if messages %}
+    <div class="messages mb-4">
+        {% for message in messages %}
+        <div class="alert {% if message.tags == 'success' %}alert-success{% elif message.tags == 'error' %}alert-danger{% else %}alert-info{% endif %}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="row">
+        {% for project in projects %}
+        <div class="col-md-6 mb-4">
+            <div class="project-card">
+                <div class="project-header">
+                    <div>
+                        <h3 class="project-title">{{ project.title }}</h3>
+                        <p class="text-muted">By: {{ project.student.full_name }}</p>
+                    </div>
+                    <span class="project-status status-{{ project.status }}">
+                        {{ project.status|title }}
+                    </span>
+                </div>
+
+                <div class="project-details">
+                    <p>{{ project.description }}</p>
+                    
+                    <div class="project-meta">
+                        <p><strong>SDGs:</strong> {{ project.sdgs }}</p>
+                        <p><strong>Tech Stack:</strong> {{ project.tech_stack }}</p>
+                        {% if project.github_link %}
+                        <p><strong>GitHub:</strong> <a href="{{ project.github_link }}" target="_blank" style="color: #9d4edd;">View Repository</a></p>
+                        {% endif %}
+                        {% if project.project_file %}
+                        <p><strong>Project File:</strong> <a href="{{ project.project_file.url }}" style="color: #9d4edd;">Download</a></p>
+                        {% endif %}
+                    </div>
+
+                    {% if project.mentor_feedback %}
+                    <div class="mentor-feedback mt-3">
+                        <h5 style="color: #9d4edd;">Your Feedback</h5>
+                        <p>{{ project.mentor_feedback }}</p>
+                        {% if project.mentor_grade %}
+                        <span class="grade-badge">Grade: {{ project.mentor_grade }}/100</span>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div class="text-end mt-3">
+                    <a href="{% url 'review_project' project.id %}" class="btn btn-custom">
+                        {% if project.mentor_feedback %}Update Review{% else %}Review Project{% endif %}
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <p class="text-center" style="color: #fff;">No projects have been shared with you yet.</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %} 

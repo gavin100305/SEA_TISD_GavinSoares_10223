@@ -90,7 +90,7 @@
 </div>
 
 <div class="row mt-4">
-    <div class="col-md-3">
+    <div class="col-md-4">
         <a href="{% url 'list_students' %}" class="feature-link">
             <div class="feature-card">
                 <i class="fas fa-users"></i>
@@ -99,7 +99,7 @@
             </div>
         </a>
     </div>
-    <div class="col-md-3">
+    <div class="col-md-4">
         <a href="{% url 'connection_requests' %}" class="feature-link">
             <div class="feature-card">
                 <i class="fas fa-user-plus"></i>
@@ -108,7 +108,7 @@
             </div>
         </a>
     </div>
-    <div class="col-md-3">
+    <div class="col-md-4">
         <a href="{% url 'connected_students' %}" class="feature-link">
             <div class="feature-card">
                 <i class="fas fa-user-check"></i>
@@ -117,7 +117,19 @@
             </div>
         </a>
     </div>
-    <div class="col-md-3">
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-6">
+        <a href="{% url 'mentor_projects' %}" class="feature-link">
+            <div class="feature-card">
+                <i class="fas fa-project-diagram"></i>
+                <h3>Student Projects</h3>
+                <p>Review and grade projects shared by your students</p>
+            </div>
+        </a>
+    </div>
+    <div class="col-md-6">
         <a href="{% url 'mentor_profile' %}?mode=update" class="feature-link">
             <div class="feature-card">
                 <i class="fas fa-user-edit"></i>
@@ -150,8 +162,6 @@
             </div>
         </div>
     </div>
-</div> 
- 
-
+</div>
 {% endif %}
 {% endblock %} 

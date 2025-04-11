@@ -12,4 +12,6 @@ urlpatterns = [
     
     path('connections/<int:connection_id>/<str:action>/', views.handle_connection_request, name='handle_connection_request'),
     path('connected-students/', views.connected_students, name='connected_students'),
+    path('projects/', views.mentor_projects, name='mentor_projects'),
+    path('projects/<int:project_id>/review/', views.review_project, name='review_project'),
 ]
