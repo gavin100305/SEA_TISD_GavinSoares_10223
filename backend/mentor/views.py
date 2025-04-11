@@ -5,6 +5,7 @@ from django.contrib import messages
 from django.contrib.auth.models import User
 from .models import MentorProfile
 from college.models import CollegeProfile
+from students.models import StudentProfile, MentorConnection, Project
 
 def mentor_login(request):
     if request.method == 'POST':
@@ -23,7 +24,7 @@ def mentor_login(request):
                     return redirect('mentor_dashboard')
                 elif mentor.verification_status == 'approved':
                     # Check if profile is complete
-                    if all([mentor.full_name, mentor.highest_qualification, mentor.specialization]):
+                    if mentor.full_name and mentor.highest_qualification and mentor.specialization:
                         messages.success(request, f'Welcome back, {mentor.full_name}!')
                         return redirect('mentor_dashboard')
                     else:
@@ -42,45 +43,49 @@ def mentor_signup(request):
         email = request.POST['email']
         password1 = request.POST['password1']
         password2 = request.POST['password2']
+        college_code = request.POST.get('college_code')  # Get college code from form
 
         if password1 != password2:
             messages.error(request, 'Passwords do not match.')
-            return render(request, 'mentor_signup.html')
+            return render(request, 'mentor/mentor_signup.html')
 
         if User.objects.filter(username=username).exists():
             messages.error(request, 'Username already exists.')
-            return render(request, 'mentor_signup.html')
+            return render(request, 'mentor/mentor_signup.html')
 
         if User.objects.filter(email=email).exists():
             messages.error(request, 'Email already exists.')
-            return render(request, 'mentor_signup.html')
+            return render(request, 'mentor/mentor_signup.html')
 
         try:
-            # Get the first college (since there's only one)
-            college = CollegeProfile.objects.first()
+            # Find college by college code
+            college = CollegeProfile.objects.filter(college_code=college_code).first()
             if not college:
-                messages.error(request, 'College profile not found. Please contact administrator.')
-                return render(request, 'mentor_signup.html')
+                messages.error(request, 'Invalid college code. Please check and try again.')
+                return render(request, 'mentor/mentor_signup.html')
             
             # Create user and mentor profile
             user = User.objects.create_user(username=username, email=email, password=password1)
             mentor = MentorProfile.objects.create(
                 user=user,
                 verification_status='pending',
-                college=college
+                college=college,
+                full_name=username  # Set initial full name as username
             )
             
             login(request, user)
-            messages.info(request, f'Account created successfully! Your application is under review.')
+            messages.info(request, f'Account created successfully! Your application is under review by {college.college_name}. Please wait for verification.')
             return redirect('mentor_dashboard')
             
         except Exception as e:
             if 'user' in locals():
                 user.delete()
             messages.error(request, 'An error occurred during signup. Please try again.')
-            return render(request, 'mentor_signup.html')
+            return render(request, 'mentor/mentor_signup.html')
 
-    return render(request, 'mentor_signup.html')
+    # Get list of colleges for the form
+    colleges = CollegeProfile.objects.all()
+    return render(request, 'mentor/mentor_signup.html', {'colleges': colleges})
 
 @login_required
 def mentor_profile(request):
@@ -131,9 +136,20 @@ def mentor_dashboard(request):
         mentor = request.user.mentor_profile
         context = {
             'mentor': mentor,
-            'verification_status': mentor.get_verification_status_display()
+            'verification_status': mentor.get_verification_status_display(),
+            'college_name': mentor.college.college_name if mentor.college else 'Unknown College'
         }
-        return render(request, 'mentor_dashboard.html', context)
+        
+        # If mentor is not approved, show limited dashboard with pending message
+        if mentor.verification_status == 'pending':
+            messages.info(request, '.')
+            return render(request, 'mentor/mentor_pending_dashboard.html', context)
+        elif mentor.verification_status == 'rejected':
+            messages.error(request, 'Your application has been rejected by the college.')
+            return render(request, 'mentor/mentor_rejected_dashboard.html', context)
+        elif mentor.verification_status == 'approved':
+            return render(request, 'mentor_dashboard.html', context)
+            
     except MentorProfile.DoesNotExist:
         messages.error(request, 'Mentor profile not found.')
         return redirect('mentor_login')
@@ -143,3 +159,190 @@ def mentor_logout(request):
     logout(request)
     messages.success(request, 'You have been logged out successfully.')
     return redirect('landing')
+
+@login_required
+def list_students(request):
+    try:
+        mentor = request.user.mentor_profile
+        
+        # Only approved mentors can view students
+        if mentor.verification_status != 'approved':
+            messages.error(request, 'You need to be approved by the college to view students.')
+            return redirect('mentor_dashboard')
+
+        # Get all students and their connection status with this mentor
+        from students.models import StudentProfile, MentorConnection
+        students = StudentProfile.objects.all()
+        
+        students_with_status = []
+        for student in students:
+            connection = MentorConnection.objects.filter(
+                student=student,
+                mentor=mentor
+            ).first()
+            students_with_status.append({
+                'student': student,
+                'connection_status': connection.status if connection else None
+            })
+        
+        context = {
+            'students': students_with_status
+        }
+        return render(request, 'mentor/list_students.html', context)
+        
+    except Exception as e:
+        messages.error(request, f'An error occurred: {str(e)}')
+        return redirect('mentor_dashboard')
+
+@login_required
+def connection_requests(request):
+    try:
+        mentor = request.user.mentor_profile
+        
+        # Only approved mentors can view connection requests
+        if mentor.verification_status != 'approved':
+            messages.error(request, 'You need to be approved by the college to manage connection requests.')
+            return redirect('mentor_dashboard')
+
+        # Get all connection requests for this mentor
+        from students.models import MentorConnection
+        connections = MentorConnection.objects.filter(mentor=mentor).order_by('-created_at')
+        
+        context = {
+            'connections': connections
+        }
+        return render(request, 'mentor/connection_requests.html', context)
+        
+    except Exception as e:
+        messages.error(request, f'An error occurred: {str(e)}')
+        return redirect('mentor_dashboard')
+
+@login_required
+def handle_connection_request(request, connection_id, action):
+    if request.method != 'POST':
+        return redirect('connection_requests')
+        
+    try:
+        mentor = request.user.mentor_profile
+        
+        # Only approved mentors can handle requests
+        if mentor.verification_status != 'approved':
+            messages.error(request, 'You need to be approved by the college to handle connection requests.')
+            return redirect('mentor_dashboard')
+
+        # Get the connection request
+        from students.models import MentorConnection
+        connection = get_object_or_404(MentorConnection, id=connection_id, mentor=mentor)
+        
+        # Handle the action
+        if action == 'accept' and connection.status == 'pending':
+            connection.status = 'accepted'
+            messages.success(request, f'You have accepted the connection request from {connection.student.full_name}.')
+        elif action == 'reject' and connection.status == 'pending':
+            connection.status = 'rejected'
+            messages.success(request, f'You have rejected the connection request from {connection.student.full_name}.')
+        else:
+            messages.error(request, 'Invalid action or connection request status.')
+            
+        connection.save()
+        
+    except Exception as e:
+        messages.error(request, f'An error occurred: {str(e)}')
+    
+    return redirect('connection_requests')
+
+@login_required
+def connected_students(request):
+    try:
+        mentor = request.user.mentor_profile
+        
+        # Only approved mentors can view connected students
+        if mentor.verification_status != 'approved':
+            messages.error(request, 'You need to be approved by the college to view connected students.')
+            return redirect('mentor_dashboard')
+
+        # Get all accepted connections for this mentor
+        from students.models import MentorConnection
+        connections = MentorConnection.objects.filter(
+            mentor=mentor,
+            status='accepted'
+        ).order_by('-updated_at')
+        
+        context = {
+            'connections': connections
+        }
+        return render(request, 'mentor/connected_students.html', context)
+        
+    except Exception as e:
+        messages.error(request, f'An error occurred: {str(e)}')
+        return redirect('mentor_dashboard')
+
+@login_required
+def mentor_projects(request):
+    try:
+        mentor = request.user.mentor_profile
+        
+        # Only approved mentors can view projects
+        if mentor.verification_status != 'approved':
+            messages.error(request, 'You need to be approved by the college to view projects.')
+            return redirect('mentor_dashboard')
+
+        # Get all projects shared with this mentor
+        projects = Project.objects.filter(mentor=mentor).select_related('student')
+        
+        context = {
+            'projects': projects
+        }
+        return render(request, 'mentor/mentor_projects.html', context)
+        
+    except Exception as e:
+        messages.error(request, f'An error occurred: {str(e)}')
+        return redirect('mentor_dashboard')
+
+@login_required
+def review_project(request, project_id):
+    try:
+        mentor = request.user.mentor_profile
+        
+        # Only approved mentors can review projects
+        if mentor.verification_status != 'approved':
+            messages.error(request, 'You need to be approved by the college to review projects.')
+            return redirect('mentor_dashboard')
+            
+        project = get_object_or_404(Project, id=project_id, mentor=mentor)
+        
+        if request.method == 'POST':
+            feedback = request.POST.get('feedback')
+            grade = request.POST.get('grade')
+            status = request.POST.get('status')
+            
+            if feedback:
+                project.mentor_feedback = feedback
+            
+            if grade:
+                try:
+                    grade = int(grade)
+                    if 0 <= grade <= 100:
+                        project.mentor_grade = grade
+                    else:
+                        messages.error(request, 'Grade must be between 0 and 100.')
+                        return redirect('review_project', project_id=project_id)
+                except ValueError:
+                    messages.error(request, 'Invalid grade value.')
+                    return redirect('review_project', project_id=project_id)
+            
+            if status in ['in_progress', 'completed', 'under_review']:
+                project.status = status
+            
+            project.save()
+            messages.success(request, 'Project review submitted successfully!')
+            return redirect('mentor_projects')
+        
+        context = {
+            'project': project
+        }
+        return render(request, 'mentor/review_project.html', context)
+        
+    except Exception as e:
+        messages.error(request, f'An error occurred: {str(e)}')
+        return redirect('mentor_projects')

@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends 'college/base.html' %}
 
 {% block title %}College Dashboard{% endblock %}
 
@@ -149,6 +149,32 @@
         display: inline-block;
         margin-left: 0.5rem;
     }
+
+    .mentor-stats {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+
+    .mentor-stat-card {
+        background: rgba(157, 78, 221, 0.1);
+        border: 1px solid #9d4edd;
+        border-radius: 10px;
+        padding: 1rem;
+        text-align: center;
+    }
+
+    .mentor-stat-number {
+        font-size: 2rem;
+        color: #9d4edd;
+        margin-bottom: 0.5rem;
+    }
+
+    .mentor-stat-label {
+        color: #c77dff;
+        font-size: 0.9rem;
+    }
 </style>
 {% endblock %}
 
@@ -167,27 +193,43 @@
         <p>College Code: {{ profile.college_code }}</p>
     </div>
 
-    <div class="mentor-requests">
-        <h2 style="color: #9d4edd; margin-bottom: 1rem;">Mentor Verification Requests</h2>
+    <div class="mentor-requests" id="mentor-requests">
+        <h2 style="color: #9d4edd; margin-bottom: 1rem;">Mentor Management</h2>
+        
+        <div class="mentor-stats">
+            <div class="mentor-stat-card">
+                <div class="mentor-stat-number">{{ pending_count }}</div>
+                <div class="mentor-stat-label">Pending Requests</div>
+            </div>
+            <div class="mentor-stat-card">
+                <div class="mentor-stat-number">{{ verified_mentors }}</div>
+                <div class="mentor-stat-label">Verified Mentors</div>
+            </div>
+            <div class="mentor-stat-card">
+                <div class="mentor-stat-number">{{ rejected_mentors }}</div>
+                <div class="mentor-stat-label">Rejected Applications</div>
+            </div>
+        </div>
+
+        <h3 style="color: #9d4edd; margin-bottom: 1rem;">Pending Verification Requests</h3>
         {% for mentor in pending_mentors %}
         <div class="mentor-card">
-            <h3>{{ mentor.full_name }} <span class="pending-badge">{{ mentor.get_verification_status_display }}</span></h3>
+            <h3>
+                New Mentor Request
+                <span class="pending-badge">Pending Verification</span>
+            </h3>
             <div class="mentor-info">
                 <div class="info-item">
                     <div class="info-label">Email</div>
                     <div class="info-value">{{ mentor.user.email }}</div>
                 </div>
                 <div class="info-item">
-                    <div class="info-label">Qualification</div>
-                    <div class="info-value">{{ mentor.qualification }}</div>
+                    <div class="info-label">Username</div>
+                    <div class="info-value">{{ mentor.user.username }}</div>
                 </div>
                 <div class="info-item">
-                    <div class="info-label">Experience</div>
-                    <div class="info-value">{{ mentor.experience_years }} years</div>
-                </div>
-                <div class="info-item">
-                    <div class="info-label">Specialization</div>
-                    <div class="info-value">{{ mentor.specialization }}</div>
+                    <div class="info-label">Join Date</div>
+                    <div class="info-value">{{ mentor.user.date_joined|date:"M d, Y" }}</div>
                 </div>
             </div>
             <div class="mentor-actions">

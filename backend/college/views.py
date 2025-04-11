@@ -21,11 +21,23 @@ def college_signup(request):
             messages.error(request, 'Username already exists!')
             return redirect('college_signup')
 
-        user = User.objects.create_user(username=username, password=password1, email=email)
-        # Profile will be created by the signal
-        login(request, user)
-        messages.success(request, 'Account created successfully!')
-        return redirect('college_dashboard')
+        try:
+            # Create user and profile in a transaction
+            user = User.objects.create_user(username=username, password=password1, email=email)
+            profile = CollegeProfile.objects.create(
+                user=user,
+                college_name=username,  # Set initial college name as username
+                college_code=username.upper()  # Set initial college code as uppercase username
+            )
+            login(request, user)
+            messages.success(request, 'Account created successfully!')
+            return redirect('college_dashboard')  # Redirect directly to dashboard
+        except Exception as e:
+            # If anything goes wrong, delete the user and show error
+            if 'user' in locals():
+                user.delete()
+            messages.error(request, 'An error occurred during signup. Please try again.')
+            return redirect('college_signup')
 
     return render(request, 'college_signup.html')
 
@@ -36,9 +48,14 @@ def college_login(request):
         user = authenticate(request, username=username, password=password)
 
         if user is not None:
-            login(request, user)
-            # Profile existence is handled by the signal
-            return redirect('college_dashboard')
+            try:
+                # Check if college profile exists
+                profile = CollegeProfile.objects.get(user=user)
+                login(request, user)
+                return redirect('college_dashboard')
+            except CollegeProfile.DoesNotExist:
+                messages.error(request, 'College profile not found!')
+                return redirect('college_login')
         else:
             messages.error(request, 'Invalid username or password!')
             return redirect('college_login')
@@ -75,23 +92,35 @@ def college_profile(request):
 def college_dashboard(request):
     try:
         profile = CollegeProfile.objects.get(user=request.user)
-        # Get pending mentor verification requests for this college
+        # Get mentor counts by verification status
         pending_mentors = MentorProfile.objects.filter(
             college=profile,
             verification_status='pending'
         )
+        pending_count = pending_mentors.count()
+        verified_mentors = MentorProfile.objects.filter(
+            college=profile,
+            verification_status='approved'
+        ).count()
+        rejected_mentors = MentorProfile.objects.filter(
+            college=profile,
+            verification_status='rejected'
+        ).count()
         
         context = {
             'profile': profile,
             'pending_mentors': pending_mentors,
+            'pending_count': pending_count,
+            'verified_mentors': verified_mentors,
+            'rejected_mentors': rejected_mentors,
             'total_students': profile.total_students,
             'total_faculty': profile.total_faculty,
             'total_courses': 0  # You can update this when you add courses
         }
         return render(request, 'college_dashboard.html', context)
     except CollegeProfile.DoesNotExist:
-        profile = CollegeProfile.objects.create(user=request.user)
-        return render(request, 'college_dashboard.html', {'profile': profile})
+        messages.error(request, 'College profile not found!')
+        return redirect('college_login')
 
 @login_required
 def verify_mentor(request, mentor_id):
@@ -116,6 +145,33 @@ def verify_mentor(request, mentor_id):
         mentor.save()
 
     return redirect('college_dashboard')
+
+@login_required
+def mentor_requests(request):
+    profile = CollegeProfile.objects.get(user=request.user)
+    # Get mentor counts by verification status
+    pending_mentors = MentorProfile.objects.filter(
+        college=profile,
+        verification_status='pending'
+    )
+    pending_count = pending_mentors.count()
+    verified_mentors = MentorProfile.objects.filter(
+        college=profile,
+        verification_status='approved'
+    ).count()
+    rejected_mentors = MentorProfile.objects.filter(
+        college=profile,
+        verification_status='rejected'
+    ).count()
+    
+    context = {
+        'profile': profile,
+        'pending_mentors': pending_mentors,
+        'pending_count': pending_count,
+        'verified_mentors': verified_mentors,
+        'rejected_mentors': rejected_mentors
+    }
+    return render(request, 'college/mentor_requests.html', context)
 
 class CollegeProfileViewSet(viewsets.ModelViewSet):
     """

@@ -1,0 +1,175 @@
+{% extends '../base.html' %}
+{% load static %}
+
+{% block title %}Review Project{% endblock %}
+
+{% block extra_css %}
+<style>
+    .review-container {
+        padding: 2rem;
+    }
+
+    .project-card {
+        background: rgba(157, 78, 221, 0.1);
+        border: 1px solid #9d4edd;
+        border-radius: 10px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .project-title {
+        color: #9d4edd;
+        margin-bottom: 0.5rem;
+    }
+
+    .project-details {
+        margin: 1rem 0;
+        padding: 1rem;
+        background: rgba(157, 78, 221, 0.05);
+        border-radius: 5px;
+        color: #fff;
+    }
+
+    .project-meta {
+        color: #c77dff;
+        font-size: 0.9rem;
+        margin-top: 1rem;
+    }
+
+    .project-meta p {
+        margin-bottom: 0.3rem;
+    }
+
+    .review-form {
+        background: rgba(157, 78, 221, 0.1);
+        border: 1px solid #9d4edd;
+        border-radius: 10px;
+        padding: 1.5rem;
+    }
+
+    .form-label {
+        color: #9d4edd;
+        font-weight: bold;
+    }
+
+    .form-control {
+        background: rgba(157, 78, 221, 0.05);
+        border: 1px solid #9d4edd;
+        color: #fff;
+    }
+
+    .form-control:focus {
+        background: rgba(157, 78, 221, 0.1);
+        border-color: #c77dff;
+        color: #fff;
+        box-shadow: 0 0 0 0.2rem rgba(157, 78, 221, 0.25);
+    }
+
+    .btn-custom {
+        background: #9d4edd;
+        color: white;
+        border: none;
+        padding: 0.5rem 1.5rem;
+        border-radius: 25px;
+        transition: all 0.3s ease;
+    }
+
+    .btn-custom:hover {
+        background: #c77dff;
+        color: white;
+        transform: scale(1.05);
+    }
+
+    .status-select {
+        background: rgba(157, 78, 221, 0.05);
+        border: 1px solid #9d4edd;
+        color: #fff;
+        border-radius: 5px;
+        padding: 0.5rem;
+    }
+
+    .status-select option {
+        background: #2b2b2b;
+        color: #fff;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="review-container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 style="color: #9d4edd;">Review Project</h1>
+        <a href="{% url 'mentor_projects' %}" class="btn btn-custom">
+            <i class="fas fa-arrow-left"></i> Back to Projects
+        </a>
+    </div>
+
+    {% if messages %}
+    <div class="messages mb-4">
+        {% for message in messages %}
+        <div class="alert {% if message.tags == 'success' %}alert-success{% elif message.tags == 'error' %}alert-danger{% else %}alert-info{% endif %}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="project-card">
+                <h3 class="project-title">{{ project.title }}</h3>
+                <p class="text-muted">By: {{ project.student.full_name }}</p>
+
+                <div class="project-details">
+                    <p>{{ project.description }}</p>
+                    
+                    <div class="project-meta">
+                        <p><strong>SDGs:</strong> {{ project.sdgs }}</p>
+                        <p><strong>Tech Stack:</strong> {{ project.tech_stack }}</p>
+                        {% if project.github_link %}
+                        <p><strong>GitHub:</strong> <a href="{{ project.github_link }}" target="_blank" style="color: #9d4edd;">View Repository</a></p>
+                        {% endif %}
+                        {% if project.project_file %}
+                        <p><strong>Project File:</strong> <a href="{{ project.project_file.url }}" style="color: #9d4edd;">Download</a></p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="review-form">
+                <h3 class="mb-4" style="color: #9d4edd;">Your Review</h3>
+                <form method="POST">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="status" class="form-label">Project Status</label>
+                        <select name="status" id="status" class="form-control status-select" required>
+                            <option value="in_progress" {% if project.status == 'in_progress' %}selected{% endif %}>In Progress</option>
+                            <option value="completed" {% if project.status == 'completed' %}selected{% endif %}>Completed</option>
+                            <option value="under_review" {% if project.status == 'under_review' %}selected{% endif %}>Under Review</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="feedback" class="form-label">Feedback</label>
+                        <textarea name="feedback" id="feedback" class="form-control" rows="6" placeholder="Provide your feedback on the project...">{{ project.mentor_feedback }}</textarea>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="grade" class="form-label">Grade (Optional)</label>
+                        <input type="number" name="grade" id="grade" class="form-control" min="0" max="100" value="{{ project.mentor_grade }}" placeholder="Enter grade (0-100)">
+                        <small class="text-muted">Leave empty if you don't want to grade yet</small>
+                    </div>
+
+                    <div class="text-end">
+                        <button type="submit" class="btn btn-custom">
+                            {% if project.mentor_feedback %}Update Review{% else %}Submit Review{% endif %}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

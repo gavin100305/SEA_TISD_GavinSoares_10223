@@ -1,0 +1,177 @@
+{% extends 'college/base.html' %}
+
+{% block title %}Mentor Verification Requests{% endblock %}
+
+{% block extra_css %}
+<style>
+    .mentor-requests {
+        margin-top: 2rem;
+    }
+
+    .mentor-card {
+        background: rgba(157, 78, 221, 0.1);
+        border: 1px solid #9d4edd;
+        border-radius: 10px;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .mentor-card h3 {
+        color: #c77dff;
+        margin-bottom: 1rem;
+        font-size: 1.1rem;
+    }
+
+    .mentor-info {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .info-item {
+        margin-bottom: 0.8rem;
+    }
+
+    .info-label {
+        color: #c77dff;
+        font-size: 0.9rem;
+        margin-bottom: 0.2rem;
+    }
+
+    .info-value {
+        color: #fff;
+        font-size: 1rem;
+    }
+
+    .mentor-actions {
+        display: flex;
+        gap: 1rem;
+        justify-content: flex-end;
+    }
+
+    .btn {
+        padding: 0.5rem 1rem;
+        border-radius: 5px;
+        border: none;
+        cursor: pointer;
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
+    }
+
+    .btn-approve {
+        background: #4edd98;
+        color: white;
+    }
+
+    .btn-reject {
+        background: #ff6b6b;
+        color: white;
+    }
+
+    .btn:hover {
+        transform: scale(1.05);
+        opacity: 0.9;
+    }
+
+    .pending-badge {
+        background: #ffd60a;
+        color: #000;
+        padding: 0.2rem 0.5rem;
+        border-radius: 3px;
+        font-size: 0.8rem;
+        display: inline-block;
+        margin-left: 0.5rem;
+    }
+
+    .mentor-stats {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+
+    .mentor-stat-card {
+        background: rgba(157, 78, 221, 0.1);
+        border: 1px solid #9d4edd;
+        border-radius: 10px;
+        padding: 1rem;
+        text-align: center;
+    }
+
+    .mentor-stat-number {
+        font-size: 2rem;
+        color: #9d4edd;
+        margin-bottom: 0.5rem;
+    }
+
+    .mentor-stat-label {
+        color: #c77dff;
+        font-size: 0.9rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="mentor-requests">
+    <h1 style="color: #9d4edd; margin-bottom: 2rem;">Mentor Verification Requests</h1>
+
+    <div class="mentor-stats">
+        <div class="mentor-stat-card">
+            <div class="mentor-stat-number">{{ pending_count }}</div>
+            <div class="mentor-stat-label">Pending Requests</div>
+        </div>
+        <div class="mentor-stat-card">
+            <div class="mentor-stat-number">{{ verified_mentors }}</div>
+            <div class="mentor-stat-label">Verified Mentors</div>
+        </div>
+        <div class="mentor-stat-card">
+            <div class="mentor-stat-number">{{ rejected_mentors }}</div>
+            <div class="mentor-stat-label">Rejected Applications</div>
+        </div>
+    </div>
+
+    {% if pending_mentors %}
+        {% for mentor in pending_mentors %}
+        <div class="mentor-card">
+            <h3>
+                New Mentor Request
+                <span class="pending-badge">Pending Verification</span>
+            </h3>
+            <div class="mentor-info">
+                <div class="info-item">
+                    <div class="info-label">Name</div>
+                    <div class="info-value">{{ mentor.full_name }}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Email</div>
+                    <div class="info-value">{{ mentor.user.email }}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Username</div>
+                    <div class="info-value">{{ mentor.user.username }}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Join Date</div>
+                    <div class="info-value">{{ mentor.user.date_joined|date:"M d, Y" }}</div>
+                </div>
+            </div>
+            <div class="mentor-actions">
+                <form method="POST" action="{% url 'verify_mentor' mentor.id %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="approve">
+                    <button type="submit" class="btn btn-approve">Approve</button>
+                </form>
+                <form method="POST" action="{% url 'verify_mentor' mentor.id %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="reject">
+                    <button type="submit" class="btn btn-reject">Reject</button>
+                </form>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <p style="color: #c77dff; text-align: center;">No pending mentor verification requests.</p>
+    {% endif %}
+</div>
+{% endblock %} 

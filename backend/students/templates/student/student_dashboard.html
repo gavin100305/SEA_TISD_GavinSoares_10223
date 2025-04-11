@@ -1,0 +1,311 @@
+{% extends '../base.html' %}
+{% load static %}
+
+{% block title %}Student Dashboard{% endblock %}
+
+{% block extra_css %}
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+<style>
+    body {
+        background-color: #0c0e14;
+        color: #e4e6eb;
+        font-family: 'Segoe UI', Arial, sans-serif;
+    }
+    
+    .container {
+        max-width: 1200px;
+    }
+    
+    .dashboard-container {
+        padding: 2rem;
+    }
+
+    .welcome-section {
+        background: rgba(99, 62, 190, 0.1);
+        border: 1px solid rgba(99, 62, 190, 0.3);
+        border-radius: 12px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+    }
+
+    .welcome-section h1 {
+        color: #a79eff;
+        margin-bottom: 1rem;
+        font-weight: 600;
+    }
+
+    .info-card {
+        background: rgba(99, 62, 190, 0.1);
+        border: 1px solid rgba(99, 62, 190, 0.3);
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+    }
+
+    .info-card h2 {
+        color: #a79eff;
+        margin-bottom: 1rem;
+        font-size: 1.2rem;
+        border-bottom: 1px solid rgba(99, 62, 190, 0.3);
+        padding-bottom: 0.5rem;
+    }
+
+    .info-item {
+        margin-bottom: 1rem;
+    }
+
+    .info-label {
+        color: #a79eff;
+        font-size: 0.9rem;
+        margin-bottom: 0.2rem;
+    }
+
+    .info-value {
+        color: #e4e6eb;
+        font-size: 1rem;
+    }
+
+    .action-card {
+        background: rgba(99, 62, 190, 0.1);
+        border: 1px solid rgba(99, 62, 190, 0.3);
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+    }
+
+    .action-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 20px rgba(99, 62, 190, 0.25);
+    }
+
+    .action-card h3 {
+        color: #a79eff;
+        margin-bottom: 1rem;
+    }
+
+    .action-card p {
+        color: #9d9db2;
+        margin-bottom: 1rem;
+    }
+
+    .action-btn {
+        background: #7956e0;
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 6px;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        display: inline-block;
+        border: none;
+    }
+
+    .action-btn:hover {
+        background: #9172e6;
+        color: white;
+        transform: scale(1.05);
+    }
+
+    .feature-card {
+        background: #171b29;
+        border: 1px solid rgba(99, 62, 190, 0.3);
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        transition: all 0.3s ease;
+        text-align: center;
+        color: #e4e6eb;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+    }
+
+    .feature-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 20px rgba(99, 62, 190, 0.25);
+    }
+
+    .feature-card i {
+        font-size: 2rem;
+        color: #7956e0;
+        margin-bottom: 1rem;
+    }
+
+    .feature-card h3 {
+        color: #a79eff;
+        margin-bottom: 0.5rem;
+    }
+
+    .feature-card p {
+        color: #9d9db2;
+    }
+
+    .feature-link {
+        text-decoration: none;
+    }
+
+    .feature-link:hover {
+        text-decoration: none;
+    }
+
+    .card {
+        background-color: #171b29;
+        border: 1px solid rgba(99, 62, 190, 0.3);
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+    }
+
+    .card-body {
+        padding: 1.5rem;
+    }
+
+    .card-title {
+        color: #a79eff;
+        font-weight: 500;
+        margin-bottom: 1.5rem;
+        border-bottom: 1px solid rgba(99, 62, 190, 0.3);
+        padding-bottom: 0.5rem;
+    }
+
+    .card p {
+        color: #e4e6eb;
+        margin-bottom: 0.75rem;
+    }
+
+    .card p strong {
+        color: #a79eff;
+        font-weight: 500;
+    }
+
+    .alert-success {
+        background-color: rgba(25, 135, 84, 0.15);
+        border-color: rgba(25, 135, 84, 0.3);
+        color: #5ae6a8;
+    }
+
+    .alert-danger {
+        background-color: rgba(220, 53, 69, 0.15);
+        border-color: rgba(220, 53, 69, 0.3);
+        color: #ff6b6b;
+    }
+
+    .alert-info {
+        background-color: rgba(13, 202, 240, 0.15);
+        border-color: rgba(13, 202, 240, 0.3);
+        color: #6edff6;
+    }
+
+    h1.mb-4 {
+        font-weight: 600;
+        color: #a79eff;
+    }
+
+    .row {
+        margin-right: -12px;
+        margin-left: -12px;
+    }
+
+    .col-md-3, .col-md-6, .col-12 {
+        padding-right: 12px;
+        padding-left: 12px;
+    }
+
+    /* Styles for dropdowns and other interactive elements to match the reference UI */
+    select.form-select, button.btn {
+        background-color: #171b29;
+        border: 1px solid rgba(99, 62, 190, 0.3);
+        color: #e4e6eb;
+    }
+
+    select.form-select:focus, button.btn:focus {
+        box-shadow: 0 0 0 0.25rem rgba(99, 62, 190, 0.25);
+        border-color: rgba(99, 62, 190, 0.5);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <h1 class="mb-4">Welcome, {{ profile.full_name }}!</h1>
+
+    {% if messages %}
+    <div class="messages mb-4">
+        {% for message in messages %}
+        <div class="alert {% if message.tags == 'success' %}alert-success{% elif message.tags == 'error' %}alert-danger{% else %}alert-info{% endif %}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="row mt-4">
+        <div class="col-md-3">
+            <a href="{% url 'list_mentors' %}" class="feature-link">
+                <div class="feature-card">
+                    <i class="fas fa-search"></i>
+                    <h3>Find Mentors</h3>
+                    <p>Browse and connect with mentors</p>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-3">
+            <a href="{% url 'my_connections' %}" class="feature-link">
+                <div class="feature-card">
+                    <i class="fas fa-user-friends"></i>
+                    <h3>My Connections</h3>
+                    <p>View your mentor connections</p>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-3">
+            <a href="{% url 'my_projects' %}" class="feature-link">
+                <div class="feature-card">
+                    <i class="fas fa-project-diagram"></i>
+                    <h3>My Projects</h3>
+                    <p>Share and manage your projects</p>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-3">
+            <a href="{% url 'student_profile' %}?mode=update" class="feature-link">
+                <div class="feature-card">
+                    <i class="fas fa-user-edit"></i>
+                    <h3>Update Profile</h3>
+                    <p>Keep your profile up to date</p>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">Your Profile Summary</h5>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>Name:</strong> {{ profile.full_name }}</p>
+                            <p><strong>Roll Number:</strong> {{ profile.roll_number }}</p>
+                            <p><strong>Branch:</strong> {{ profile.branch }}</p>
+                            <p><strong>Semester:</strong> {{ profile.semester }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>Section:</strong> {{ profile.section }}</p>
+                            <p><strong>Admission Year:</strong> {{ profile.admission_year }}</p>
+                            <p><strong>Phone:</strong> {{ profile.phone }}</p>
+                            <p><strong>Email:</strong> {{ profile.user.email }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+{% endblock %}
+{% endblock %}
