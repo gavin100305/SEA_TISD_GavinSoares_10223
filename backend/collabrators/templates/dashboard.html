@@ -1,0 +1,107 @@
+{% extends 'collabrators/base.html' %}
+
+{% block title %}Dashboard | TISD Collaborator{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <div class="welcome-section">
+        <h1>Welcome, {{ request.user.username }}!</h1>
+        <p class="subtitle">Your collaborator dashboard</p>
+    </div>
+
+    <div class="stats-grid">
+        <div class="stat-card">
+            <i class="fas fa-project-diagram"></i>
+            <div class="stat-content">
+                <h3>Active Projects</h3>
+                <p class="stat-number">0</p>
+            </div>
+        </div>
+        <div class="stat-card">
+            <i class="fas fa-users"></i>
+            <div class="stat-content">
+                <h3>Team Members</h3>
+                <p class="stat-number">0</p>
+            </div>
+        </div>
+        <div class="stat-card">
+            <i class="fas fa-tasks"></i>
+            <div class="stat-content">
+                <h3>Tasks</h3>
+                <p class="stat-number">0</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .dashboard-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
+
+    .welcome-section {
+        margin-bottom: 3rem;
+    }
+
+    .welcome-section h1 {
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        color: white;
+    }
+
+    .subtitle {
+        color: var(--text-secondary);
+        font-size: 1.1rem;
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .stat-card {
+        background: rgba(12, 10, 20, 0.7);
+        backdrop-filter: blur(10px);
+        border: 1px solid var(--card-border);
+        border-radius: 16px;
+        padding: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        transition: all 0.3s ease;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-5px);
+        border-color: var(--primary);
+    }
+
+    .stat-card i {
+        font-size: 2rem;
+        color: var(--primary);
+        background: var(--primary-light);
+        padding: 1rem;
+        border-radius: 12px;
+    }
+
+    .stat-content h3 {
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+        font-weight: 500;
+        margin-bottom: 0.25rem;
+    }
+
+    .stat-number {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: white;
+    }
+</style>
+{% endblock %} 
