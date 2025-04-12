@@ -1,4 +1,4 @@
-{% extends '../base.html' %}
+{% extends 'mentor/base.html' %}
 {% load static %}
 
 {% block title %}Connected Students{% endblock %}
@@ -79,6 +79,30 @@
     .contact-info a:hover {
         text-decoration: underline;
     }
+
+    .student-actions {
+        display: flex;
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+
+    .btn-custom {
+        background: #9d4edd;
+        color: white;
+        border: none;
+        padding: 0.5rem 1.5rem;
+        border-radius: 25px;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        display: inline-block;
+        cursor: pointer;
+    }
+
+    .btn-custom:hover {
+        background: #c77dff;
+        color: white;
+        transform: scale(1.05);
+    }
 </style>
 {% endblock %}
 
@@ -106,13 +130,13 @@
                          class="student-image">
                     <div class="student-info">
                         <h3>{{ connection.student.full_name }}</h3>
-                        <p>Roll Number: {{ connection.student.roll_number }}</p>
-                        <p>Branch: {{ connection.student.branch }}</p>
+                        <p><strong>Branch:</strong> {{ connection.student.get_branch_display }}</p>
+                        <p><strong>Semester:</strong> {{ connection.student.semester }}</p>
+                        <p><strong>Connected since:</strong> {{ connection.updated_at|date:"F j, Y" }}</p>
                     </div>
                 </div>
 
                 <div class="student-details">
-                    <p><strong>Semester:</strong> {{ connection.student.semester }}</p>
                     <p><strong>Section:</strong> {{ connection.student.section }}</p>
                     <p><strong>Admission Year:</strong> {{ connection.student.admission_year }}</p>
                     {% if connection.student.bio %}
@@ -127,8 +151,11 @@
                     {% endif %}
                 </div>
 
-                <div class="connection-date">
-                    Connected since: {{ connection.updated_at|date:"F j, Y" }}
+                <div class="student-actions">
+                    <a href="{% url 'schedule_meeting' connection.student.id %}" class="btn-custom">
+                        Schedule Meeting
+                    </a>
+                    <a href="#" class="btn-custom">View Projects</a>
                 </div>
             </div>
         </div>

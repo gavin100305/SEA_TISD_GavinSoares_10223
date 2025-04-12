@@ -30,4 +30,7 @@ urlpatterns = [
     path('groups/invitation/<int:membership_id>/', views.handle_invitation, name='handle_invitation'),
     path('groups/<int:group_id>/remove/<int:member_id>/', views.remove_member, name='remove_member'),
     path('groups/<int:group_id>/add-project/', views.add_group_project, name='add_group_project'),
+    # Add new URL patterns for meetings
+    path('my-meetings/', views.student_meetings, name='student_meetings'),
+    path('meeting/<int:meeting_id>/', views.meeting_detail, name='student_meeting_detail'),
 ]

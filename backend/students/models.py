@@ -2,7 +2,6 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from mentor.models import MentorProfile
 from django.core.validators import MinValueValidator, MaxValueValidator
 from college.models import CollegeProfile
 
@@ -101,7 +100,7 @@ class MentorConnection(models.Model):
     )
 
     student = models.ForeignKey(StudentProfile, on_delete=models.CASCADE, related_name='mentor_connections')
-    mentor = models.ForeignKey(MentorProfile, on_delete=models.CASCADE, related_name='student_connections')
+    mentor = models.ForeignKey('mentor.MentorProfile', on_delete=models.CASCADE, related_name='student_connections')
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
     message = models.TextField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)

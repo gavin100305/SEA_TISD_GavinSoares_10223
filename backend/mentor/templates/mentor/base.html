@@ -167,7 +167,13 @@
             </a>
             <a class="nav-link {% if request.resolver_match.url_name == 'mentor_settings' %}active{% endif %}" href="#">
                 <i class="fas fa-cog"></i> Settings
+
             </a>
+            <li><a href="{% url 'list_students' %}" {% if request.resolver_match.url_name == 'list_students' %}class="active"{% endif %}>Find Students</a></li>
+    <li><a href="{% url 'connected_students' %}" {% if request.resolver_match.url_name == 'connected_students' %}class="active"{% endif %}>Connected Students</a></li>
+    <li><a href="{% url 'mentor_projects' %}" {% if request.resolver_match.url_name == 'mentor_projects' %}class="active"{% endif %}>Projects</a></li>
+    <li><a href="{% url 'meeting_list' %}" {% if request.resolver_match.url_name == 'meeting_list' %}class="active"{% endif %}>Meetings</a></li> 
+
             {% endif %}
             <a class="nav-link" href="{% url 'mentor_logout' %}">
                 <i class="fas fa-sign-out-alt"></i> Logout
@@ -185,8 +191,8 @@
         {% endif %}
 
         {% block content %}{% endblock %}
-    </div>
-
+    </div> 
+    
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     {% block extra_js %}{% endblock %}
 </body>
