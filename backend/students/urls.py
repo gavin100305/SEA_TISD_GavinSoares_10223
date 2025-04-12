@@ -22,5 +22,12 @@ urlpatterns = [
     path('ngos/', views.ngo_list, name='ngo_list'),
     path('ngos/<int:ngo_id>/', views.ngo_detail, name='ngo_detail'),
     
-
+    # Group URLs
+    path('groups/', views.my_groups, name='my_groups'),
+    path('groups/create/', views.create_group, name='create_group'),
+    path('groups/<int:group_id>/', views.group_detail, name='group_detail'),
+    path('groups/<int:group_id>/invite/', views.invite_member, name='invite_member'),
+    path('groups/invitation/<int:membership_id>/', views.handle_invitation, name='handle_invitation'),
+    path('groups/<int:group_id>/remove/<int:member_id>/', views.remove_member, name='remove_member'),
+    path('groups/<int:group_id>/add-project/', views.add_group_project, name='add_group_project'),
 ]

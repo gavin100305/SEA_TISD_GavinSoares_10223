@@ -4,7 +4,7 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.contrib.auth.models import User
-from .models import StudentProfile, MentorConnection, Project
+from .models import StudentProfile, MentorConnection, Project, StudentGroup, GroupMembership
 from mentor.models import MentorProfile
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from college.models import CollegeProfile,NGO
@@ -389,6 +389,209 @@ def ngo_detail(request, ngo_id):
     }
     
     return render(request, 'student/ngo_detail.html', context)
+
+@login_required
+def my_groups(request):
+    student = request.user.student_profile
+    led_groups = student.led_groups.all()
+    member_groups = StudentGroup.objects.filter(
+        groupmembership__student=student,
+        groupmembership__status='accepted'
+    )
+    pending_invites = GroupMembership.objects.filter(
+        student=student,
+        status='pending'
+    )
+    
+    context = {
+        'led_groups': led_groups,
+        'member_groups': member_groups,
+        'pending_invites': pending_invites,
+    }
+    return render(request, 'student/my_groups.html', context)
+
+@login_required
+def create_group(request):
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        description = request.POST.get('description')
+        student = request.user.student_profile
+
+        if StudentGroup.objects.filter(name=name).exists():
+            messages.error(request, 'A group with this name already exists.')
+            return redirect('create_group')
+
+        group = StudentGroup.objects.create(
+            name=name,
+            description=description,
+            leader=student
+        )
+        
+        # Automatically add leader as a member
+        GroupMembership.objects.create(
+            student=student,
+            group=group,
+            status='accepted'
+        )
+
+        messages.success(request, 'Group created successfully!')
+        return redirect('group_detail', group_id=group.id)
+
+    return render(request, 'student/create_group.html')
+
+@login_required
+def group_detail(request, group_id):
+    group = get_object_or_404(StudentGroup, id=group_id)
+    student = request.user.student_profile
+    
+    # Check if user is leader or member
+    is_leader = group.leader == student
+    is_member = group.members.filter(id=student.id, groupmembership__status='accepted').exists()
+    
+    if not (is_leader or is_member):
+        messages.error(request, 'You do not have permission to view this group.')
+        return redirect('my_groups')
+    
+    members = group.groupmembership_set.filter(status='accepted')
+    pending_members = group.groupmembership_set.filter(status='pending')
+    projects = group.group_projects.all()
+    
+    context = {
+        'group': group,
+        'is_leader': is_leader,
+        'members': members,
+        'pending_members': pending_members,
+        'projects': projects,
+    }
+    return render(request, 'student/group_detail.html', context)
+
+@login_required
+def invite_member(request, group_id):
+    group = get_object_or_404(StudentGroup, id=group_id)
+    student = request.user.student_profile
+    
+    if group.leader != student:
+        messages.error(request, 'Only the group leader can invite members.')
+        return redirect('group_detail', group_id=group.id)
+    
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        try:
+            invited_student = User.objects.get(username=username).student_profile
+            
+            # Check if student is already a member or invited
+            if GroupMembership.objects.filter(student=invited_student, group=group).exists():
+                messages.error(request, 'This student is already a member or has a pending invitation.')
+                return redirect('group_detail', group_id=group.id)
+            
+            GroupMembership.objects.create(
+                student=invited_student,
+                group=group,
+                status='pending'
+            )
+            messages.success(request, f'Invitation sent to {invited_student.full_name}')
+            
+        except User.DoesNotExist:
+            messages.error(request, 'Student not found.')
+    
+    return redirect('group_detail', group_id=group.id)
+
+@login_required
+def handle_invitation(request, membership_id):
+    membership = get_object_or_404(GroupMembership, id=membership_id)
+    student = request.user.student_profile
+    
+    if membership.student != student:
+        messages.error(request, 'Invalid invitation.')
+        return redirect('my_groups')
+    
+    action = request.POST.get('action')
+    if action == 'accept':
+        membership.status = 'accepted'
+        membership.save()
+        messages.success(request, f'You have joined {membership.group.name}')
+    elif action == 'reject':
+        membership.delete()
+        messages.success(request, 'Invitation rejected.')
+    
+    return redirect('my_groups')
+
+@login_required
+def remove_member(request, group_id, member_id):
+    group = get_object_or_404(StudentGroup, id=group_id)
+    student = request.user.student_profile
+    
+    if group.leader != student:
+        messages.error(request, 'Only the group leader can remove members.')
+        return redirect('group_detail', group_id=group.id)
+    
+    membership = get_object_or_404(GroupMembership, group=group, student_id=member_id)
+    if membership.student == group.leader:
+        messages.error(request, 'Group leader cannot be removed.')
+    else:
+        membership.delete()
+        messages.success(request, 'Member removed successfully.')
+    
+    return redirect('group_detail', group_id=group.id)
+
+@login_required
+def add_group_project(request, group_id):
+    group = get_object_or_404(StudentGroup, id=group_id)
+    student = request.user.student_profile
+    
+    # Verify user is group leader or member
+    if not group.members.filter(id=student.id, groupmembership__status='accepted').exists():
+        messages.error(request, 'You must be a group member to add projects.')
+        return redirect('my_groups')
+    
+    # Get connected mentors of the group leader
+    connected_mentors = MentorConnection.objects.filter(
+        student=group.leader,
+        status='accepted'
+    ).select_related('mentor')
+    
+    if request.method == 'POST':
+        try:
+            mentor_id = request.POST.get('mentor')
+            mentor = MentorProfile.objects.get(id=mentor_id)
+            
+            # Verify mentor connection with group leader
+            if not MentorConnection.objects.filter(
+                student=group.leader,
+                mentor=mentor,
+                status='accepted'
+            ).exists():
+                messages.error(request, 'The group leader must be connected with the mentor.')
+                return redirect('group_detail', group_id=group.id)
+            
+            # Create project
+            project = Project.objects.create(
+                group=group,
+                mentor=mentor,
+                title=request.POST.get('title'),
+                description=request.POST.get('description'),
+                sdgs=request.POST.get('sdgs'),
+                tech_stack=request.POST.get('tech_stack'),
+                github_link=request.POST.get('github_link')
+            )
+            
+            # Handle project file
+            if 'project_file' in request.FILES:
+                project.project_file = request.FILES['project_file']
+                project.save()
+            
+            messages.success(request, 'Group project added successfully!')
+            return redirect('group_detail', group_id=group.id)
+            
+        except Exception as e:
+            messages.error(request, f'An error occurred: {str(e)}')
+            return redirect('group_detail', group_id=group.id)
+    
+    context = {
+        'group': group,
+        'connected_mentors': connected_mentors
+    }
+    return render(request, 'student/add_group_project.html', context)
 
 
 

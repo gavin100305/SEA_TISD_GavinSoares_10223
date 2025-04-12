@@ -288,7 +288,7 @@ def mentor_projects(request):
             return redirect('mentor_dashboard')
 
         # Get all projects shared with this mentor
-        projects = Project.objects.filter(mentor=mentor).select_related('student')
+        projects = Project.objects.filter(mentor=mentor).select_related('student', 'group').prefetch_related('group__leader', 'group__members')
         
         context = {
             'projects': projects

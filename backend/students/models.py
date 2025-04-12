@@ -59,6 +59,40 @@ def create_or_update_student_profile(sender, instance, created, **kwargs):
         except StudentProfile.DoesNotExist:
             StudentProfile.objects.create(user=instance)
 
+class StudentGroup(models.Model):
+    name = models.CharField(max_length=100)
+    description = models.TextField(blank=True, null=True)
+    leader = models.ForeignKey(StudentProfile, on_delete=models.CASCADE, related_name='led_groups')
+    members = models.ManyToManyField(StudentProfile, through='GroupMembership', related_name='groups')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.name} (Led by {self.leader.full_name})"
+
+    class Meta:
+        ordering = ['-created_at']
+
+class GroupMembership(models.Model):
+    STATUS_CHOICES = (
+        ('pending', 'Pending'),
+        ('accepted', 'Accepted'),
+        ('rejected', 'Rejected')
+    )
+
+    student = models.ForeignKey(StudentProfile, on_delete=models.CASCADE)
+    group = models.ForeignKey(StudentGroup, on_delete=models.CASCADE)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    joined_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = ('student', 'group')
+        ordering = ['-joined_at']
+
+    def __str__(self):
+        return f"{self.student.full_name} in {self.group.name}"
+
 class MentorConnection(models.Model):
     STATUS_CHOICES = (
         ('pending', 'Pending'),
@@ -81,7 +115,8 @@ class MentorConnection(models.Model):
         return f"{self.student.full_name} -> {self.mentor.full_name} ({self.status})"
 
 class Project(models.Model):
-    student = models.ForeignKey(StudentProfile, on_delete=models.CASCADE, related_name='projects')
+    student = models.ForeignKey(StudentProfile, on_delete=models.CASCADE, related_name='projects', null=True, blank=True)
+    group = models.ForeignKey(StudentGroup, on_delete=models.CASCADE, related_name='group_projects', null=True, blank=True)
     mentor = models.ForeignKey('mentor.MentorProfile', on_delete=models.SET_NULL, null=True, blank=True, related_name='guided_projects')
     college = models.ForeignKey(CollegeProfile, on_delete=models.SET_NULL, null=True, blank=True, related_name='college_projects')
     collaborator = models.BooleanField(default=False)
@@ -105,7 +140,20 @@ class Project(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
+        if self.group:
+            return f"{self.title} by {self.group.name}"
         return f"{self.title} by {self.student.full_name}"
+
+    def clean(self):
+        from django.core.exceptions import ValidationError
+        if not self.student and not self.group:
+            raise ValidationError('A project must have either a student or a group')
+        if self.student and self.group:
+            raise ValidationError('A project cannot have both a student and a group')
+
+    def save(self, *args, **kwargs):
+        self.clean()
+        super().save(*args, **kwargs)
 
     class Meta:
         ordering = ['-created_at']

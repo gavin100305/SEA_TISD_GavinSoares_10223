@@ -103,6 +103,44 @@
         font-weight: bold;
         margin-left: 1rem;
     }
+
+    .group-badge {
+        display: inline-block;
+        padding: 0.25rem 1rem;
+        border-radius: 15px;
+        background: rgba(157, 78, 221, 0.2);
+        color: #9d4edd;
+        border: 1px solid #9d4edd;
+        font-size: 0.9rem;
+        margin-right: 1rem;
+    }
+
+    .group-members {
+        margin-top: 1rem;
+        padding: 1rem;
+        background: rgba(157, 78, 221, 0.1);
+        border-radius: 5px;
+    }
+
+    .group-members h5 {
+        color: #9d4edd;
+        margin-bottom: 0.5rem;
+    }
+
+    .member-list {
+        list-style: none;
+        padding: 0;
+    }
+
+    .member-list li {
+        margin-bottom: 0.3rem;
+        color: #fff;
+    }
+
+    .member-list .leader {
+        color: #c77dff;
+        font-weight: bold;
+    }
 </style>
 {% endblock %}
 
@@ -129,7 +167,16 @@
                 <div class="project-header">
                     <div>
                         <h3 class="project-title">{{ project.title }}</h3>
-                        <p class="text-muted">By: {{ project.student.full_name }}</p>
+                        {% if project.group %}
+                            <span class="group-badge">Group Project</span>
+                        {% endif %}
+                        <p class="text-muted">
+                            {% if project.group %}
+                                By: {{ project.group.name }}
+                            {% else %}
+                                By: {{ project.student.full_name }}
+                            {% endif %}
+                        </p>
                     </div>
                     <span class="project-status status-{{ project.status }}">
                         {{ project.status|title }}
@@ -138,6 +185,20 @@
 
                 <div class="project-details">
                     <p>{{ project.description }}</p>
+                    
+                    {% if project.group %}
+                    <div class="group-members">
+                        <h5>Group Members</h5>
+                        <ul class="member-list">
+                            <li class="leader">👑 {{ project.group.leader.full_name }} (Leader)</li>
+                            {% for membership in project.group.groupmembership_set.all %}
+                                {% if membership.status == 'accepted' and membership.student != project.group.leader %}
+                                    <li>👤 {{ membership.student.full_name }}</li>
+                                {% endif %}
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    {% endif %}
                     
                     <div class="project-meta">
                         <p><strong>SDGs:</strong> {{ project.sdgs }}</p>
