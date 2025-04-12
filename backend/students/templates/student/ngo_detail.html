@@ -1,0 +1,125 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ ngo.name }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="/students/ngos/">NGOs</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">{{ ngo.name }}</li>
+                </ol>
+            </nav>
+            
+            <div class="card">
+                <div class="card-header d-flex align-items-center">
+                    {% if ngo.logo %}
+                        <img src="{{ ngo.logo.url }}" alt="{{ ngo.name }} logo" class="me-3" style="max-height: 60px; max-width: 60px;">
+                    {% endif %}
+                    <h1 class="card-title mb-0">{{ ngo.name }}</h1>
+                </div>
+                <div class="card-body">
+                    <h5 class="card-subtitle mb-3 text-muted">{{ ngo.tagline }}</h5>
+                    
+                    <div class="mb-4">
+                        <h3>About</h3>
+                        <p>{{ ngo.description }}</p>
+                    </div>
+                    
+                    {% if ngo.mission_statement %}
+                        <div class="mb-4">
+                            <h3>Mission</h3>
+                            <p>{{ ngo.mission_statement }}</p>
+                        </div>
+                    {% endif %}
+                    
+                    {% if ngo.vision %}
+                        <div class="mb-4">
+                            <h3>Vision</h3>
+                            <p>{{ ngo.vision }}</p>
+                        </div>
+                    {% endif %}
+                    
+                    {% if ngo.achievements %}
+                        <div class="mb-4">
+                            <h3>Achievements</h3>
+                            <p>{{ ngo.achievements }}</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h3 class="card-title">Contact Information</h3>
+                </div>
+                <div class="card-body">
+                    {% if ngo.website %}
+                        <p><strong>Website:</strong> <a href="{{ ngo.website }}" target="_blank">{{ ngo.website }}</a></p>
+                    {% endif %}
+                    
+                    {% if ngo.email %}
+                        <p><strong>Email:</strong> <a href="mailto:{{ ngo.email }}">{{ ngo.email }}</a></p>
+                    {% endif %}
+                    
+                    {% if ngo.phone %}
+                        <p><strong>Phone:</strong> {{ ngo.phone }}</p>
+                    {% endif %}
+                    
+                    {% if ngo.college %}
+                        <p><strong>College:</strong> {{ ngo.college.name }}</p>
+                    {% endif %}
+                    
+                    {% if ngo.address %}
+                        <p><strong>Address:</strong><br>{{ ngo.address|linebreaks }}</p>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Social Media</h3>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex gap-2">
+                        {% if ngo.facebook_url %}
+                            <a href="{{ ngo.facebook_url }}" target="_blank" class="btn btn-outline-primary"><i class="bi bi-facebook"></i></a>
+                        {% endif %}
+                        
+                        {% if ngo.twitter_url %}
+                            <a href="{{ ngo.twitter_url }}" target="_blank" class="btn btn-outline-info"><i class="bi bi-twitter"></i></a>
+                        {% endif %}
+                        
+                        {% if ngo.instagram_url %}
+                            <a href="{{ ngo.instagram_url }}" target="_blank" class="btn btn-outline-danger"><i class="bi bi-instagram"></i></a>
+                        {% endif %}
+                        
+                        {% if ngo.linkedin_url %}
+                            <a href="{{ ngo.linkedin_url }}" target="_blank" class="btn btn-outline-primary"><i class="bi bi-linkedin"></i></a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            {% if ngo.ongoing_projects %}
+                <div class="card mt-4">
+                    <div class="card-header">
+                        <h3 class="card-title">Current Projects</h3>
+                    </div>
+                    <div class="card-body">
+                        {{ ngo.ongoing_projects|linebreaks }}
+                    </div>
+                </div>
+            {% endif %}
+            
+            <div class="mt-4">
+                <a href="{% url 'ngo_list' %}" class="btn btn-secondary">Back to NGO List</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

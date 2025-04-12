@@ -6,7 +6,9 @@ from django.contrib import messages
 from django.contrib.auth.models import User
 from .models import StudentProfile, MentorConnection, Project
 from mentor.models import MentorProfile
-from college.models import CollegeProfile
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from college.models import CollegeProfile,NGO
+from django.db.models import Q
 
 
 
@@ -352,6 +354,42 @@ def share_project(request, project_id):
     except Exception as e:
         messages.error(request, f'An error occurred: {str(e)}')
         return redirect('my_projects')
+
+
+def ngo_list(request):
+    """Display a list of active NGOs to students"""
+    # Get all active NGOs
+    ngos = NGO.objects.filter(is_active=True).order_by('name')
+    
+
+    # Pagination
+    page = request.GET.get('page', 1)
+    paginator = Paginator(ngos, 10)  # Show 10 NGOs per page
+    
+    try:
+        ngo_list = paginator.page(page)
+    except PageNotAnInteger:
+        ngo_list = paginator.page(1)
+    except EmptyPage:
+        ngo_list = paginator.page(paginator.num_pages)
+    
+    context = {
+        'ngo_list': ngo_list,
+    }
+    
+    return render(request, 'student/ngo_list.html', context)
+
+
+def ngo_detail(request, ngo_id):
+    """Display detailed information about a specific NGO"""
+    ngo = get_object_or_404(NGO, id=ngo_id, is_active=True)
+    
+    context = {
+        'ngo': ngo,
+    }
+    
+    return render(request, 'student/ngo_detail.html', context)
+
 
 
 

@@ -5,234 +5,335 @@
 
 {% block extra_css %}
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
+    :root {
+        --primary: #8B5CF6;
+        --primary-hover: #7C3AED;
+        --primary-light: rgba(139, 92, 246, 0.2);
+        --text-light: #F3F4F6;
+        --text-secondary: #D1D5DB;
+        --card-bg: rgba(30, 30, 30, 0.5);
+        --card-border: rgba(139, 92, 246, 0.3);
+        --card-shadow: rgba(0, 0, 0, 0.4);
+    }
+
     body {
-        background-color: #0c0e14;
-        color: #e4e6eb;
-        font-family: 'Segoe UI', Arial, sans-serif;
+        background-color: #000000;
+        color: var(--text-light);
+        font-family: 'Inter', sans-serif;
+        min-height: 100vh;
+        position: relative;
+        overflow-x: hidden;
     }
-    
-    .container {
-        max-width: 1200px;
+
+    /* Background Elements */
+    .bg-elements {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -1;
+        overflow: hidden;
     }
-    
+
+    .bg-gradient {
+        position: absolute;
+        width: 24rem;
+        height: 24rem;
+        border-radius: 50%;
+        filter: blur(7rem);
+        z-index: -1;
+    }
+
+    .bg-gradient:nth-child(1) {
+        top: -10%;
+        right: 5%;
+        background: rgba(168, 85, 247, 0.2);
+    }
+
+    .bg-gradient:nth-child(2) {
+        bottom: -5%;
+        left: 10%;
+        background: rgba(168, 85, 247, 0.1);
+    }
+
+    .static-pattern {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        opacity: 0.15;
+        z-index: -1;
+        background-image: radial-gradient(#a855f7 1px, transparent 1px);
+        background-size: 30px 30px;
+    }
+
     .dashboard-container {
-        padding: 2rem;
+        padding: 2rem 0;
+        position: relative;
+        z-index: 2;
     }
 
     .welcome-section {
-        background: rgba(99, 62, 190, 0.1);
-        border: 1px solid rgba(99, 62, 190, 0.3);
-        border-radius: 12px;
-        padding: 2rem;
-        margin-bottom: 2rem;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+        text-align: center;
+        margin-bottom: 3rem;
     }
 
     .welcome-section h1 {
-        color: #a79eff;
+        font-size: 2.5rem;
+        font-weight: 800;
+        letter-spacing: -0.5px;
+        line-height: 1.2;
         margin-bottom: 1rem;
-        font-weight: 600;
-    }
-
-    .info-card {
-        background: rgba(99, 62, 190, 0.1);
-        border: 1px solid rgba(99, 62, 190, 0.3);
-        border-radius: 12px;
-        padding: 1.5rem;
-        margin-bottom: 1.5rem;
-        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
-    }
-
-    .info-card h2 {
-        color: #a79eff;
-        margin-bottom: 1rem;
-        font-size: 1.2rem;
-        border-bottom: 1px solid rgba(99, 62, 190, 0.3);
-        padding-bottom: 0.5rem;
-    }
-
-    .info-item {
-        margin-bottom: 1rem;
-    }
-
-    .info-label {
-        color: #a79eff;
-        font-size: 0.9rem;
-        margin-bottom: 0.2rem;
-    }
-
-    .info-value {
-        color: #e4e6eb;
-        font-size: 1rem;
-    }
-
-    .action-card {
-        background: rgba(99, 62, 190, 0.1);
-        border: 1px solid rgba(99, 62, 190, 0.3);
-        border-radius: 12px;
-        padding: 1.5rem;
-        margin-bottom: 1rem;
-        transition: all 0.3s ease;
-        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
-    }
-
-    .action-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 8px 20px rgba(99, 62, 190, 0.25);
-    }
-
-    .action-card h3 {
-        color: #a79eff;
-        margin-bottom: 1rem;
-    }
-
-    .action-card p {
-        color: #9d9db2;
-        margin-bottom: 1rem;
-    }
-
-    .action-btn {
-        background: #7956e0;
         color: white;
-        padding: 0.5rem 1rem;
-        border-radius: 6px;
-        text-decoration: none;
-        transition: all 0.3s ease;
+    }
+
+    .welcome-section h1 span {
+        color: var(--primary);
+        position: relative;
         display: inline-block;
-        border: none;
     }
 
-    .action-btn:hover {
-        background: #9172e6;
-        color: white;
-        transform: scale(1.05);
+    .welcome-section h1 span::after {
+        content: "";
+        position: absolute;
+        bottom: 5px;
+        left: 0;
+        width: 100%;
+        height: 8px;
+        background-color: var(--primary-light);
+        z-index: -1;
+        border-radius: 4px;
     }
 
-    .feature-card {
-        background: #171b29;
-        border: 1px solid rgba(99, 62, 190, 0.3);
-        border-radius: 12px;
-        padding: 1.5rem;
+    .welcome-section p {
+        color: var(--text-secondary);
+        font-size: 1.1rem;
+        line-height: 1.6;
+        max-width: 700px;
+        margin: 0 auto;
+    }
+
+    /* Cards Grid */
+    .cards-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 2rem;
+        margin-bottom: 3rem;
+    }
+
+    .dashboard-card {
+        background: rgba(12, 10, 20, 0.7);
+        backdrop-filter: blur(10px);
+        border: 1px solid var(--card-border);
+        border-radius: 16px;
+        padding: 2rem;
+        transition: transform 0.3s ease, border-color 0.3s ease;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 8px 32px rgba(31, 38, 135, 0.15);
+        min-height: 280px;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .dashboard-card:hover {
+        transform: translateY(-10px);
+        border-color: var(--primary);
+    }
+
+    .card-icon-wrapper {
+        width: 70px;
+        height: 70px;
+        background: linear-gradient(135deg, var(--primary-light), rgba(139, 92, 246, 0.3));
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
         margin-bottom: 1.5rem;
-        transition: all 0.3s ease;
-        text-align: center;
-        color: #e4e6eb;
-        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+        position: relative;
+        z-index: 2;
+        transition: transform 0.3s ease;
     }
 
-    .feature-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 8px 20px rgba(99, 62, 190, 0.25);
+    .dashboard-card:hover .card-icon-wrapper {
+        transform: scale(1.1);
     }
 
-    .feature-card i {
+    .card-icon-wrapper i {
         font-size: 2rem;
-        color: #7956e0;
+        color: var(--primary);
+        transition: color 0.3s ease;
+    }
+
+    .dashboard-card:hover .card-icon-wrapper i {
+        color: white;
+    }
+
+    .dashboard-card h3 {
+        color: white;
+        margin-bottom: 1rem;
+        font-size: 1.5rem;
+        font-weight: 600;
+        transition: color 0.3s ease;
+    }
+
+    .dashboard-card:hover h3 {
+        color: var(--primary);
+    }
+
+    .dashboard-card p {
+        color: var(--text-secondary);
+        margin-bottom: 1.5rem;
+        font-size: 1rem;
+        line-height: 1.6;
+        flex-grow: 1;
+    }
+
+    .card-action {
+        background: linear-gradient(90deg, #a855f7 0%, #8b5cf6 100%);
+        color: white;
+        border: none;
+        padding: 0.8rem 1.5rem;
+        border-radius: 8px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 12px rgba(168, 85, 247, 0.25);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+        margin-top: auto;
+    }
+
+    .card-action:hover {
+        background: var(--primary-hover);
+        transform: translateY(-3px);
+        color: white;
+    }
+
+    .card-action i {
+        margin-left: 8px;
+        font-size: 1rem;
+        color: white;
+        transition: transform 0.2s ease;
+    }
+
+    .card-action:hover i {
+        transform: translateX(4px);
+    }
+
+    /* Profile Section */
+    .profile-section {
+        background: rgba(12, 10, 20, 0.7);
+        backdrop-filter: blur(10px);
+        border: 1px solid var(--card-border);
+        border-radius: 16px;
+        padding: 2rem;
+        margin-bottom: 3rem;
+        box-shadow: 0 8px 32px rgba(31, 38, 135, 0.15);
+    }
+
+    .profile-section h2 {
+        color: var(--primary);
+        font-size: 1.8rem;
+        font-weight: 700;
+        margin-bottom: 1.5rem;
+        border-bottom: 1px solid rgba(168, 85, 247, 0.3);
+        padding-bottom: 0.8rem;
+    }
+
+    .profile-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .profile-item {
         margin-bottom: 1rem;
     }
 
-    .feature-card h3 {
-        color: #a79eff;
-        margin-bottom: 0.5rem;
-    }
-
-    .feature-card p {
-        color: #9d9db2;
-    }
-
-    .feature-link {
-        text-decoration: none;
-    }
-
-    .feature-link:hover {
-        text-decoration: none;
-    }
-
-    .card {
-        background-color: #171b29;
-        border: 1px solid rgba(99, 62, 190, 0.3);
-        border-radius: 12px;
-        overflow: hidden;
-        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
-    }
-
-    .card-body {
-        padding: 1.5rem;
-    }
-
-    .card-title {
-        color: #a79eff;
+    .profile-label {
+        color: var(--primary);
+        font-size: 0.9rem;
+        margin-bottom: 0.3rem;
         font-weight: 500;
-        margin-bottom: 1.5rem;
-        border-bottom: 1px solid rgba(99, 62, 190, 0.3);
-        padding-bottom: 0.5rem;
     }
 
-    .card p {
-        color: #e4e6eb;
-        margin-bottom: 0.75rem;
+    .profile-value {
+        color: var(--text-light);
+        font-size: 1.1rem;
+        font-weight: 400;
     }
 
-    .card p strong {
-        color: #a79eff;
-        font-weight: 500;
+    /* Alerts */
+    .alert-messages {
+        margin-bottom: 3rem;
+    }
+
+    .alert {
+        background-color: rgba(30, 30, 30, 0.8);
+        border: 1px solid;
+        border-radius: 8px;
+        padding: 1rem 1.5rem;
+        margin-bottom: 1rem;
+        backdrop-filter: blur(5px);
     }
 
     .alert-success {
-        background-color: rgba(25, 135, 84, 0.15);
         border-color: rgba(25, 135, 84, 0.3);
         color: #5ae6a8;
     }
 
     .alert-danger {
-        background-color: rgba(220, 53, 69, 0.15);
         border-color: rgba(220, 53, 69, 0.3);
         color: #ff6b6b;
     }
 
     .alert-info {
-        background-color: rgba(13, 202, 240, 0.15);
         border-color: rgba(13, 202, 240, 0.3);
         color: #6edff6;
     }
 
-    h1.mb-4 {
-        font-weight: 600;
-        color: #a79eff;
-    }
-
-    .row {
-        margin-right: -12px;
-        margin-left: -12px;
-    }
-
-    .col-md-3, .col-md-6, .col-12 {
-        padding-right: 12px;
-        padding-left: 12px;
-    }
-
-    /* Styles for dropdowns and other interactive elements to match the reference UI */
-    select.form-select, button.btn {
-        background-color: #171b29;
-        border: 1px solid rgba(99, 62, 190, 0.3);
-        color: #e4e6eb;
-    }
-
-    select.form-select:focus, button.btn:focus {
-        box-shadow: 0 0 0 0.25rem rgba(99, 62, 190, 0.25);
-        border-color: rgba(99, 62, 190, 0.5);
+    /* Responsive Adjustments */
+    @media (max-width: 768px) {
+        .welcome-section h1 {
+            font-size: 2rem;
+        }
+        
+        .welcome-section p {
+            font-size: 1rem;
+        }
+        
+        .profile-grid {
+            grid-template-columns: 1fr;
+        }
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="container py-4">
-    <h1 class="mb-4">Welcome, {{ profile.full_name }}!</h1>
+<div class="bg-elements">
+    <div class="bg-gradient"></div>
+    <div class="bg-gradient"></div>
+    <div class="static-pattern"></div>
+</div>
 
+<div class="container dashboard-container">
+    <!-- Welcome Section -->
+    <div class="welcome-section">
+        <h1>Welcome back, <span>{{ profile.full_name }}</span></h1>
+        <p>Access your learning resources, connect with mentors, and track your project progress</p>
+    </div>
+
+    <!-- Messages -->
     {% if messages %}
-    <div class="messages mb-4">
+    <div class="alert-messages">
         {% for message in messages %}
         <div class="alert {% if message.tags == 'success' %}alert-success{% elif message.tags == 'error' %}alert-danger{% else %}alert-info{% endif %}">
             {{ message }}
@@ -241,71 +342,154 @@
     </div>
     {% endif %}
 
-    <div class="row mt-4">
-        <div class="col-md-3">
-            <a href="{% url 'list_mentors' %}" class="feature-link">
-                <div class="feature-card">
-                    <i class="fas fa-search"></i>
-                    <h3>Find Mentors</h3>
-                    <p>Browse and connect with mentors</p>
-                </div>
-            </a>
-        </div>
-        <div class="col-md-3">
-            <a href="{% url 'my_connections' %}" class="feature-link">
-                <div class="feature-card">
-                    <i class="fas fa-user-friends"></i>
-                    <h3>My Connections</h3>
-                    <p>View your mentor connections</p>
-                </div>
-            </a>
-        </div>
-        <div class="col-md-3">
-            <a href="{% url 'my_projects' %}" class="feature-link">
-                <div class="feature-card">
-                    <i class="fas fa-project-diagram"></i>
-                    <h3>My Projects</h3>
-                    <p>Share and manage your projects</p>
-                </div>
-            </a>
-        </div>
-        <div class="col-md-3">
-            <a href="{% url 'student_profile' %}?mode=update" class="feature-link">
-                <div class="feature-card">
-                    <i class="fas fa-user-edit"></i>
-                    <h3>Update Profile</h3>
-                    <p>Keep your profile up to date</p>
-                </div>
-            </a>
+    <!-- Quick Actions Grid -->
+    <div class="cards-grid">
+        <a href="{% url 'list_mentors' %}" class="dashboard-card">
+            <div class="card-icon-wrapper">
+                <i class="fas fa-search"></i>
+            </div>
+            <h3>Find Mentors</h3>
+            <p>Browse and connect with mentors who can guide you in your learning journey</p>
+            <span class="card-action">Explore <i class="fas fa-arrow-right"></i></span>
+        </a>
+
+        <a href="{% url 'my_connections' %}" class="dashboard-card">
+            <div class="card-icon-wrapper">
+                <i class="fas fa-user-friends"></i>
+            </div>
+            <h3>My Connections</h3>
+            <p>View and manage your current mentor connections and messages</p>
+            <span class="card-action">View <i class="fas fa-arrow-right"></i></span>
+        </a>
+
+        <a href="{% url 'my_projects' %}" class="dashboard-card">
+            <div class="card-icon-wrapper">
+                <i class="fas fa-project-diagram"></i>
+            </div>
+            <h3>My Projects</h3>
+            <p>Manage your current projects and track your progress with mentors</p>
+            <span class="card-action">Manage <i class="fas fa-arrow-right"></i></span>
+        </a>
+    </div>
+
+    <!-- Profile Section -->
+    <div class="profile-section">
+        <h2>Your Profile</h2>
+        <div class="profile-grid">
+            <div class="profile-item">
+                <div class="profile-label">Full Name</div>
+                <div class="profile-value">{{ profile.full_name }}</div>
+            </div>
+            <div class="profile-item">
+                <div class="profile-label">Roll Number</div>
+                <div class="profile-value">{{ profile.roll_number }}</div>
+            </div>
+            <div class="profile-item">
+                <div class="profile-label">Branch</div>
+                <div class="profile-value">{{ profile.branch }}</div>
+            </div>
+            <div class="profile-item">
+                <div class="profile-label">Semester</div>
+                <div class="profile-value">{{ profile.semester }}</div>
+            </div>
+            <div class="profile-item">
+                <div class="profile-label">Section</div>
+                <div class="profile-value">{{ profile.section }}</div>
+            </div>
+            <div class="profile-item">
+                <div class="profile-label">Admission Year</div>
+                <div class="profile-value">{{ profile.admission_year }}</div>
+            </div>
+            <div class="profile-item">
+                <div class="profile-label">Email</div>
+                <div class="profile-value">{{ profile.user.email }}</div>
+            </div>
+            <div class="profile-item">
+                <div class="profile-label">Phone</div>
+                <div class="profile-value">{{ profile.phone }}</div>
+            </div>
         </div>
     </div>
 
-    <div class="row mt-4">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title mb-3">Your Profile Summary</h5>
-                    <div class="row">
-                        <div class="col-md-6">
-                            <p><strong>Name:</strong> {{ profile.full_name }}</p>
-                            <p><strong>Roll Number:</strong> {{ profile.roll_number }}</p>
-                            <p><strong>Branch:</strong> {{ profile.branch }}</p>
-                            <p><strong>Semester:</strong> {{ profile.semester }}</p>
-                        </div>
-                        <div class="col-md-6">
-                            <p><strong>Section:</strong> {{ profile.section }}</p>
-                            <p><strong>Admission Year:</strong> {{ profile.admission_year }}</p>
-                            <p><strong>Phone:</strong> {{ profile.phone }}</p>
-                            <p><strong>Email:</strong> {{ profile.user.email }}</p>
-                        </div>
-                    </div>
-                </div>
+    <!-- Additional Actions Row -->
+    <div class="cards-grid">
+        <a href="{% url 'student_profile' %}?mode=update" class="dashboard-card">
+            <div class="card-icon-wrapper">
+                <i class="fas fa-user-edit"></i>
             </div>
-        </div>
+            <h3>Update Profile</h3>
+            <p>Keep your profile information current to get the most relevant mentor matches</p>
+            <span class="card-action">Update <i class="fas fa-arrow-right"></i></span>
+        </a>
+
+        <a href="#" class="dashboard-card">
+            <div class="card-icon-wrapper">
+                <i class="fas fa-book"></i>
+            </div>
+            <h3>Learning Resources</h3>
+            <p>Access recommended learning materials and courses tailored for you</p>
+            <span class="card-action">Explore <i class="fas fa-arrow-right"></i></span>
+        </a>
+
+        <a href="#" class="dashboard-card">
+            <div class="card-icon-wrapper">
+                <i class="fas fa-calendar-alt"></i>
+            </div>
+            <h3>Upcoming Events</h3>
+            <p>View workshops, seminars and other events that might interest you</p>
+            <span class="card-action">View <i class="fas fa-arrow-right"></i></span>
+        </a>
     </div>
 </div>
 
 {% block extra_js %}
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // Add ripple effect to cards
+    document.querySelectorAll('.dashboard-card').forEach(card => {
+        card.addEventListener('click', function(e) {
+            const rect = card.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            const ripple = document.createElement('span');
+            ripple.classList.add('ripple');
+            ripple.style.left = `${x}px`;
+            ripple.style.top = `${y}px`;
+            
+            if (card.querySelectorAll('.ripple').length > 0) {
+                card.querySelector('.ripple').remove();
+            }
+            
+            card.appendChild(ripple);
+            
+            setTimeout(() => {
+                ripple.remove();
+            }, 700);
+        });
+    });
+
+    // Ripple effect styles
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes ripple {
+            to {
+                transform: translate(-50%, -50%) scale(15);
+                opacity: 0;
+            }
+        }
+        .ripple {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            animation: ripple 0.6s linear forwards;
+            pointer-events: none;
+            width: 20px;
+            height: 20px;
+        }
+    `;
+    document.head.appendChild(style);
+</script>
 {% endblock %}
 {% endblock %}

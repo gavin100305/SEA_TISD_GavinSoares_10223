@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+
+{% block title %}NGO Listings{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1>Non-Governmental Organizations</h1>
+    
+    <!-- NGO list -->
+    {% if ngo_list %}
+        <div class="row row-cols-1 row-cols-md-2 g-4">
+            {% for ngo in ngo_list %}
+                <div class="col">
+                    <div class="card h-100">
+                        {% if ngo.logo %}
+                            <img src="{{ ngo.logo.url }}" class="card-img-top" alt="{{ ngo.name }} logo" style="max-height: 120px; object-fit: contain; padding: 10px;">
+                        {% endif %}
+                        <div class="card-body">
+                            <h5 class="card-title">{{ ngo.name }}</h5>
+                            <p class="card-text">{{ ngo.description|truncatewords:20 }}</p>
+                        </div>
+                        <div class="card-footer">
+                            <a href="{% url 'ngo_detail' ngo.id %}" class="btn btn-primary">View Details</a>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+        
+        <!-- Pagination -->
+        <div class="mt-4">
+            {% if ngo_list.has_other_pages %}
+                <nav aria-label="NGO pagination">
+                    <ul class="pagination justify-content-center">
+                        {% if ngo_list.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ ngo_list.previous_page_number }}">Previous</a>
+                            </li>
+                        {% else %}
+                            <li class="page-item disabled">
+                                <span class="page-link">Previous</span>
+                            </li>
+                        {% endif %}
+                        
+                        {% for i in ngo_list.paginator.page_range %}
+                            {% if ngo_list.number == i %}
+                                <li class="page-item active"><span class="page-link">{{ i }}</span></li>
+                            {% else %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ i }}">{{ i }}</a>
+                                </li>
+                            {% endif %}
+                        {% endfor %}
+                        
+                        {% if ngo_list.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ ngo_list.next_page_number }}">Next</a>
+                            </li>
+                        {% else %}
+                            <li class="page-item disabled">
+                                <span class="page-link">Next</span>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+            {% endif %}
+        </div>
+    {% else %}
+        <div class="alert alert-info">
+            No NGOs found at the moment.
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

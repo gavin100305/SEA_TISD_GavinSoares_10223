@@ -234,7 +234,6 @@ class NGOForm(ModelForm):
         fields = ['name', 'description', 'requirements', 'contact_person', 
                  'contact_email', 'contact_phone', 'website', 'address', 'image']
 
-@login_required
 def ngo_list(request):
     """View to list all NGOs added by the college"""
     try:
