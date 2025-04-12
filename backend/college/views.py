@@ -11,6 +11,8 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from .serializers import CollegeProfileSerializer
 from django.forms import ModelForm
+from django.db.models import Count, Avg
+from students.models import StudentProfile, Project, MentorConnection
 
 
 def college_signup(request):
@@ -321,3 +323,98 @@ def delete_ngo(request, ngo_id):
     except CollegeProfile.DoesNotExist:
         messages.error(request, 'College profile not found!')
         return redirect('college_login')
+
+@login_required
+def registered_mentors(request):
+    try:
+        college = CollegeProfile.objects.get(user=request.user)
+        
+        # Get filter parameters
+        status = request.GET.get('status', '')
+        specialization = request.GET.get('specialization', '')
+        
+        # Base query
+        mentors = MentorProfile.objects.filter(college=college)
+        
+        # Apply filters
+        if status:
+            mentors = mentors.filter(verification_status=status)
+        if specialization:
+            mentors = mentors.filter(specialization=specialization)
+            
+        # Get stats
+        total_mentors = mentors.count()
+        active_mentors = mentors.filter(verification_status='approved').count()
+        pending_mentors = mentors.filter(verification_status='pending').count()
+        
+        # Get unique specializations for filter
+        specializations = MentorProfile.objects.filter(college=college).values_list('specialization', flat=True).distinct()
+        
+        context = {
+            'mentors': mentors,
+            'total_mentors': total_mentors,
+            'active_mentors': active_mentors,
+            'pending_mentors': pending_mentors,
+            'specializations': specializations,
+            'status': status,
+            'specialization': specialization,
+        }
+        return render(request, 'college/registered_mentors.html', context)
+        
+    except CollegeProfile.DoesNotExist:
+        messages.error(request, 'College profile not found!')
+        return redirect('college_dashboard')
+    except Exception as e:
+        messages.error(request, f'An error occurred: {str(e)}')
+        return redirect('college_dashboard')
+
+@login_required
+def registered_students(request):
+    try:
+        college = CollegeProfile.objects.get(user=request.user)
+        
+        # Get filter parameters
+        branch = request.GET.get('branch', '')
+        semester = request.GET.get('semester', '')
+        
+        # Get all students from database
+        students = StudentProfile.objects.all()
+        
+        # Apply filters
+        if branch:
+            students = students.filter(branch=branch)
+        if semester:
+            students = students.filter(semester=semester)
+            
+        # Get stats
+        total_students = students.count()
+        active_projects = Project.objects.filter(student__in=students).count()
+        mentor_connections = MentorConnection.objects.filter(student__in=students, status='accepted').count()
+        
+        # Calculate average projects per student
+        avg_projects = Project.objects.filter(student__in=students).values('student').annotate(
+            project_count=Count('id')).aggregate(avg=Avg('project_count'))['avg'] or 0
+        
+        # Get unique branches and semesters for filters
+        branches = StudentProfile.BRANCH_CHOICES
+        semesters = range(1, 9)  # Assuming 8 semesters
+        
+        context = {
+            'students': students,
+            'total_students': total_students,
+            'active_projects': active_projects,
+            'mentor_connections': mentor_connections,
+            'avg_projects': avg_projects,
+            'branches': [b[0] for b in branches],
+            'semesters': semesters,
+            'selected_branch': branch,
+            'selected_semester': semester,
+        }
+        return render(request, 'college/registered_students.html', context)
+        
+    except CollegeProfile.DoesNotExist:
+        messages.error(request, 'College profile not found!')
+        return redirect('college_dashboard')
+    except Exception as e:
+        messages.error(request, f'An error occurred: {str(e)}')
+        return redirect('college_dashboard')

@@ -175,6 +175,43 @@
         color: #c77dff;
         font-size: 0.9rem;
     }
+
+    .feature-link {
+        text-decoration: none;
+        color: inherit;
+    }
+
+    .feature-card {
+        background: rgba(157, 78, 221, 0.1);
+        border: 1px solid #9d4edd;
+        border-radius: 10px;
+        padding: 1.5rem;
+        text-align: center;
+        transition: all 0.3s ease;
+        height: 100%;
+    }
+
+    .feature-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 5px 15px rgba(157, 78, 221, 0.2);
+    }
+
+    .feature-card i {
+        font-size: 2rem;
+        color: #9d4edd;
+        margin-bottom: 1rem;
+    }
+
+    .feature-card h3 {
+        color: #c77dff;
+        margin-bottom: 0.5rem;
+        font-size: 1.2rem;
+    }
+
+    .feature-card p {
+        color: #fff;
+        font-size: 0.9rem;
+    }
 </style>
 {% endblock %}
 
@@ -191,6 +228,45 @@
     <div class="welcome-section">
         <h1>Welcome, {{ profile.college_name }}!</h1>
         <p>College Code: {{ profile.college_code }}</p>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-md-3">
+            <a href="{% url 'mentor_requests' %}" class="feature-link">
+                <div class="feature-card">
+                    <i class="fas fa-user-plus"></i>
+                    <h3>Mentor Requests</h3>
+                    <p>Review and verify mentor applications</p>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-3">
+            <a href="{% url 'registered_mentors' %}" class="feature-link">
+                <div class="feature-card">
+                    <i class="fas fa-chalkboard-teacher"></i>
+                    <h3>Registered Mentors</h3>
+                    <p>View and manage all registered mentors</p>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-3">
+            <a href="{% url 'registered_students' %}" class="feature-link">
+                <div class="feature-card">
+                    <i class="fas fa-user-graduate"></i>
+                    <h3>Registered Students</h3>
+                    <p>Track student activities and progress</p>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-3">
+            <a href="{% url 'college_profile' %}" class="feature-link">
+                <div class="feature-card">
+                    <i class="fas fa-university"></i>
+                    <h3>College Profile</h3>
+                    <p>Update college information</p>
+                </div>
+            </a>
+        </div>
     </div>
 
     <div class="mentor-requests" id="mentor-requests">
@@ -211,8 +287,8 @@
             </div>
         </div>
 
-        <h3 style="color: #9d4edd; margin-bottom: 1rem;">Pending Verification Requests</h3>
-        {% for mentor in pending_mentors %}
+        <h3 style="color: #9d4edd; margin-bottom: 1rem;">Recent Mentor Requests</h3>
+        {% for mentor in pending_mentors|slice:":3" %}
         <div class="mentor-card">
             <h3>
                 New Mentor Request
@@ -248,6 +324,11 @@
         {% empty %}
         <p style="color: #c77dff; text-align: center;">No pending mentor verification requests.</p>
         {% endfor %}
+        {% if pending_mentors.count > 3 %}
+        <div class="text-center mt-3">
+            <a href="{% url 'mentor_requests' %}" class="btn btn-outline-primary">View All Requests</a>
+        </div>
+        {% endif %}
     </div>
 
     <div class="info-grid">
@@ -301,5 +382,6 @@
             </div>
         </div>
     </div>
-</div>
+</div> 
+
 {% endblock %} 

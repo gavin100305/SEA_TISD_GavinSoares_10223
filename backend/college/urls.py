@@ -7,6 +7,8 @@ urlpatterns = [
     path('logout/', views.college_logout, name='college_logout'),
     path('profile/', views.college_profile, name='college_profile'),
     path('dashboard/', views.college_dashboard, name='college_dashboard'),
+    path('mentors/', views.registered_mentors, name='registered_mentors'),
+    path('students/', views.registered_students, name='registered_students'),
     path('mentor-requests/', views.mentor_requests, name='mentor_requests'),
     path('verify_mentor/<int:mentor_id>/', views.verify_mentor, name='verify_mentor'),
 

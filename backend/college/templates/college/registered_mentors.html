@@ -1,0 +1,214 @@
+{% extends 'college/base.html' %}
+{% load static %}
+
+{% block title %}Registered Mentors{% endblock %}
+
+{% block extra_css %}
+<style>
+    .mentors-container {
+        padding: 2rem;
+    }
+
+    .mentor-card {
+        background: rgba(157, 78, 221, 0.1);
+        border: 1px solid #9d4edd;
+        border-radius: 10px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        transition: all 0.3s ease;
+    }
+
+    .mentor-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 5px 15px rgba(157, 78, 221, 0.2);
+    }
+
+    .mentor-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+
+    .mentor-image {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        margin-right: 1rem;
+        border: 2px solid #9d4edd;
+        object-fit: cover;
+    }
+
+    .mentor-info h3 {
+        color: #9d4edd;
+        margin-bottom: 0.5rem;
+    }
+
+    .mentor-info p {
+        color: #c77dff;
+        margin-bottom: 0.2rem;
+    }
+
+    .mentor-details {
+        margin: 1rem 0;
+        padding: 1rem;
+        background: rgba(157, 78, 221, 0.05);
+        border-radius: 5px;
+    }
+
+    .mentor-details p {
+        color: #fff;
+        margin-bottom: 0.5rem;
+    }
+
+    .status-badge {
+        display: inline-block;
+        padding: 0.25rem 1rem;
+        border-radius: 15px;
+        font-size: 0.9rem;
+        margin-left: 1rem;
+    }
+
+    .status-pending {
+        background: rgba(255, 193, 7, 0.2);
+        color: #ffc107;
+        border: 1px solid #ffc107;
+    }
+
+    .status-approved {
+        background: rgba(40, 167, 69, 0.2);
+        color: #28a745;
+        border: 1px solid #28a745;
+    }
+
+    .status-rejected {
+        background: rgba(220, 53, 69, 0.2);
+        color: #dc3545;
+        border: 1px solid #dc3545;
+    }
+
+    .stats-card {
+        background: rgba(157, 78, 221, 0.1);
+        border: 1px solid #9d4edd;
+        border-radius: 10px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        text-align: center;
+    }
+
+    .stats-card h4 {
+        color: #9d4edd;
+        margin-bottom: 0.5rem;
+    }
+
+    .stats-card p {
+        color: #fff;
+        font-size: 1.5rem;
+        margin: 0;
+    }
+
+    .filter-section {
+        margin-bottom: 2rem;
+        padding: 1rem;
+        background: rgba(157, 78, 221, 0.1);
+        border-radius: 10px;
+    }
+
+    .filter-section select {
+        background: rgba(157, 78, 221, 0.1);
+        border: 1px solid #9d4edd;
+        color: #fff;
+        padding: 0.5rem;
+        border-radius: 5px;
+        margin-right: 1rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="mentors-container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 style="color: #9d4edd;">Registered Mentors</h1>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="stats-card">
+                <h4>Total Mentors</h4>
+                <p>{{ total_mentors }}</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stats-card">
+                <h4>Active Mentors</h4>
+                <p>{{ active_mentors }}</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stats-card">
+                <h4>Pending Approvals</h4>
+                <p>{{ pending_mentors }}</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="filter-section">
+        <form method="GET" class="d-flex align-items-center">
+            <select name="status" class="form-control me-2">
+                <option value="">All Status</option>
+                <option value="pending" {% if status == 'pending' %}selected{% endif %}>Pending</option>
+                <option value="approved" {% if status == 'approved' %}selected{% endif %}>Approved</option>
+                <option value="rejected" {% if status == 'rejected' %}selected{% endif %}>Rejected</option>
+            </select>
+            <select name="specialization" class="form-control me-2">
+                <option value="">All Specializations</option>
+                {% for spec in specializations %}
+                <option value="{{ spec }}" {% if specialization == spec %}selected{% endif %}>{{ spec }}</option>
+                {% endfor %}
+            </select>
+            <button type="submit" class="btn btn-custom">Filter</button>
+        </form>
+    </div>
+
+    <div class="row">
+        {% for mentor in mentors %}
+        <div class="col-md-6 mb-4">
+            <div class="mentor-card">
+                <div class="mentor-header">
+                    <img src="{% if mentor.profile_picture %}{{ mentor.profile_picture.url }}{% else %}https://ui-avatars.com/api/?name={{ mentor.full_name|default:mentor.user.username }}&background=9d4edd&color=fff{% endif %}" 
+                         alt="{{ mentor.full_name }}" 
+                         class="mentor-image">
+                    <div class="mentor-info">
+                        <h3>{{ mentor.full_name }}</h3>
+                        <p>{{ mentor.current_role }}</p>
+                        <span class="status-badge status-{{ mentor.verification_status }}">
+                            {{ mentor.verification_status|title }}
+                        </span>
+                    </div>
+                </div>
+
+                <div class="mentor-details">
+                    <p><strong>Email:</strong> {{ mentor.user.email }}</p>
+                    <p><strong>Phone:</strong> {{ mentor.phone }}</p>
+                    <p><strong>Qualification:</strong> {{ mentor.highest_qualification }}</p>
+                    <p><strong>University:</strong> {{ mentor.university }}</p>
+                    <p><strong>Specialization:</strong> {{ mentor.specialization }}</p>
+                    <p><strong>Experience:</strong> {{ mentor.experience_years }} years</p>
+                    <p><strong>Teaching Branch:</strong> {{ mentor.teaching_branch }}</p>
+                    {% if mentor.expertise_areas %}
+                    <p><strong>Expertise:</strong> {{ mentor.expertise_areas }}</p>
+                    {% endif %}
+                    {% if mentor.linkedin %}
+                    <p><strong>LinkedIn:</strong> <a href="{{ mentor.linkedin }}" target="_blank" style="color: #9d4edd;">View Profile</a></p>
+                    {% endif %}
+                    <p><strong>Joined:</strong> {{ mentor.user.date_joined|date:"M d, Y" }}</p>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <p class="text-center" style="color: #fff;">No mentors found matching the criteria.</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %} 
