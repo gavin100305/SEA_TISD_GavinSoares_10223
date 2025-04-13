@@ -1,0 +1,148 @@
+{% extends 'mentor/base.html' %}
+
+{% load static %}
+
+{% block title %}Schedule Meeting with {{ student.full_name }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .meeting-form-container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-group label {
+        display: block;
+        color: #9d4edd;
+        margin-bottom: 0.5rem;
+        font-weight: bold;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 0.75rem;
+        border: 1px solid #9d4edd;
+        border-radius: 5px;
+        background: rgba(157, 78, 221, 0.1);
+        color: #fff;
+    }
+
+    .form-control:focus {
+        outline: none;
+        border-color: #c77dff;
+        box-shadow: 0 0 0 2px rgba(199, 125, 255, 0.2);
+    }
+
+    .btn-custom {
+        background: #9d4edd;
+        color: white;
+        border: none;
+        padding: 0.75rem 2rem;
+        border-radius: 25px;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .btn-custom:hover {
+        background: #c77dff;
+        transform: translateY(-2px);
+    }
+
+    .student-info {
+        background: rgba(157, 78, 221, 0.1);
+        border: 1px solid #9d4edd;
+        border-radius: 10px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .student-info h3 {
+        color: #9d4edd;
+        margin-bottom: 1rem;
+    }
+
+    .student-info p {
+        color: #fff;
+        margin-bottom: 0.5rem;
+    }
+
+    textarea.form-control {
+        min-height: 100px;
+        resize: vertical;
+    }
+
+    .form-text {
+        color: #c77dff;
+        font-size: 0.875rem;
+        margin-top: 0.25rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="meeting-form-container">
+    <h1 class="mb-4" style="color: #9d4edd;">Schedule Meeting</h1>
+
+    {% if messages %}
+    <div class="messages mb-4">
+        {% for message in messages %}
+        <div class="alert {% if message.tags == 'success' %}alert-success{% elif message.tags == 'error' %}alert-danger{% else %}alert-info{% endif %}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="student-info">
+        <h3>Meeting with {{ student.full_name }}</h3>
+        <p><strong>Roll Number:</strong> {{ student.roll_number }}</p>
+        <p><strong>Branch:</strong> {{ student.get_branch_display }}</p>
+        <p><strong>Semester:</strong> {{ student.semester }}</p>
+    </div>
+
+    <form method="POST">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="title">Meeting Title*</label>
+            <input type="text" id="title" name="title" class="form-control" required
+                   placeholder="e.g., Project Discussion, Weekly Check-in">
+        </div>
+
+        <div class="form-group">
+            <label for="description">Description</label>
+            <textarea id="description" name="description" class="form-control"
+                      placeholder="Enter meeting agenda or any additional information"></textarea>
+        </div>
+
+        <div class="form-group">
+            <label for="meeting_link">Zoom Meeting Link*</label>
+            <input type="url" id="meeting_link" name="meeting_link" class="form-control" required
+                   placeholder="https://zoom.us/j/...">
+            <div class="form-text">Please create a Zoom meeting and paste the join URL here</div>
+        </div>
+
+        <div class="form-group">
+            <label for="meeting_time">Meeting Time*</label>
+            <input type="datetime-local" id="meeting_time" name="meeting_time" class="form-control" required>
+            <div class="form-text">Select a date and time in your local timezone</div>
+        </div>
+
+        <div class="form-group">
+            <label for="duration">Duration (minutes)*</label>
+            <input type="number" id="duration" name="duration" class="form-control" required
+                   min="15" step="15" value="30">
+            <div class="form-text">Minimum duration: 15 minutes</div>
+        </div>
+
+        <div class="text-center">
+            <button type="submit" class="btn-custom">Schedule Meeting</button>
+        </div>
+    </form>
+</div>
+{% endblock %} 

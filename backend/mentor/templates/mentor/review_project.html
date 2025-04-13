@@ -1,4 +1,4 @@
-{% extends '../base.html' %}
+{% extends 'mentor/base.html' %}
 {% load static %}
 
 {% block title %}Review Project{% endblock %}
@@ -92,6 +92,23 @@
         background: #2b2b2b;
         color: #fff;
     }
+
+    .meeting-section {
+        margin-top: 2rem;
+        background: rgba(157, 78, 221, 0.1);
+        border: 1px solid #9d4edd;
+        border-radius: 10px;
+        padding: 1.5rem;
+    }
+
+    .meeting-form {
+        margin-top: 1rem;
+    }
+
+    .meeting-title {
+        color: #9d4edd;
+        margin-bottom: 1rem;
+    }
 </style>
 {% endblock %}
 
@@ -118,7 +135,12 @@
         <div class="col-md-6">
             <div class="project-card">
                 <h3 class="project-title">{{ project.title }}</h3>
-                <p class="text-muted">By: {{ project.student.full_name }}</p>
+                {% if project.student %}
+                    <p class="text-muted">By: {{ project.student.full_name }}</p>
+                {% elif project.group %}
+                    <p class="text-muted">By: {{ project.group.name }} (Group)</p>
+                    <p class="text-muted">Leader: {{ project.group.leader.full_name }}</p>
+                {% endif %}
 
                 <div class="project-details">
                     <p>{{ project.description }}</p>
@@ -134,6 +156,41 @@
                         {% endif %}
                     </div>
                 </div>
+            </div>
+
+            <!-- Meeting Scheduling Section -->
+            <div class="meeting-section">
+                <h3 class="meeting-title">Schedule a Meeting</h3>
+                {% if project.student %}
+                    <form method="POST" action="{% url 'schedule_meeting' project.student.id %}" class="meeting-form">
+                {% elif project.group %}
+                    <form method="POST" action="{% url 'schedule_meeting' project.group.leader.id %}" class="meeting-form">
+                {% endif %}
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="title" class="form-label">Meeting Title</label>
+                        <input type="text" class="form-control" id="title" name="title" required 
+                               value="Project Review: {{ project.title }}">
+                    </div>
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Meeting Description</label>
+                        <textarea class="form-control" id="description" name="description" rows="3" 
+                                  placeholder="Discuss project progress, feedback, and next steps..."></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="meeting_link" class="form-label">Meeting Link</label>
+                        <input type="url" class="form-control" id="meeting_link" name="meeting_link" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="meeting_time" class="form-label">Meeting Time</label>
+                        <input type="datetime-local" class="form-control" id="meeting_time" name="meeting_time" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="duration" class="form-label">Duration (minutes)</label>
+                        <input type="number" class="form-control" id="duration" name="duration" required value="30">
+                    </div>
+                    <button type="submit" class="btn btn-custom">Schedule Meeting</button>
+                </form>
             </div>
         </div>
 

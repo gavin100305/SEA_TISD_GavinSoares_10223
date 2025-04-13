@@ -1,0 +1,208 @@
+{% extends 'mentor/base.html' %}
+
+{% load static %}
+
+{% block title %}My Scheduled Meetings{% endblock %}
+
+{% block extra_css %}
+<style>
+    .meetings-container {
+        padding: 2rem;
+    }
+
+    .meeting-card {
+        background: rgba(157, 78, 221, 0.1);
+        border: 1px solid #9d4edd;
+        border-radius: 10px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        transition: all 0.3s ease;
+    }
+
+    .meeting-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 5px 15px rgba(157, 78, 221, 0.2);
+    }
+
+    .meeting-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 1rem;
+    }
+
+    .meeting-title {
+        color: #9d4edd;
+        margin-bottom: 0.5rem;
+    }
+
+    .meeting-status {
+        display: inline-block;
+        padding: 0.25rem 1rem;
+        border-radius: 15px;
+        font-size: 0.9rem;
+    }
+
+    .status-scheduled {
+        background: rgba(13, 110, 253, 0.2);
+        color: #0d6efd;
+        border: 1px solid #0d6efd;
+    }
+
+    .status-completed {
+        background: rgba(40, 167, 69, 0.2);
+        color: #28a745;
+        border: 1px solid #28a745;
+    }
+
+    .status-cancelled {
+        background: rgba(220, 53, 69, 0.2);
+        color: #dc3545;
+        border: 1px solid #dc3545;
+    }
+
+    .meeting-details {
+        color: #fff;
+    }
+
+    .meeting-time {
+        color: #c77dff;
+        font-size: 1.1rem;
+        margin: 1rem 0;
+    }
+
+    .meeting-actions {
+        margin-top: 1rem;
+        display: flex;
+        gap: 1rem;
+    }
+
+    .btn-custom {
+        background: #9d4edd;
+        color: white;
+        border: none;
+        padding: 0.5rem 1.5rem;
+        border-radius: 25px;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        display: inline-block;
+    }
+
+    .btn-custom:hover {
+        background: #c77dff;
+        color: white;
+        transform: scale(1.05);
+    }
+
+    .btn-danger {
+        background: #dc3545;
+    }
+
+    .btn-danger:hover {
+        background: #bb2d3b;
+    }
+
+    .filters {
+        margin-bottom: 2rem;
+        display: flex;
+        gap: 1rem;
+    }
+
+    .filter-btn {
+        padding: 0.5rem 1.5rem;
+        border-radius: 25px;
+        border: 1px solid #9d4edd;
+        background: transparent;
+        color: #9d4edd;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .filter-btn.active {
+        background: #9d4edd;
+        color: white;
+    }
+
+    .filter-btn:hover {
+        background: rgba(157, 78, 221, 0.2);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="meetings-container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 style="color: #9d4edd;">My Scheduled Meetings</h1>
+    </div>
+
+    {% if messages %}
+    <div class="messages mb-4">
+        {% for message in messages %}
+        <div class="alert {% if message.tags == 'success' %}alert-success{% elif message.tags == 'error' %}alert-danger{% else %}alert-info{% endif %}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="filters">
+        <a href="{% url 'meeting_list' %}" class="filter-btn {% if not request.GET.status %}active{% endif %}">
+            All
+        </a>
+        <a href="{% url 'meeting_list' %}?status=scheduled" class="filter-btn {% if request.GET.status == 'scheduled' %}active{% endif %}">
+            Scheduled
+        </a>
+        <a href="{% url 'meeting_list' %}?status=completed" class="filter-btn {% if request.GET.status == 'completed' %}active{% endif %}">
+            Completed
+        </a>
+        <a href="{% url 'meeting_list' %}?status=cancelled" class="filter-btn {% if request.GET.status == 'cancelled' %}active{% endif %}">
+            Cancelled
+        </a>
+    </div>
+
+    <div class="row">
+        {% for meeting in meetings %}
+        <div class="col-md-6 mb-4">
+            <div class="meeting-card">
+                <div class="meeting-header">
+                    <div>
+                        <h3 class="meeting-title">{{ meeting.title }}</h3>
+                        <p class="text-muted">With: {{ meeting.student.full_name }}</p>
+                    </div>
+                    <span class="meeting-status status-{{ meeting.status }}">
+                        {{ meeting.status|title }}
+                    </span>
+                </div>
+
+                <div class="meeting-details">
+                    {% if meeting.description %}
+                    <p>{{ meeting.description }}</p>
+                    {% endif %}
+
+                    <div class="meeting-time">
+                        <p>📅 {{ meeting.meeting_time|date:"F j, Y" }}</p>
+                        <p>⏰ {{ meeting.meeting_time|date:"g:i A" }} ({{ meeting.duration }} minutes)</p>
+                    </div>
+
+                    {% if meeting.status == 'scheduled' %}
+                    <div class="meeting-actions">
+                        <a href="{{ meeting.meeting_link }}" target="_blank" class="btn-custom">Join Meeting</a>
+                        <form method="POST" action="{% url 'cancel_meeting' meeting.id %}" style="display: inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="btn-custom btn-danger" onclick="return confirm('Are you sure you want to cancel this meeting?')">
+                                Cancel Meeting
+                            </button>
+                        </form>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <p class="text-center" style="color: #fff;">No meetings found.</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %} 

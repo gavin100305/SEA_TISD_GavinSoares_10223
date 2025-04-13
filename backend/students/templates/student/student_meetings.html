@@ -1,0 +1,267 @@
+{% extends '../base.html' %}
+{% load static %}
+
+{% block title %}My Meetings{% endblock %}
+
+{% block extra_css %}
+<style>
+    .meetings-container {
+        padding: 2rem;
+    }
+
+    .meeting-card {
+        background: rgba(157, 78, 221, 0.1);
+        border: 1px solid #9d4edd;
+        border-radius: 10px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        transition: all 0.3s ease;
+    }
+
+    .meeting-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 5px 15px rgba(157, 78, 221, 0.2);
+    }
+
+    .meeting-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 1rem;
+    }
+
+    .meeting-title {
+        color: #9d4edd;
+        margin-bottom: 0.5rem;
+    }
+
+    .meeting-status {
+        display: inline-block;
+        padding: 0.25rem 1rem;
+        border-radius: 15px;
+        font-size: 0.9rem;
+    }
+
+    .status-scheduled {
+        background: rgba(13, 110, 253, 0.2);
+        color: #0d6efd;
+        border: 1px solid #0d6efd;
+    }
+
+    .status-completed {
+        background: rgba(40, 167, 69, 0.2);
+        color: #28a745;
+        border: 1px solid #28a745;
+    }
+
+    .status-cancelled {
+        background: rgba(220, 53, 69, 0.2);
+        color: #dc3545;
+        border: 1px solid #dc3545;
+    }
+
+    .meeting-details {
+        color: #fff;
+    }
+
+    .meeting-time {
+        color: #c77dff;
+        font-size: 1.1rem;
+        margin: 1rem 0;
+    }
+
+    .meeting-actions {
+        margin-top: 1rem;
+    }
+
+    .btn-custom {
+        background: #9d4edd;
+        color: white;
+        border: none;
+        padding: 0.5rem 1.5rem;
+        border-radius: 25px;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        display: inline-block;
+    }
+
+    .btn-custom:hover {
+        background: #c77dff;
+        color: white;
+        transform: scale(1.05);
+    }
+
+    .filters {
+        margin-bottom: 2rem;
+        display: flex;
+        gap: 1rem;
+    }
+
+    .filter-btn {
+        padding: 0.5rem 1.5rem;
+        border-radius: 25px;
+        border: 1px solid #9d4edd;
+        background: transparent;
+        color: #9d4edd;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .filter-btn.active {
+        background: #9d4edd;
+        color: white;
+    }
+
+    .filter-btn:hover {
+        background: rgba(157, 78, 221, 0.2);
+    }
+
+    .mentor-info {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .mentor-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 2px solid #9d4edd;
+    }
+
+    .upcoming-meeting {
+        border: 2px solid #0d6efd;
+        background: rgba(13, 110, 253, 0.1);
+    }
+
+    .time-badge {
+        background: rgba(13, 110, 253, 0.2);
+        color: #0d6efd;
+        padding: 0.25rem 0.75rem;
+        border-radius: 15px;
+        font-size: 0.9rem;
+        margin-left: 1rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>My Meetings</h2>
+    
+    <!-- Schedule Meeting Form -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h4>Schedule a New Meeting</h4>
+        </div>
+        <div class="card-body">
+            <form method="POST">
+                {% csrf_token %}
+                <div class="form-group mb-3">
+                    <label for="mentor">Select Mentor</label>
+                    <select class="form-control" id="mentor" name="mentor" required>
+                        <option value="">Choose a mentor...</option>
+                        {% for connection in connected_mentors %}
+                            <option value="{{ connection.mentor.id }}">{{ connection.mentor.user.get_full_name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group mb-3">
+                    <label for="title">Meeting Title</label>
+                    <input type="text" class="form-control" id="title" name="title" required>
+                </div>
+                <div class="form-group mb-3">
+                    <label for="description">Description</label>
+                    <textarea class="form-control" id="description" name="description" rows="3"></textarea>
+                </div>
+                <div class="form-group mb-3">
+                    <label for="meeting_link">Meeting Link</label>
+                    <input type="url" class="form-control" id="meeting_link" name="meeting_link" required>
+                </div>
+                <div class="form-group mb-3">
+                    <label for="meeting_time">Meeting Time</label>
+                    <input type="datetime-local" class="form-control" id="meeting_time" name="meeting_time" required>
+                </div>
+                <div class="form-group mb-3">
+                    <label for="duration">Duration (minutes)</label>
+                    <input type="number" class="form-control" id="duration" name="duration" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Schedule Meeting</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Filter Meetings -->
+    <div class="mb-3">
+        <div class="btn-group" role="group">
+            <a href="{% url 'student_meetings' %}" class="btn btn-outline-primary {% if not request.GET.status %}active{% endif %}">All</a>
+            <a href="?status=scheduled" class="btn btn-outline-primary {% if request.GET.status == 'scheduled' %}active{% endif %}">Scheduled</a>
+            <a href="?status=completed" class="btn btn-outline-primary {% if request.GET.status == 'completed' %}active{% endif %}">Completed</a>
+            <a href="?status=cancelled" class="btn btn-outline-primary {% if request.GET.status == 'cancelled' %}active{% endif %}">Cancelled</a>
+        </div>
+    </div>
+
+    <!-- Meetings List -->
+    <div class="row">
+        {% for meeting in meetings %}
+        <div class="col-md-6 mb-3">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">{{ meeting.title }}</h5>
+                    <h6 class="card-subtitle mb-2 text-muted">With {{ meeting.mentor.user.get_full_name }}</h6>
+                    <p class="card-text">{{ meeting.description }}</p>
+                    <p><strong>Time:</strong> {{ meeting.meeting_time|date:"F j, Y, g:i a" }}</p>
+                    <p><strong>Duration:</strong> {{ meeting.duration }} minutes</p>
+                    <p><strong>Status:</strong> 
+                        <span class="badge {% if meeting.status == 'scheduled' %}bg-primary
+                                         {% elif meeting.status == 'completed' %}bg-success
+                                         {% else %}bg-secondary{% endif %}">
+                            {{ meeting.status|title }}
+                        </span>
+                    </p>
+                    {% if meeting.status == 'scheduled' and meeting.meeting_link %}
+                        <a href="{{ meeting.meeting_link }}" target="_blank" class="btn btn-success">Join Meeting</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <div class="alert alert-info">
+                No meetings found.
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<style>
+    .card {
+        border-radius: 10px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .card-header {
+        background-color: #f8f9fa;
+        border-bottom: 1px solid #dee2e6;
+    }
+    .badge {
+        padding: 0.5em 0.8em;
+    }
+    .btn-group {
+        margin-bottom: 1rem;
+    }
+    .btn-group .btn {
+        border-radius: 0;
+    }
+    .btn-group .btn:first-child {
+        border-top-left-radius: 4px;
+        border-bottom-left-radius: 4px;
+    }
+    .btn-group .btn:last-child {
+        border-top-right-radius: 4px;
+        border-bottom-right-radius: 4px;
+    }
+</style>
+{% endblock %} 

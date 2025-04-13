@@ -3,7 +3,7 @@ from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.contrib.auth.models import User
-from .models import MentorProfile
+from .models import MentorProfile, ZoomMeeting
 from college.models import CollegeProfile
 from students.models import StudentProfile, MentorConnection, Project
 
@@ -346,3 +346,113 @@ def review_project(request, project_id):
     except Exception as e:
         messages.error(request, f'An error occurred: {str(e)}')
         return redirect('mentor_projects')
+
+@login_required
+def schedule_meeting(request, student_id):
+    try:
+        mentor = request.user.mentor_profile
+        student = get_object_or_404(StudentProfile, id=student_id)
+        
+        # Check if mentor is connected with the student
+        connection = MentorConnection.objects.filter(
+            mentor=mentor,
+            student=student,
+            status='accepted'
+        ).first()
+        
+        if not connection:
+            messages.error(request, 'You can only schedule meetings with connected students.')
+            return redirect('connected_students')
+            
+        if request.method == 'POST':
+            title = request.POST.get('title')
+            description = request.POST.get('description')
+            meeting_link = request.POST.get('meeting_link')
+            meeting_time = request.POST.get('meeting_time')
+            duration = request.POST.get('duration')
+            
+            if all([title, meeting_link, meeting_time, duration]):
+                try:
+                    from datetime import datetime
+                    meeting_time = datetime.strptime(meeting_time, '%Y-%m-%dT%H:%M')
+                    duration = int(duration)
+                    
+                    meeting = ZoomMeeting.objects.create(
+                        mentor=mentor,
+                        student=student,
+                        title=title,
+                        description=description,
+                        meeting_link=meeting_link,
+                        meeting_time=meeting_time,
+                        duration=duration
+                    )
+                    messages.success(request, 'Meeting scheduled successfully!')
+                    return redirect('meeting_detail', meeting_id=meeting.id)
+                except Exception as e:
+                    messages.error(request, f'Error scheduling meeting: {str(e)}')
+            else:
+                messages.error(request, 'Please fill all required fields.')
+        
+        context = {
+            'student': student,
+            'connection': connection
+        }
+        return render(request, 'mentor/schedule_meeting.html', context)
+        
+    except Exception as e:
+        messages.error(request, f'An error occurred: {str(e)}')
+        return redirect('connected_students')
+
+@login_required
+def meeting_list(request):
+    try:
+        mentor = request.user.mentor_profile
+        meetings = ZoomMeeting.objects.filter(mentor=mentor)
+        
+        # Filter by status if provided
+        status = request.GET.get('status')
+        if status in ['scheduled', 'completed', 'cancelled']:
+            meetings = meetings.filter(status=status)
+            
+        context = {
+            'meetings': meetings
+        }
+        return render(request, 'mentor/meeting_list.html', context)
+        
+    except Exception as e:
+        messages.error(request, f'An error occurred: {str(e)}')
+        return redirect('mentor_dashboard')
+
+@login_required
+def meeting_detail(request, meeting_id):
+    try:
+        mentor = request.user.mentor_profile
+        meeting = get_object_or_404(ZoomMeeting, id=meeting_id, mentor=mentor)
+        
+        context = {
+            'meeting': meeting
+        }
+        return render(request, 'mentor/meeting_detail.html', context)
+        
+    except Exception as e:
+        messages.error(request, f'An error occurred: {str(e)}')
+        return redirect('meeting_list')
+
+@login_required
+def cancel_meeting(request, meeting_id):
+    if request.method != 'POST':
+        return redirect('meeting_list')
+        
+    try:
+        mentor = request.user.mentor_profile
+        meeting = get_object_or_404(ZoomMeeting, id=meeting_id, mentor=mentor, status='scheduled')
+        
+        meeting.status = 'cancelled'
+        meeting.save()
+        
+        messages.success(request, 'Meeting cancelled successfully.')
+        return redirect('meeting_list')
+        
+    except Exception as e:
+        messages.error(request, f'An error occurred: {str(e)}')
+        return redirect('meeting_list')

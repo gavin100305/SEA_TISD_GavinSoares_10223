@@ -5,10 +5,11 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.contrib.auth.models import User
 from .models import StudentProfile, MentorConnection, Project, StudentGroup, GroupMembership
-from mentor.models import MentorProfile
+from mentor.models import MentorProfile, ZoomMeeting
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from college.models import CollegeProfile,NGO
 from django.db.models import Q
+from django.utils import timezone
 
 
 
@@ -592,6 +593,76 @@ def add_group_project(request, group_id):
         'connected_mentors': connected_mentors
     }
     return render(request, 'student/add_group_project.html', context)
+
+@login_required
+def student_meetings(request):
+    try:
+        student = request.user.student_profile
+        meetings = ZoomMeeting.objects.filter(student=student)
+        
+        # Get connected mentors for scheduling meetings
+        connected_mentors = MentorConnection.objects.filter(
+            student=student,
+            status='accepted'
+        ).select_related('mentor')
+        
+        if request.method == 'POST':
+            mentor_id = request.POST.get('mentor')
+            title = request.POST.get('title')
+            description = request.POST.get('description')
+            meeting_link = request.POST.get('meeting_link')
+            meeting_time = request.POST.get('meeting_time')
+            duration = request.POST.get('duration')
+            
+            try:
+                mentor = MentorProfile.objects.get(id=mentor_id)
+                if not MentorConnection.objects.filter(student=student, mentor=mentor, status='accepted').exists():
+                    messages.error(request, 'You can only schedule meetings with connected mentors.')
+                else:
+                    ZoomMeeting.objects.create(
+                        student=student,
+                        mentor=mentor,
+                        title=title,
+                        description=description,
+                        meeting_link=meeting_link,
+                        meeting_time=meeting_time,
+                        duration=duration,
+                        status='scheduled'
+                    )
+                    messages.success(request, 'Meeting scheduled successfully!')
+            except Exception as e:
+                messages.error(request, f'Failed to schedule meeting: {str(e)}')
+        
+        # Filter by status if provided
+        status = request.GET.get('status')
+        if status in ['scheduled', 'completed', 'cancelled']:
+            meetings = meetings.filter(status=status)
+            
+        context = {
+            'meetings': meetings,
+            'now': timezone.now(),
+            'connected_mentors': connected_mentors
+        }
+        return render(request, 'student/student_meetings.html', context)
+        
+    except Exception as e:
+        messages.error(request, f'An error occurred: {str(e)}')
+        return redirect('student_dashboard')
+
+@login_required
+def meeting_detail(request, meeting_id):
+    try:
+        student = request.user.student_profile
+        meeting = get_object_or_404(ZoomMeeting, id=meeting_id, student=student)
+        
+        context = {
+            'meeting': meeting
+        }
+        return render(request, 'student/meeting_detail.html', context)
+        
+    except Exception as e:
+        messages.error(request, f'An error occurred: {str(e)}')
+        return redirect('student_meetings')
 
 
 

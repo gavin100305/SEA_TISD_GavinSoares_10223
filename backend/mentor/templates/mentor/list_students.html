@@ -1,5 +1,5 @@
-{% extends '../base.html' %}
-{% load static %}
+{% extends 'mentor/base.html' %}
+
 
 {% block title %}Registered Students{% endblock %}
 
@@ -85,6 +85,29 @@
         color: #dc3545;
         border: 1px solid #dc3545;
     }
+
+    .action-buttons {
+        display: flex;
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+
+    .btn-meeting {
+        background: #9d4edd;
+        color: white;
+        border: none;
+        padding: 0.5rem 1.5rem;
+        border-radius: 25px;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        display: inline-block;
+    }
+
+    .btn-meeting:hover {
+        background: #c77dff;
+        color: white;
+        transform: scale(1.05);
+    }
 </style>
 {% endblock %}
 
@@ -128,6 +151,12 @@
                     <p><strong>Admission Year:</strong> {{ item.student.admission_year }}</p>
                     {% if item.student.bio %}
                     <p><strong>Bio:</strong> {{ item.student.bio }}</p>
+                    {% endif %}
+                </div>
+
+                <div class="action-buttons">
+                    {% if item.connection_status == 'accepted' %}
+                    <a href="{% url 'schedule_meeting' item.student.id %}" class="btn-meeting">Schedule Meeting</a>
                     {% endif %}
                 </div>
             </div>
