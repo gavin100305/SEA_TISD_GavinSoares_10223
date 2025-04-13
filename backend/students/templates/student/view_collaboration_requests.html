@@ -3,7 +3,7 @@
 {% block content %}
 <div class="container mx-auto px-4 py-8">
     <div class="md:flex md:items-center md:justify-between mb-8">
-        <h1 class="text-3xl font-bold text-gray-900">My Collaboration Requests</h1>
+        <h1 class="text-3xl font-bold text-gray-900">Collaboration Requests</h1>
     </div>
 
     {% if messages %}
@@ -18,69 +18,124 @@
 
     <div class="mb-8">
         <div class="inline-flex rounded-md shadow-sm" role="group">
-            <a href="{% url 'view_collaboration_requests' %}" class="px-4 py-2 text-sm font-medium {% if not request.GET.status %}bg-blue-600 text-white{% else %}bg-white text-gray-700{% endif %} border border-gray-200 rounded-l-lg hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700">
+            <a href="{% url 'view_collaboration_requests' %}" class="px-4 py-2 text-sm font-medium {% if not request.GET.status %}bg-blue-600 text-white{% else %}bg-white text-gray-700{% endif %} border border-gray-200 rounded-l-lg hover:bg-gray-100 hover:text-blue-700">
                 All
             </a>
-            <a href="{% url 'view_collaboration_requests' %}?status=pending" class="px-4 py-2 text-sm font-medium {% if request.GET.status == 'pending' %}bg-blue-600 text-white{% else %}bg-white text-gray-700{% endif %} border-t border-b border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700">
+            <a href="{% url 'view_collaboration_requests' %}?status=pending" class="px-4 py-2 text-sm font-medium {% if request.GET.status == 'pending' %}bg-blue-600 text-white{% else %}bg-white text-gray-700{% endif %} border-t border-b border-gray-200 hover:bg-gray-100 hover:text-blue-700">
                 Pending
             </a>
-            <a href="{% url 'view_collaboration_requests' %}?status=accepted" class="px-4 py-2 text-sm font-medium {% if request.GET.status == 'accepted' %}bg-blue-600 text-white{% else %}bg-white text-gray-700{% endif %} border-t border-b border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700">
+            <a href="{% url 'view_collaboration_requests' %}?status=accepted" class="px-4 py-2 text-sm font-medium {% if request.GET.status == 'accepted' %}bg-blue-600 text-white{% else %}bg-white text-gray-700{% endif %} border-t border-b border-gray-200 hover:bg-gray-100 hover:text-blue-700">
                 Accepted
             </a>
-            <a href="{% url 'view_collaboration_requests' %}?status=rejected" class="px-4 py-2 text-sm font-medium {% if request.GET.status == 'rejected' %}bg-blue-600 text-white{% else %}bg-white text-gray-700{% endif %} border-t border-b border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700">
+            <a href="{% url 'view_collaboration_requests' %}?status=rejected" class="px-4 py-2 text-sm font-medium {% if request.GET.status == 'rejected' %}bg-blue-600 text-white{% else %}bg-white text-gray-700{% endif %} border border-gray-200 rounded-r-lg hover:bg-gray-100 hover:text-blue-700">
                 Rejected
             </a>
-            <a href="{% url 'view_collaboration_requests' %}?status=withdrawn" class="px-4 py-2 text-sm font-medium {% if request.GET.status == 'withdrawn' %}bg-blue-600 text-white{% else %}bg-white text-gray-700{% endif %} border border-gray-200 rounded-r-lg hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700">
-                Withdrawn
-            </a>
         </div>
     </div>
 
-    {% if collaboration_requests %}
-    <div class="grid gap-6">
-        {% for request in collaboration_requests %}
-        <div class="bg-white rounded-lg shadow-md p-6">
-            <div class="flex justify-between items-start">
-                <div>
-                    <h3 class="text-xl font-semibold text-gray-900">{{ request.project.title }}</h3>
-                    <p class="text-sm text-gray-500">Submitted on {{ request.created_at|date:"M d, Y" }}</p>
+    {% if individual_requests or group_requests %}
+        <!-- Individual Project Requests -->
+        {% if individual_requests %}
+        <div class="mb-8">
+            <h2 class="text-xl font-semibold text-gray-900 mb-4">Individual Project Requests</h2>
+            <div class="grid gap-6">
+                {% for request in individual_requests %}
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <h3 class="text-xl font-semibold text-gray-900">{{ request.project.title }}</h3>
+                            <p class="text-sm text-gray-500">Submitted on {{ request.created_at|date:"M d, Y" }}</p>
+                        </div>
+                        <span class="px-3 py-1 text-sm font-medium rounded-full 
+                            {% if request.status == 'pending' %}bg-yellow-100 text-yellow-800
+                            {% elif request.status == 'accepted' %}bg-green-100 text-green-800
+                            {% elif request.status == 'rejected' %}bg-red-100 text-red-800
+                            {% else %}bg-gray-100 text-gray-800{% endif %}">
+                            {{ request.status|title }}
+                        </span>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <p class="text-gray-600"><strong>From:</strong> {{ request.collaborator.full_name }}</p>
+                        <p class="text-gray-600 mt-2"><strong>Message:</strong> {{ request.message }}</p>
+                        <p class="text-gray-600 mt-2"><strong>Proposed Contribution:</strong> {{ request.proposed_contribution }}</p>
+                    </div>
+
+                    {% if request.status == 'pending' %}
+                    <div class="mt-6 flex space-x-4">
+                        <form method="POST" action="{% url 'handle_collaboration_request' request.id %}" class="inline">
+                            {% csrf_token %}
+                            <input type="hidden" name="action" value="accept">
+                            <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700">
+                                Accept
+                            </button>
+                        </form>
+                        <form method="POST" action="{% url 'handle_collaboration_request' request.id %}" class="inline">
+                            {% csrf_token %}
+                            <input type="hidden" name="action" value="reject">
+                            <button type="submit" class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700">
+                                Reject
+                            </button>
+                        </form>
+                    </div>
+                    {% endif %}
                 </div>
-                <span class="px-3 py-1 text-sm font-medium rounded-full 
-                    {% if request.status == 'pending' %}bg-yellow-100 text-yellow-800
-                    {% elif request.status == 'accepted' %}bg-green-100 text-green-800
-                    {% elif request.status == 'rejected' %}bg-red-100 text-red-800
-                    {% else %}bg-gray-100 text-gray-800{% endif %}">
-                    {{ request.status|title }}
-                </span>
+                {% endfor %}
             </div>
-            
-            <div class="mt-4">
-                <p class="text-gray-600"><strong>From:</strong> {{ request.collaborator.full_name }}</p>
-                <p class="text-gray-600 mt-2"><strong>Message:</strong> {{ request.message }}</p>
-                <p class="text-gray-600 mt-2"><strong>Proposed Contribution:</strong> {{ request.proposed_contribution }}</p>
-            </div>
-
-            {% if request.status == 'pending' %}
-            <div class="mt-6 flex space-x-4">
-                <form method="POST" action="{% url 'handle_collaboration_request' request.id %}" class="inline">
-                    {% csrf_token %}
-                    <input type="hidden" name="action" value="accept">
-                    <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2">
-                        Accept
-                    </button>
-                </form>
-                <form method="POST" action="{% url 'handle_collaboration_request' request.id %}" class="inline">
-                    {% csrf_token %}
-                    <input type="hidden" name="action" value="reject">
-                    <button type="submit" class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2">
-                        Reject
-                    </button>
-                </form>
-            </div>
-            {% endif %}
         </div>
-        {% endfor %}
-    </div>
+        {% endif %}
+
+        <!-- Group Project Requests -->
+        {% if group_requests %}
+        <div>
+            <h2 class="text-xl font-semibold text-gray-900 mb-4">Group Project Requests</h2>
+            <div class="grid gap-6">
+                {% for request in group_requests %}
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <h3 class="text-xl font-semibold text-gray-900">{{ request.project.title }}</h3>
+                            <p class="text-sm text-gray-500">Submitted on {{ request.created_at|date:"M d, Y" }}</p>
+                            <p class="text-sm text-gray-500">Group: {{ request.project.group.name }}</p>
+                        </div>
+                        <span class="px-3 py-1 text-sm font-medium rounded-full 
+                            {% if request.status == 'pending' %}bg-yellow-100 text-yellow-800
+                            {% elif request.status == 'accepted' %}bg-green-100 text-green-800
+                            {% elif request.status == 'rejected' %}bg-red-100 text-red-800
+                            {% else %}bg-gray-100 text-gray-800{% endif %}">
+                            {{ request.status|title }}
+                        </span>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <p class="text-gray-600"><strong>From:</strong> {{ request.collaborator.full_name }}</p>
+                        <p class="text-gray-600 mt-2"><strong>Message:</strong> {{ request.message }}</p>
+                        <p class="text-gray-600 mt-2"><strong>Proposed Contribution:</strong> {{ request.proposed_contribution }}</p>
+                    </div>
+
+                    {% if request.status == 'pending' and is_group_leader %}
+                    <div class="mt-6 flex space-x-4">
+                        <form method="POST" action="{% url 'handle_collaboration_request' request.id %}" class="inline">
+                            {% csrf_token %}
+                            <input type="hidden" name="action" value="accept">
+                            <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700">
+                                Accept
+                            </button>
+                        </form>
+                        <form method="POST" action="{% url 'handle_collaboration_request' request.id %}" class="inline">
+                            {% csrf_token %}
+                            <input type="hidden" name="action" value="reject">
+                            <button type="submit" class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700">
+                                Reject
+                            </button>
+                        </form>
+                    </div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
     {% else %}
     <div class="text-center py-12">
         <p class="text-gray-500 text-lg">No collaboration requests found.</p>

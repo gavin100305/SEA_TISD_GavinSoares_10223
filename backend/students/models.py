@@ -183,7 +183,9 @@ class CollaborationRequest(models.Model):
 
 class ProjectComment(models.Model):
     project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name='comments')
-    collaborator = models.ForeignKey('collabrators.CollaboratorProfile', on_delete=models.CASCADE, related_name='comments')
+    author_student = models.ForeignKey('StudentProfile', on_delete=models.CASCADE, null=True, blank=True, related_name='project_comments')
+    author_collaborator = models.ForeignKey('collabrators.CollaboratorProfile', on_delete=models.CASCADE, null=True, blank=True, related_name='project_comments')
+    parent_comment = models.ForeignKey('self', on_delete=models.CASCADE, null=True, blank=True, related_name='replies')
     content = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -191,5 +193,19 @@ class ProjectComment(models.Model):
     class Meta:
         ordering = ['-created_at']
 
+    def get_author_name(self):
+        if self.author_student:
+            return self.author_student.full_name
+        elif self.author_collaborator:
+            return self.author_collaborator.full_name
+        return "Unknown"
+
+    def get_author_type(self):
+        if self.author_student:
+            return "Student"
+        elif self.author_collaborator:
+            return "Collaborator"
+        return "Unknown"
+
     def __str__(self):
-        return f"Comment by {self.collaborator} on {self.project.title}"
+        return f"Comment by {self.get_author_name()} on {self.project.title}"

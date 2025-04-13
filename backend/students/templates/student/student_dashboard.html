@@ -379,6 +379,19 @@
             <p>Find and connect with collaborators who can contribute to your projects</p>
             <span class="card-action">Browse <i class="fas fa-arrow-right"></i></span>
         </a>
+
+        <a href="{% url 'view_collaboration_requests' %}" class="dashboard-card">
+            <div class="card-icon-wrapper">
+                <i class="fas fa-handshake"></i>
+            </div>
+            <h3>Collaboration Requests {% if pending_requests_count %}<span class="badge bg-danger">{{ pending_requests_count }}</span>{% endif %}</h3>
+            <p>View and manage collaboration requests for your projects</p>
+            <div class="mt-2">
+                <small class="text-gray-500">Individual Requests: {{ individual_requests_count }}</small><br>
+                <small class="text-gray-500">Group Requests: {{ group_requests_count }}</small>
+            </div>
+            <span class="card-action">View Requests <i class="fas fa-arrow-right"></i></span>
+        </a>
     </div>
 
     <!-- Profile Section -->
@@ -416,6 +429,22 @@
             <div class="profile-item">
                 <div class="profile-label">Phone</div>
                 <div class="profile-value">{{ profile.phone }}</div>
+            </div>
+            <div class="profile-item">
+                <div class="profile-label">Parent Name</div>
+                <div class="profile-value">{{ profile.parent_name }}</div>
+            </div>
+            <div class="profile-item">
+                <div class="profile-label">Parent Phone</div>
+                <div class="profile-value">{{ profile.parent_phone }}</div>
+            </div>
+            <div class="profile-item">
+                <div class="profile-label">Address</div>
+                <div class="profile-value">{{ profile.address }}</div>
+            </div>
+            <div class="profile-item">
+                <div class="profile-label">Date of Birth</div>
+                <div class="profile-value">{{ profile.dob }}</div>
             </div>
         </div>
     </div>

@@ -113,11 +113,34 @@ def student_profile(request):
 
 @login_required
 def student_dashboard(request):
-    profile = request.user.student_profile
-    context = {
-        'profile': profile
-    }
-    return render(request, 'student/student_dashboard.html', context)
+    try:
+        student = request.user.student_profile
+        
+        # Get individual and group projects
+        individual_projects = Project.objects.filter(student=student)
+        group_projects = Project.objects.filter(group__leader=student)
+        
+        # Get collaboration request counts
+        individual_requests = CollaborationRequest.objects.filter(project__in=individual_projects)
+        group_requests = CollaborationRequest.objects.filter(project__in=group_projects)
+        
+        # Count pending requests
+        pending_requests_count = (
+            individual_requests.filter(status='pending').count() +
+            group_requests.filter(status='pending').count()
+        )
+        
+        context = {
+            'student': student,
+            'individual_requests_count': individual_requests.count(),
+            'group_requests_count': group_requests.count(),
+            'pending_requests_count': pending_requests_count,
+        }
+        return render(request, 'student/student_dashboard.html', context)
+        
+    except Exception as e:
+        messages.error(request, f'An error occurred: {str(e)}')
+        return redirect('landing_page')
 
 def student_logout(request):
     logout(request)
@@ -178,9 +201,7 @@ def my_connections(request):
 def my_projects(request):
     try:
         student = request.user.student_profile
-        individual_projects = Project.objects.filter(student=student)
-        group_projects = Project.objects.filter(group__members=student, group__groupmembership__status='accepted')
-        projects = (individual_projects | group_projects).distinct()
+        projects = Project.objects.filter(student=student)
         
         # Get collaboration requests for projects
         collaboration_requests = CollaborationRequest.objects.filter(
@@ -561,16 +582,18 @@ def add_group_project(request, group_id):
     if request.method == 'POST':
         try:
             mentor_id = request.POST.get('mentor')
-            mentor = MentorProfile.objects.get(id=mentor_id)
-            
-            # Verify mentor connection with group leader
-            if not MentorConnection.objects.filter(
-                student=group.leader,
-                mentor=mentor,
-                status='accepted'
-            ).exists():
-                messages.error(request, 'The group leader must be connected with the mentor.')
-                return redirect('group_detail', group_id=group.id)
+            mentor = None
+            if mentor_id:
+                mentor = MentorProfile.objects.get(id=mentor_id)
+                
+                # Verify mentor connection with group leader
+                if not MentorConnection.objects.filter(
+                    student=group.leader,
+                    mentor=mentor,
+                    status='accepted'
+                ).exists():
+                    messages.error(request, 'The group leader must be connected with the mentor.')
+                    return redirect('group_detail', group_id=group.id)
             
             # Create project
             project = Project.objects.create(
@@ -580,13 +603,8 @@ def add_group_project(request, group_id):
                 description=request.POST.get('description'),
                 sdgs=request.POST.get('sdgs'),
                 tech_stack=request.POST.get('tech_stack'),
-                github_link=request.POST.get('github_link')
+                is_open_for_collaboration=request.POST.get('is_open_for_collaboration') == 'on'
             )
-            
-            # Handle project file
-            if 'project_file' in request.FILES:
-                project.project_file = request.FILES['project_file']
-                project.save()
             
             messages.success(request, 'Group project added successfully!')
             return redirect('group_detail', group_id=group.id)
@@ -711,7 +729,7 @@ def toggle_project_collaboration(request, project_id):
     student = request.user.student_profile
     
     # Check if user has permission to modify this project
-    if project.student != student and (project.group and project.group.leader != student):
+    if (project.student != student) and (not project.group or project.group.leader != student):
         messages.error(request, 'You do not have permission to modify this project.')
         return redirect('my_projects')
     
@@ -727,21 +745,30 @@ def view_collaboration_requests(request):
     """View collaboration requests for student's projects"""
     student = request.user.student_profile
     
-    # Get all projects (both individual and group) where student is owner or group leader
+    # Get all projects where student is owner or group leader
     individual_projects = Project.objects.filter(student=student)
     group_projects = Project.objects.filter(group__leader=student)
-    all_projects = individual_projects | group_projects
     
     # Get collaboration requests for these projects
-    collaboration_requests = CollaborationRequest.objects.filter(project__in=all_projects)
-    
-    # Filter by status if specified
     status = request.GET.get('status')
-    if status in ['pending', 'accepted', 'rejected', 'withdrawn']:
-        collaboration_requests = collaboration_requests.filter(status=status)
+    
+    # Get individual project requests
+    individual_requests = CollaborationRequest.objects.filter(project__in=individual_projects)
+    if status:
+        individual_requests = individual_requests.filter(status=status)
+    
+    # Get group project requests
+    group_requests = CollaborationRequest.objects.filter(project__in=group_projects)
+    if status:
+        group_requests = group_requests.filter(status=status)
+    
+    # Check if user is a group leader for any projects
+    is_group_leader = StudentGroup.objects.filter(leader=student).exists()
     
     context = {
-        'collaboration_requests': collaboration_requests,
+        'individual_requests': individual_requests,
+        'group_requests': group_requests,
+        'is_group_leader': is_group_leader,
     }
     return render(request, 'student/view_collaboration_requests.html', context)
 
@@ -753,7 +780,10 @@ def handle_collaboration_request(request, request_id):
     student = request.user.student_profile
     
     # Verify ownership
-    if collab_request.project.student != student and (collab_request.project.group and collab_request.project.group.leader != student):
+    project = collab_request.project
+    is_owner = (project.student == student) or (project.group and project.group.leader == student)
+    
+    if not is_owner:
         messages.error(request, 'You do not have permission to handle this request.')
         return redirect('view_collaboration_requests')
     

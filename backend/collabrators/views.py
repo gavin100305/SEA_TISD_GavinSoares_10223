@@ -112,30 +112,22 @@ def collaborator_dashboard(request):
 
 @login_required
 def view_shared_projects(request):
-    """View all projects that are open for collaboration"""
+    """View all projects open for collaboration"""
     try:
         collaborator = request.user.collaborator_profile
         
         # Get all projects that are open for collaboration
         open_projects = Project.objects.filter(is_open_for_collaboration=True)
         
-        # Get the collaboration requests made by this collaborator
-        collaboration_requests = CollaborationRequest.objects.filter(
-            collaborator=collaborator
-        ).values_list('project_id', 'status')
-        
-        # Create a dictionary of project_id: request_status
-        request_status = {proj_id: status for proj_id, status in collaboration_requests}
+        # Get existing collaboration requests for this collaborator
+        collaboration_requests = CollaborationRequest.objects.filter(collaborator=collaborator)
+        request_status = {req.project_id: req.status for req in collaboration_requests}
         
         # Add request status to each project
         for project in open_projects:
-            project.request_status = request_status.get(project.id, None)
-            if project.group:
-                project.owner_name = project.group.name
-                project.owner_type = 'Group'
-            else:
-                project.owner_name = project.student.full_name
-                project.owner_type = 'Individual'
+            project.request_status = request_status.get(project.id)
+            project.owner_name = project.group.name if project.group else project.student.full_name
+            project.owner_type = 'Group' if project.group else 'Student'
         
         context = {
             'projects': open_projects,
