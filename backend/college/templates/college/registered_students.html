@@ -6,197 +6,391 @@
 {% block extra_css %}
 <style>
     .students-container {
-        padding: 2rem;
+        padding: 2rem 0;
+        position: relative;
+        z-index: 2;
     }
 
-    .student-card {
-        background: rgba(157, 78, 221, 0.1);
-        border: 1px solid #9d4edd;
-        border-radius: 10px;
+    .page-header {
+        margin-bottom: 2rem;
+    }
+
+    .page-header h1 {
+        color: white;
+        font-size: 2.2rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        position: relative;
+        display: inline-block;
+        padding-bottom: 0.5rem;
+    }
+
+    .page-header h1::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 3px;
+        background: linear-gradient(90deg, #9d4edd, transparent);
+        border-radius: 3px;
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2.5rem;
+    }
+
+    .stat-card {
+        background: rgba(12, 10, 20, 0.7);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(157, 78, 221, 0.3);
+        border-radius: 16px;
         padding: 1.5rem;
-        margin-bottom: 1.5rem;
+        text-align: center;
+        transition: all 0.3s ease;
+        box-shadow: 0 8px 32px rgba(31, 38, 135, 0.15);
+    }
+
+    .stat-card:hover {
+        transform: translateY(-5px);
+        border-color: #9d4edd;
+    }
+
+    .stat-number {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: #9d4edd;
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-label {
+        color: #D1D5DB;
+        font-size: 1rem;
+        font-weight: 500;
+    }
+
+    .filter-section {
+        background: rgba(12, 10, 20, 0.7);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(157, 78, 221, 0.3);
+        border-radius: 16px;
+        padding: 1.5rem;
+        margin-bottom: 2.5rem;
+        box-shadow: 0 8px 32px rgba(31, 38, 135, 0.15);
+    }
+
+    .filter-form {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+        align-items: center;
+    }
+
+    .filter-select {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(157, 78, 221, 0.3);
+        border-radius: 8px;
+        color: #F3F4F6;
+        padding: 0.7rem 1rem;
+        min-width: 200px;
         transition: all 0.3s ease;
     }
 
-    .student-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 5px 15px rgba(157, 78, 221, 0.2);
+    .filter-select:focus {
+        outline: none;
+        border-color: #9d4edd;
+        box-shadow: 0 0 0 2px rgba(157, 78, 221, 0.25);
     }
+
+    .filter-select option {
+        background-color: #1a1a2e;
+        color: #F3F4F6;
+    }
+
+    .btn-filter {
+        background: linear-gradient(90deg, #9d4edd, #8b5cf6);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        padding: 0.7rem 1.5rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 12px rgba(157, 78, 221, 0.25);
+    }
+
+    .btn-filter:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 15px rgba(157, 78, 221, 0.35);
+    }
+
+    .students-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .student-card {
+        background: rgba(12, 10, 20, 0.7);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(157, 78, 221, 0.3);
+        border-radius: 16px;
+        padding: 1.5rem;
+        transition: all 0.3s ease;
+        height: 100%;
+        box-shadow: 0 8px 32px rgba(31, 38, 135, 0.15);
+        position: relative;
+        overflow: hidden;
+    }
+
+    /* Remove the ::before pseudo-element from student-card */
+    /*.student-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 4px;
+        height: 0;
+        background: linear-gradient(to bottom, #9d4edd, transparent);
+        transition: height 0.3s ease;
+    }
+
+    .student-card:hover::before {
+        height: 100%;
+    }*/
+
+    .student-card:hover {
+        transform: translateY(-10px);
+        border-color: #9d4edd;
+    }
+
+    /*.student-card:hover::before {
+        height: 100%;
+    }*/
 
     .student-header {
         display: flex;
         align-items: center;
-        margin-bottom: 1rem;
+        margin-bottom: 1.5rem;
     }
 
     .student-image {
-        width: 80px;
-        height: 80px;
+        width: 90px;
+        height: 90px;
         border-radius: 50%;
-        margin-right: 1rem;
-        border: 2px solid #9d4edd;
+        margin-right: 1.5rem;
+        border: 3px solid #9d4edd;
+        padding: 3px;
+        background: rgba(157, 78, 221, 0.1);
+        transition: all 0.3s ease;
         object-fit: cover;
     }
 
+    .student-card:hover .student-image {
+        transform: scale(1.05);
+        box-shadow: 0 0 15px rgba(157, 78, 221, 0.5);
+    }
+
     .student-info h3 {
-        color: #9d4edd;
+        color: white;
         margin-bottom: 0.5rem;
+        font-size: 1.3rem;
+        font-weight: 600;
     }
 
     .student-info p {
-        color: #c77dff;
-        margin-bottom: 0.2rem;
-    }
-
-    .student-details {
-        margin: 1rem 0;
-        padding: 1rem;
-        background: rgba(157, 78, 221, 0.05);
-        border-radius: 5px;
-    }
-
-    .student-details p {
-        color: #fff;
+        color: #D1D5DB;
         margin-bottom: 0.5rem;
-    }
-
-    .stats-card {
-        background: rgba(157, 78, 221, 0.1);
-        border: 1px solid #9d4edd;
-        border-radius: 10px;
-        padding: 1.5rem;
-        margin-bottom: 2rem;
-        text-align: center;
-    }
-
-    .stats-card h4 {
-        color: #9d4edd;
-        margin-bottom: 0.5rem;
-    }
-
-    .stats-card p {
-        color: #fff;
-        font-size: 1.5rem;
-        margin: 0;
-    }
-
-    .filter-section {
-        margin-bottom: 2rem;
-        padding: 1rem;
-        background: rgba(157, 78, 221, 0.1);
-        border-radius: 10px;
-    }
-
-    .filter-section select {
-        background: rgba(157, 78, 221, 0.1);
-        border: 1px solid #9d4edd;
-        color: #fff;
-        padding: 0.5rem;
-        border-radius: 5px;
-        margin-right: 1rem;
+        font-size: 0.95rem;
     }
 
     .project-count {
         display: inline-block;
-        padding: 0.25rem 1rem;
-        border-radius: 15px;
-        font-size: 0.9rem;
-        background: rgba(157, 78, 221, 0.2);
+        padding: 0.3rem 1rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 500;
+        background: rgba(157, 78, 221, 0.15);
         color: #9d4edd;
-        border: 1px solid #9d4edd;
-        margin-left: 1rem;
+        border: 1px solid rgba(157, 78, 221, 0.3);
+        margin-top: 0.5rem;
+    }
+
+    .student-details {
+        background: rgba(255, 255, 255, 0.03);
+        border-radius: 12px;
+        padding: 1.2rem;
+        margin-top: 1rem;
+    }
+
+    .detail-item {
+        margin-bottom: 0.8rem;
+        display: flex;
+    }
+
+    .detail-label {
+        color: #9d4edd;
+        font-size: 0.9rem;
+        font-weight: 500;
+        min-width: 120px;
+    }
+
+    .detail-value {
+        color: #F3F4F6;
+        font-size: 0.95rem;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 3rem;
+        background: rgba(12, 10, 20, 0.7);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(157, 78, 221, 0.3);
+        border-radius: 16px;
+        color: #D1D5DB;
+    }
+
+    .empty-state i {
+        font-size: 3rem;
+        color: #9d4edd;
+        margin-bottom: 1rem;
+        opacity: 0.7;
+    }
+
+    .empty-state p {
+        font-size: 1.1rem;
+        margin-bottom: 0;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .filter-form {
+            flex-direction: column;
+            align-items: stretch;
+        }
+        
+        .filter-select {
+            width: 100%;
+        }
+        
+        .students-grid {
+            grid-template-columns: 1fr;
+        }
     }
 </style>
 {% endblock %}
 
 {% block content %}
 <div class="students-container">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1 style="color: #9d4edd;">Registered Students</h1>
+    <div class="page-header">
+        <h1>Registered Students</h1>
     </div>
 
-    <div class="row mb-4">
-        <div class="col-md-3">
-            <div class="stats-card">
-                <h4>Total Students</h4>
-                <p>{{ total_students }}</p>
-            </div>
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-number">{{ total_students }}</div>
+            <div class="stat-label">Total Students</div>
         </div>
-        <div class="col-md-3">
-            <div class="stats-card">
-                <h4>Active Projects</h4>
-                <p>{{ active_projects }}</p>
-            </div>
+        <div class="stat-card">
+            <div class="stat-number">{{ active_projects }}</div>
+            <div class="stat-label">Active Projects</div>
         </div>
-        <div class="col-md-3">
-            <div class="stats-card">
-                <h4>Mentor Connections</h4>
-                <p>{{ mentor_connections }}</p>
-            </div>
+        <div class="stat-card">
+            <div class="stat-number">{{ mentor_connections }}</div>
+            <div class="stat-label">Mentor Connections</div>
         </div>
-        <div class="col-md-3">
-            <div class="stats-card">
-                <h4>Average Projects</h4>
-                <p>{{ avg_projects|floatformat:1 }}</p>
-            </div>
+        <div class="stat-card">
+            <div class="stat-number">{{ avg_projects|floatformat:1 }}</div>
+            <div class="stat-label">Average Projects</div>
         </div>
     </div>
 
     <div class="filter-section">
-        <form method="GET" class="d-flex align-items-center">
-            <select name="branch" class="form-control me-2">
+        <form method="GET" class="filter-form">
+            <select name="branch" class="filter-select">
                 <option value="">All Branches</option>
                 {% for branch in branches %}
                 <option value="{{ branch }}" {% if selected_branch == branch %}selected{% endif %}>{{ branch }}</option>
                 {% endfor %}
             </select>
-            <select name="semester" class="form-control me-2">
+            <select name="semester" class="filter-select">
                 <option value="">All Semesters</option>
                 {% for sem in semesters %}
                 <option value="{{ sem }}" {% if selected_semester == sem %}selected{% endif %}>Semester {{ sem }}</option>
                 {% endfor %}
             </select>
-            <button type="submit" class="btn btn-custom">Filter</button>
+            <button type="submit" class="btn-filter">
+                <i class="fas fa-filter"></i> Apply Filter
+            </button>
         </form>
     </div>
 
-    <div class="row">
+    <div class="students-grid">
         {% for student in students %}
-        <div class="col-md-6 mb-4">
-            <div class="student-card">
-                <div class="student-header">
-                    <img src="{% if student.profile_picture %}{{ student.profile_picture.url }}{% else %}https://ui-avatars.com/api/?name={{ student.full_name|default:student.user.username }}&background=9d4edd&color=fff{% endif %}" 
-                         alt="{{ student.full_name }}" 
-                         class="student-image">
-                    <div class="student-info">
-                        <h3>{{ student.full_name }}</h3>
-                        <p>Roll Number: {{ student.roll_number }}</p>
-                        <span class="project-count">
-                            {{ student.projects.all|length }} Projects
-                        </span>
-                    </div>
+        <div class="student-card">
+            <div class="student-header">
+                <img src="{% if student.profile_picture %}{{ student.profile_picture.url }}{% else %}https://ui-avatars.com/api/?name={{ student.full_name|default:student.user.username }}&background=9d4edd&color=fff{% endif %}" 
+                     alt="{{ student.full_name }}" 
+                     class="student-image">
+                <div class="student-info">
+                    <h3>{{ student.full_name }}</h3>
+                    <p>Roll Number: {{ student.roll_number }}</p>
+                    <span class="project-count">
+                        <i class="fas fa-project-diagram"></i> {{ student.projects.all|length }} Projects
+                    </span>
                 </div>
+            </div>
 
-                <div class="student-details">
-                    <p><strong>Email:</strong> {{ student.user.email }}</p>
-                    <p><strong>Phone:</strong> {{ student.phone }}</p>
-                    <p><strong>Branch:</strong> {{ student.get_branch_display }}</p>
-                    <p><strong>Section:</strong> {{ student.get_section_display }}</p>
-                    <p><strong>Semester:</strong> {{ student.semester }}</p>
-                    <p><strong>Admission Year:</strong> {{ student.admission_year }}</p>
-                    {% if student.bio %}
-                    <p><strong>Bio:</strong> {{ student.bio }}</p>
-                    {% endif %}
-                    <p><strong>Connected Mentors:</strong> {{ student.mentor_connections.count }}</p>
-                    <p><strong>Joined:</strong> {{ student.user.date_joined|date:"M d, Y" }}</p>
+            <div class="student-details">
+                <div class="detail-item">
+                    <div class="detail-label">Email:</div>
+                    <div class="detail-value">{{ student.user.email }}</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Phone:</div>
+                    <div class="detail-value">{{ student.phone }}</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Branch:</div>
+                    <div class="detail-value">{{ student.get_branch_display }}</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Section:</div>
+                    <div class="detail-value">{{ student.get_section_display }}</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Semester:</div>
+                    <div class="detail-value">{{ student.semester }}</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Admission Year:</div>
+                    <div class="detail-value">{{ student.admission_year }}</div>
+                </div>
+                {% if student.bio %}
+                <div class="detail-item">
+                    <div class="detail-label">Bio:</div>
+                    <div class="detail-value">{{ student.bio }}</div>
+                </div>
+                {% endif %}
+                <div class="detail-item">
+                    <div class="detail-label">Mentors:</div>
+                    <div class="detail-value">{{ student.mentor_connections.count }} Connected</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Joined:</div>
+                    <div class="detail-value">{{ student.user.date_joined|date:"M d, Y" }}</div>
                 </div>
             </div>
         </div>
         {% empty %}
-        <div class="col-12">
-            <p class="text-center" style="color: #fff;">No students found matching the criteria.</p>
+        <div class="empty-state">
+            <i class="fas fa-user-graduate"></i>
+            <p>No students found matching the criteria.</p>
         </div>
         {% endfor %}
     </div>
 </div>
-{% endblock %} 
+{% endblock %}

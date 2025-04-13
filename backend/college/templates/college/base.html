@@ -8,78 +8,186 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root {
-            --sidebar-width: 250px;
+            --primary: #9d4edd;
+            --primary-hover: #8b5cf6;
+            --primary-light: rgba(157, 78, 221, 0.2);
+            --text-light: #F3F4F6;
+            --text-secondary: #D1D5DB;
+            --sidebar-width: 280px;
+            --sidebar-bg: rgba(12, 10, 20, 0.9);
+            --card-bg: rgba(30, 30, 30, 0.5);
+            --card-border: rgba(157, 78, 221, 0.3);
         }
 
         body {
-            background-color: #1a1a2e;
+            background-color: #0f0f1e;
             min-height: 100vh;
             margin: 0;
-            color: #fff;
+            color: var(--text-light);
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Background Elements */
+        .bg-elements {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .bg-gradient {
+            position: absolute;
+            width: 24rem;
+            height: 24rem;
+            border-radius: 50%;
+            filter: blur(7rem);
+            z-index: -1;
+        }
+
+        .bg-gradient:nth-child(1) {
+            top: -10%;
+            right: 5%;
+            background: rgba(157, 78, 221, 0.2);
+        }
+
+        .bg-gradient:nth-child(2) {
+            bottom: -5%;
+            left: 10%;
+            background: rgba(157, 78, 221, 0.1);
+        }
+
+        .static-pattern {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0.15;
+            z-index: -1;
+            background-image: radial-gradient(#9d4edd 1px, transparent 1px);
+            background-size: 30px 30px;
         }
 
         #sidebar {
             width: var(--sidebar-width);
-            background: rgba(157, 78, 221, 0.1);
-            border-right: 2px solid #9d4edd;
+            background: var(--sidebar-bg);
+            backdrop-filter: blur(10px);
+            border-right: 1px solid var(--card-border);
             height: 100vh;
             position: fixed;
             top: 0;
             left: 0;
             padding-top: 20px;
+            z-index: 100;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+            overflow-y: auto;
         }
 
         #content {
             margin-left: var(--sidebar-width);
             padding: 20px;
+            position: relative;
+            z-index: 1;
+            min-height: 100vh;
         }
 
         .nav-link {
-            color: #fff;
-            padding: 10px 20px;
+            color: var(--text-light);
+            padding: 12px 20px;
             transition: all 0.3s;
-            border-radius: 5px;
-            margin: 5px 10px;
+            border-radius: 8px;
+            margin: 5px 15px;
+            display: flex;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-link::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 0;
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary-light), transparent);
+            transition: width 0.3s ease;
+            z-index: -1;
         }
 
         .nav-link:hover {
-            background: rgba(157, 78, 221, 0.3);
-            color: #fff;
+            color: white;
+        }
+
+        .nav-link:hover::before {
+            width: 100%;
         }
 
         .nav-link.active {
-            background: #9d4edd;
-            color: #fff;
+            background: linear-gradient(90deg, var(--primary), var(--primary-hover));
+            color: white;
+            box-shadow: 0 4px 12px rgba(157, 78, 221, 0.25);
         }
 
         .nav-link i {
-            margin-right: 10px;
+            margin-right: 12px;
+            font-size: 1.1rem;
+            width: 24px;
+            text-align: center;
         }
 
         .profile-section {
             text-align: center;
-            padding: 20px;
+            padding: 25px 20px;
             border-bottom: 1px solid rgba(157, 78, 221, 0.3);
             margin-bottom: 20px;
+            position: relative;
+        }
+
+        .profile-section::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 50%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--primary), transparent);
         }
 
         .profile-section img {
-            width: 80px;
-            height: 80px;
+            width: 90px;
+            height: 90px;
             border-radius: 50%;
-            margin-bottom: 10px;
-            border: 2px solid #9d4edd;
+            margin-bottom: 15px;
+            border: 2px solid var(--primary);
+            padding: 3px;
+            background: rgba(157, 78, 221, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .profile-section img:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 15px rgba(157, 78, 221, 0.5);
         }
 
         .college-name {
-            color: #9d4edd;
+            color: white;
             font-weight: bold;
             margin-bottom: 5px;
+            font-size: 1.2rem;
         }
 
         .college-code {
-            color: #c77dff;
+            color: var(--primary);
             font-size: 0.9rem;
+            opacity: 0.9;
         }
 
         .success-message {
@@ -87,9 +195,10 @@
             border: 1px solid #4edd98;
             color: #4edd98;
             padding: 1rem;
-            border-radius: 5px;
-            margin-bottom: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
             text-align: center;
+            backdrop-filter: blur(5px);
         }
 
         .notification-badge {
@@ -99,7 +208,7 @@
             padding: 0.2rem 0.5rem;
             font-size: 0.8rem;
             position: absolute;
-            right: 10px;
+            right: 15px;
             top: 50%;
             transform: translateY(-50%);
         }
@@ -107,13 +216,78 @@
         .nav-item {
             position: relative;
         }
+        
+        .nav-section {
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid rgba(157, 78, 221, 0.2);
+        }
+        
+        .nav-section-title {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #9d4edd;
+            padding: 0 20px;
+            margin-bottom: 5px;
+            font-weight: 600;
+            opacity: 0.8;
+        }
+        
+        .sub-nav-link {
+            padding-left: 35px;
+            font-size: 0.95rem;
+        }
+        
+        .sub-nav-link i {
+            font-size: 0.9rem;
+        }
+
+        /* Mobile Responsiveness */
+        @media (max-width: 768px) {
+            #sidebar {
+                transform: translateX(-100%);
+            }
+            
+            #content {
+                margin-left: 0;
+            }
+            
+            #sidebar.active {
+                transform: translateX(0);
+            }
+            
+            .sidebar-toggle {
+                display: block;
+                position: fixed;
+                top: 15px;
+                left: 15px;
+                z-index: 101;
+                background: var(--primary);
+                color: white;
+                border: none;
+                border-radius: 5px;
+                padding: 8px 12px;
+                cursor: pointer;
+            }
+        }
     </style>
     {% block extra_css %}{% endblock %}
 </head>
 <body>
+    <div class="bg-elements">
+        <div class="bg-gradient"></div>
+        <div class="bg-gradient"></div>
+        <div class="static-pattern"></div>
+    </div>
+
+    <button class="sidebar-toggle d-md-none" id="sidebarToggle">
+        <i class="fas fa-bars"></i>
+    </button>
+
     <div id="sidebar">
         <div class="profile-section">
-            <img src="https://via.placeholder.com/80" alt="College Logo">
+            <img src="https://via.placeholder.com/90" alt="College Logo">
             <div class="college-name">{{ profile.college_name|default:"College Portal" }}</div>
             {% if profile.college_code %}
             <div class="college-code">Code: {{ profile.college_code }}</div>
@@ -126,26 +300,42 @@
             <a class="nav-link {% if request.resolver_match.url_name == 'college_profile' %}active{% endif %}" href="{% url 'college_profile' %}">
                 <i class="fas fa-university"></i> College Profile
             </a>
-            <div class="nav-item">
-                <a class="nav-link {% if 'mentor-requests' in request.path %}active{% endif %}" href="{% url 'mentor_requests' %}">
-                    <i class="fas fa-chalkboard-teacher"></i> Mentor Requests
-                    {% if pending_count > 0 %}
-                    <span class="notification-badge">{{ pending_count }}</span>
-                    {% endif %}
+            
+            <!-- People Management Section -->
+            <div class="nav-section">
+                <div class="nav-section-title">People</div>
+                <div class="nav-item">
+                    <a class="nav-link {% if 'mentor-requests' in request.path %}active{% endif %}" href="{% url 'mentor_requests' %}">
+                        <i class="fas fa-chalkboard-teacher"></i> Mentor Requests
+                        {% if pending_count > 0 %}
+                        <span class="notification-badge">{{ pending_count }}</span>
+                        {% endif %}
+                    </a>
+                </div>
+                <a class="nav-link {% if request.resolver_match.url_name == 'registered_students' %}active{% endif %}" href="{% url 'registered_students' %}">
+                    <i class="fas fa-users"></i> Students
+                </a>
+                <a class="nav-link {% if request.resolver_match.url_name == 'registered_mentors' %}active{% endif %}" href="{% url 'registered_mentors' %}">
+                    <i class="fas fa-user-tie"></i> Mentors
                 </a>
             </div>
-            <a class="nav-link {% if request.resolver_match.url_name == 'college_students' %}active{% endif %}" href="#">
-                <i class="fas fa-users"></i> Students
-            </a>
-            <a class="nav-link {% if request.resolver_match.url_name == 'college_courses' %}active{% endif %}" href="#">
-                <i class="fas fa-book"></i> Courses
-            </a>
-            <a class="nav-link {% if request.resolver_match.url_name == 'college_settings' %}active{% endif %}" href="#">
-                <i class="fas fa-cog"></i> Settings
-            </a>
-            <a class="nav-link" href="{% url 'college_logout' %}">
-                <i class="fas fa-sign-out-alt"></i> Logout
-            </a>
+            
+            <!-- NGO Management Section -->
+            <div class="nav-section">
+                <div class="nav-section-title">NGO Partners</div>
+                <a class="nav-link {% if request.resolver_match.url_name == 'ngo_list' %}active{% endif %}" href="{% url 'ngo_list' %}">
+                    <i class="fas fa-handshake"></i> All NGOs
+                </a>
+                <!-- <a class="nav-link sub-nav-link {% if request.resolver_match.url_name == 'add_ngo' %}active{% endif %}" href="{% url 'add_ngo' %}">
+                    <i class="fas fa-plus-circle"></i> Add NGO
+                </a> -->
+            </div>
+            
+            <div class="nav-section">
+                <a class="nav-link" href="{% url 'college_logout' %}">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </a>
+            </div>
         </nav>
     </div>
 
@@ -162,6 +352,25 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Mobile sidebar toggle
+        document.getElementById('sidebarToggle').addEventListener('click', function() {
+            document.getElementById('sidebar').classList.toggle('active');
+        });
+
+        // Close sidebar when clicking outside on mobile
+        document.addEventListener('click', function(event) {
+            const sidebar = document.getElementById('sidebar');
+            const sidebarToggle = document.getElementById('sidebarToggle');
+            
+            if (window.innerWidth <= 768 && 
+                !sidebar.contains(event.target) && 
+                !sidebarToggle.contains(event.target) &&
+                sidebar.classList.contains('active')) {
+                sidebar.classList.remove('active');
+            }
+        });
+    </script>
     {% block extra_js %}{% endblock %}
 </body>
-</html> 
+</html>

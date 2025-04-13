@@ -386,7 +386,11 @@ def schedule_meeting(request, student_id):
                         meeting_time=meeting_time,
                         duration=duration
                     )
-                    messages.success(request, 'Meeting scheduled successfully!')
+                    
+                    # Send email notification
+                    meeting.send_notification_emails(notification_type='scheduled')
+                    
+                    messages.success(request, 'Meeting scheduled successfully! Email notifications have been sent.')
                     return redirect('meeting_detail', meeting_id=meeting.id)
                 except Exception as e:
                     messages.error(request, f'Error scheduling meeting: {str(e)}')
@@ -402,6 +406,89 @@ def schedule_meeting(request, student_id):
     except Exception as e:
         messages.error(request, f'An error occurred: {str(e)}')
         return redirect('connected_students')
+
+@login_required
+def update_meeting(request, meeting_id):
+    try:
+        mentor = request.user.mentor_profile
+        meeting = get_object_or_404(ZoomMeeting, id=meeting_id, mentor=mentor, status='scheduled')
+        
+        if request.method == 'POST':
+            title = request.POST.get('title')
+            description = request.POST.get('description')
+            meeting_link = request.POST.get('meeting_link')
+            meeting_time = request.POST.get('meeting_time')
+            duration = request.POST.get('duration')
+            
+            if all([title, meeting_link, meeting_time, duration]):
+                try:
+                    from datetime import datetime
+                    meeting_time = datetime.strptime(meeting_time, '%Y-%m-%dT%H:%M')
+                    duration = int(duration)
+                    
+                    # Update meeting details
+                    meeting.title = title
+                    meeting.description = description
+                    meeting.meeting_link = meeting_link
+                    meeting.meeting_time = meeting_time
+                    meeting.duration = duration
+                    meeting.save()
+                    
+                    # Send email notification about updated meeting
+                    meeting.send_notification_emails(notification_type='updated')
+                    
+                    messages.success(request, 'Meeting updated successfully! Email notifications have been sent.')
+                    return redirect('meeting_detail', meeting_id=meeting.id)
+                except Exception as e:
+                    messages.error(request, f'Error updating meeting: {str(e)}')
+            else:
+                messages.error(request, 'Please fill all required fields.')
+                
+        context = {
+            'meeting': meeting
+        }
+        return render(request, 'mentor/update_meeting.html', context)
+        
+    except Exception as e:
+        messages.error(request, f'An error occurred: {str(e)}')
+        return redirect('meeting_list')
+
+@login_required
+def cancel_meeting(request, meeting_id):
+    if request.method != 'POST':
+        return redirect('meeting_list')
+        
+    try:
+        mentor = request.user.mentor_profile
+        meeting = get_object_or_404(ZoomMeeting, id=meeting_id, mentor=mentor, status='scheduled')
+        
+        meeting.status = 'cancelled'
+        meeting.save()
+        
+        # Send cancellation email notification
+        meeting.send_notification_emails(notification_type='cancelled')
+        
+        messages.success(request, 'Meeting cancelled successfully. Email notifications have been sent.')
+        return redirect('meeting_list')
+        
+    except Exception as e:
+        messages.error(request, f'An error occurred: {str(e)}')
+        return redirect('meeting_list')
+
+@login_required
+def meeting_detail(request, meeting_id):
+    try:
+        mentor = request.user.mentor_profile
+        meeting = get_object_or_404(ZoomMeeting, id=meeting_id, mentor=mentor)
+        
+        context = {
+            'meeting': meeting
+        }
+        return render(request, 'mentor/meeting_detail.html', context)
+        
+    except Exception as e:
+        messages.error(request, f'An error occurred: {str(e)}')
+        return redirect('meeting_list')
 
 @login_required
 def meeting_list(request):
@@ -422,37 +509,3 @@ def meeting_list(request):
     except Exception as e:
         messages.error(request, f'An error occurred: {str(e)}')
         return redirect('mentor_dashboard')
-
-@login_required
-def meeting_detail(request, meeting_id):
-    try:
-        mentor = request.user.mentor_profile
-        meeting = get_object_or_404(ZoomMeeting, id=meeting_id, mentor=mentor)
-        
-        context = {
-            'meeting': meeting
-        }
-        return render(request, 'mentor/meeting_detail.html', context)
-        
-    except Exception as e:
-        messages.error(request, f'An error occurred: {str(e)}')
-        return redirect('meeting_list')
-
-@login_required
-def cancel_meeting(request, meeting_id):
-    if request.method != 'POST':
-        return redirect('meeting_list')
-        
-    try:
-        mentor = request.user.mentor_profile
-        meeting = get_object_or_404(ZoomMeeting, id=meeting_id, mentor=mentor, status='scheduled')
-        
-        meeting.status = 'cancelled'
-        meeting.save()
-        
-        messages.success(request, 'Meeting cancelled successfully.')
-        return redirect('meeting_list')
-        
-    except Exception as e:
-        messages.error(request, f'An error occurred: {str(e)}')
-        return redirect('meeting_list')

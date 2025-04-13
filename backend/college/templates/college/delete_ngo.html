@@ -1,27 +1,24 @@
-{% extends 'base.html' %}
-
+{% extends 'college/base.html' %}
 {% block content %}
-<div class="container mt-4">
-    <div class="row">
-        <div class="col-md-6 offset-md-3">
-            <div class="card">
-                <div class="card-header bg-danger text-white">
-                    <h4>Delete NGO</h4>
-                </div>
-                <div class="card-body">
-                    <h5>Are you sure you want to delete the NGO "{{ ngo.name }}"?</h5>
-                    <p>This action cannot be undone.</p>
-                    
-                    <form method="post">
-                        {% csrf_token %}
-                        <div class="form-group">
-                            <button type="submit" class="btn btn-danger">Yes, Delete</button>
-                            <a href="{% url 'ngo_list' %}" class="btn btn-secondary">Cancel</a>
-                        </div>
-                    </form>
-                </div>
-            </div>
+<div class="modal" id="deleteConfirmModal">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Confirm Deletion</h5>
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
         </div>
+        <div class="modal-body">
+          <p>Are you sure you want to delete the NGO "{{ ngo.name }}"?</p>
+          <p>This action cannot be undone.</p>
+        </div>
+        <div class="modal-footer">
+          <form method="post" action="{% url 'delete_ngo' ngo.id %}">
+            {% csrf_token %}
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn btn-danger">Delete</button>
+          </form>
+        </div>
+      </div>
     </div>
-</div>
+  </div>
 {% endblock %}

@@ -5,43 +5,263 @@
 {% block extra_css %}
 <style>
     .dashboard-container {
-        padding: 1rem;
+        padding: 2rem 0;
+        position: relative;
+        z-index: 2;
     }
 
     .welcome-section {
-        background: rgba(157, 78, 221, 0.1);
-        border: 2px solid #9d4edd;
-        border-radius: 15px;
-        padding: 2rem;
-        margin-bottom: 2rem;
+        background: rgba(12, 10, 20, 0.7);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(157, 78, 221, 0.3);
+        border-radius: 16px;
+        padding: 2.5rem;
+        margin-bottom: 3rem;
+        text-align: center;
+        box-shadow: 0 8px 32px rgba(31, 38, 135, 0.15);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .welcome-section::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(45deg, rgba(157, 78, 221, 0.05), transparent);
+        z-index: -1;
     }
 
     .welcome-section h1 {
-        color: #9d4edd;
+        font-size: 2.5rem;
+        font-weight: 800;
+        letter-spacing: -0.5px;
+        line-height: 1.2;
         margin-bottom: 1rem;
-        font-size: 2rem;
+        color: white;
     }
 
-    .info-grid {
+    .welcome-section h1 span {
+        color: #9d4edd;
+        position: relative;
+        display: inline-block;
+    }
+
+    .welcome-section h1 span::after {
+        content: "";
+        position: absolute;
+        bottom: 5px;
+        left: 0;
+        width: 100%;
+        height: 8px;
+        background-color: rgba(157, 78, 221, 0.2);
+        z-index: -1;
+        border-radius: 4px;
+    }
+
+    .welcome-section p {
+        color: #D1D5DB;
+        font-size: 1.1rem;
+        margin-bottom: 0;
+    }
+
+    .feature-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
         gap: 1.5rem;
-        margin-top: 2rem;
+        margin-bottom: 3rem;
     }
 
-    .info-card {
-        background: rgba(157, 78, 221, 0.1);
-        border: 1px solid #9d4edd;
-        border-radius: 10px;
+    .feature-card {
+        background: rgba(12, 10, 20, 0.7);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(157, 78, 221, 0.3);
+        border-radius: 16px;
+        padding: 2rem;
+        text-align: center;
+        transition: all 0.3s ease;
+        height: 100%;
+        box-shadow: 0 8px 32px rgba(31, 38, 135, 0.15);
+        position: relative;
+        overflow: hidden;
+    }
+
+    
+    .feature-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 4px;
+        height: 0;
+        transition: height 0.3s ease;
+    }
+
+    .feature-card:hover::before {
+        height: 100%;
+    }
+
+    .feature-card:hover {
+        transform: translateY(-10px);
+        border-color: #9d4edd;
+    }
+
+    .feature-card i {
+        font-size: 2.5rem;
+        color: #9d4edd;
+        margin-bottom: 1.5rem;
+        transition: transform 0.3s ease;
+    }
+
+    .feature-card:hover i {
+        transform: scale(1.1);
+    }
+
+    .feature-card h3 {
+        color: white;
+        margin-bottom: 1rem;
+        font-size: 1.3rem;
+        font-weight: 600;
+    }
+
+    .feature-card p {
+        color: #D1D5DB;
+        font-size: 0.95rem;
+        line-height: 1.6;
+    }
+
+    .feature-link {
+        text-decoration: none;
+        color: inherit;
+        display: block;
+        height: 100%;
+    }
+
+    .stats-section {
+        margin-bottom: 3rem;
+    }
+
+    .stats-section h2 {
+        color: #9d4edd;
+        font-size: 1.8rem;
+        font-weight: 700;
+        margin-bottom: 1.5rem;
+        position: relative;
+        display: inline-block;
+        padding-bottom: 0.5rem;
+    }
+
+    .stats-section h2::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 3px;
+        background: linear-gradient(90deg, #9d4edd, transparent);
+        border-radius: 3px;
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .stat-card {
+        background: rgba(12, 10, 20, 0.7);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(157, 78, 221, 0.3);
+        border-radius: 16px;
         padding: 1.5rem;
+        text-align: center;
+        transition: all 0.3s ease;
     }
 
-    .info-card h2 {
-        color: #c77dff;
+    .stat-card:hover {
+        transform: translateY(-5px);
+        border-color: #9d4edd;
+    }
+
+    .stat-number {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: #9d4edd;
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-label {
+        color: #D1D5DB;
+        font-size: 1rem;
+    }
+
+    .mentor-requests {
+        margin-bottom: 3rem;
+    }
+
+    .mentor-requests h2 {
+        color: #9d4edd;
+        font-size: 1.8rem;
+        font-weight: 700;
+        margin-bottom: 1.5rem;
+        position: relative;
+        display: inline-block;
+        padding-bottom: 0.5rem;
+    }
+
+    .mentor-requests h2::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 3px;
+        background: linear-gradient(90deg, #9d4edd, transparent);
+        border-radius: 3px;
+    }
+
+    .mentor-card {
+        background: rgba(12, 10, 20, 0.7);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(157, 78, 221, 0.3);
+        border-radius: 16px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        transition: all 0.3s ease;
+    }
+
+    .mentor-card:hover {
+        transform: translateY(-5px);
+        border-color: #9d4edd;
+    }
+
+    .mentor-card h3 {
+        color: white;
         margin-bottom: 1rem;
         font-size: 1.2rem;
-        border-bottom: 1px solid rgba(157, 78, 221, 0.3);
-        padding-bottom: 0.5rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+    }
+
+    .pending-badge {
+        background: #ffd60a;
+        color: #000;
+        padding: 0.2rem 0.8rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        display: inline-block;
+        margin-left: 1rem;
+        font-weight: 500;
+    }
+
+    .mentor-info {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-bottom: 1.5rem;
     }
 
     .info-item {
@@ -49,65 +269,15 @@
     }
 
     .info-label {
-        color: #c77dff;
+        color: #9d4edd;
         font-size: 0.9rem;
-        margin-bottom: 0.2rem;
+        margin-bottom: 0.3rem;
+        font-weight: 500;
     }
 
     .info-value {
-        color: #fff;
+        color: #F3F4F6;
         font-size: 1rem;
-    }
-
-    .stats-card {
-        text-align: center;
-        padding: 1.5rem;
-    }
-
-    .stat-number {
-        font-size: 2rem;
-        color: #9d4edd;
-        margin-bottom: 0.5rem;
-    }
-
-    .stat-label {
-        color: #c77dff;
-        font-size: 0.9rem;
-    }
-
-    .success-message {
-        background: rgba(78, 221, 152, 0.1);
-        border: 1px solid #4edd98;
-        color: #4edd98;
-        padding: 1rem;
-        border-radius: 5px;
-        margin-bottom: 1rem;
-        text-align: center;
-    }
-
-    .mentor-requests {
-        margin-top: 2rem;
-    }
-
-    .mentor-card {
-        background: rgba(157, 78, 221, 0.1);
-        border: 1px solid #9d4edd;
-        border-radius: 10px;
-        padding: 1.5rem;
-        margin-bottom: 1rem;
-    }
-
-    .mentor-card h3 {
-        color: #c77dff;
-        margin-bottom: 1rem;
-        font-size: 1.1rem;
-    }
-
-    .mentor-info {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 1rem;
-        margin-bottom: 1rem;
     }
 
     .mentor-actions {
@@ -117,177 +287,154 @@
     }
 
     .btn {
-        padding: 0.5rem 1rem;
-        border-radius: 5px;
+        padding: 0.6rem 1.5rem;
+        border-radius: 8px;
         border: none;
         cursor: pointer;
-        font-size: 0.9rem;
+        font-size: 0.95rem;
+        font-weight: 600;
         transition: all 0.3s ease;
     }
 
     .btn-approve {
-        background: #4edd98;
+        background: linear-gradient(90deg, #4edd98, #2dc653);
         color: white;
+        box-shadow: 0 4px 12px rgba(78, 221, 152, 0.25);
     }
 
     .btn-reject {
-        background: #ff6b6b;
+        background: linear-gradient(90deg, #ff6b6b, #e63946);
         color: white;
+        box-shadow: 0 4px 12px rgba(255, 107, 107, 0.25);
     }
 
     .btn:hover {
-        transform: scale(1.05);
-        opacity: 0.9;
+        transform: translateY(-3px);
     }
 
-    .pending-badge {
-        background: #ffd60a;
-        color: #000;
-        padding: 0.2rem 0.5rem;
-        border-radius: 3px;
-        font-size: 0.8rem;
-        display: inline-block;
-        margin-left: 0.5rem;
+    .btn-outline-primary {
+        background: transparent;
+        border: 2px solid #9d4edd;
+        color: #9d4edd;
+        transition: all 0.3s ease;
     }
 
-    .mentor-stats {
+    .btn-outline-primary:hover {
+        background: #9d4edd;
+        color: white;
+    }
+
+    .college-info {
         display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 1rem;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 1.5rem;
         margin-bottom: 2rem;
     }
 
-    .mentor-stat-card {
-        background: rgba(157, 78, 221, 0.1);
-        border: 1px solid #9d4edd;
-        border-radius: 10px;
-        padding: 1rem;
-        text-align: center;
-    }
-
-    .mentor-stat-number {
-        font-size: 2rem;
-        color: #9d4edd;
-        margin-bottom: 0.5rem;
-    }
-
-    .mentor-stat-label {
-        color: #c77dff;
-        font-size: 0.9rem;
-    }
-
-    .feature-link {
-        text-decoration: none;
-        color: inherit;
-    }
-
-    .feature-card {
-        background: rgba(157, 78, 221, 0.1);
-        border: 1px solid #9d4edd;
-        border-radius: 10px;
+    .info-card {
+        background: rgba(12, 10, 20, 0.7);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(157, 78, 221, 0.3);
+        border-radius: 16px;
         padding: 1.5rem;
-        text-align: center;
-        transition: all 0.3s ease;
         height: 100%;
+        transition: all 0.3s ease;
     }
 
-    .feature-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 5px 15px rgba(157, 78, 221, 0.2);
+    .info-card:hover {
+        border-color: #9d4edd;
     }
 
-    .feature-card i {
-        font-size: 2rem;
+    .info-card h2 {
         color: #9d4edd;
-        margin-bottom: 1rem;
+        font-size: 1.3rem;
+        font-weight: 600;
+        margin-bottom: 1.5rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 1px solid rgba(157, 78, 221, 0.3);
     }
 
-    .feature-card h3 {
-        color: #c77dff;
-        margin-bottom: 0.5rem;
-        font-size: 1.2rem;
-    }
-
-    .feature-card p {
-        color: #fff;
-        font-size: 0.9rem;
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .welcome-section h1 {
+            font-size: 2rem;
+        }
+        
+        .welcome-section p {
+            font-size: 1rem;
+        }
+        
+        .mentor-info {
+            grid-template-columns: 1fr;
+        }
+        
+        .mentor-actions {
+            flex-direction: column;
+        }
     }
 </style>
 {% endblock %}
 
 {% block content %}
 <div class="dashboard-container">
-    {% if messages %}
-    <div class="success-message">
-        {% for message in messages %}
-            {{ message }}
-        {% endfor %}
-    </div>
-    {% endif %}
-
     <div class="welcome-section">
-        <h1>Welcome, {{ profile.college_name }}!</h1>
+        <h1>Welcome, <span>{{ profile.college_name }}</span>!</h1>
         <p>College Code: {{ profile.college_code }}</p>
     </div>
 
-    <div class="row mt-4">
-        <div class="col-md-3">
-            <a href="{% url 'mentor_requests' %}" class="feature-link">
-                <div class="feature-card">
-                    <i class="fas fa-user-plus"></i>
-                    <h3>Mentor Requests</h3>
-                    <p>Review and verify mentor applications</p>
-                </div>
-            </a>
-        </div>
-        <div class="col-md-3">
-            <a href="{% url 'registered_mentors' %}" class="feature-link">
-                <div class="feature-card">
-                    <i class="fas fa-chalkboard-teacher"></i>
-                    <h3>Registered Mentors</h3>
-                    <p>View and manage all registered mentors</p>
-                </div>
-            </a>
-        </div>
-        <div class="col-md-3">
-            <a href="{% url 'registered_students' %}" class="feature-link">
-                <div class="feature-card">
-                    <i class="fas fa-user-graduate"></i>
-                    <h3>Registered Students</h3>
-                    <p>Track student activities and progress</p>
-                </div>
-            </a>
-        </div>
-        <div class="col-md-3">
-            <a href="{% url 'college_profile' %}" class="feature-link">
-                <div class="feature-card">
-                    <i class="fas fa-university"></i>
-                    <h3>College Profile</h3>
-                    <p>Update college information</p>
-                </div>
-            </a>
+    <div class="feature-grid">
+        <a href="{% url 'mentor_requests' %}" class="feature-link">
+            <div class="feature-card">
+                <i class="fas fa-user-plus"></i>
+                <h3>Mentor Requests</h3>
+                <p>Review and verify mentor applications from your college</p>
+            </div>
+        </a>
+        <a href="{% url 'registered_mentors' %}" class="feature-link">
+            <div class="feature-card">
+                <i class="fas fa-chalkboard-teacher"></i>
+                <h3>Registered Mentors</h3>
+                <p>View and manage all registered mentors from your institution</p>
+            </div>
+        </a>
+        <a href="{% url 'registered_students' %}" class="feature-link">
+            <div class="feature-card">
+                <i class="fas fa-user-graduate"></i>
+                <h3>Registered Students</h3>
+                <p>Track student activities and monitor their progress</p>
+            </div>
+        </a>
+        <a href="{% url 'college_profile' %}" class="feature-link">
+            <div class="feature-card">
+                <i class="fas fa-university"></i>
+                <h3>College Profile</h3>
+                <p>Update your college information and contact details</p>
+            </div>
+        </a>
+    </div>
+
+    <div class="stats-section">
+        <h2>Mentor Management</h2>
+        
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number">{{ pending_count }}</div>
+                <div class="stat-label">Pending Requests</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">{{ verified_mentors }}</div>
+                <div class="stat-label">Verified Mentors</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">{{ rejected_mentors }}</div>
+                <div class="stat-label">Rejected Applications</div>
+            </div>
         </div>
     </div>
 
-    <div class="mentor-requests" id="mentor-requests">
-        <h2 style="color: #9d4edd; margin-bottom: 1rem;">Mentor Management</h2>
+    <div class="mentor-requests">
+        <h2>Recent Mentor Requests</h2>
         
-        <div class="mentor-stats">
-            <div class="mentor-stat-card">
-                <div class="mentor-stat-number">{{ pending_count }}</div>
-                <div class="mentor-stat-label">Pending Requests</div>
-            </div>
-            <div class="mentor-stat-card">
-                <div class="mentor-stat-number">{{ verified_mentors }}</div>
-                <div class="mentor-stat-label">Verified Mentors</div>
-            </div>
-            <div class="mentor-stat-card">
-                <div class="mentor-stat-number">{{ rejected_mentors }}</div>
-                <div class="mentor-stat-label">Rejected Applications</div>
-            </div>
-        </div>
-
-        <h3 style="color: #9d4edd; margin-bottom: 1rem;">Recent Mentor Requests</h3>
         {% for mentor in pending_mentors|slice:":3" %}
         <div class="mentor-card">
             <h3>
@@ -322,16 +469,19 @@
             </div>
         </div>
         {% empty %}
-        <p style="color: #c77dff; text-align: center;">No pending mentor verification requests.</p>
+        <div class="text-center py-4">
+            <p style="color: #D1D5DB;">No pending mentor verification requests.</p>
+        </div>
         {% endfor %}
+        
         {% if pending_mentors.count > 3 %}
-        <div class="text-center mt-3">
+        <div class="text-center mt-4">
             <a href="{% url 'mentor_requests' %}" class="btn btn-outline-primary">View All Requests</a>
         </div>
         {% endif %}
     </div>
 
-    <div class="info-grid">
+    <div class="college-info">
         <div class="info-card">
             <h2>College Information</h2>
             <div class="info-item">
@@ -345,7 +495,7 @@
             <div class="info-item">
                 <div class="info-label">Website</div>
                 <div class="info-value">
-                    <a href="{{ profile.website }}" target="_blank" style="color: #c77dff;">{{ profile.website }}</a>
+                    <a href="{{ profile.website }}" target="_blank" style="color: #9d4edd;">{{ profile.website }}</a>
                 </div>
             </div>
             <div class="info-item">
@@ -366,7 +516,7 @@
             </div>
         </div>
 
-        <div class="info-card stats-card">
+        <div class="info-card">
             <h2>Quick Stats</h2>
             <div class="info-item">
                 <div class="stat-number">{{ total_students }}</div>
@@ -382,6 +532,5 @@
             </div>
         </div>
     </div>
-</div> 
-
-{% endblock %} 
+</div>
+{% endblock %}

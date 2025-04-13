@@ -6,209 +6,418 @@
 {% block extra_css %}
 <style>
     .mentors-container {
-        padding: 2rem;
+        padding: 2rem 0;
+        position: relative;
+        z-index: 2;
     }
 
-    .mentor-card {
-        background: rgba(157, 78, 221, 0.1);
-        border: 1px solid #9d4edd;
-        border-radius: 10px;
+    .page-header {
+        margin-bottom: 2rem;
+    }
+
+    .page-header h1 {
+        color: white;
+        font-size: 2.2rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        position: relative;
+        display: inline-block;
+        padding-bottom: 0.5rem;
+    }
+
+    .page-header h1::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 3px;
+        background: linear-gradient(90deg, #9d4edd, transparent);
+        border-radius: 3px;
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2.5rem;
+    }
+
+    .stat-card {
+        background: rgba(12, 10, 20, 0.7);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(157, 78, 221, 0.3);
+        border-radius: 16px;
         padding: 1.5rem;
-        margin-bottom: 1.5rem;
+        text-align: center;
+        transition: all 0.3s ease;
+        box-shadow: 0 8px 32px rgba(31, 38, 135, 0.15);
+    }
+
+    .stat-card:hover {
+        transform: translateY(-5px);
+        border-color: #9d4edd;
+    }
+
+    .stat-number {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: #9d4edd;
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-label {
+        color: #D1D5DB;
+        font-size: 1rem;
+        font-weight: 500;
+    }
+
+    .filter-section {
+        background: rgba(12, 10, 20, 0.7);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(157, 78, 221, 0.3);
+        border-radius: 16px;
+        padding: 1.5rem;
+        margin-bottom: 2.5rem;
+        box-shadow: 0 8px 32px rgba(31, 38, 135, 0.15);
+    }
+
+    .filter-form {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+        align-items: center;
+    }
+
+    .filter-select {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(157, 78, 221, 0.3);
+        border-radius: 8px;
+        color: #F3F4F6;
+        padding: 0.7rem 1rem;
+        min-width: 200px;
         transition: all 0.3s ease;
     }
 
+    .filter-select:focus {
+        outline: none;
+        border-color: #9d4edd;
+        box-shadow: 0 0 0 2px rgba(157, 78, 221, 0.25);
+    }
+
+    .filter-select option {
+        background-color: #1a1a2e;
+        color: #F3F4F6;
+    }
+
+    .btn-filter {
+        background: linear-gradient(90deg, #9d4edd, #8b5cf6);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        padding: 0.7rem 1.5rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 12px rgba(157, 78, 221, 0.25);
+    }
+
+    .btn-filter:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 15px rgba(157, 78, 221, 0.35);
+    }
+
+    .mentors-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .mentor-card {
+        background: rgba(12, 10, 20, 0.7);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(157, 78, 221, 0.3);
+        border-radius: 16px;
+        padding: 1.5rem;
+        transition: all 0.3s ease;
+        height: 100%;
+        box-shadow: 0 8px 32px rgba(31, 38, 135, 0.15);
+        position: relative;
+        overflow: hidden;
+    }
+
+    /* Remove the ::before pseudo-element from mentor-card */
+    .mentor-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 4px;
+        height: 0;
+        transition: height 0.3s ease;
+    }
+
+    .mentor-card:hover::before {
+        height: 100%;
+    }
+
     .mentor-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 5px 15px rgba(157, 78, 221, 0.2);
+        transform: translateY(-10px);
+        border-color: #9d4edd;
     }
 
     .mentor-header {
         display: flex;
         align-items: center;
-        margin-bottom: 1rem;
+        margin-bottom: 1.5rem;
     }
 
     .mentor-image {
-        width: 80px;
-        height: 80px;
+        width: 90px;
+        height: 90px;
         border-radius: 50%;
-        margin-right: 1rem;
-        border: 2px solid #9d4edd;
+        margin-right: 1.5rem;
+        border: 3px solid #9d4edd;
+        padding: 3px;
+        background: rgba(157, 78, 221, 0.1);
+        transition: all 0.3s ease;
         object-fit: cover;
     }
 
+    .mentor-card:hover .mentor-image {
+        transform: scale(1.05);
+        box-shadow: 0 0 15px rgba(157, 78, 221, 0.5);
+    }
+
     .mentor-info h3 {
-        color: #9d4edd;
+        color: white;
         margin-bottom: 0.5rem;
+        font-size: 1.3rem;
+        font-weight: 600;
     }
 
     .mentor-info p {
-        color: #c77dff;
-        margin-bottom: 0.2rem;
-    }
-
-    .mentor-details {
-        margin: 1rem 0;
-        padding: 1rem;
-        background: rgba(157, 78, 221, 0.05);
-        border-radius: 5px;
-    }
-
-    .mentor-details p {
-        color: #fff;
+        color: #D1D5DB;
         margin-bottom: 0.5rem;
+        font-size: 0.95rem;
     }
 
     .status-badge {
         display: inline-block;
-        padding: 0.25rem 1rem;
-        border-radius: 15px;
-        font-size: 0.9rem;
-        margin-left: 1rem;
+        padding: 0.3rem 1rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 500;
+        margin-top: 0.5rem;
     }
 
     .status-pending {
-        background: rgba(255, 193, 7, 0.2);
+        background: rgba(255, 193, 7, 0.15);
         color: #ffc107;
-        border: 1px solid #ffc107;
+        border: 1px solid rgba(255, 193, 7, 0.3);
     }
 
     .status-approved {
-        background: rgba(40, 167, 69, 0.2);
+        background: rgba(40, 167, 69, 0.15);
         color: #28a745;
-        border: 1px solid #28a745;
+        border: 1px solid rgba(40, 167, 69, 0.3);
     }
 
     .status-rejected {
-        background: rgba(220, 53, 69, 0.2);
+        background: rgba(220, 53, 69, 0.15);
         color: #dc3545;
-        border: 1px solid #dc3545;
+        border: 1px solid rgba(220, 53, 69, 0.3);
     }
 
-    .stats-card {
-        background: rgba(157, 78, 221, 0.1);
-        border: 1px solid #9d4edd;
-        border-radius: 10px;
-        padding: 1.5rem;
-        margin-bottom: 2rem;
-        text-align: center;
+    .mentor-details {
+        background: rgba(255, 255, 255, 0.03);
+        border-radius: 12px;
+        padding: 1.2rem;
+        margin-top: 1rem;
     }
 
-    .stats-card h4 {
+    .detail-item {
+        margin-bottom: 0.8rem;
+        display: flex;
+    }
+
+    .detail-label {
         color: #9d4edd;
-        margin-bottom: 0.5rem;
+        font-size: 0.9rem;
+        font-weight: 500;
+        min-width: 120px;
     }
 
-    .stats-card p {
-        color: #fff;
-        font-size: 1.5rem;
-        margin: 0;
+    .detail-value {
+        color: #F3F4F6;
+        font-size: 0.95rem;
     }
 
-    .filter-section {
-        margin-bottom: 2rem;
-        padding: 1rem;
-        background: rgba(157, 78, 221, 0.1);
-        border-radius: 10px;
+    .detail-value a {
+        color: #9d4edd;
+        text-decoration: none;
+        transition: color 0.3s ease;
     }
 
-    .filter-section select {
-        background: rgba(157, 78, 221, 0.1);
-        border: 1px solid #9d4edd;
-        color: #fff;
-        padding: 0.5rem;
-        border-radius: 5px;
-        margin-right: 1rem;
+    .detail-value a:hover {
+        color: #8b5cf6;
+        text-decoration: underline;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 3rem;
+        background: rgba(12, 10, 20, 0.7);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(157, 78, 221, 0.3);
+        border-radius: 16px;
+        color: #D1D5DB;
+    }
+
+    .empty-state i {
+        font-size: 3rem;
+        color: #9d4edd;
+        margin-bottom: 1rem;
+        opacity: 0.7;
+    }
+
+    .empty-state p {
+        font-size: 1.1rem;
+        margin-bottom: 0;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .filter-form {
+            flex-direction: column;
+            align-items: stretch;
+        }
+        
+        .filter-select {
+            width: 100%;
+        }
+        
+        .mentors-grid {
+            grid-template-columns: 1fr;
+        }
     }
 </style>
 {% endblock %}
 
 {% block content %}
 <div class="mentors-container">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1 style="color: #9d4edd;">Registered Mentors</h1>
+    <div class="page-header">
+        <h1>Registered Mentors</h1>
     </div>
 
-    <div class="row mb-4">
-        <div class="col-md-4">
-            <div class="stats-card">
-                <h4>Total Mentors</h4>
-                <p>{{ total_mentors }}</p>
-            </div>
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-number">{{ total_mentors }}</div>
+            <div class="stat-label">Total Mentors</div>
         </div>
-        <div class="col-md-4">
-            <div class="stats-card">
-                <h4>Active Mentors</h4>
-                <p>{{ active_mentors }}</p>
-            </div>
+        <div class="stat-card">
+            <div class="stat-number">{{ active_mentors }}</div>
+            <div class="stat-label">Active Mentors</div>
         </div>
-        <div class="col-md-4">
-            <div class="stats-card">
-                <h4>Pending Approvals</h4>
-                <p>{{ pending_mentors }}</p>
-            </div>
+        <div class="stat-card">
+            <div class="stat-number">{{ pending_mentors }}</div>
+            <div class="stat-label">Pending Approvals</div>
         </div>
     </div>
 
     <div class="filter-section">
-        <form method="GET" class="d-flex align-items-center">
-            <select name="status" class="form-control me-2">
+        <form method="GET" class="filter-form">
+            <select name="status" class="filter-select">
                 <option value="">All Status</option>
                 <option value="pending" {% if status == 'pending' %}selected{% endif %}>Pending</option>
                 <option value="approved" {% if status == 'approved' %}selected{% endif %}>Approved</option>
                 <option value="rejected" {% if status == 'rejected' %}selected{% endif %}>Rejected</option>
             </select>
-            <select name="specialization" class="form-control me-2">
+            <select name="specialization" class="filter-select">
                 <option value="">All Specializations</option>
                 {% for spec in specializations %}
                 <option value="{{ spec }}" {% if specialization == spec %}selected{% endif %}>{{ spec }}</option>
                 {% endfor %}
             </select>
-            <button type="submit" class="btn btn-custom">Filter</button>
+            <button type="submit" class="btn-filter">
+                <i class="fas fa-filter"></i> Apply Filter
+            </button>
         </form>
     </div>
 
-    <div class="row">
+    <div class="mentors-grid">
         {% for mentor in mentors %}
-        <div class="col-md-6 mb-4">
-            <div class="mentor-card">
-                <div class="mentor-header">
-                    <img src="{% if mentor.profile_picture %}{{ mentor.profile_picture.url }}{% else %}https://ui-avatars.com/api/?name={{ mentor.full_name|default:mentor.user.username }}&background=9d4edd&color=fff{% endif %}" 
-                         alt="{{ mentor.full_name }}" 
-                         class="mentor-image">
-                    <div class="mentor-info">
-                        <h3>{{ mentor.full_name }}</h3>
-                        <p>{{ mentor.current_role }}</p>
-                        <span class="status-badge status-{{ mentor.verification_status }}">
-                            {{ mentor.verification_status|title }}
-                        </span>
+        <div class="mentor-card">
+            <div class="mentor-header">
+                <img src="{% if mentor.profile_picture %}{{ mentor.profile_picture.url }}{% else %}https://ui-avatars.com/api/?name={{ mentor.full_name|default:mentor.user.username }}&background=9d4edd&color=fff{% endif %}" 
+                     alt="{{ mentor.full_name }}" 
+                     class="mentor-image">
+                <div class="mentor-info">
+                    <h3>{{ mentor.full_name }}</h3>
+                    <p>{{ mentor.current_role }}</p>
+                    <span class="status-badge status-{{ mentor.verification_status }}">
+                        {{ mentor.verification_status|title }}
+                    </span>
+                </div>
+            </div>
+
+            <div class="mentor-details">
+                <div class="detail-item">
+                    <div class="detail-label">Email:</div>
+                    <div class="detail-value">{{ mentor.user.email }}</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Phone:</div>
+                    <div class="detail-value">{{ mentor.phone }}</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Qualification:</div>
+                    <div class="detail-value">{{ mentor.highest_qualification }}</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">University:</div>
+                    <div class="detail-value">{{ mentor.university }}</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Specialization:</div>
+                    <div class="detail-value">{{ mentor.specialization }}</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Experience:</div>
+                    <div class="detail-value">{{ mentor.experience_years }} years</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Teaching Branch:</div>
+                    <div class="detail-value">{{ mentor.teaching_branch }}</div>
+                </div>
+                {% if mentor.expertise_areas %}
+                <div class="detail-item">
+                    <div class="detail-label">Expertise:</div>
+                    <div class="detail-value">{{ mentor.expertise_areas }}</div>
+                </div>
+                {% endif %}
+                {% if mentor.linkedin %}
+                <div class="detail-item">
+                    <div class="detail-label">LinkedIn:</div>
+                    <div class="detail-value">
+                        <a href="{{ mentor.linkedin }}" target="_blank">
+                            <i class="fab fa-linkedin"></i> View Profile
+                        </a>
                     </div>
                 </div>
-
-                <div class="mentor-details">
-                    <p><strong>Email:</strong> {{ mentor.user.email }}</p>
-                    <p><strong>Phone:</strong> {{ mentor.phone }}</p>
-                    <p><strong>Qualification:</strong> {{ mentor.highest_qualification }}</p>
-                    <p><strong>University:</strong> {{ mentor.university }}</p>
-                    <p><strong>Specialization:</strong> {{ mentor.specialization }}</p>
-                    <p><strong>Experience:</strong> {{ mentor.experience_years }} years</p>
-                    <p><strong>Teaching Branch:</strong> {{ mentor.teaching_branch }}</p>
-                    {% if mentor.expertise_areas %}
-                    <p><strong>Expertise:</strong> {{ mentor.expertise_areas }}</p>
-                    {% endif %}
-                    {% if mentor.linkedin %}
-                    <p><strong>LinkedIn:</strong> <a href="{{ mentor.linkedin }}" target="_blank" style="color: #9d4edd;">View Profile</a></p>
-                    {% endif %}
-                    <p><strong>Joined:</strong> {{ mentor.user.date_joined|date:"M d, Y" }}</p>
+                {% endif %}
+                <div class="detail-item">
+                    <div class="detail-label">Joined:</div>
+                    <div class="detail-value">{{ mentor.user.date_joined|date:"M d, Y" }}</div>
                 </div>
             </div>
         </div>
         {% empty %}
-        <div class="col-12">
-            <p class="text-center" style="color: #fff;">No mentors found matching the criteria.</p>
+        <div class="empty-state">
+            <i class="fas fa-user-slash"></i>
+            <p>No mentors found matching the criteria.</p>
         </div>
         {% endfor %}
     </div>
 </div>
-{% endblock %} 
+{% endblock %}

@@ -310,7 +310,8 @@ def delete_ngo(request, ngo_id):
         profile = CollegeProfile.objects.get(user=request.user)
         ngo = get_object_or_404(NGO, id=ngo_id, college=profile)
         
-        if request.method == 'POST':
+        # Accept both POST and GET for deletion confirmation
+        if request.method == 'POST' or request.GET.get('confirm') == 'yes':
             ngo.delete()
             messages.success(request, 'NGO deleted successfully!')
             return redirect('ngo_list')
@@ -323,7 +324,7 @@ def delete_ngo(request, ngo_id):
     except CollegeProfile.DoesNotExist:
         messages.error(request, 'College profile not found!')
         return redirect('college_login')
-
+    
 @login_required
 def registered_mentors(request):
     try:

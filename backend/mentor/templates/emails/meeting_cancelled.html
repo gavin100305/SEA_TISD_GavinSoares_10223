@@ -1,0 +1,79 @@
+<!-- templates/emails/meeting_cancelled.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Meeting Cancelled</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+        }
+        .container {
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            background-color: #F44336;
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+        }
+        .content {
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+        .meeting-details {
+            background-color: white;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 15px;
+        }
+        .meeting-detail-row {
+            margin-bottom: 10px;
+        }
+        .footer {
+            text-align: center;
+            font-size: 12px;
+            color: #777;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Meeting Cancelled</h1>
+        </div>
+        <div class="content">
+            <p>Hello,</p>
+            <p>The meeting between Mentor <strong>{{ mentor_name }}</strong> and Student <strong>{{ student_name }}</strong> has been cancelled.</p>
+            
+            <div class="meeting-details">
+                <div class="meeting-detail-row">
+                    <strong>Meeting Title:</strong> {{ meeting.title }}
+                </div>
+                {% if meeting.description %}
+                <div class="meeting-detail-row">
+                    <strong>Description:</strong> {{ meeting.description }}
+                </div>
+                {% endif %}
+                <div class="meeting-detail-row">
+                    <strong>Originally Scheduled For:</strong> {{ meeting.meeting_time }}
+                </div>
+            </div>
+            
+            <p>Please update your calendar accordingly. If you need to reschedule this meeting, please coordinate through the mentorship platform.</p>
+            
+            <p>Best regards,<br>
+            The Mentorship Platform Team</p>
+        </div>
+        <div class="footer">
+            <p>This is an automated message. Please do not reply to this email.</p>
+        </div>
+    </div>
+</body>
+</html>

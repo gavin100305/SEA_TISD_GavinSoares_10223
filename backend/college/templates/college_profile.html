@@ -1,0 +1,420 @@
+{% extends 'college/base.html' %}
+
+{% block title %}College Profile{% endblock %}
+
+{% block extra_css %}
+<style>
+    .profile-container {
+        padding: 2rem 0;
+        max-width: 1200px;
+        margin: 0 auto;
+        position: relative;
+        z-index: 2;
+    }
+
+    .profile-header {
+        background: rgba(12, 10, 20, 0.7);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(157, 78, 221, 0.3);
+        border-radius: 16px;
+        padding: 2rem;
+        margin-bottom: 2.5rem;
+        display: flex;
+        align-items: center;
+        box-shadow: 0 8px 32px rgba(31, 38, 135, 0.15);
+    }
+
+    .college-logo {
+        width: 120px;
+        height: 120px;
+        border-radius: 12px;
+        object-fit: cover;
+        border: 3px solid #9d4edd;
+        margin-right: 2rem;
+        transition: all 0.3s ease;
+        background: rgba(157, 78, 221, 0.1);
+        padding: 3px;
+    }
+
+    .college-logo:hover {
+        transform: scale(1.05);
+        box-shadow: 0 0 20px rgba(157, 78, 221, 0.4);
+    }
+
+    .college-info h1 {
+        color: white;
+        margin-bottom: 0.5rem;
+        font-size: 2rem;
+        font-weight: 700;
+    }
+
+    .college-code {
+        color: #9d4edd;
+        font-size: 1.1rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .established-year {
+        color: #D1D5DB;
+        font-size: 0.9rem;
+    }
+
+    .profile-section {
+        background: rgba(12, 10, 20, 0.7);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(157, 78, 221, 0.3);
+        border-radius: 16px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 8px 32px rgba(31, 38, 135, 0.15);
+    }
+
+    .section-title {
+        color: #9d4edd;
+        margin-bottom: 1.5rem;
+        padding-bottom: 0.8rem;
+        border-bottom: 1px solid rgba(157, 78, 221, 0.3);
+        font-size: 1.5rem;
+        font-weight: 600;
+        position: relative;
+    }
+
+    .section-title::after {
+        content: '';
+        position: absolute;
+        bottom: -1px;
+        left: 0;
+        width: 100px;
+        height: 3px;
+        background: linear-gradient(90deg, #9d4edd, transparent);
+        border-radius: 3px;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-label {
+        display: block;
+        color: #9d4edd;
+        margin-bottom: 0.5rem;
+        font-size: 0.95rem;
+        font-weight: 500;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 0.8rem 1rem;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(157, 78, 221, 0.3);
+        border-radius: 8px;
+        color: #F3F4F6;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+    }
+
+    .form-control:focus {
+        outline: none;
+        border-color: #9d4edd;
+        box-shadow: 0 0 0 3px rgba(157, 78, 221, 0.25);
+        background: rgba(255, 255, 255, 0.1);
+    }
+
+    .form-control::placeholder {
+        color: rgba(209, 213, 219, 0.5);
+    }
+
+    .btn {
+        padding: 0.8rem 1.8rem;
+        border-radius: 8px;
+        border: none;
+        cursor: pointer;
+        font-size: 1rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        margin-right: 1rem;
+    }
+
+    .btn-primary {
+        background: linear-gradient(90deg, #9d4edd, #8b5cf6);
+        color: white;
+        box-shadow: 0 4px 12px rgba(157, 78, 221, 0.25);
+    }
+
+    .btn-secondary {
+        background: rgba(108, 117, 125, 0.2);
+        color: #D1D5DB;
+        border: 1px solid rgba(108, 117, 125, 0.3);
+    }
+
+    .btn:hover {
+        transform: translateY(-3px);
+    }
+
+    .btn-primary:hover {
+        box-shadow: 0 6px 15px rgba(157, 78, 221, 0.35);
+    }
+
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .logo-upload {
+        display: flex;
+        align-items: center;
+        margin-bottom: 1.5rem;
+    }
+
+    .logo-preview {
+        width: 120px;
+        height: 120px;
+        border-radius: 12px;
+        object-fit: cover;
+        margin-right: 2rem;
+        border: 3px solid #9d4edd;
+        padding: 3px;
+        background: rgba(157, 78, 221, 0.1);
+        transition: all 0.3s ease;
+    }
+
+    .logo-preview:hover {
+        transform: scale(1.05);
+    }
+
+    .upload-controls {
+        flex-grow: 1;
+    }
+
+    .form-actions {
+        text-align: right;
+        margin-top: 2rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid rgba(157, 78, 221, 0.3);
+    }
+
+    /* File input styling */
+    input[type="file"] {
+        position: relative;
+        padding: 0.8rem 1rem;
+    }
+
+    input[type="file"]::file-selector-button {
+        background: linear-gradient(90deg, #9d4edd, #8b5cf6);
+        color: white;
+        border: none;
+        padding: 0.5rem 1rem;
+        border-radius: 6px;
+        margin-right: 1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    input[type="file"]::file-selector-button:hover {
+        background: #8b5cf6;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .profile-header {
+            flex-direction: column;
+            text-align: center;
+        }
+        
+        .college-logo {
+            margin-right: 0;
+            margin-bottom: 1.5rem;
+        }
+        
+        .logo-upload {
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .logo-preview {
+            margin-right: 0;
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-actions {
+            text-align: center;
+        }
+        
+        .btn {
+            width: 100%;
+            margin-bottom: 1rem;
+            margin-right: 0;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="profile-container">
+    <div class="profile-header">
+        <img src="https://via.placeholder.com/120" alt="College Logo" class="college-logo">
+        <div class="college-info">
+            <h1>{{ profile.college_name }}</h1>
+            <div class="college-code">College Code: {{ profile.college_code }}</div>
+            {% if profile.established_year %}
+            <div class="established-year">Established: {{ profile.established_year }}</div>
+            {% endif %}
+        </div>
+    </div>
+
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        
+        <div class="profile-section">
+            <h2 class="section-title">Basic Information</h2>
+            
+            <div class="info-grid">
+                <div class="form-group">
+                    <label for="college_name" class="form-label">College Name</label>
+                    <input type="text" id="college_name" name="college_name" class="form-control" 
+                           value="{{ profile.college_name }}" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="college_code" class="form-label">College Code</label>
+                    <input type="text" id="college_code" name="college_code" class="form-control" 
+                           value="{{ profile.college_code }}" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="established_year" class="form-label">Established Year</label>
+                    <input type="number" id="established_year" name="established_year" class="form-control" 
+                           value="{{ profile.established_year }}">
+                </div>
+            </div>
+        </div>
+
+        <div class="profile-section">
+            <h2 class="section-title">Contact Information</h2>
+            
+            <div class="info-grid">
+                <div class="form-group">
+                    <label for="address" class="form-label">Address</label>
+                    <textarea id="address" name="address" class="form-control" 
+                              rows="3">{{ profile.address }}</textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="contact_number" class="form-label">Contact Number</label>
+                    <input type="tel" id="contact_number" name="contact_number" class="form-control" 
+                           value="{{ profile.contact_number }}">
+                </div>
+                
+                <div class="form-group">
+                    <label for="website" class="form-label">Website</label>
+                    <input type="url" id="website" name="website" class="form-control" 
+                           value="{{ profile.website }}" placeholder="https://example.com">
+                </div>
+            </div>
+        </div>
+
+        <div class="profile-section">
+            <h2 class="section-title">Principal Information</h2>
+            
+            <div class="info-grid">
+                <div class="form-group">
+                    <label for="principal_name" class="form-label">Principal Name</label>
+                    <input type="text" id="principal_name" name="principal_name" class="form-control" 
+                           value="{{ profile.principal_name }}">
+                </div>
+                
+                <div class="form-group">
+                    <label for="principal_email" class="form-label">Principal Email</label>
+                    <input type="email" id="principal_email" name="principal_email" class="form-control" 
+                           value="{{ profile.principal_email }}">
+                </div>
+            </div>
+        </div>
+
+        <div class="profile-section">
+            <h2 class="section-title">College Logo</h2>
+            
+            <div class="logo-upload">
+                <img src="https://via.placeholder.com/120" alt="Current Logo" class="logo-preview" id="logoPreview">
+                <div class="upload-controls">
+                    <div class="form-group">
+                        <label for="logo" class="form-label">Upload New Logo</label>
+                        <input type="file" id="logo" name="logo" class="form-control" accept="image/*">
+                    </div>
+                    <small style="color: #D1D5DB; font-size: 0.85rem;">Recommended size: 300x300 pixels. PNG or JPG format.</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <button type="button" class="btn btn-secondary" onclick="window.history.back()">Cancel</button>
+            <button type="submit" class="btn btn-primary">Save Changes</button>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Preview image before upload
+    document.getElementById('logo').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('logoPreview').src = e.target.result;
+            }
+            reader.readAsDataURL(file);
+        }
+    });
+
+    // Add ripple effect to buttons
+    document.querySelectorAll('.btn').forEach(button => {
+        button.addEventListener('click', function(e) {
+            const rect = button.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            const ripple = document.createElement('span');
+            ripple.classList.add('ripple');
+            ripple.style.left = `${x}px`;
+            ripple.style.top = `${y}px`;
+            
+            button.appendChild(ripple);
+            
+            setTimeout(() => {
+                ripple.remove();
+            }, 600);
+        });
+    });
+
+    // Add ripple effect styles
+    const style = document.createElement('style');
+    style.textContent = `
+        .btn {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .ripple {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            animation: ripple 0.6s linear forwards;
+            pointer-events: none;
+            width: 20px;
+            height: 20px;
+        }
+        
+        @keyframes ripple {
+            to {
+                transform: translate(-50%, -50%) scale(15);
+                opacity: 0;
+            }
+        }
+    `;
+    document.head.appendChild(style);
+</script>
+{% endblock %}

@@ -159,7 +159,7 @@
             <a class="nav-link {% if request.resolver_match.url_name == 'mentor_profile' %}active{% endif %}" href="{% url 'mentor_profile' %}">
                 <i class="fas fa-user"></i> Profile
             </a>
-            <a class="nav-link {% if request.resolver_match.url_name == 'mentor_students' %}active{% endif %}" href="#">
+            <a class="nav-link {% if request.resolver_match.url_name == 'mentor_students' %}active{% endif %}" href="{% url 'list_students' %}">
                 <i class="fas fa-users"></i> My Students
             </a>
             <a class="nav-link {% if request.resolver_match.url_name == 'mentor_schedule' %}active{% endif %}" href="#">
