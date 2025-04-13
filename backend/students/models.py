@@ -119,6 +119,7 @@ class Project(models.Model):
     mentor = models.ForeignKey('mentor.MentorProfile', on_delete=models.SET_NULL, null=True, blank=True, related_name='guided_projects')
     college = models.ForeignKey(CollegeProfile, on_delete=models.SET_NULL, null=True, blank=True, related_name='college_projects')
     collaborator = models.BooleanField(default=False)
+    is_open_for_collaboration = models.BooleanField(default=False)
     title = models.CharField(max_length=200)
     description = models.TextField()
     sdgs = models.CharField(max_length=500, help_text='Sustainable Development Goals')
@@ -156,3 +157,39 @@ class Project(models.Model):
 
     class Meta:
         ordering = ['-created_at']
+
+class CollaborationRequest(models.Model):
+    STATUS_CHOICES = (
+        ('pending', 'Pending'),
+        ('accepted', 'Accepted'),
+        ('rejected', 'Rejected'),
+        ('withdrawn', 'Withdrawn')
+    )
+
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name='collaboration_requests')
+    collaborator = models.ForeignKey('collabrators.CollaboratorProfile', on_delete=models.CASCADE, related_name='sent_requests')
+    message = models.TextField(help_text='Describe how you would like to contribute to this project')
+    proposed_contribution = models.TextField(help_text='Specific details about your proposed contribution')
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = ('project', 'collaborator')
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"Request from {self.collaborator} for {self.project.title}"
+
+class ProjectComment(models.Model):
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name='comments')
+    collaborator = models.ForeignKey('collabrators.CollaboratorProfile', on_delete=models.CASCADE, related_name='comments')
+    content = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"Comment by {self.collaborator} on {self.project.title}"

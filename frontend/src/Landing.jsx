@@ -12,7 +12,9 @@ const sdgProducts = [
   {
     title: "SDG 1: No Poverty",
     thumbnail: "/images/Sustainable_Development_Goal_1.png", 
-  },
+  }, 
+
+  
   {
     title: "SDG 2: Zero Hunger",
     thumbnail: "/images/download.png",

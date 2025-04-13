@@ -4,12 +4,15 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.contrib.auth.models import User
-from .models import StudentProfile, MentorConnection, Project, StudentGroup, GroupMembership
+from .models import StudentProfile, MentorConnection, Project, StudentGroup, GroupMembership, CollaborationRequest, ProjectComment
 from mentor.models import MentorProfile, ZoomMeeting
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from college.models import CollegeProfile,NGO
 from django.db.models import Q
 from django.utils import timezone
+from collabrators.models import CollaboratorProfile
+from django.http import JsonResponse
+from django.views.decorators.http import require_POST
 
 
 
@@ -175,15 +178,19 @@ def my_connections(request):
 def my_projects(request):
     try:
         student = request.user.student_profile
-        projects = Project.objects.filter(student=student)
-        connected_mentors = MentorProfile.objects.filter(
-            student_connections__student=student,
-            student_connections__status='accepted'
-        )
+        individual_projects = Project.objects.filter(student=student)
+        group_projects = Project.objects.filter(group__members=student, group__groupmembership__status='accepted')
+        projects = (individual_projects | group_projects).distinct()
+        
+        # Get collaboration requests for projects
+        collaboration_requests = CollaborationRequest.objects.filter(
+            project__in=projects,
+            status='pending'
+        ).count()
         
         context = {
             'projects': projects,
-            'connected_mentors': connected_mentors,
+            'pending_requests': collaboration_requests,
         }
         return render(request, 'student/my_projects.html', context)
         
@@ -663,6 +670,124 @@ def meeting_detail(request, meeting_id):
     except Exception as e:
         messages.error(request, f'An error occurred: {str(e)}')
         return redirect('student_meetings')
+
+@login_required
+def view_collaborators(request):
+    """View all registered collaborators on the platform"""
+    # Get all users who have a collaborator profile
+    collaborators = User.objects.filter(collaborator_profile__isnull=False).select_related('collaborator_profile').order_by('username')
+    
+    # Get the search query from GET parameters
+    search_query = request.GET.get('search', '')
+    if search_query:
+        collaborators = collaborators.filter(
+            Q(username__icontains=search_query) |
+            Q(email__icontains=search_query) |
+            Q(collaborator_profile__full_name__icontains=search_query) |
+            Q(collaborator_profile__expertise__icontains=search_query) |
+            Q(collaborator_profile__company__icontains=search_query)
+        )
+    
+    # Pagination
+    paginator = Paginator(collaborators, 12)  # Show 12 collaborators per page
+    page = request.GET.get('page')
+    try:
+        collaborators_page = paginator.page(page)
+    except PageNotAnInteger:
+        collaborators_page = paginator.page(1)
+    except EmptyPage:
+        collaborators_page = paginator.page(paginator.num_pages)
+    
+    context = {
+        'collaborators': collaborators_page,
+        'search_query': search_query,
+    }
+    return render(request, 'student/view_collaborators.html', context)
+
+@login_required
+def toggle_project_collaboration(request, project_id):
+    """Toggle whether a project is open for collaboration"""
+    project = get_object_or_404(Project, id=project_id)
+    student = request.user.student_profile
+    
+    # Check if user has permission to modify this project
+    if project.student != student and (project.group and project.group.leader != student):
+        messages.error(request, 'You do not have permission to modify this project.')
+        return redirect('my_projects')
+    
+    project.is_open_for_collaboration = not project.is_open_for_collaboration
+    project.save()
+    
+    status = 'opened' if project.is_open_for_collaboration else 'closed'
+    messages.success(request, f'Project has been {status} for collaboration.')
+    return redirect('my_projects')
+
+@login_required
+def view_collaboration_requests(request):
+    """View collaboration requests for student's projects"""
+    student = request.user.student_profile
+    
+    # Get all projects (both individual and group) where student is owner or group leader
+    individual_projects = Project.objects.filter(student=student)
+    group_projects = Project.objects.filter(group__leader=student)
+    all_projects = individual_projects | group_projects
+    
+    # Get collaboration requests for these projects
+    collaboration_requests = CollaborationRequest.objects.filter(project__in=all_projects)
+    
+    # Filter by status if specified
+    status = request.GET.get('status')
+    if status in ['pending', 'accepted', 'rejected', 'withdrawn']:
+        collaboration_requests = collaboration_requests.filter(status=status)
+    
+    context = {
+        'collaboration_requests': collaboration_requests,
+    }
+    return render(request, 'student/view_collaboration_requests.html', context)
+
+@login_required
+@require_POST
+def handle_collaboration_request(request, request_id):
+    """Accept or reject a collaboration request"""
+    collab_request = get_object_or_404(CollaborationRequest, id=request_id)
+    student = request.user.student_profile
+    
+    # Verify ownership
+    if collab_request.project.student != student and (collab_request.project.group and collab_request.project.group.leader != student):
+        messages.error(request, 'You do not have permission to handle this request.')
+        return redirect('view_collaboration_requests')
+    
+    action = request.POST.get('action')
+    if action == 'accept':
+        collab_request.status = 'accepted'
+        messages.success(request, f'Collaboration request from {collab_request.collaborator} has been accepted.')
+    elif action == 'reject':
+        collab_request.status = 'rejected'
+        messages.success(request, f'Collaboration request from {collab_request.collaborator} has been rejected.')
+    else:
+        messages.error(request, 'Invalid action.')
+        return redirect('view_collaboration_requests')
+    
+    collab_request.save()
+    return redirect('view_collaboration_requests')
+
+@login_required
+def view_project_comments(request, project_id):
+    """View comments on a project"""
+    project = get_object_or_404(Project, id=project_id)
+    student = request.user.student_profile
+    
+    # Check if user has permission to view this project
+    if project.student != student and (project.group and project.group.leader != student):
+        messages.error(request, 'You do not have permission to view this project.')
+        return redirect('my_projects')
+    
+    comments = project.comments.all()
+    context = {
+        'project': project,
+        'comments': comments,
+    }
+    return render(request, 'student/project_comments.html', context)
 
 
 

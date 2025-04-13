@@ -1,264 +1,90 @@
 {% extends '../base.html' %}
 {% load static %}
 
-{% block title %}My Projects{% endblock %}
-
-{% block extra_css %}
-<style>
-    .projects-container {
-        padding: 2rem;
-    }
-
-    .project-card {
-        background: rgba(157, 78, 221, 0.1);
-        border: 1px solid #9d4edd;
-        border-radius: 10px;
-        padding: 1.5rem;
-        margin-bottom: 1.5rem;
-        transition: all 0.3s ease;
-    }
-
-    .project-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 5px 15px rgba(157, 78, 221, 0.2);
-    }
-
-    .project-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-start;
-        margin-bottom: 1rem;
-    }
-
-    .project-title {
-        color: #9d4edd;
-        margin-bottom: 0.5rem;
-    }
-
-    .project-status {
-        display: inline-block;
-        padding: 0.25rem 1rem;
-        border-radius: 15px;
-        font-size: 0.9rem;
-    }
-
-    .status-in_progress {
-        background: rgba(255, 193, 7, 0.2);
-        color: #ffc107;
-        border: 1px solid #ffc107;
-    }
-
-    .status-completed {
-        background: rgba(40, 167, 69, 0.2);
-        color: #28a745;
-        border: 1px solid #28a745;
-    }
-
-    .status-under_review {
-        background: rgba(13, 110, 253, 0.2);
-        color: #0d6efd;
-        border: 1px solid #0d6efd;
-    }
-
-    .project-details {
-        margin: 1rem 0;
-        padding: 1rem;
-        background: rgba(157, 78, 221, 0.05);
-        border-radius: 5px;
-        color: #fff;
-    }
-
-    .project-meta {
-        color: #c77dff;
-        font-size: 0.9rem;
-        margin-top: 1rem;
-    }
-
-    .project-meta p {
-        margin-bottom: 0.3rem;
-    }
-
-    .project-actions {
-        margin-top: 1rem;
-        display: flex;
-        gap: 1rem;
-    }
-
-    .btn-custom {
-        background: #9d4edd;
-        color: white;
-        border: none;
-        padding: 0.5rem 1.5rem;
-        border-radius: 25px;
-        transition: all 0.3s ease;
-    }
-
-    .btn-custom:hover {
-        background: #c77dff;
-        color: white;
-        transform: scale(1.05);
-    }
-
-    .btn-danger {
-        background: #dc3545;
-    }
-
-    .btn-danger:hover {
-        background: #bb2d3b;
-    }
-
-    .mentor-feedback {
-        margin-top: 1rem;
-        padding: 1rem;
-        background: rgba(157, 78, 221, 0.05);
-        border-radius: 5px;
-        color: #fff;
-    }
-
-    .grade-badge {
-        display: inline-block;
-        padding: 0.5rem 1rem;
-        border-radius: 15px;
-        background: rgba(157, 78, 221, 0.2);
-        color: #9d4edd;
-        border: 1px solid #9d4edd;
-        font-weight: bold;
-        margin-left: 1rem;
-    }
-</style>
-{% endblock %}
-
 {% block content %}
-<div class="projects-container">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1 style="color: #9d4edd;">My Projects</h1>
-        <a href="{% url 'add_project' %}" class="btn btn-custom">
-            <i class="fas fa-plus"></i> Add New Project
-        </a>
+<div class="container mx-auto px-4 py-8">
+    <div class="md:flex md:items-center md:justify-between mb-8">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-900">My Projects</h1>
+            {% if pending_requests > 0 %}
+            <a href="{% url 'view_collaboration_requests' %}?status=pending" class="mt-2 inline-block text-sm text-blue-600 hover:text-blue-800">
+                {{ pending_requests }} pending collaboration request{{ pending_requests|pluralize }}
+            </a>
+            {% endif %}
+        </div>
+        <div class="mt-4 flex md:mt-0 md:ml-4">
+            <a href="{% url 'add_project' %}" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                Add New Project
+            </a>
+        </div>
     </div>
 
     {% if messages %}
-    <div class="messages mb-4">
+    <div class="mb-8">
         {% for message in messages %}
-        <div class="alert {% if message.tags == 'success' %}alert-success{% elif message.tags == 'error' %}alert-danger{% else %}alert-info{% endif %}">
+        <div class="p-4 rounded-md {% if message.tags == 'success' %}bg-green-100 text-green-700{% elif message.tags == 'error' %}bg-red-100 text-red-700{% else %}bg-blue-100 text-blue-700{% endif %}">
             {{ message }}
         </div>
         {% endfor %}
     </div>
     {% endif %}
 
-    {% if not connected_mentors %}
-    <div class="alert alert-info">
-        <i class="fas fa-info-circle"></i> You can share your projects with mentors by connecting with them.
-        <a href="{% url 'list_mentors' %}" class="alert-link">Find Mentors</a>
-    </div>
-    {% endif %}
-
-    <div class="row">
+    {% if projects %}
+    <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {% for project in projects %}
-        <div class="col-md-6 mb-4">
-            <div class="project-card">
-                <div class="project-header">
-                    <div>
-                        <h3 class="project-title">{{ project.title }}</h3>
-                        {% if project.mentor %}
-                        <p class="text-muted">Shared with Mentor: {{ project.mentor.full_name }}</p>
-                        {% elif project.college %}
-                        <p class="text-muted">Shared with College</p>
-                        {% elif project.collaborator %}
-                        <p class="text-muted">Shared with Collaborator</p>
-                        {% else %}
-                        <p class="text-muted">Not shared yet</p>
-                        {% endif %}
-                    </div>
-                    <span class="project-status status-{{ project.status }}">
+        <div class="bg-white rounded-lg shadow-md overflow-hidden">
+            <div class="p-6">
+                <div class="flex justify-between items-start">
+                    <h3 class="text-xl font-semibold text-gray-900">{{ project.title }}</h3>
+                    <span class="px-2 py-1 text-xs font-medium rounded-full {% if project.status == 'completed' %}bg-green-100 text-green-800{% elif project.status == 'under_review' %}bg-yellow-100 text-yellow-800{% else %}bg-blue-100 text-blue-800{% endif %}">
                         {{ project.status|title }}
                     </span>
                 </div>
-
-                <div class="project-details">
-                    <p>{{ project.description }}</p>
-                    
-                    <div class="project-meta">
-                        <p><strong>SDGs:</strong> {{ project.sdgs }}</p>
-                        <p><strong>Tech Stack:</strong> {{ project.tech_stack }}</p>
-                        {% if project.github_link %}
-                        <p><strong>GitHub:</strong> <a href="{{ project.github_link }}" target="_blank" style="color: #9d4edd;">View Repository</a></p>
-                        {% endif %}
-                        {% if project.project_file %}
-                        <p><strong>Project File:</strong> <a href="{{ project.project_file.url }}" style="color: #9d4edd;">Download</a></p>
-                        {% endif %}
-                    </div>
-
-                    {% if project.mentor_feedback %}
-                    <div class="mentor-feedback">
-                        <h5 style="color: #9d4edd;">Mentor Feedback</h5>
-                        <p>{{ project.mentor_feedback }}</p>
-                        {% if project.mentor_grade %}
-                        <span class="grade-badge">Grade: {{ project.mentor_grade }}/100</span>
-                        {% endif %}
-                    </div>
-                    {% endif %}
+                <p class="mt-2 text-sm text-gray-600">{{ project.description|truncatewords:30 }}</p>
+                
+                <div class="mt-4">
+                    <p class="text-sm text-gray-600"><strong>Tech Stack:</strong> {{ project.tech_stack }}</p>
+                    <p class="text-sm text-gray-600"><strong>SDGs:</strong> {{ project.sdgs }}</p>
                 </div>
 
-                <div class="project-actions">
-                    <a href="{% url 'edit_project' project.id %}" class="btn btn-custom">
-                        <i class="fas fa-edit"></i> Edit Project
+                <div class="mt-4">
+                    <span class="text-sm font-medium text-gray-500">Collaboration Status:</span>
+                    <span class="ml-2 px-2 py-1 text-xs font-medium rounded-full {% if project.is_open_for_collaboration %}bg-green-100 text-green-800{% else %}bg-gray-100 text-gray-800{% endif %}">
+                        {% if project.is_open_for_collaboration %}Open for Collaboration{% else %}Closed{% endif %}
+                    </span>
+                </div>
+
+                <div class="mt-6 flex flex-wrap gap-2">
+                    <a href="{% url 'edit_project' project.id %}" class="inline-flex items-center px-3 py-1 border border-transparent text-sm font-medium rounded text-blue-700 bg-blue-100 hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                        Edit
                     </a>
-                    {% if not project.mentor and not project.college and not project.collaborator %}
-                    <button type="button" class="btn btn-custom" data-bs-toggle="modal" data-bs-target="#shareModal{{ project.id }}">
-                        <i class="fas fa-share"></i> Share Project
-                    </button>
-                    {% endif %}
-                    <form action="{% url 'delete_project' project.id %}" method="POST" style="display: inline;">
+                    <a href="{% url 'view_project_comments' project.id %}" class="inline-flex items-center px-3 py-1 border border-transparent text-sm font-medium rounded text-purple-700 bg-purple-100 hover:bg-purple-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500">
+                        Comments
+                    </a>
+                    <form method="POST" action="{% url 'toggle_project_collaboration' project.id %}" class="inline">
                         {% csrf_token %}
-                        <button type="submit" class="btn btn-custom btn-danger" onclick="return confirm('Are you sure you want to delete this project?')">
-                            <i class="fas fa-trash"></i> Delete
+                        <button type="submit" class="inline-flex items-center px-3 py-1 border border-transparent text-sm font-medium rounded {% if project.is_open_for_collaboration %}text-red-700 bg-red-100 hover:bg-red-200{% else %}text-green-700 bg-green-100 hover:bg-green-200{% endif %} focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+                            {% if project.is_open_for_collaboration %}Close{% else %}Open{% endif %} Collaboration
+                        </button>
+                    </form>
+                    <form method="POST" action="{% url 'delete_project' project.id %}" class="inline" onsubmit="return confirm('Are you sure you want to delete this project?');">
+                        {% csrf_token %}
+                        <button type="submit" class="inline-flex items-center px-3 py-1 border border-transparent text-sm font-medium rounded text-red-700 bg-red-100 hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+                            Delete
                         </button>
                     </form>
                 </div>
             </div>
-
-            <!-- Share Modal -->
-            <div class="modal fade" id="shareModal{{ project.id }}" tabindex="-1" aria-labelledby="shareModalLabel{{ project.id }}" aria-hidden="true">
-                <div class="modal-dialog">
-                    <div class="modal-content bg-dark">
-                        <div class="modal-header">
-                            <h5 class="modal-title" id="shareModalLabel{{ project.id }}" style="color: #9d4edd;">Share Project</h5>
-                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <div class="modal-body">
-                            <form action="{% url 'share_project' project.id %}" method="POST">
-                                {% csrf_token %}
-                                <div class="mb-3">
-                                    <label class="form-label" style="color: #9d4edd;">Share with:</label>
-                                    <select name="share_with" class="form-control" required>
-                                        <option value="">Select recipient</option>
-                                        {% if connected_mentors %}
-                                        <optgroup label="Mentors">
-                                            {% for mentor in connected_mentors %}
-                                            <option value="mentor_{{ mentor.id }}">{{ mentor.full_name }}</option>
-                                            {% endfor %}
-                                        </optgroup>
-                                        {% endif %}
-                                        <option value="college">College</option>
-                                        <option value="collaborator">Collaborator</option>
-                                    </select>
-                                </div>
-                                <div class="text-end">
-                                    <button type="submit" class="btn btn-custom">Share</button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        {% empty %}
-        <div class="col-12">
-            <p class="text-center" style="color: #fff;">You haven't created any projects yet.</p>
         </div>
         {% endfor %}
     </div>
+    {% else %}
+    <div class="text-center py-12">
+        <p class="text-gray-500 text-lg">No projects found. Create your first project!</p>
+        <a href="{% url 'add_project' %}" class="mt-4 inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+            Add New Project
+        </a>
+    </div>
+    {% endif %}
 </div>
 {% endblock %} 

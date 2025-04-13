@@ -1,0 +1,136 @@
+{% extends '../base.html' %}
+
+{% block title %}Profile | Collaborator{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="max-w-3xl mx-auto">
+        <div class="bg-gray-800 rounded-lg shadow-lg p-6">
+            <h1 class="text-2xl font-bold text-white mb-6">
+                {% if profile.is_profile_complete %}Update{% else %}Complete{% endif %} Your Profile
+            </h1>
+
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="mb-4 p-4 rounded-lg {% if message.tags == 'error' %}bg-red-600{% else %}bg-green-600{% endif %} text-white">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            <form method="post" enctype="multipart/form-data" class="space-y-6">
+                {% csrf_token %}
+                
+                <!-- Basic Information -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label for="full_name" class="block text-sm font-medium text-gray-300 mb-2">Full Name *</label>
+                        <input type="text" id="full_name" name="full_name" required
+                               value="{{ profile.full_name }}"
+                               class="w-full bg-gray-700 text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500">
+                    </div>
+                    
+                    <div>
+                        <label for="phone" class="block text-sm font-medium text-gray-300 mb-2">Phone Number</label>
+                        <input type="tel" id="phone" name="phone"
+                               value="{{ profile.phone }}"
+                               class="w-full bg-gray-700 text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500">
+                    </div>
+                </div>
+
+                <!-- Professional Information -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label for="expertise" class="block text-sm font-medium text-gray-300 mb-2">Areas of Expertise *</label>
+                        <input type="text" id="expertise" name="expertise" required
+                               value="{{ profile.expertise }}"
+                               class="w-full bg-gray-700 text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                               placeholder="e.g., Web Development, Machine Learning">
+                    </div>
+                    
+                    <div>
+                        <label for="experience_years" class="block text-sm font-medium text-gray-300 mb-2">Years of Experience *</label>
+                        <input type="number" id="experience_years" name="experience_years" required
+                               value="{{ profile.experience_years }}"
+                               class="w-full bg-gray-700 text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label for="company" class="block text-sm font-medium text-gray-300 mb-2">Company</label>
+                        <input type="text" id="company" name="company"
+                               value="{{ profile.company }}"
+                               class="w-full bg-gray-700 text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500">
+                    </div>
+                    
+                    <div>
+                        <label for="position" class="block text-sm font-medium text-gray-300 mb-2">Position *</label>
+                        <input type="text" id="position" name="position" required
+                               value="{{ profile.position }}"
+                               class="w-full bg-gray-700 text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500">
+                    </div>
+                </div>
+
+                <!-- Social Links -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label for="linkedin_url" class="block text-sm font-medium text-gray-300 mb-2">LinkedIn Profile</label>
+                        <input type="url" id="linkedin_url" name="linkedin_url"
+                               value="{{ profile.linkedin_url }}"
+                               class="w-full bg-gray-700 text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                               placeholder="https://linkedin.com/in/username">
+                    </div>
+                    
+                    <div>
+                        <label for="github_url" class="block text-sm font-medium text-gray-300 mb-2">GitHub Profile</label>
+                        <input type="url" id="github_url" name="github_url"
+                               value="{{ profile.github_url }}"
+                               class="w-full bg-gray-700 text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                               placeholder="https://github.com/username">
+                    </div>
+                </div>
+
+                <div>
+                    <label for="portfolio_url" class="block text-sm font-medium text-gray-300 mb-2">Portfolio Website</label>
+                    <input type="url" id="portfolio_url" name="portfolio_url"
+                           value="{{ profile.portfolio_url }}"
+                           class="w-full bg-gray-700 text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                           placeholder="https://yourportfolio.com">
+                </div>
+
+                <!-- Bio -->
+                <div>
+                    <label for="bio" class="block text-sm font-medium text-gray-300 mb-2">Professional Bio *</label>
+                    <textarea id="bio" name="bio" rows="4" required
+                              class="w-full bg-gray-700 text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                              placeholder="Tell us about your professional background and what you can offer to students...">{{ profile.bio }}</textarea>
+                </div>
+
+                <!-- Profile Picture -->
+                <div>
+                    <label for="profile_picture" class="block text-sm font-medium text-gray-300 mb-2">Profile Picture</label>
+                    {% if profile.profile_picture %}
+                        <div class="mb-2">
+                            <img src="{{ profile.profile_picture.url }}" alt="Current profile picture" class="w-24 h-24 rounded-full object-cover">
+                        </div>
+                    {% endif %}
+                    <input type="file" id="profile_picture" name="profile_picture" accept="image/*"
+                           class="w-full bg-gray-700 text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500">
+                </div>
+
+                <div class="flex justify-end space-x-4">
+                    <a href="{% url 'collaborator_dashboard' %}" 
+                       class="px-6 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700">
+                        Cancel
+                    </a>
+                    <button type="submit" 
+                            class="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700">
+                        {% if profile.is_profile_complete %}Update{% else %}Complete{% endif %} Profile
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %} 

@@ -1,0 +1,222 @@
+{% extends '../base.html' %}
+
+{% block title %}View Collaborators{% endblock %}
+
+{% block content %}
+<div class="py-8 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-7xl mx-auto">
+        <!-- Header -->
+        <div class="md:flex md:items-center md:justify-between mb-8">
+            <div class="flex-1 min-w-0">
+                <h2 class="text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:truncate">
+                    Registered Collaborators
+                </h2>
+                <p class="mt-1 text-sm text-gray-500">
+                    Browse and connect with collaborators who can help with your projects
+                </p>
+            </div>
+        </div>
+
+        <!-- Search Bar -->
+        <div class="mb-8">
+            <form method="GET" action="{% url 'view_collaborators' %}" class="max-w-lg">
+                <div class="mt-1 flex rounded-md shadow-sm">
+                    <div class="relative flex items-stretch flex-grow">
+                        <input type="text" name="search" value="{{ search_query }}"
+                            class="focus:ring-indigo-500 focus:border-indigo-500 block w-full rounded-l-md sm:text-sm border-gray-300"
+                            placeholder="Search by name, expertise, company, or email">
+                    </div>
+                    <button type="submit"
+                        class="-ml-px relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-r-md text-gray-700 bg-gray-50 hover:bg-gray-100 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500">
+                        <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
+                            fill="currentColor">
+                            <path fill-rule="evenodd"
+                                d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
+                                clip-rule="evenodd" />
+                        </svg>
+                        <span class="ml-2">Search</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Collaborators Grid -->
+        <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {% for collaborator in collaborators %}
+            <div class="bg-white overflow-hidden shadow rounded-lg hover:shadow-lg transition-shadow duration-300">
+                <div class="px-4 py-5 sm:p-6">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0 h-12 w-12 rounded-full bg-indigo-100 flex items-center justify-center">
+                            {% if collaborator.collaborator_profile.profile_picture %}
+                                <img src="{{ collaborator.collaborator_profile.profile_picture.url }}" alt="{{ collaborator.collaborator_profile.full_name }}" class="h-12 w-12 rounded-full object-cover">
+                            {% else %}
+                                <span class="text-xl font-medium text-indigo-700">
+                                    {{ collaborator.username|make_list|first|upper }}
+                                </span>
+                            {% endif %}
+                        </div>
+                        <div class="ml-4">
+                            <h3 class="text-lg font-medium text-gray-900">
+                                {{ collaborator.collaborator_profile.full_name|default:collaborator.username }}
+                            </h3>
+                            <p class="text-sm text-gray-500">@{{ collaborator.username }}</p>
+                        </div>
+                    </div>
+                    
+                    {% if collaborator.collaborator_profile.position or collaborator.collaborator_profile.company %}
+                    <div class="mt-3">
+                        <p class="text-sm text-gray-600">
+                            {% if collaborator.collaborator_profile.position %}
+                                {{ collaborator.collaborator_profile.position }}
+                                {% if collaborator.collaborator_profile.company %}at{% endif %}
+                            {% endif %}
+                            {% if collaborator.collaborator_profile.company %}
+                                {{ collaborator.collaborator_profile.company }}
+                            {% endif %}
+                        </p>
+                    </div>
+                    {% endif %}
+
+                    {% if collaborator.collaborator_profile.expertise %}
+                    <div class="mt-2">
+                        <p class="text-sm text-indigo-600">{{ collaborator.collaborator_profile.expertise }}</p>
+                    </div>
+                    {% endif %}
+
+                    {% if collaborator.collaborator_profile.bio %}
+                    <div class="mt-3">
+                        <p class="text-sm text-gray-600 line-clamp-3">{{ collaborator.collaborator_profile.bio }}</p>
+                    </div>
+                    {% endif %}
+
+                    <div class="mt-4 flex flex-wrap gap-2">
+                        {% if collaborator.collaborator_profile.github_url %}
+                        <a href="{{ collaborator.collaborator_profile.github_url }}" target="_blank" rel="noopener noreferrer"
+                            class="inline-flex items-center px-2.5 py-1.5 border border-gray-300 shadow-sm text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                            <svg class="h-4 w-4 mr-1" fill="currentColor" viewBox="0 0 24 24">
+                                <path fill-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clip-rule="evenodd" />
+                            </svg>
+                            GitHub
+                        </a>
+                        {% endif %}
+
+                        {% if collaborator.collaborator_profile.linkedin_url %}
+                        <a href="{{ collaborator.collaborator_profile.linkedin_url }}" target="_blank" rel="noopener noreferrer"
+                            class="inline-flex items-center px-2.5 py-1.5 border border-gray-300 shadow-sm text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                            <svg class="h-4 w-4 mr-1" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/>
+                            </svg>
+                            LinkedIn
+                        </a>
+                        {% endif %}
+
+                        {% if collaborator.collaborator_profile.portfolio_url %}
+                        <a href="{{ collaborator.collaborator_profile.portfolio_url }}" target="_blank" rel="noopener noreferrer"
+                            class="inline-flex items-center px-2.5 py-1.5 border border-gray-300 shadow-sm text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                            <svg class="h-4 w-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"/>
+                            </svg>
+                            Portfolio
+                        </a>
+                        {% endif %}
+                    </div>
+
+                    <div class="mt-4">
+                        <p class="text-sm text-gray-500">
+                            <svg class="h-4 w-4 inline text-gray-400 mr-1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
+                                <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
+                            </svg>
+                            {{ collaborator.email }}
+                        </p>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-span-full text-center py-12">
+                <svg class="mx-auto h-12 w-12 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                </svg>
+                <h3 class="mt-2 text-sm font-medium text-gray-900">No collaborators found</h3>
+                <p class="mt-1 text-sm text-gray-500">
+                    {% if search_query %}
+                    No collaborators match your search criteria.
+                    {% else %}
+                    There are no registered collaborators yet.
+                    {% endif %}
+                </p>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Pagination -->
+        {% if collaborators.has_other_pages %}
+        <div class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6 mt-6">
+            <div class="flex-1 flex justify-between sm:hidden">
+                {% if collaborators.has_previous %}
+                <a href="?page={{ collaborators.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}"
+                    class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                    Previous
+                </a>
+                {% endif %}
+                {% if collaborators.has_next %}
+                <a href="?page={{ collaborators.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}"
+                    class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                    Next
+                </a>
+                {% endif %}
+            </div>
+            <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                <div>
+                    <p class="text-sm text-gray-700">
+                        Showing
+                        <span class="font-medium">{{ collaborators.start_index }}</span>
+                        to
+                        <span class="font-medium">{{ collaborators.end_index }}</span>
+                        of
+                        <span class="font-medium">{{ collaborators.paginator.count }}</span>
+                        results
+                    </p>
+                </div>
+                <div>
+                    <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
+                        {% if collaborators.has_previous %}
+                        <a href="?page={{ collaborators.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}"
+                            class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                            <span class="sr-only">Previous</span>
+                            <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
+                            </svg>
+                        </a>
+                        {% endif %}
+
+                        {% for i in collaborators.paginator.page_range %}
+                        {% if collaborators.number == i %}
+                        <span class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-indigo-50 text-sm font-medium text-indigo-600">
+                            {{ i }}
+                        </span>
+                        {% elif i > collaborators.number|add:'-3' and i < collaborators.number|add:'3' %}
+                        <a href="?page={{ i }}{% if search_query %}&search={{ search_query }}{% endif %}"
+                            class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
+                            {{ i }}
+                        </a>
+                        {% endif %}
+                        {% endfor %}
+
+                        {% if collaborators.has_next %}
+                        <a href="?page={{ collaborators.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}"
+                            class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                            <span class="sr-only">Next</span>
+                            <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+                            </svg>
+                        </a>
+                        {% endif %}
+                    </nav>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %} 

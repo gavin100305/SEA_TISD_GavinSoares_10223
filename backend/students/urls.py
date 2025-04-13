@@ -18,6 +18,10 @@ urlpatterns = [
     path('projects/<int:project_id>/edit/', views.edit_project, name='edit_project'),
     path('projects/<int:project_id>/delete/', views.delete_project, name='delete_project'),
     path('projects/<int:project_id>/share/', views.share_project, name='share_project'),
+    path('projects/<int:project_id>/toggle-collaboration/', views.toggle_project_collaboration, name='toggle_project_collaboration'),
+    path('collaboration-requests/', views.view_collaboration_requests, name='view_collaboration_requests'),
+    path('collaboration-requests/<int:request_id>/handle/', views.handle_collaboration_request, name='handle_collaboration_request'),
+    path('projects/<int:project_id>/comments/', views.view_project_comments, name='view_project_comments'),
 
     path('ngos/', views.ngo_list, name='ngo_list'),
     path('ngos/<int:ngo_id>/', views.ngo_detail, name='ngo_detail'),
@@ -33,4 +37,6 @@ urlpatterns = [
     # Add new URL patterns for meetings
     path('my-meetings/', views.student_meetings, name='student_meetings'),
     path('meeting/<int:meeting_id>/', views.meeting_detail, name='student_meeting_detail'),
+    path('meetings/', views.student_meetings, name='student_meetings'),
+    path('view-collaborators/', views.view_collaborators, name='view_collaborators'),
 ]

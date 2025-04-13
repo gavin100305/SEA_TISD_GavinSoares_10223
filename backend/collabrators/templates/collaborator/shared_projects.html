@@ -1,0 +1,129 @@
+{% extends 'collaborator/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="md:flex md:items-center md:justify-between mb-8">
+        <h1 class="text-3xl font-bold text-gray-900">Shared Projects</h1>
+    </div>
+
+    {% if messages %}
+    <div class="mb-8">
+        {% for message in messages %}
+        <div class="p-4 rounded-md {% if message.tags == 'success' %}bg-green-100 text-green-700{% elif message.tags == 'error' %}bg-red-100 text-red-700{% else %}bg-blue-100 text-blue-700{% endif %}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if projects %}
+    <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        {% for project in projects %}
+        <div class="bg-white rounded-lg shadow-md overflow-hidden">
+            <div class="p-6">
+                <div class="flex justify-between items-start">
+                    <h3 class="text-xl font-semibold text-gray-900">{{ project.title }}</h3>
+                    <span class="px-2 py-1 text-xs font-medium rounded-full {% if project.status == 'completed' %}bg-green-100 text-green-800{% elif project.status == 'under_review' %}bg-yellow-100 text-yellow-800{% else %}bg-blue-100 text-blue-800{% endif %}">
+                        {{ project.status|title }}
+                    </span>
+                </div>
+                
+                <div class="mt-2">
+                    <p class="text-sm text-gray-600">{{ project.description|truncatewords:30 }}</p>
+                </div>
+
+                <div class="mt-4">
+                    <p class="text-sm text-gray-600"><strong>Owner:</strong> {{ project.owner_name }} ({{ project.owner_type }})</p>
+                    <p class="text-sm text-gray-600"><strong>Tech Stack:</strong> {{ project.tech_stack }}</p>
+                    <p class="text-sm text-gray-600"><strong>SDGs:</strong> {{ project.sdgs }}</p>
+                </div>
+
+                {% if project.request_status %}
+                <div class="mt-4">
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                        {% if project.request_status == 'pending' %}bg-yellow-100 text-yellow-800
+                        {% elif project.request_status == 'accepted' %}bg-green-100 text-green-800
+                        {% elif project.request_status == 'rejected' %}bg-red-100 text-red-800
+                        {% else %}bg-gray-100 text-gray-800{% endif %}">
+                        Request Status: {{ project.request_status|title }}
+                    </span>
+                </div>
+                {% else %}
+                <div class="mt-6">
+                    <button type="button" 
+                            onclick="openCollaborationModal('{{ project.id }}')"
+                            class="w-full inline-flex justify-center items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                        Request to Collaborate
+                    </button>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="text-center py-12">
+        <p class="text-gray-500 text-lg">No shared projects available at the moment.</p>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Collaboration Request Modal -->
+<div id="collaborationModal" class="fixed z-10 inset-0 overflow-y-auto hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+    <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
+        <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+        <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+            <form id="collaborationForm" method="POST">
+                {% csrf_token %}
+                <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                    <div class="sm:flex sm:items-start">
+                        <div class="mt-3 text-center sm:mt-0 sm:text-left w-full">
+                            <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">
+                                Request to Collaborate
+                            </h3>
+                            <div class="mt-4">
+                                <label for="message" class="block text-sm font-medium text-gray-700">
+                                    Message
+                                </label>
+                                <textarea name="message" id="message" rows="3" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" placeholder="Explain why you'd like to collaborate on this project"></textarea>
+                            </div>
+                            <div class="mt-4">
+                                <label for="proposed_contribution" class="block text-sm font-medium text-gray-700">
+                                    Proposed Contribution
+                                </label>
+                                <textarea name="proposed_contribution" id="proposed_contribution" rows="3" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" placeholder="Describe how you plan to contribute to this project"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                    <button type="submit" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-indigo-600 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:ml-3 sm:w-auto sm:text-sm">
+                        Send Request
+                    </button>
+                    <button type="button" onclick="closeCollaborationModal()" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
+                        Cancel
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+    function openCollaborationModal(projectId) {
+        const modal = document.getElementById('collaborationModal');
+        const form = document.getElementById('collaborationForm');
+        form.action = `/collabrators/send-collaboration-request/${projectId}/`;
+        modal.classList.remove('hidden');
+    }
+
+    function closeCollaborationModal() {
+        const modal = document.getElementById('collaborationModal');
+        modal.classList.add('hidden');
+    }
+</script>
+{% endblock %}
+{% endblock %} 
