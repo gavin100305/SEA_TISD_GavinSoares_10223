@@ -1,0 +1,47 @@
+{% extends 'mentor/base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Meeting Details</h2>
+    
+    <div class="card">
+        <div class="card-header">
+            {{ meeting.title }}
+            <span class="badge {% if meeting.status == 'scheduled' %}badge-primary{% elif meeting.status == 'completed' %}badge-success{% elif meeting.status == 'cancelled' %}badge-danger{% endif %} float-right">
+                {{ meeting.get_status_display }}
+            </span>
+        </div>
+        <div class="card-body">
+            {% if meeting.description %}
+            <p class="card-text"><strong>Description:</strong> {{ meeting.description }}</p>
+            {% endif %}
+            
+            <p><strong>Student:</strong> {{ meeting.student.full_name }}</p>
+            <p><strong>Date & Time:</strong> {{ meeting.meeting_time }}</p>
+            <p><strong>Duration:</strong> {{ meeting.duration }} minutes</p>
+            <p><strong>Meeting Link:</strong> <a href="{{ meeting.meeting_link }}" target="_blank">{{ meeting.meeting_link }}</a></p>
+            
+            {% if meeting.status == 'scheduled' %}
+            <div class="mt-3">
+                <a href="{% url 'update_meeting' meeting.id %}" class="btn btn-primary">Update Meeting</a>
+                
+                <form method="post" action="{% url 'cancel_meeting' meeting.id %}" class="d-inline">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure you want to cancel this meeting?')">Cancel Meeting</button>
+                </form>
+            </div>
+            {% endif %}
+        </div>
+        <div class="card-footer text-muted">
+            Created: {{ meeting.created_at }}
+            {% if meeting.created_at != meeting.updated_at %}
+            <br>Last Updated: {{ meeting.updated_at }}
+            {% endif %}
+        </div>
+    </div>
+    
+    <div class="mt-3">
+        <a href="{% url 'meeting_list' %}" class="btn btn-secondary">Back to Meetings</a>
+    </div>
+</div>
+{% endblock %}

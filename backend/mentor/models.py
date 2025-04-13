@@ -1,6 +1,11 @@
 from django.db import models
 from django.contrib.auth.models import User
 from college.models import CollegeProfile
+from django.core.mail import send_mail
+from django.conf import settings
+from django.template.loader import render_to_string
+from django.utils.html import strip_tags
+
 
 class MentorProfile(models.Model):
     VERIFICATION_STATUS = (
@@ -8,7 +13,7 @@ class MentorProfile(models.Model):
         ('approved', 'Approved'),
         ('rejected', 'Rejected')
     )
-
+    
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='mentor_profile')
     full_name = models.CharField(max_length=200, blank=True, null=True)
     college = models.ForeignKey('college.CollegeProfile', on_delete=models.SET_NULL, related_name='mentors', null=True, blank=True)
@@ -28,9 +33,10 @@ class MentorProfile(models.Model):
     verification_date = models.DateTimeField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-
+    
     def __str__(self):
         return f"{self.full_name or self.user.username} - {self.get_verification_status_display()}"
+
 
 class ZoomMeeting(models.Model):
     mentor = models.ForeignKey(MentorProfile, on_delete=models.CASCADE, related_name='scheduled_meetings')
@@ -47,9 +53,50 @@ class ZoomMeeting(models.Model):
     ], default='scheduled')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-
+    
     class Meta:
         ordering = ['-meeting_time']
-
+    
     def __str__(self):
         return f"Meeting: {self.mentor.full_name} with {self.student.full_name} on {self.meeting_time}"
+    
+    def send_notification_emails(self, notification_type='scheduled'):
+        """Send notification emails to both mentor and student"""
+        if notification_type == 'scheduled':
+            subject = f"New Meeting Scheduled: {self.title}"
+            template = 'emails/meeting_scheduled.html'
+        elif notification_type == 'updated':
+            subject = f"Meeting Updated: {self.title}"
+            template = 'emails/meeting_updated.html'
+        elif notification_type == 'cancelled':
+            subject = f"Meeting Cancelled: {self.title}"
+            template = 'emails/meeting_cancelled.html'
+        else:
+            return
+        
+        # Context for email template
+        context = {
+            'meeting': self,
+            'mentor_name': self.mentor.full_name or self.mentor.user.username,
+            'student_name': self.student.full_name or self.student.user.username,
+        }
+        
+        # Render email content from template
+        html_message = render_to_string(template, context)
+        plain_message = strip_tags(html_message)
+        
+        # Get recipient email addresses
+        mentor_email = self.mentor.user.email
+        student_email = self.student.user.email
+        
+        # Send emails
+        send_mail(
+            subject=subject,
+            message=plain_message,
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[mentor_email, student_email],
+            html_message=html_message,
+            fail_silently=False,
+        )
+        
+        return True
