@@ -4,29 +4,138 @@
 
 {% block extra_css %}
 <style>
-    .mentor-requests {
-        margin-top: 2rem;
+    .dashboard-container {
+        padding: 2rem 0;
+        position: relative;
+        z-index: 2;
+    }
+
+    .page-header {
+        background: rgba(12, 10, 20, 0.7);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(157, 78, 221, 0.3);
+        border-radius: 16px;
+        padding: 2.5rem;
+        margin-bottom: 3rem;
+        text-align: center;
+        box-shadow: 0 8px 32px rgba(31, 38, 135, 0.15);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .page-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(45deg, rgba(157, 78, 221, 0.05), transparent);
+        z-index: -1;
+    }
+
+    .page-header h1 {
+        font-size: 2.5rem;
+        font-weight: 800;
+        letter-spacing: -0.5px;
+        line-height: 1.2;
+        margin-bottom: 1rem;
+        color: white;
+    }
+
+    .page-header h1 span {
+        color: #9d4edd;
+        position: relative;
+        display: inline-block;
+    }
+
+    .page-header h1 span::after {
+        content: "";
+        position: absolute;
+        bottom: 5px;
+        left: 0;
+        width: 100%;
+        height: 8px;
+        background-color: rgba(157, 78, 221, 0.2);
+        z-index: -1;
+        border-radius: 4px;
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 3rem;
+    }
+
+    .stat-card {
+        background: rgba(12, 10, 20, 0.7);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(157, 78, 221, 0.3);
+        border-radius: 16px;
+        padding: 1.5rem;
+        text-align: center;
+        transition: all 0.3s ease;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-5px);
+        border-color: #9d4edd;
+    }
+
+    .stat-number {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: #9d4edd;
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-label {
+        color: #D1D5DB;
+        font-size: 1rem;
     }
 
     .mentor-card {
-        background: rgba(157, 78, 221, 0.1);
-        border: 1px solid #9d4edd;
-        border-radius: 10px;
+        background: rgba(12, 10, 20, 0.7);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(157, 78, 221, 0.3);
+        border-radius: 16px;
         padding: 1.5rem;
-        margin-bottom: 1rem;
+        margin-bottom: 1.5rem;
+        transition: all 0.3s ease;
+        box-shadow: 0 8px 32px rgba(31, 38, 135, 0.15);
+    }
+
+    .mentor-card:hover {
+        transform: translateY(-5px);
+        border-color: #9d4edd;
     }
 
     .mentor-card h3 {
-        color: #c77dff;
+        color: white;
         margin-bottom: 1rem;
-        font-size: 1.1rem;
+        font-size: 1.2rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+    }
+
+    .pending-badge {
+        background: #ffd60a;
+        color: #000;
+        padding: 0.2rem 0.8rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        display: inline-block;
+        margin-left: 1rem;
+        font-weight: 500;
     }
 
     .mentor-info {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
         gap: 1rem;
-        margin-bottom: 1rem;
+        margin-bottom: 1.5rem;
     }
 
     .info-item {
@@ -34,13 +143,14 @@
     }
 
     .info-label {
-        color: #c77dff;
+        color: #9d4edd;
         font-size: 0.9rem;
-        margin-bottom: 0.2rem;
+        margin-bottom: 0.3rem;
+        font-weight: 500;
     }
 
     .info-value {
-        color: #fff;
+        color: #F3F4F6;
         font-size: 1rem;
     }
 
@@ -51,83 +161,82 @@
     }
 
     .btn {
-        padding: 0.5rem 1rem;
-        border-radius: 5px;
+        padding: 0.6rem 1.5rem;
+        border-radius: 8px;
         border: none;
         cursor: pointer;
-        font-size: 0.9rem;
+        font-size: 0.95rem;
+        font-weight: 600;
         transition: all 0.3s ease;
     }
 
     .btn-approve {
-        background: #4edd98;
+        background: linear-gradient(90deg, #4edd98, #2dc653);
         color: white;
+        box-shadow: 0 4px 12px rgba(78, 221, 152, 0.25);
     }
 
     .btn-reject {
-        background: #ff6b6b;
+        background: linear-gradient(90deg, #ff6b6b, #e63946);
         color: white;
+        box-shadow: 0 4px 12px rgba(255, 107, 107, 0.25);
     }
 
     .btn:hover {
-        transform: scale(1.05);
-        opacity: 0.9;
+        transform: translateY(-3px);
     }
 
-    .pending-badge {
-        background: #ffd60a;
-        color: #000;
-        padding: 0.2rem 0.5rem;
-        border-radius: 3px;
-        font-size: 0.8rem;
-        display: inline-block;
-        margin-left: 0.5rem;
-    }
-
-    .mentor-stats {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 1rem;
-        margin-bottom: 2rem;
-    }
-
-    .mentor-stat-card {
-        background: rgba(157, 78, 221, 0.1);
-        border: 1px solid #9d4edd;
-        border-radius: 10px;
-        padding: 1rem;
+    .empty-state {
         text-align: center;
-    }
-
-    .mentor-stat-number {
-        font-size: 2rem;
+        padding: 3rem;
         color: #9d4edd;
-        margin-bottom: 0.5rem;
+        font-size: 1.1rem;
+        background: rgba(12, 10, 20, 0.5);
+        border-radius: 16px;
+        border: 1px dashed rgba(157, 78, 221, 0.3);
     }
 
-    .mentor-stat-label {
-        color: #c77dff;
-        font-size: 0.9rem;
+    .empty-state i {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        opacity: 0.7;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .page-header h1 {
+            font-size: 2rem;
+        }
+        
+        .mentor-info {
+            grid-template-columns: 1fr;
+        }
+        
+        .mentor-actions {
+            flex-direction: column;
+        }
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="mentor-requests">
-    <h1 style="color: #9d4edd; margin-bottom: 2rem;">Mentor Verification Requests</h1>
+<div class="dashboard-container">
+    <div class="page-header">
+        <h1>Mentor <span>Verification</span> Requests</h1>
+    </div>
 
-    <div class="mentor-stats">
-        <div class="mentor-stat-card">
-            <div class="mentor-stat-number">{{ pending_count }}</div>
-            <div class="mentor-stat-label">Pending Requests</div>
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-number">{{ pending_count }}</div>
+            <div class="stat-label">Pending Requests</div>
         </div>
-        <div class="mentor-stat-card">
-            <div class="mentor-stat-number">{{ verified_mentors }}</div>
-            <div class="mentor-stat-label">Verified Mentors</div>
+        <div class="stat-card">
+            <div class="stat-number">{{ verified_mentors }}</div>
+            <div class="stat-label">Verified Mentors</div>
         </div>
-        <div class="mentor-stat-card">
-            <div class="mentor-stat-number">{{ rejected_mentors }}</div>
-            <div class="mentor-stat-label">Rejected Applications</div>
+        <div class="stat-card">
+            <div class="stat-number">{{ rejected_mentors }}</div>
+            <div class="stat-label">Rejected Applications</div>
         </div>
     </div>
 
@@ -135,6 +244,7 @@
         {% for mentor in pending_mentors %}
         <div class="mentor-card">
             <h3>
+                <i class="fas fa-user-plus" style="color: #9d4edd; margin-right: 0.8rem;"></i>
                 New Mentor Request
                 <span class="pending-badge">Pending Verification</span>
             </h3>
@@ -171,7 +281,10 @@
         </div>
         {% endfor %}
     {% else %}
-        <p style="color: #c77dff; text-align: center;">No pending mentor verification requests.</p>
+        <div class="empty-state">
+            <i class="fas fa-user-check"></i>
+            <p>No pending mentor verification requests at this time.</p>
+        </div>
     {% endif %}
 </div>
-{% endblock %} 
+{% endblock %}
