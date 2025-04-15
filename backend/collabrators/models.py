@@ -46,3 +46,28 @@ class CollaboratorProfile(models.Model):
 
         self.is_profile_complete = required_fields_filled
         super().save(*args, **kwargs)
+
+class ZoomMeeting(models.Model):
+    collaborator = models.ForeignKey('CollaboratorProfile', on_delete=models.CASCADE)
+    student = models.ForeignKey('students.StudentProfile', on_delete=models.CASCADE)
+    project = models.ForeignKey('students.Project', on_delete=models.CASCADE)
+    meeting_title = models.CharField(max_length=200)
+    meeting_description = models.TextField(blank=True)
+    scheduled_time = models.DateTimeField()
+    duration = models.IntegerField(help_text='Duration in minutes')
+    zoom_link = models.URLField()
+    zoom_meeting_id = models.CharField(max_length=200)
+    zoom_password = models.CharField(max_length=20)
+    status = models.CharField(max_length=20, choices=[
+        ('scheduled', 'Scheduled'),
+        ('completed', 'Completed'),
+        ('cancelled', 'Cancelled')
+    ], default='scheduled')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-scheduled_time']
+
+    def __str__(self):
+        return f"{self.meeting_title} - {self.scheduled_time}"

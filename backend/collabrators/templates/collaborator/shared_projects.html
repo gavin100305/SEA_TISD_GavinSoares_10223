@@ -2,15 +2,13 @@
 {% load static %}
 
 {% block content %}
-<div class="container mx-auto px-4 py-8">
-    <div class="md:flex md:items-center md:justify-between mb-8">
-        <h1 class="text-3xl font-bold text-gray-900">Shared Projects</h1>
-    </div>
+<div class="content-section">
+    <h1 class="section-title">Shared Projects</h1>
 
     {% if messages %}
-    <div class="mb-8">
+    <div class="messages">
         {% for message in messages %}
-        <div class="p-4 rounded-md {% if message.tags == 'success' %}bg-green-100 text-green-700{% elif message.tags == 'error' %}bg-red-100 text-red-700{% else %}bg-blue-100 text-blue-700{% endif %}">
+        <div class="message {{ message.tags }}">
             {{ message }}
         </div>
         {% endfor %}
@@ -18,112 +16,490 @@
     {% endif %}
 
     {% if projects %}
-    <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+    <div class="projects-grid">
         {% for project in projects %}
-        <div class="bg-white rounded-lg shadow-md overflow-hidden">
-            <div class="p-6">
-                <div class="flex justify-between items-start">
-                    <h3 class="text-xl font-semibold text-gray-900">{{ project.title }}</h3>
-                    <span class="px-2 py-1 text-xs font-medium rounded-full {% if project.status == 'completed' %}bg-green-100 text-green-800{% elif project.status == 'under_review' %}bg-yellow-100 text-yellow-800{% else %}bg-blue-100 text-blue-800{% endif %}">
-                        {{ project.status|title }}
-                    </span>
-                </div>
+        <div class="project-card">
+            <div class="project-header">
+                <h3>{{ project.title }}</h3>
+                <span class="status-badge {{ project.status }}">{{ project.get_status_display }}</span>
+            </div>
+            
+            <div class="project-description">
+                {{ project.description|truncatewords:30 }}
+            </div>
+
+            <div class="project-details">
+                <p><strong>Owner:</strong> {{ project.student.full_name }}</p>
+                <p><strong>Tech Stack:</strong> {{ project.tech_stack }}</p>
+                <p><strong>SDGs:</strong> {{ project.sdgs }}</p>
+            </div>
+
+            {% if project.request_status %}
+            <div class="request-status">
+                <span class="status-badge {{ project.request_status }}">
+                    Request Status: {{ project.request_status|title }}
+                </span>
+            </div>
+            {% else %}
+            <div class="project-actions">
+                <button onclick="openCollaborationModal('{{ project.id }}')" class="btn btn-primary">
+                    Request to Collaborate
+                </button>
+            </div>
+            {% endif %}
+
+            {% if project.request_status == 'accepted' %}
+            <div class="meeting-actions">
+                <a href="{% url 'view_meetings' project.id %}" class="btn btn-primary">
+                    <i class="fas fa-video"></i> View Meetings
+                </a>
+                <a href="{% url 'schedule_meeting' project.id %}" class="btn btn-secondary">
+                    <i class="fas fa-plus"></i> Schedule Meeting
+                </a>
+            </div>
+            {% endif %}
+
+            <!-- Comments Section -->
+            <div class="comments-section">
+                <h4 class="comments-title">Comments</h4>
                 
-                <div class="mt-2">
-                    <p class="text-sm text-gray-600">{{ project.description|truncatewords:30 }}</p>
-                </div>
+                <!-- Comment Form -->
+                <form method="POST" action="{% url 'collaborator_add_comment' project.id %}" class="comment-form">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <textarea name="content" rows="2" placeholder="Write a comment..." class="comment-input"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-sm">Post Comment</button>
+                </form>
 
-                <div class="mt-4">
-                    <p class="text-sm text-gray-600"><strong>Owner:</strong> {{ project.owner_name }} ({{ project.owner_type }})</p>
-                    <p class="text-sm text-gray-600"><strong>Tech Stack:</strong> {{ project.tech_stack }}</p>
-                    <p class="text-sm text-gray-600"><strong>SDGs:</strong> {{ project.sdgs }}</p>
-                </div>
+                <!-- Comments List -->
+                <div class="comments-list">
+                    {% for comment in project.comments.all %}
+                        {% if not comment.parent_comment %}
+                            <div class="comment" id="comment-{{ comment.id }}">
+                                <div class="comment-header">
+                                    <span class="comment-author">{{ comment.get_author_name }}</span>
+                                    <span class="comment-time">{{ comment.created_at|timesince }} ago</span>
+                                </div>
+                                <div class="comment-content">{{ comment.content }}</div>
+                                <div class="comment-actions">
+                                    <button onclick="showReplyForm('{{ comment.id }}')" class="btn btn-link">Reply</button>
+                                    {% if comment.author_type == 'collaborator' and comment.author_collaborator.user == request.user %}
+                                        <form method="POST" action="{% url 'collaborator_delete_comment' comment.id %}" class="inline-form">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-link text-danger" onclick="return confirm('Delete this comment?')">Delete</button>
+                                        </form>
+                                    {% endif %}
+                                </div>
 
-                {% if project.request_status %}
-                <div class="mt-4">
-                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
-                        {% if project.request_status == 'pending' %}bg-yellow-100 text-yellow-800
-                        {% elif project.request_status == 'accepted' %}bg-green-100 text-green-800
-                        {% elif project.request_status == 'rejected' %}bg-red-100 text-red-800
-                        {% else %}bg-gray-100 text-gray-800{% endif %}">
-                        Request Status: {{ project.request_status|title }}
-                    </span>
+                                <!-- Reply Form -->
+                                <div id="reply-form-{{ comment.id }}" class="reply-form" style="display: none;">
+                                    <form method="POST" action="{% url 'collaborator_add_comment' project.id %}">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="parent_id" value="{{ comment.id }}">
+                                        <div class="form-group">
+                                            <textarea name="content" rows="2" placeholder="Write a reply..." class="comment-input"></textarea>
+                                        </div>
+                                        <div class="form-actions">
+                                            <button type="submit" class="btn btn-primary btn-sm">Reply</button>
+                                            <button type="button" onclick="hideReplyForm('{{ comment.id }}')" class="btn btn-secondary btn-sm">Cancel</button>
+                                        </div>
+                                    </form>
+                                </div>
+
+                                <!-- Replies -->
+                                {% for reply in comment.replies.all %}
+                                    <div class="reply">
+                                        <div class="comment-header">
+                                            <span class="comment-author">{{ reply.get_author_name }}</span>
+                                            <span class="comment-time">{{ reply.created_at|timesince }} ago</span>
+                                        </div>
+                                        <div class="comment-content">{{ reply.content }}</div>
+                                        {% if reply.author_type == 'collaborator' and reply.author_collaborator.user == request.user %}
+                                            <div class="comment-actions">
+                                                <form method="POST" action="{% url 'collaborator_delete_comment' reply.id %}" class="inline-form">
+                                                    {% csrf_token %}
+                                                    <button type="submit" class="btn btn-link text-danger" onclick="return confirm('Delete this reply?')">Delete</button>
+                                                </form>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    {% endfor %}
                 </div>
-                {% else %}
-                <div class="mt-6">
-                    <button type="button" 
-                            onclick="openCollaborationModal('{{ project.id }}')"
-                            class="w-full inline-flex justify-center items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                        Request to Collaborate
-                    </button>
-                </div>
-                {% endif %}
             </div>
         </div>
         {% endfor %}
     </div>
     {% else %}
-    <div class="text-center py-12">
-        <p class="text-gray-500 text-lg">No shared projects available at the moment.</p>
+    <div class="empty-state">
+        <p>No shared projects available at the moment.</p>
     </div>
     {% endif %}
 </div>
 
 <!-- Collaboration Request Modal -->
-<div id="collaborationModal" class="fixed z-10 inset-0 overflow-y-auto hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-    <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
-        <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-        <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
-            <form id="collaborationForm" method="POST">
-                {% csrf_token %}
-                <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-                    <div class="sm:flex sm:items-start">
-                        <div class="mt-3 text-center sm:mt-0 sm:text-left w-full">
-                            <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">
-                                Request to Collaborate
-                            </h3>
-                            <div class="mt-4">
-                                <label for="message" class="block text-sm font-medium text-gray-700">
-                                    Message
-                                </label>
-                                <textarea name="message" id="message" rows="3" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" placeholder="Explain why you'd like to collaborate on this project"></textarea>
-                            </div>
-                            <div class="mt-4">
-                                <label for="proposed_contribution" class="block text-sm font-medium text-gray-700">
-                                    Proposed Contribution
-                                </label>
-                                <textarea name="proposed_contribution" id="proposed_contribution" rows="3" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" placeholder="Describe how you plan to contribute to this project"></textarea>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-                    <button type="submit" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-indigo-600 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:ml-3 sm:w-auto sm:text-sm">
-                        Send Request
-                    </button>
-                    <button type="button" onclick="closeCollaborationModal()" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
-                        Cancel
-                    </button>
-                </div>
-            </form>
+<div id="collaborationModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Request to Collaborate</h3>
         </div>
+        <form id="collaborationForm" method="POST">
+            {% csrf_token %}
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="message">Message</label>
+                    <textarea name="message" id="message" rows="3" placeholder="Explain why you'd like to collaborate on this project"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="proposed_contribution">Proposed Contribution</label>
+                    <textarea name="proposed_contribution" id="proposed_contribution" rows="3" placeholder="Describe how you plan to contribute to this project"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" onclick="closeCollaborationModal()" class="btn btn-secondary">Cancel</button>
+                <button type="submit" class="btn btn-primary">Send Request</button>
+            </div>
+        </form>
     </div>
 </div>
 
-{% block extra_js %}
-<script>
-    function openCollaborationModal(projectId) {
-        const modal = document.getElementById('collaborationModal');
-        const form = document.getElementById('collaborationForm');
-        form.action = `/collabrators/send-collaboration-request/${projectId}/`;
-        modal.classList.remove('hidden');
+{% block extra_css %}
+<style>
+    .content-section {
+        padding: 2rem;
     }
 
-    function closeCollaborationModal() {
-        const modal = document.getElementById('collaborationModal');
-        modal.classList.add('hidden');
+    .section-title {
+        color: #c77dff;
+        font-size: 2rem;
+        margin-bottom: 2rem;
     }
+
+    .projects-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 2rem;
+    }
+
+    .project-card {
+        background: rgba(157, 78, 221, 0.1);
+        border: 1px solid #9d4edd;
+        border-radius: 10px;
+        padding: 1.5rem;
+        transition: transform 0.3s ease;
+    }
+
+    .project-card:hover {
+        transform: translateY(-5px);
+    }
+
+    .project-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: start;
+        margin-bottom: 1rem;
+    }
+
+    .project-header h3 {
+        color: #c77dff;
+        font-size: 1.25rem;
+        margin: 0;
+    }
+
+    .project-description {
+        color: #fff;
+        opacity: 0.8;
+        margin-bottom: 1rem;
+    }
+
+    .project-details {
+        margin: 1rem 0;
+    }
+
+    .project-details p {
+        color: #fff;
+        margin: 0.5rem 0;
+    }
+
+    .project-details strong {
+        color: #c77dff;
+    }
+
+    .status-badge {
+        padding: 0.25rem 0.75rem;
+        border-radius: 15px;
+        font-size: 0.875rem;
+    }
+
+    .status-badge.pending {
+        background: rgba(255, 193, 7, 0.2);
+        color: #ffc107;
+    }
+
+    .status-badge.accepted {
+        background: rgba(40, 167, 69, 0.2);
+        color: #28a745;
+    }
+
+    .status-badge.rejected {
+        background: rgba(220, 53, 69, 0.2);
+        color: #dc3545;
+    }
+
+    .project-actions {
+        margin-top: 1rem;
+    }
+
+    .btn {
+        padding: 0.5rem 1rem;
+        border-radius: 5px;
+        border: none;
+        cursor: pointer;
+        font-size: 0.875rem;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-block;
+    }
+
+    .btn-primary {
+        background: #9d4edd;
+        color: #fff;
+    }
+
+    .btn-primary:hover {
+        background: #c77dff;
+    }
+
+    .btn-secondary {
+        background: transparent;
+        border: 1px solid #9d4edd;
+        color: #9d4edd;
+    }
+
+    .btn-secondary:hover {
+        background: rgba(157, 78, 221, 0.1);
+    }
+
+    .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 1000;
+    }
+
+    .modal.show {
+        display: block;
+    }
+
+    .modal-content {
+        background: #1a1a2e;
+        border: 1px solid #9d4edd;
+        border-radius: 10px;
+        width: 90%;
+        max-width: 500px;
+        margin: 2rem auto;
+        position: relative;
+        top: 50%;
+        transform: translateY(-50%);
+    }
+
+    .modal-header {
+        padding: 1rem 1.5rem;
+        border-bottom: 1px solid #9d4edd;
+    }
+
+    .modal-header h3 {
+        color: #c77dff;
+        margin: 0;
+    }
+
+    .modal-body {
+        padding: 1.5rem;
+    }
+
+    .form-group {
+        margin-bottom: 1rem;
+    }
+
+    .form-group label {
+        display: block;
+        color: #c77dff;
+        margin-bottom: 0.5rem;
+    }
+
+    .form-group textarea {
+        width: 100%;
+        padding: 0.5rem;
+        border-radius: 5px;
+        border: 1px solid #9d4edd;
+        background: rgba(157, 78, 221, 0.1);
+        color: #fff;
+        resize: vertical;
+    }
+
+    .modal-footer {
+        padding: 1rem 1.5rem;
+        border-top: 1px solid #9d4edd;
+        display: flex;
+        justify-content: flex-end;
+        gap: 1rem;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 3rem;
+        color: #fff;
+        opacity: 0.6;
+    }
+
+    .meeting-actions {
+        display: flex;
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+
+    /* Add new styles for comments */
+    .comments-section {
+        margin-top: 2rem;
+        padding-top: 1rem;
+        border-top: 1px solid rgba(157, 78, 221, 0.2);
+    }
+
+    .comments-title {
+        color: #c77dff;
+        font-size: 1.1rem;
+        margin-bottom: 1rem;
+    }
+
+    .comment-form {
+        margin-bottom: 1.5rem;
+    }
+
+    .comment-input {
+        width: 100%;
+        padding: 0.5rem;
+        border-radius: 5px;
+        border: 1px solid #9d4edd;
+        background: rgba(157, 78, 221, 0.1);
+        color: #fff;
+        resize: vertical;
+        margin-bottom: 0.5rem;
+    }
+
+    .comments-list {
+        margin-top: 1rem;
+    }
+
+    .comment {
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid rgba(157, 78, 221, 0.1);
+    }
+
+    .comment-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.5rem;
+    }
+
+    .comment-author {
+        color: #c77dff;
+        font-weight: 500;
+    }
+
+    .comment-time {
+        color: rgba(255, 255, 255, 0.5);
+        font-size: 0.875rem;
+    }
+
+    .comment-content {
+        color: #fff;
+        margin-bottom: 0.5rem;
+    }
+
+    .comment-actions {
+        display: flex;
+        gap: 1rem;
+    }
+
+    .btn-link {
+        background: none;
+        border: none;
+        padding: 0;
+        color: #9d4edd;
+        cursor: pointer;
+        font-size: 0.875rem;
+    }
+
+    .btn-link:hover {
+        color: #c77dff;
+        text-decoration: underline;
+    }
+
+    .text-danger {
+        color: #dc3545;
+    }
+
+    .text-danger:hover {
+        color: #ff4757;
+    }
+
+    .reply-form {
+        margin: 1rem 0;
+        padding-left: 1.5rem;
+    }
+
+    .form-actions {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .reply {
+        margin: 1rem 0;
+        padding-left: 1.5rem;
+        border-left: 2px solid rgba(157, 78, 221, 0.2);
+    }
+
+    .inline-form {
+        display: inline;
+    }
+
+    .btn-sm {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.875rem;
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function openCollaborationModal(projectId) {
+    const modal = document.getElementById('collaborationModal');
+    const form = document.getElementById('collaborationForm');
+    form.action = `/collabrators/send-collaboration-request/${projectId}/`;
+    modal.classList.add('show');
+}
+
+function closeCollaborationModal() {
+    const modal = document.getElementById('collaborationModal');
+    modal.classList.remove('show');
+}
+
+function showReplyForm(commentId) {
+    document.getElementById(`reply-form-${commentId}`).style.display = 'block';
+}
+
+function hideReplyForm(commentId) {
+    document.getElementById(`reply-form-${commentId}`).style.display = 'none';
+}
 </script>
 {% endblock %}
 {% endblock %} 

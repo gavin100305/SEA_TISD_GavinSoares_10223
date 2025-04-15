@@ -819,6 +819,156 @@ def view_project_comments(request, project_id):
     }
     return render(request, 'student/project_comments.html', context)
 
+@login_required
+def schedule_meeting(request, project_id, collaborator_id):
+    try:
+        student = request.user.student_profile
+        project = get_object_or_404(Project, id=project_id, student=student)
+        collaborator = get_object_or_404(CollaboratorProfile, id=collaborator_id)
+        
+        # Verify if collaborator is connected to this project
+        if not CollaborationRequest.objects.filter(
+            project=project,
+            collaborator=collaborator,
+            status='accepted'
+        ).exists():
+            messages.error(request, 'This collaborator is not connected to your project.')
+            return redirect('student_dashboard')
+        
+        if request.method == 'POST':
+            meeting_title = request.POST.get('meeting_title')
+            meeting_description = request.POST.get('meeting_description')
+            scheduled_time = request.POST.get('scheduled_time')
+            duration = request.POST.get('duration')
+            zoom_link = request.POST.get('zoom_link')
+            zoom_meeting_id = request.POST.get('zoom_meeting_id')
+            zoom_password = request.POST.get('zoom_password')
+            
+            # Create the meeting
+            meeting = ZoomMeeting.objects.create(
+                collaborator=collaborator,
+                student=student,
+                project=project,
+                meeting_title=meeting_title,
+                meeting_description=meeting_description,
+                scheduled_time=scheduled_time,
+                duration=duration,
+                zoom_link=zoom_link,
+                zoom_meeting_id=zoom_meeting_id,
+                zoom_password=zoom_password
+            )
+            
+            messages.success(request, 'Meeting scheduled successfully!')
+            return redirect('student_view_meetings', project_id=project_id)
+            
+        context = {
+            'project': project,
+            'collaborator': collaborator
+        }
+        return render(request, 'student/schedule_meeting.html', context)
+        
+    except Exception as e:
+        messages.error(request, f'An error occurred: {str(e)}')
+        return redirect('student_dashboard')
+
+@login_required
+def view_meetings(request, project_id=None):
+    try:
+        student = request.user.student_profile
+        
+        if project_id:
+            # View meetings for a specific project
+            project = get_object_or_404(Project, id=project_id, student=student)
+            meetings = ZoomMeeting.objects.filter(
+                student=student,
+                project=project
+            )
+            context = {
+                'project': project,
+                'meetings': meetings
+            }
+            template = 'student/project_meetings.html'
+        else:
+            # View all meetings
+            meetings = ZoomMeeting.objects.filter(student=student)
+            context = {'meetings': meetings}
+            template = 'student/all_meetings.html'
+            
+        return render(request, template, context)
+        
+    except Exception as e:
+        messages.error(request, f'An error occurred: {str(e)}')
+        return redirect('student_dashboard')
+
+@login_required
+def update_meeting(request, meeting_id):
+    try:
+        student = request.user.student_profile
+        meeting = get_object_or_404(ZoomMeeting, id=meeting_id, student=student)
+        
+        if request.method == 'POST':
+            meeting.meeting_title = request.POST.get('meeting_title')
+            meeting.meeting_description = request.POST.get('meeting_description')
+            meeting.scheduled_time = request.POST.get('scheduled_time')
+            meeting.duration = request.POST.get('duration')
+            meeting.zoom_link = request.POST.get('zoom_link')
+            meeting.zoom_meeting_id = request.POST.get('zoom_meeting_id')
+            meeting.zoom_password = request.POST.get('zoom_password')
+            meeting.status = request.POST.get('status', 'scheduled')
+            meeting.save()
+            
+            messages.success(request, 'Meeting updated successfully!')
+            return redirect('student_view_meetings', project_id=meeting.project.id)
+            
+        context = {
+            'meeting': meeting,
+            'project': meeting.project,
+            'collaborator': meeting.collaborator
+        }
+        return render(request, 'student/update_meeting.html', context)
+        
+    except Exception as e:
+        messages.error(request, f'An error occurred: {str(e)}')
+        return redirect('student_dashboard')
+
+@login_required
+def add_project_comment(request, project_id):
+    if request.method == 'POST':
+        project = get_object_or_404(Project, id=project_id)
+        student = get_object_or_404(StudentProfile, user=request.user)
+        content = request.POST.get('content')
+        parent_id = request.POST.get('parent_id')
+        
+        if not content:
+            messages.error(request, 'Comment content cannot be empty.')
+            return redirect('my_projects')
+        
+        comment = ProjectComment(
+            project=project,
+            author_type='student',
+            author_id=student.id,
+            content=content
+        )
+        
+        if parent_id:
+            parent_comment = get_object_or_404(ProjectComment, id=parent_id)
+            comment.parent_comment = parent_comment
+        
+        comment.save()
+        messages.success(request, 'Comment added successfully!')
+        return redirect('my_projects')
+    return redirect('my_projects')
+
+@login_required
+def delete_project_comment(request, comment_id):
+    comment = get_object_or_404(ProjectComment, id=comment_id)
+    if comment.student and comment.student.user == request.user:
+        comment.delete()
+        messages.success(request, 'Comment deleted successfully!')
+    else:
+        messages.error(request, 'You do not have permission to delete this comment.')
+    return redirect('my_projects')
+
 
 
 

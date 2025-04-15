@@ -1,0 +1,98 @@
+{% extends '../base.html' %}
+{% load static %}
+
+{% block title %}Schedule Meeting - {{ project.title }}{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="card bg-white shadow-md rounded-lg">
+        <div class="card-header bg-indigo-600">
+            <h3 class="text-xl font-semibold text-white mb-0">Schedule Zoom Meeting</h3>
+        </div>
+        <div class="card-body p-6">
+            <div class="mb-6">
+                <h5 class="text-lg font-medium">Project: {{ project.title }}</h5>
+                <p class="text-gray-600">Collaborator: {{ collaborator.full_name }}</p>
+            </div>
+
+            <form method="POST" class="needs-validation space-y-4" novalidate>
+                {% csrf_token %}
+                
+                <div class="mb-4">
+                    <label for="meeting_title" class="block text-sm font-medium text-gray-700">Meeting Title</label>
+                    <input type="text" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" id="meeting_title" name="meeting_title" required>
+                </div>
+
+                <div class="mb-4">
+                    <label for="meeting_description" class="block text-sm font-medium text-gray-700">Meeting Description</label>
+                    <textarea class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" id="meeting_description" name="meeting_description" rows="3"></textarea>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="scheduled_time" class="block text-sm font-medium text-gray-700">Date and Time</label>
+                        <input type="datetime-local" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" id="scheduled_time" name="scheduled_time" required>
+                    </div>
+
+                    <div>
+                        <label for="duration" class="block text-sm font-medium text-gray-700">Duration (minutes)</label>
+                        <input type="number" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" id="duration" name="duration" min="15" step="15" value="30" required>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label for="zoom_link" class="block text-sm font-medium text-gray-700">Zoom Meeting Link</label>
+                    <input type="url" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" id="zoom_link" name="zoom_link" required>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="zoom_meeting_id" class="block text-sm font-medium text-gray-700">Meeting ID</label>
+                        <input type="text" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" id="zoom_meeting_id" name="zoom_meeting_id" required>
+                    </div>
+
+                    <div>
+                        <label for="zoom_password" class="block text-sm font-medium text-gray-700">Meeting Password</label>
+                        <input type="text" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" id="zoom_password" name="zoom_password" required>
+                    </div>
+                </div>
+
+                <div class="flex justify-between mt-6">
+                    <a href="{% url 'student_view_meetings' project.id %}" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                        Cancel
+                    </a>
+                    <button type="submit" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                        Schedule Meeting
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+    // Form validation
+    (function () {
+        'use strict'
+        var forms = document.querySelectorAll('.needs-validation')
+        Array.prototype.slice.call(forms).forEach(function (form) {
+            form.addEventListener('submit', function (event) {
+                if (!form.checkValidity()) {
+                    event.preventDefault()
+                    event.stopPropagation()
+                }
+                form.classList.add('was-validated')
+            }, false)
+        })
+    })()
+
+    // Set minimum datetime to now
+    document.addEventListener('DOMContentLoaded', function() {
+        const now = new Date();
+        now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+        document.getElementById('scheduled_time').min = now.toISOString().slice(0, 16);
+    });
+</script>
+{% endblock %}
+{% endblock %} 

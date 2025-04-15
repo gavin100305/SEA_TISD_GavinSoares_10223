@@ -1,0 +1,94 @@
+{% extends 'collaborator/base.html' %}
+{% load static %}
+
+{% block title %}Schedule Meeting - {{ project.title }}{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="card bg-dark text-light border-primary">
+        <div class="card-header bg-primary text-white">
+            <h3 class="mb-0">Schedule Zoom Meeting</h3>
+        </div>
+        <div class="card-body">
+            <div class="mb-4">
+                <h5>Project: {{ project.title }}</h5>
+                <p>Student: {{ project.student.full_name }}</p>
+            </div>
+
+            <form method="POST" class="needs-validation" novalidate>
+                {% csrf_token %}
+                
+                <div class="mb-3">
+                    <label for="meeting_title" class="form-label">Meeting Title</label>
+                    <input type="text" class="form-control" id="meeting_title" name="meeting_title" required>
+                </div>
+
+                <div class="mb-3">
+                    <label for="meeting_description" class="form-label">Meeting Description</label>
+                    <textarea class="form-control" id="meeting_description" name="meeting_description" rows="3"></textarea>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="scheduled_time" class="form-label">Date and Time</label>
+                        <input type="datetime-local" class="form-control" id="scheduled_time" name="scheduled_time" required>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label for="duration" class="form-label">Duration (minutes)</label>
+                        <input type="number" class="form-control" id="duration" name="duration" min="15" step="15" value="30" required>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="zoom_link" class="form-label">Zoom Meeting Link</label>
+                    <input type="url" class="form-control" id="zoom_link" name="zoom_link" required>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="zoom_meeting_id" class="form-label">Meeting ID</label>
+                        <input type="text" class="form-control" id="zoom_meeting_id" name="zoom_meeting_id" required>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label for="zoom_password" class="form-label">Meeting Password</label>
+                        <input type="text" class="form-control" id="zoom_password" name="zoom_password" required>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-between">
+                    <a href="{% url 'view_meetings' project.id %}" class="btn btn-secondary">Cancel</a>
+                    <button type="submit" class="btn btn-primary">Schedule Meeting</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+    // Form validation
+    (function () {
+        'use strict'
+        var forms = document.querySelectorAll('.needs-validation')
+        Array.prototype.slice.call(forms).forEach(function (form) {
+            form.addEventListener('submit', function (event) {
+                if (!form.checkValidity()) {
+                    event.preventDefault()
+                    event.stopPropagation()
+                }
+                form.classList.add('was-validated')
+            }, false)
+        })
+    })()
+
+    // Set minimum datetime to now
+    document.addEventListener('DOMContentLoaded', function() {
+        const now = new Date();
+        now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+        document.getElementById('scheduled_time').min = now.toISOString().slice(0, 16);
+    });
+</script>
+{% endblock %}
+{% endblock %} 

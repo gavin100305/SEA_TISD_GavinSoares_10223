@@ -4,6 +4,8 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.core.validators import MinValueValidator, MaxValueValidator
 from college.models import CollegeProfile
+from mentor.models import MentorProfile
+from collabrators.models import CollaboratorProfile
 
 class StudentProfile(models.Model):
     SECTION_CHOICES = [
@@ -183,29 +185,44 @@ class CollaborationRequest(models.Model):
 
 class ProjectComment(models.Model):
     project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name='comments')
-    author_student = models.ForeignKey('StudentProfile', on_delete=models.CASCADE, null=True, blank=True, related_name='project_comments')
-    author_collaborator = models.ForeignKey('collabrators.CollaboratorProfile', on_delete=models.CASCADE, null=True, blank=True, related_name='project_comments')
-    parent_comment = models.ForeignKey('self', on_delete=models.CASCADE, null=True, blank=True, related_name='replies')
+    author_type = models.CharField(max_length=20, choices=[('student', 'Student'), ('collaborator', 'Collaborator')])
+    author_id = models.IntegerField(null=True, blank=True)  # Making it nullable
     content = models.TextField()
+    parent_comment = models.ForeignKey('self', null=True, blank=True, on_delete=models.CASCADE, related_name='replies')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         ordering = ['-created_at']
 
+    @property
+    def author_student(self):
+        if self.author_type == 'student':
+            try:
+                return StudentProfile.objects.get(id=self.author_id)
+            except StudentProfile.DoesNotExist:
+                return None
+        return None
+
+    @property
+    def author_collaborator(self):
+        if self.author_type == 'collaborator':
+            try:
+                return CollaboratorProfile.objects.get(id=self.author_id)
+            except CollaboratorProfile.DoesNotExist:
+                return None
+        return None
+
     def get_author_name(self):
-        if self.author_student:
-            return self.author_student.full_name
-        elif self.author_collaborator:
-            return self.author_collaborator.full_name
-        return "Unknown"
+        if self.author_type == 'student':
+            student = self.author_student
+            return student.full_name if student else "Unknown Student"
+        else:
+            collaborator = self.author_collaborator
+            return collaborator.full_name if collaborator else "Unknown Collaborator"
 
     def get_author_type(self):
-        if self.author_student:
-            return "Student"
-        elif self.author_collaborator:
-            return "Collaborator"
-        return "Unknown"
+        return self.author_type.title()
 
     def __str__(self):
         return f"Comment by {self.get_author_name()} on {self.project.title}"

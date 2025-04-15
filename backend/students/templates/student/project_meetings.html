@@ -1,0 +1,99 @@
+{% extends '../base.html' %}
+{% load static %}
+
+{% block title %}Project Meetings - {{ project.title }}{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="flex justify-between items-center mb-6">
+        <h2 class="text-2xl font-bold text-gray-900">Meetings for {{ project.title }}</h2>
+        <div class="flex space-x-4">
+            {% for request in project.collaborationrequest_set.all %}
+                {% if request.status == 'accepted' %}
+                <a href="{% url 'student_schedule_meeting' project.id request.collaborator.id %}" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700">
+                    <i class="fas fa-plus mr-2"></i> Schedule Meeting with {{ request.collaborator.full_name }}
+                </a>
+                {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+
+    {% if messages %}
+    <div class="mb-6">
+        {% for message in messages %}
+        <div class="p-4 rounded-md {% if message.tags == 'success' %}bg-green-100 text-green-700{% elif message.tags == 'error' %}bg-red-100 text-red-700{% else %}bg-blue-100 text-blue-700{% endif %} flex justify-between items-center">
+            <p>{{ message }}</p>
+            <button type="button" class="text-gray-400 hover:text-gray-500" onclick="this.parentElement.remove()">
+                <span class="sr-only">Close</span>
+                <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+                </svg>
+            </button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if meetings %}
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {% for meeting in meetings %}
+        <div class="bg-white rounded-lg shadow-md overflow-hidden">
+            <div class="border-l-4 {% if meeting.status == 'scheduled' %}border-indigo-500{% elif meeting.status == 'completed' %}border-green-500{% else %}border-gray-500{% endif %}">
+                <div class="p-4">
+                    <div class="flex justify-between items-start">
+                        <h3 class="text-lg font-semibold text-gray-900">{{ meeting.meeting_title }}</h3>
+                        <span class="px-2 py-1 text-xs font-medium rounded-full {% if meeting.status == 'scheduled' %}bg-indigo-100 text-indigo-800{% elif meeting.status == 'completed' %}bg-green-100 text-green-800{% else %}bg-gray-100 text-gray-800{% endif %}">
+                            {{ meeting.status|title }}
+                        </span>
+                    </div>
+                    
+                    <p class="mt-2 text-gray-600">{{ meeting.meeting_description }}</p>
+                    
+                    <div class="mt-4 space-y-2">
+                        <p class="text-sm text-gray-600">
+                            <strong>Date & Time:</strong> {{ meeting.scheduled_time|date:"F j, Y, g:i a" }}
+                        </p>
+                        <p class="text-sm text-gray-600">
+                            <strong>Duration:</strong> {{ meeting.duration }} minutes
+                        </p>
+                        <p class="text-sm text-gray-600">
+                            <strong>Collaborator:</strong> {{ meeting.collaborator.full_name }}
+                        </p>
+                    </div>
+                    
+                    {% if meeting.status == 'scheduled' %}
+                    <div class="mt-4 p-4 bg-blue-50 rounded-md">
+                        <h4 class="text-sm font-medium text-blue-800 mb-2">Meeting Details</h4>
+                        <p class="text-sm text-blue-700">
+                            <strong>Meeting ID:</strong> {{ meeting.zoom_meeting_id }}
+                        </p>
+                        <p class="text-sm text-blue-700">
+                            <strong>Password:</strong> {{ meeting.zoom_password }}
+                        </p>
+                    </div>
+                    
+                    <div class="mt-4 flex space-x-4">
+                        <a href="{{ meeting.zoom_link }}" target="_blank" class="flex-1 inline-flex justify-center items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700">
+                            <i class="fas fa-video mr-2"></i> Join Meeting
+                        </a>
+                        <a href="{% url 'student_update_meeting' meeting.id %}" class="flex-1 inline-flex justify-center items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                            <i class="fas fa-edit mr-2"></i> Update Meeting
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="bg-gray-50 px-4 py-3 text-sm text-gray-500">
+                    Created: {{ meeting.created_at|date:"F j, Y" }}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="text-center py-12 bg-gray-50 rounded-lg">
+        <p class="text-gray-500 text-lg">No meetings scheduled yet.</p>
+        <p class="text-gray-400 mt-2">Schedule a meeting with your collaborators using the button above.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %} 

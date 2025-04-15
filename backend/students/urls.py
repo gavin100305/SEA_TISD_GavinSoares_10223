@@ -39,4 +39,10 @@ urlpatterns = [
     path('meeting/<int:meeting_id>/', views.meeting_detail, name='student_meeting_detail'),
     path('meetings/', views.student_meetings, name='student_meetings'),
     path('view-collaborators/', views.view_collaborators, name='view_collaborators'),
+    path('schedule-meeting/<int:project_id>/<int:collaborator_id>/', views.schedule_meeting, name='student_schedule_meeting'),
+    path('meetings/', views.view_meetings, name='student_all_meetings'),
+    path('meetings/project/<int:project_id>/', views.view_meetings, name='student_view_meetings'),
+    path('meeting/update/<int:meeting_id>/', views.update_meeting, name='student_update_meeting'),
+    path('project/<int:project_id>/comment/', views.add_project_comment, name='add_project_comment'),
+    path('comment/<int:comment_id>/delete/', views.delete_project_comment, name='delete_project_comment'),
 ]
