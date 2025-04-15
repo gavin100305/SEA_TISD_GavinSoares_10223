@@ -7,12 +7,13 @@ from django.contrib.auth.models import User
 from .models import StudentProfile, MentorConnection, Project, StudentGroup, GroupMembership, CollaborationRequest, ProjectComment
 from mentor.models import MentorProfile, ZoomMeeting
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from college.models import CollegeProfile,NGO
+from college.models import CollegeProfile, NGO, ProjectAssessment
 from django.db.models import Q
 from django.utils import timezone
 from collabrators.models import CollaboratorProfile
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
+from datetime import date
 
 
 
@@ -968,6 +969,59 @@ def delete_project_comment(request, comment_id):
     else:
         messages.error(request, 'You do not have permission to delete this comment.')
     return redirect('my_projects')
+
+@login_required
+def view_assessments(request):
+    student = request.user.student_profile
+    
+    # Get assessments for student's semester and branch
+    assessments = ProjectAssessment.objects.filter(
+        Q(target_semester=student.semester) & 
+        Q(target_branch__iexact=student.branch) &  # Case-insensitive branch matching
+        ~Q(status='cancelled')
+    ).order_by('-created_at')
+    
+    # Update status based on current date
+    current_date = date.today()
+    for assessment in assessments:
+        end_date = assessment.end_date.date() if assessment.end_date else None
+        start_date = assessment.start_date.date() if assessment.start_date else None
+        
+        if end_date and end_date < current_date:
+            assessment.status = 'completed'
+        elif start_date and end_date and start_date <= current_date <= end_date:
+            assessment.status = 'ongoing'
+        else:
+            assessment.status = 'upcoming'
+        assessment.save()
+    
+    # Filter by status if provided
+    status_filter = request.GET.get('status')
+    if status_filter and status_filter != 'all':
+        assessments = assessments.filter(status=status_filter)
+    
+    context = {
+        'assessments': assessments,
+        'current_status': status_filter or 'all',
+        'student': student
+    }
+    return render(request, 'student/view_assessments.html', context)
+
+@login_required
+def assessment_detail(request, assessment_id):
+    student = request.user.student_profile
+    assessment = get_object_or_404(ProjectAssessment, id=assessment_id)
+    
+    # Check if student is allowed to view this assessment
+    if student.semester != assessment.target_semester or student.branch.upper() != assessment.target_branch.upper():
+        messages.error(request, 'You are not authorized to view this assessment.')
+        return redirect('student_view_assessments')
+    
+    context = {
+        'assessment': assessment,
+        'student': student
+    }
+    return render(request, 'student/assessment_detail.html', context)
 
 
 

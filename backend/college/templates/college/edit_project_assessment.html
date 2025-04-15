@@ -1,0 +1,156 @@
+{% extends 'college/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="content-wrapper">
+    <div class="content-header">
+        <div class="container-fluid">
+            <div class="row mb-2">
+                <div class="col-sm-6">
+                    <h1 class="m-0">Edit Project Assessment</h1>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <section class="content">
+        <div class="container-fluid">
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert {% if message.tags == 'success' %}alert-success{% else %}alert-danger{% endif %} alert-dismissible fade show">
+                        {{ message }}
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            <div class="card">
+                <div class="card-body">
+                    <form method="POST" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        <div class="row">
+                            <!-- Basic Information -->
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="title">Title</label>
+                                    <input type="text" name="title" id="title" required value="{{ assessment.title }}" class="form-control">
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="target_semester">Target Semester</label>
+                                    <select name="target_semester" id="target_semester" required class="form-control">
+                                        {% for sem_value, sem_label in semester_choices %}
+                                        <option value="{{ sem_value }}" {% if assessment.target_semester == sem_value %}selected{% endif %}>
+                                            {{ sem_label }}
+                                        </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="target_branch">Target Branch</label>
+                                    <input type="text" name="target_branch" id="target_branch" required value="{{ assessment.target_branch }}"
+                                        class="form-control" placeholder="e.g., CSE, ECE, ME">
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="status">Status</label>
+                                    <select name="status" id="status" required class="form-control">
+                                        {% for status_value, status_label in status_choices %}
+                                        <option value="{{ status_value }}" {% if assessment.status == status_value %}selected{% endif %}>
+                                            {{ status_label }}
+                                        </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- Schedule -->
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="start_date">Start Date & Time</label>
+                                    <input type="datetime-local" name="start_date" id="start_date" required
+                                        value="{{ assessment.start_date|date:'Y-m-d\TH:i' }}" class="form-control">
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="end_date">End Date & Time</label>
+                                    <input type="datetime-local" name="end_date" id="end_date" required
+                                        value="{{ assessment.end_date|date:'Y-m-d\TH:i' }}" class="form-control">
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="max_marks">Maximum Marks (Optional)</label>
+                                    <input type="number" name="max_marks" id="max_marks" value="{{ assessment.max_marks }}" class="form-control">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Description and Assessment Details -->
+                        <div class="row mt-4">
+                            <div class="col-12">
+                                <div class="form-group">
+                                    <label for="description">Description</label>
+                                    <textarea name="description" id="description" rows="4" required class="form-control">{{ assessment.description }}</textarea>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="assessment_criteria">Assessment Criteria (Optional)</label>
+                                    <textarea name="assessment_criteria" id="assessment_criteria" rows="3" class="form-control">{{ assessment.assessment_criteria }}</textarea>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="resources">
+                                        Resources (Optional)
+                                        {% if assessment.resources %}
+                                        <span class="text-muted">(Current: {{ assessment.resources.name }})</span>
+                                        {% endif %}
+                                    </label>
+                                    <div class="custom-file">
+                                        <input type="file" name="resources" id="resources" class="custom-file-input">
+                                        <label class="custom-file-label" for="resources">Choose file</label>
+                                    </div>
+                                    <small class="form-text text-muted">Upload any supporting documents (PDF, DOC, etc.)</small>
+                                </div>
+
+                                <div class="form-group">
+                                    <div class="custom-control custom-checkbox">
+                                        <input type="checkbox" name="submission_required" id="submission_required"
+                                            class="custom-control-input" {% if assessment.submission_required %}checked{% endif %}>
+                                        <label class="custom-control-label" for="submission_required">Submission Required</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row mt-4">
+                            <div class="col-12 text-right">
+                                <a href="{% url 'project_assessment_list' %}" class="btn btn-secondary mr-2">
+                                    Cancel
+                                </a>
+                                <button type="submit" class="btn btn-primary">
+                                    Update Assessment
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Update file input label with selected filename
+    document.querySelector('.custom-file-input').addEventListener('change', function(e) {
+        var fileName = e.target.files[0].name;
+        var label = e.target.nextElementSibling;
+        label.innerHTML = fileName;
+    });
+</script>
+{% endblock %} 

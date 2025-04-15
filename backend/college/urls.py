@@ -18,4 +18,9 @@ urlpatterns = [
     path('ngos/delete/<int:ngo_id>/', views.delete_ngo, name='delete_ngo'),
 
     path('view-collaborators/', views.view_collaborators, name='college_view_collaborators'),
+
+    path('project-assessments/', views.project_assessment_list, name='project_assessment_list'),
+    path('project-assessments/add/', views.add_project_assessment, name='add_project_assessment'),
+    path('project-assessments/edit/<int:assessment_id>/', views.edit_project_assessment, name='edit_project_assessment'),
+    path('project-assessments/delete/<int:assessment_id>/', views.delete_project_assessment, name='delete_project_assessment'),
 ]

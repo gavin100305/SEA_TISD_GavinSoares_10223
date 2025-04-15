@@ -36,3 +36,43 @@ class NGO(models.Model):
 
     def __str__(self):
         return self.name
+
+class ProjectAssessment(models.Model):
+    STATUS_CHOICES = [
+        ('upcoming', 'Upcoming'),
+        ('ongoing', 'Ongoing'),
+        ('completed', 'Completed'),
+        ('cancelled', 'Cancelled')
+    ]
+
+    SEMESTER_CHOICES = [
+        (1, '1st Semester'),
+        (2, '2nd Semester'),
+        (3, '3rd Semester'),
+        (4, '4th Semester'),
+        (5, '5th Semester'),
+        (6, '6th Semester'),
+        (7, '7th Semester'),
+        (8, '8th Semester'),
+    ]
+
+    college = models.ForeignKey(CollegeProfile, on_delete=models.CASCADE, related_name='project_assessments')
+    title = models.CharField(max_length=200)
+    description = models.TextField()
+    target_semester = models.IntegerField(choices=SEMESTER_CHOICES)
+    target_branch = models.CharField(max_length=50)
+    start_date = models.DateTimeField()
+    end_date = models.DateTimeField()
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='upcoming')
+    max_marks = models.IntegerField(null=True, blank=True)
+    assessment_criteria = models.TextField(null=True, blank=True)
+    resources = models.FileField(upload_to='project_assessment_resources/', null=True, blank=True)
+    submission_required = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.title} - {self.college.college_name}"
+
+    class Meta:
+        ordering = ['-created_at']

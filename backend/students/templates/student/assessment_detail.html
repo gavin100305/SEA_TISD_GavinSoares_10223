@@ -1,0 +1,106 @@
+{% extends '../base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row mb-4">
+        <div class="col">
+            <a href="{% url 'student_view_assessments' %}" class="btn btn-outline-primary mb-3">
+                <i class="fas fa-arrow-left"></i> Back to Assessments
+            </a>
+            
+            <div class="card">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                    <h4 class="mb-0">{{ assessment.title }}</h4>
+                    <span class="badge {% if assessment.status == 'upcoming' %}bg-info{% elif assessment.status == 'ongoing' %}bg-success{% else %}bg-secondary{% endif %}">
+                        {{ assessment.status|title }}
+                    </span>
+                </div>
+                <div class="card-body">
+                    <!-- Basic Information -->
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <h5><i class="fas fa-info-circle"></i> Basic Information</h5>
+                            <ul class="list-unstyled">
+                                <li class="mb-2">
+                                    <strong>Start Date:</strong> {{ assessment.start_date|date:"F d, Y" }}
+                                </li>
+                                <li class="mb-2">
+                                    <strong>End Date:</strong> {{ assessment.end_date|date:"F d, Y" }}
+                                </li>
+                                <li class="mb-2">
+                                    <strong>Maximum Marks:</strong> {{ assessment.max_marks }}
+                                </li>
+                                <li class="mb-2">
+                                    <strong>Target Semester:</strong> {{ assessment.target_semester }}
+                                </li>
+                                <li class="mb-2">
+                                    <strong>Target Branch:</strong> {{ assessment.target_branch }}
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h5><i class="fas fa-clipboard-check"></i> Submission Details</h5>
+                            <ul class="list-unstyled">
+                                <li class="mb-2">
+                                    <strong>Submission Required:</strong>
+                                    {% if assessment.submission_required %}
+                                        <span class="text-success"><i class="fas fa-check"></i> Yes</span>
+                                    {% else %}
+                                        <span class="text-danger"><i class="fas fa-times"></i> No</span>
+                                    {% endif %}
+                                </li>
+                                {% if assessment.submission_required %}
+                                    <li class="mb-2">
+                                        <strong>Time Remaining:</strong>
+                                        {% if assessment.status == 'upcoming' %}
+                                            <span class="text-info">Not started yet</span>
+                                        {% elif assessment.status == 'ongoing' %}
+                                            <span class="text-success">Due in {{ assessment.end_date|timeuntil }}</span>
+                                        {% else %}
+                                            <span class="text-danger">Deadline passed</span>
+                                        {% endif %}
+                                    </li>
+                                {% endif %}
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Description -->
+                    <div class="mb-4">
+                        <h5><i class="fas fa-align-left"></i> Description</h5>
+                        <div class="card bg-light">
+                            <div class="card-body">
+                                {{ assessment.description|linebreaks }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Assessment Criteria -->
+                    <div class="mb-4">
+                        <h5><i class="fas fa-list-ul"></i> Assessment Criteria</h5>
+                        <div class="card bg-light">
+                            <div class="card-body">
+                                {{ assessment.assessment_criteria|linebreaks }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Resources -->
+                    {% if assessment.resources %}
+                    <div>
+                        <h5><i class="fas fa-file-alt"></i> Resources</h5>
+                        <div class="card bg-light">
+                            <div class="card-body">
+                                <a href="{{ assessment.resources.url }}" class="btn btn-outline-primary" target="_blank">
+                                    <i class="fas fa-download"></i> Download Resources
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

@@ -1,0 +1,68 @@
+{% extends '../base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row mb-4">
+        <div class="col">
+            <h2><i class="fas fa-tasks"></i> Project Assessments</h2>
+            <p class="text-muted">View assessments for {{ student.semester }} semester, {{ student.branch }} branch</p>
+        </div>
+    </div>
+
+    <!-- Status Filter -->
+    <div class="row mb-4">
+        <div class="col">
+            <div class="card">
+                <div class="card-body">
+                    <form method="get" class="d-flex align-items-center">
+                        <label for="status" class="me-2">Filter by Status:</label>
+                        <select name="status" id="status" class="form-select w-auto" onchange="this.form.submit()">
+                            <option value="all" {% if current_status == 'all' %}selected{% endif %}>All</option>
+                            <option value="upcoming" {% if current_status == 'upcoming' %}selected{% endif %}>Upcoming</option>
+                            <option value="ongoing" {% if current_status == 'ongoing' %}selected{% endif %}>Ongoing</option>
+                            <option value="completed" {% if current_status == 'completed' %}selected{% endif %}>Completed</option>
+                        </select>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Assessments List -->
+    <div class="row">
+        {% if assessments %}
+            {% for assessment in assessments %}
+                <div class="col-md-6 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start mb-3">
+                                <h5 class="card-title mb-0">{{ assessment.title }}</h5>
+                                <span class="badge {% if assessment.status == 'upcoming' %}bg-info{% elif assessment.status == 'ongoing' %}bg-success{% else %}bg-secondary{% endif %}">
+                                    {{ assessment.status|title }}
+                                </span>
+                            </div>
+                            <p class="card-text text-muted mb-2">
+                                <i class="fas fa-calendar-alt"></i> 
+                                {{ assessment.start_date|date:"M d, Y" }} - {{ assessment.end_date|date:"M d, Y" }}
+                            </p>
+                            <p class="card-text text-muted mb-3">
+                                <i class="fas fa-star"></i> Max Marks: {{ assessment.max_marks }}
+                            </p>
+                            <p class="card-text">{{ assessment.description|truncatewords:30 }}</p>
+                            <a href="{% url 'student_assessment_detail' assessment.id %}" class="btn btn-primary">
+                                View Details
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="col">
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle"></i> No assessments found for your semester and branch.
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %} 

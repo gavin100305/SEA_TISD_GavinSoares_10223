@@ -323,6 +323,17 @@
                 </a>
             </div>
             
+            <!-- Project Assessments Section -->
+            <div class="nav-section">
+                <div class="nav-section-title">Project Assessments</div>
+                <a class="nav-link {% if request.resolver_match.url_name == 'project_assessment_list' %}active{% endif %}" href="{% url 'project_assessment_list' %}">
+                    <i class="fas fa-tasks"></i> View Assessments
+                </a>
+                <a class="nav-link {% if request.resolver_match.url_name == 'add_project_assessment' %}active{% endif %}" href="{% url 'add_project_assessment' %}">
+                    <i class="fas fa-plus-circle"></i> Add Assessment
+                </a>
+            </div>
+            
             <!-- NGO Management Section -->
             <div class="nav-section">
                 <div class="nav-section-title">NGO Partners</div>

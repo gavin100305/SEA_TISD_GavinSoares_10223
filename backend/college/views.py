@@ -4,16 +4,18 @@ from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.utils import timezone
-from .models import CollegeProfile,NGO
+from .models import CollegeProfile,NGO, ProjectAssessment
 from mentor.models import MentorProfile
 from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from .serializers import CollegeProfileSerializer
 from django.forms import ModelForm
-from django.db.models import Count, Avg
+from django.db.models import Count, Avg, Q
 from students.models import StudentProfile, Project, MentorConnection, StudentGroup, CollaborationRequest
 from collabrators.models import CollaboratorProfile
+from datetime import datetime, date
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 
 def college_signup(request):
@@ -467,3 +469,111 @@ def view_collaborators(request):
     except Exception as e:
         messages.error(request, f'An error occurred: {str(e)}')
         return redirect('college_dashboard')
+
+@login_required
+def project_assessment_list(request):
+    college = request.user.collegeprofile
+    assessments = ProjectAssessment.objects.filter(college=college).order_by('-created_at')
+    
+    # Update status based on current date
+    current_date = date.today()
+    for assessment in assessments:
+        end_date = assessment.end_date.date() if assessment.end_date else None
+        start_date = assessment.start_date.date() if assessment.start_date else None
+        
+        if end_date and end_date < current_date:
+            assessment.status = 'completed'
+        elif start_date and end_date and start_date <= current_date <= end_date:
+            assessment.status = 'ongoing'
+        else:
+            assessment.status = 'upcoming'
+        assessment.save()
+    
+    # Filter by status if provided
+    status_filter = request.GET.get('status')
+    if status_filter and status_filter != 'all':
+        assessments = assessments.filter(status=status_filter)
+    
+    context = {
+        'assessments': assessments,
+        'current_status': status_filter or 'all'
+    }
+    return render(request, 'college/project_assessment_list.html', context)
+
+@login_required
+def add_project_assessment(request):
+    if request.method == 'POST':
+        college = request.user.collegeprofile
+        assessment = ProjectAssessment(
+            college=college,
+            title=request.POST.get('title'),
+            description=request.POST.get('description'),
+            target_semester=request.POST.get('target_semester'),
+            target_branch=request.POST.get('target_branch'),
+            start_date=request.POST.get('start_date'),
+            end_date=request.POST.get('end_date'),
+            max_marks=request.POST.get('max_marks'),
+            assessment_criteria=request.POST.get('assessment_criteria'),
+            submission_required=request.POST.get('submission_required') == 'on'
+        )
+        
+        if 'resources' in request.FILES:
+            assessment.resources = request.FILES['resources']
+        
+        assessment.save()
+        messages.success(request, 'Project assessment added successfully!')
+        return redirect('project_assessment_list')
+    
+    context = {
+        'semester_choices': ProjectAssessment.SEMESTER_CHOICES
+    }
+    return render(request, 'college/add_project_assessment.html', context)
+
+@login_required
+def edit_project_assessment(request, assessment_id):
+    college = request.user.collegeprofile
+    assessment = get_object_or_404(ProjectAssessment, id=assessment_id, college=college)
+    
+    if request.method == 'POST':
+        try:
+            assessment.title = request.POST.get('title')
+            assessment.description = request.POST.get('description')
+            assessment.target_semester = request.POST.get('target_semester')
+            assessment.target_branch = request.POST.get('target_branch')
+            assessment.start_date = request.POST.get('start_date')
+            assessment.end_date = request.POST.get('end_date')
+            assessment.status = request.POST.get('status')
+            assessment.max_marks = request.POST.get('max_marks')
+            assessment.assessment_criteria = request.POST.get('assessment_criteria')
+            assessment.submission_required = bool(request.POST.get('submission_required'))
+            
+            if 'resources' in request.FILES:
+                assessment.resources = request.FILES['resources']
+            
+            assessment.save()
+            messages.success(request, 'Project assessment updated successfully!')
+            return redirect('project_assessment_list')
+            
+        except Exception as e:
+            messages.error(request, f'Error updating project assessment: {str(e)}')
+    
+    context = {
+        'assessment': assessment,
+        'status_choices': ProjectAssessment.STATUS_CHOICES,
+        'semester_choices': ProjectAssessment.SEMESTER_CHOICES,
+        'profile': college
+    }
+    return render(request, 'college/edit_project_assessment.html', context)
+
+@login_required
+def delete_project_assessment(request, assessment_id):
+    college = request.user.collegeprofile
+    assessment = get_object_or_404(ProjectAssessment, id=assessment_id, college=college)
+    
+    try:
+        assessment.delete()
+        messages.success(request, 'Project assessment deleted successfully!')
+    except Exception as e:
+        messages.error(request, f'Error deleting project assessment: {str(e)}')
+    
+    return redirect('project_assessment_list')
