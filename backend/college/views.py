@@ -12,7 +12,8 @@ from rest_framework.response import Response
 from .serializers import CollegeProfileSerializer
 from django.forms import ModelForm
 from django.db.models import Count, Avg
-from students.models import StudentProfile, Project, MentorConnection
+from students.models import StudentProfile, Project, MentorConnection, StudentGroup, CollaborationRequest
+from collabrators.models import CollaboratorProfile
 
 
 def college_signup(request):
@@ -416,6 +417,53 @@ def registered_students(request):
     except CollegeProfile.DoesNotExist:
         messages.error(request, 'College profile not found!')
         return redirect('college_dashboard')
+    except Exception as e:
+        messages.error(request, f'An error occurred: {str(e)}')
+        return redirect('college_dashboard')
+
+@login_required
+def view_collaborators(request):
+    try:
+        college = get_object_or_404(CollegeProfile, user=request.user)
+        collaborators = CollaboratorProfile.objects.all()
+        
+        collaborator_data = []
+        for collaborator in collaborators:
+            # Get all collaboration requests by this collaborator
+            collaboration_requests = CollaborationRequest.objects.filter(
+                collaborator=collaborator
+            ).select_related('project', 'project__student', 'project__group')
+            
+            # Get accepted collaborations
+            accepted_collaborations = collaboration_requests.filter(status='accepted')
+            
+            # Get connected students and groups
+            connected_students = set()
+            connected_groups = set()
+            
+            for collab in accepted_collaborations:
+                if collab.project.student:
+                    connected_students.add(collab.project.student)
+                if collab.project.group:
+                    connected_groups.add(collab.project.group)
+            
+            collaborator_data.append({
+                'profile': collaborator,
+                'total_requests': collaboration_requests.count(),
+                'accepted_collaborations': accepted_collaborations.count(),
+                'connected_students': list(connected_students),
+                'connected_groups': list(connected_groups),
+                'recent_collaborations': accepted_collaborations[:5]  # Get 5 most recent collaborations
+            })
+        
+        context = {
+            'college': college,
+            'collaborator_data': collaborator_data,
+            'total_collaborators': len(collaborators)
+        }
+        
+        return render(request, 'college/view_collaborators.html', context)
+        
     except Exception as e:
         messages.error(request, f'An error occurred: {str(e)}')
         return redirect('college_dashboard')

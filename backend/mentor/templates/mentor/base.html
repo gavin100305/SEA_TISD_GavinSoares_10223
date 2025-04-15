@@ -173,7 +173,12 @@
     <li><a href="{% url 'connected_students' %}" {% if request.resolver_match.url_name == 'connected_students' %}class="active"{% endif %}>Connected Students</a></li>
     <li><a href="{% url 'mentor_projects' %}" {% if request.resolver_match.url_name == 'mentor_projects' %}class="active"{% endif %}>Projects</a></li>
     <li><a href="{% url 'meeting_list' %}" {% if request.resolver_match.url_name == 'meeting_list' %}class="active"{% endif %}>Meetings</a></li> 
-
+    <li class="nav-item">
+        <a class="nav-link {% if request.resolver_match.url_name == 'mentor_view_collaborators' %}active{% endif %}" href="{% url 'mentor_view_collaborators' %}">
+            <i class="fas fa-users"></i>
+            <span>View Collaborators</span>
+        </a>
+    </li>
             {% endif %}
             <a class="nav-link" href="{% url 'mentor_logout' %}">
                 <i class="fas fa-sign-out-alt"></i> Logout

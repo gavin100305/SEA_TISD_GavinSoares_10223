@@ -5,7 +5,8 @@ from django.contrib import messages
 from django.contrib.auth.models import User
 from .models import MentorProfile, ZoomMeeting
 from college.models import CollegeProfile
-from students.models import StudentProfile, MentorConnection, Project
+from students.models import StudentProfile, MentorConnection, Project, StudentGroup, CollaborationRequest
+from collabrators.models import CollaboratorProfile
 
 def mentor_login(request):
     if request.method == 'POST':
@@ -509,3 +510,45 @@ def meeting_list(request):
     except Exception as e:
         messages.error(request, f'An error occurred: {str(e)}')
         return redirect('mentor_dashboard')
+
+@login_required
+def view_collaborators(request):
+    mentor = get_object_or_404(MentorProfile, user=request.user)
+    collaborators = CollaboratorProfile.objects.all()
+    
+    collaborator_data = []
+    for collaborator in collaborators:
+        # Get all collaboration requests by this collaborator
+        collaboration_requests = CollaborationRequest.objects.filter(
+            collaborator=collaborator
+        ).select_related('project', 'project__student', 'project__group')
+        
+        # Get accepted collaborations
+        accepted_collaborations = collaboration_requests.filter(status='accepted')
+        
+        # Get connected students through accepted project collaborations
+        connected_students = set()
+        connected_groups = set()
+        
+        for collab in accepted_collaborations:
+            if collab.project.student:
+                connected_students.add(collab.project.student)
+            if collab.project.group:
+                connected_groups.add(collab.project.group)
+        
+        collaborator_data.append({
+            'profile': collaborator,
+            'total_requests': collaboration_requests.count(),
+            'accepted_collaborations': accepted_collaborations.count(),
+            'connected_students': list(connected_students),
+            'connected_groups': list(connected_groups),
+            'recent_collaborations': accepted_collaborations[:5]  # Get 5 most recent collaborations
+        })
+    
+    context = {
+        'mentor': mentor,
+        'collaborator_data': collaborator_data,
+        'total_collaborators': len(collaborators)
+    }
+    
+    return render(request, 'mentor/view_collaborators.html', context)

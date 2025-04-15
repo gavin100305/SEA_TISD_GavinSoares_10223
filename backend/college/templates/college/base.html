@@ -318,6 +318,9 @@
                 <a class="nav-link {% if request.resolver_match.url_name == 'registered_mentors' %}active{% endif %}" href="{% url 'registered_mentors' %}">
                     <i class="fas fa-user-tie"></i> Mentors
                 </a>
+                <a class="nav-link {% if request.resolver_match.url_name == 'college_view_collaborators' %}active{% endif %}" href="{% url 'college_view_collaborators' %}">
+                    <i class="fas fa-handshake"></i> Collaborators
+                </a>
             </div>
             
             <!-- NGO Management Section -->

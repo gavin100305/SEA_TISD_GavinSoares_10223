@@ -17,4 +17,5 @@ urlpatterns = [
     path('ngos/edit/<int:ngo_id>/', views.edit_ngo, name='edit_ngo'),
     path('ngos/delete/<int:ngo_id>/', views.delete_ngo, name='delete_ngo'),
 
+    path('view-collaborators/', views.view_collaborators, name='college_view_collaborators'),
 ]

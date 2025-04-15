@@ -18,4 +18,5 @@ urlpatterns = [
     path('meetings/', views.meeting_list, name='meeting_list'),
     path('meeting/<int:meeting_id>/', views.meeting_detail, name='meeting_detail'),
     path('meeting/<int:meeting_id>/cancel/', views.cancel_meeting, name='cancel_meeting'),
+    path('view-collaborators/', views.view_collaborators, name='mentor_view_collaborators'),
 ]

@@ -1,0 +1,156 @@
+{% extends 'mentor/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card mb-4">
+                <div class="card-header pb-0">
+                    <h4>Registered Collaborators ({{ total_collaborators }})</h4>
+                </div>
+                <div class="card-body px-0 pt-0 pb-2">
+                    {% for data in collaborator_data %}
+                    <div class="card mb-4 mx-4">
+                        <div class="card-body">
+                            <!-- Collaborator Profile -->
+                            <div class="row">
+                                <div class="col-md-3">
+                                    {% if data.profile.profile_picture %}
+                                        <img src="{{ data.profile.profile_picture.url }}" alt="Profile Picture" class="rounded-circle" style="width: 100px; height: 100px; object-fit: cover;">
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-9">
+                                    <h5>{{ data.profile.full_name }}</h5>
+                                    <p><strong>Expertise:</strong> {{ data.profile.expertise }}</p>
+                                    <p><strong>Experience:</strong> {{ data.profile.experience_years }} years</p>
+                                    <p><strong>Email:</strong> {{ data.profile.user.email }}</p>
+                                    {% if data.profile.linkedin %}
+                                        <p><strong>LinkedIn:</strong> <a href="{{ data.profile.linkedin }}" target="_blank">Profile</a></p>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <!-- Collaboration Statistics -->
+                            <div class="row mt-4">
+                                <div class="col-md-4">
+                                    <div class="card bg-light">
+                                        <div class="card-body text-center">
+                                            <h6>Total Requests</h6>
+                                            <h4>{{ data.total_requests }}</h4>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="card bg-light">
+                                        <div class="card-body text-center">
+                                            <h6>Accepted Collaborations</h6>
+                                            <h4>{{ data.accepted_collaborations }}</h4>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Connected Students -->
+                            {% if data.connected_students %}
+                            <div class="mt-4">
+                                <h6>Connected Students:</h6>
+                                <div class="table-responsive">
+                                    <table class="table table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th>Name</th>
+                                                <th>Roll Number</th>
+                                                <th>Branch</th>
+                                                <th>Semester</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for student in data.connected_students %}
+                                            <tr>
+                                                <td>{{ student.full_name }}</td>
+                                                <td>{{ student.roll_number }}</td>
+                                                <td>{{ student.branch }}</td>
+                                                <td>{{ student.semester }}</td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            {% endif %}
+
+                            <!-- Connected Groups -->
+                            {% if data.connected_groups %}
+                            <div class="mt-4">
+                                <h6>Connected Groups:</h6>
+                                <div class="table-responsive">
+                                    <table class="table table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th>Group Name</th>
+                                                <th>Leader</th>
+                                                <th>Members</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for group in data.connected_groups %}
+                                            <tr>
+                                                <td>{{ group.name }}</td>
+                                                <td>{{ group.leader.full_name }}</td>
+                                                <td>{{ group.members.count }}</td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            {% endif %}
+
+                            <!-- Recent Collaborations -->
+                            {% if data.recent_collaborations %}
+                            <div class="mt-4">
+                                <h6>Recent Project Collaborations:</h6>
+                                <div class="table-responsive">
+                                    <table class="table table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th>Project Title</th>
+                                                <th>Owner</th>
+                                                <th>Status</th>
+                                                <th>Tech Stack</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for collab in data.recent_collaborations %}
+                                            <tr>
+                                                <td>{{ collab.project.title }}</td>
+                                                <td>
+                                                    {% if collab.project.student %}
+                                                        {{ collab.project.student.full_name }}
+                                                    {% else %}
+                                                        {{ collab.project.group.name }}
+                                                    {% endif %}
+                                                </td>
+                                                <td>{{ collab.status }}</td>
+                                                <td>{{ collab.project.tech_stack }}</td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="text-center py-4">
+                        <p>No collaborators registered yet.</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 
