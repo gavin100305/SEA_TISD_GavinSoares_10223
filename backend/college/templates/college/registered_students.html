@@ -5,81 +5,164 @@
 
 {% block extra_css %}
 <style>
-    .students-container {
+    .dashboard-container {
         padding: 2rem 0;
         position: relative;
         z-index: 2;
     }
 
-    .page-header {
-        margin-bottom: 2rem;
+    .welcome-section {
+        background: rgba(10, 10, 10, 0.8);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(30, 30, 30, 0.8);
+        border-radius: 16px;
+        padding: 2.5rem;
+        margin-bottom: 3rem;
+        text-align: center;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+        position: relative;
+        overflow: hidden;
+        animation: fadeInDown 0.8s ease-out forwards;
     }
 
-    .page-header h1 {
+    .welcome-section::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(45deg, rgba(20, 20, 20, 0.3), transparent);
+        z-index: -1;
+    }
+
+    .welcome-section h1 {
+        font-size: 2.5rem;
+        font-weight: 800;
+        letter-spacing: -0.5px;
+        line-height: 1.2;
+        margin-bottom: 1rem;
         color: white;
-        font-size: 2.2rem;
+        opacity: 0;
+        animation: fadeIn 0.6s ease-out 0.4s forwards;
+    }
+
+    .welcome-section h1 span {
+        color: #9d4edd;
+        position: relative;
+        display: inline-block;
+    }
+
+    .welcome-section h1 span::after {
+        content: "";
+        position: absolute;
+        bottom: 5px;
+        left: 0;
+        width: 0;
+        height: 8px;
+        background-color: rgba(157, 78, 221, 0.15);
+        z-index: -1;
+        border-radius: 4px;
+        animation: lineGrow 0.6s ease-out 1s forwards;
+    }
+
+    .welcome-section p {
+        color: #9d9d9d;
+        font-size: 1.1rem;
+        margin-bottom: 0;
+        opacity: 0;
+        animation: fadeIn 0.6s ease-out 0.6s forwards;
+    }
+
+    .stats-section {
+        margin-bottom: 3rem;
+        opacity: 0;
+        animation: fadeIn 0.8s ease-out 1.4s forwards;
+    }
+
+    .stats-section h2 {
+        color: #e0e0e0;
+        font-size: 1.8rem;
         font-weight: 700;
-        margin-bottom: 0.5rem;
+        margin-bottom: 1.5rem;
         position: relative;
         display: inline-block;
         padding-bottom: 0.5rem;
     }
 
-    .page-header h1::after {
+    .stats-section h2::after {
         content: '';
         position: absolute;
         bottom: 0;
         left: 0;
-        width: 100%;
-        height: 3px;
-        background: linear-gradient(90deg, #9d4edd, transparent);
-        border-radius: 3px;
+        width: 0;
+        height: 2px;
+        background: #9d4edd;
+        border-radius: 2px;
+        animation: lineGrow 0.6s ease-out 1.8s forwards;
     }
 
     .stats-grid {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
         gap: 1.5rem;
-        margin-bottom: 2.5rem;
     }
 
     .stat-card {
-        background: rgba(12, 10, 20, 0.7);
+        background: rgba(10, 10, 10, 0.8);
         backdrop-filter: blur(10px);
-        border: 1px solid rgba(157, 78, 221, 0.3);
+        border: 1px solid rgba(30, 30, 30, 0.8);
         border-radius: 16px;
         padding: 1.5rem;
         text-align: center;
         transition: all 0.3s ease;
-        box-shadow: 0 8px 32px rgba(31, 38, 135, 0.15);
+        transform: scale(0.9);
+        opacity: 0;
+    }
+
+    .stat-card:nth-child(1) {
+        animation: scaleIn 0.5s ease-out 1.9s forwards;
+    }
+    
+    .stat-card:nth-child(2) {
+        animation: scaleIn 0.5s ease-out 2.0s forwards;
+    }
+    
+    .stat-card:nth-child(3) {
+        animation: scaleIn 0.5s ease-out 2.1s forwards;
+    }
+    
+    .stat-card:nth-child(4) {
+        animation: scaleIn 0.5s ease-out 2.2s forwards;
     }
 
     .stat-card:hover {
         transform: translateY(-5px);
-        border-color: #9d4edd;
+        border-color: rgba(157, 78, 221, 0.3);
     }
 
     .stat-number {
         font-size: 2.5rem;
         font-weight: 700;
-        color: #9d4edd;
+        color: white;
         margin-bottom: 0.5rem;
     }
 
     .stat-label {
-        color: #D1D5DB;
+        color: #9d9d9d;
         font-size: 1rem;
-        font-weight: 500;
     }
 
     .filter-section {
-        background: rgba(12, 10, 20, 0.7);
+        background: rgba(10, 10, 10, 0.8);
         backdrop-filter: blur(10px);
-        border: 1px solid rgba(157, 78, 221, 0.3);
+        border: 1px solid rgba(30, 30, 30, 0.8);
         border-radius: 16px;
         padding: 1.5rem;
         margin-bottom: 2.5rem;
-        box-shadow: 0 8px 32px rgba(31, 38, 135, 0.15);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+        opacity: 0;
+        animation: fadeIn 0.8s ease-out 2.3s forwards;
     }
 
     .filter-form {
@@ -134,42 +217,47 @@
     }
 
     .student-card {
-        background: rgba(12, 10, 20, 0.7);
+        background: rgba(10, 10, 10, 0.8);
         backdrop-filter: blur(10px);
-        border: 1px solid rgba(157, 78, 221, 0.3);
+        border: 1px solid rgba(30, 30, 30, 0.8);
         border-radius: 16px;
         padding: 1.5rem;
         transition: all 0.3s ease;
         height: 100%;
-        box-shadow: 0 8px 32px rgba(31, 38, 135, 0.15);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
         position: relative;
         overflow: hidden;
+        opacity: 0;
+        transform: translateY(30px);
     }
 
-    /* Remove the ::before pseudo-element from student-card */
-    /*.student-card::before {
+    .student-card:nth-child(odd) {
+        animation: fadeInUp 0.6s ease-out calc(2.4s + (var(--order) * 0.2s)) forwards;
+    }
+
+    .student-card:nth-child(even) {
+        animation: fadeInUp 0.6s ease-out calc(2.5s + (var(--order) * 0.2s)) forwards;
+    }
+
+    .student-card::before {
         content: '';
         position: absolute;
         top: 0;
         left: 0;
-        width: 4px;
+        width: 3px;
         height: 0;
-        background: linear-gradient(to bottom, #9d4edd, transparent);
+        background: #9d4edd;
         transition: height 0.3s ease;
     }
 
     .student-card:hover::before {
         height: 100%;
-    }*/
+    }
 
     .student-card:hover {
         transform: translateY(-10px);
-        border-color: #9d4edd;
+        border-color: rgba(157, 78, 221, 0.3);
     }
-
-    /*.student-card:hover::before {
-        height: 100%;
-    }*/
 
     .student-header {
         display: flex;
@@ -236,6 +324,7 @@
         font-size: 0.9rem;
         font-weight: 500;
         min-width: 120px;
+        opacity: 0.8;
     }
 
     .detail-value {
@@ -246,11 +335,13 @@
     .empty-state {
         text-align: center;
         padding: 3rem;
-        background: rgba(12, 10, 20, 0.7);
+        background: rgba(10, 10, 10, 0.8);
         backdrop-filter: blur(10px);
-        border: 1px solid rgba(157, 78, 221, 0.3);
+        border: 1px solid rgba(30, 30, 30, 0.8);
         border-radius: 16px;
         color: #D1D5DB;
+        opacity: 0;
+        animation: fadeIn 0.8s ease-out 2.4s forwards;
     }
 
     .empty-state i {
@@ -265,8 +356,68 @@
         margin-bottom: 0;
     }
 
+    /* Animation Keyframes */
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+        to {
+            opacity: 1;
+        }
+    }
+    
+    @keyframes fadeInDown {
+        from {
+            opacity: 0;
+            transform: translateY(-30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    @keyframes scaleIn {
+        from {
+            opacity: 0;
+            transform: scale(0.9);
+        }
+        to {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+    
+    @keyframes lineGrow {
+        from {
+            width: 0;
+        }
+        to {
+            width: 100%;
+        }
+    }
+
     /* Responsive adjustments */
     @media (max-width: 768px) {
+        .welcome-section h1 {
+            font-size: 2rem;
+        }
+        
+        .welcome-section p {
+            font-size: 1rem;
+        }
+        
         .filter-form {
             flex-direction: column;
             align-items: stretch;
@@ -284,27 +435,31 @@
 {% endblock %}
 
 {% block content %}
-<div class="students-container">
-    <div class="page-header">
-        <h1>Registered Students</h1>
+<div class="dashboard-container">
+    <div class="welcome-section">
+        <h1>Registered <span>Students</span></h1>
+        <p>View and manage all students registered from your institution</p>
     </div>
 
-    <div class="stats-grid">
-        <div class="stat-card">
-            <div class="stat-number">{{ total_students }}</div>
-            <div class="stat-label">Total Students</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-number">{{ active_projects }}</div>
-            <div class="stat-label">Active Projects</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-number">{{ mentor_connections }}</div>
-            <div class="stat-label">Mentor Connections</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-number">{{ avg_projects|floatformat:1 }}</div>
-            <div class="stat-label">Average Projects</div>
+    <div class="stats-section">
+        <h2>Student Statistics</h2>
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number">{{ total_students }}</div>
+                <div class="stat-label">Total Students</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">{{ active_projects }}</div>
+                <div class="stat-label">Active Projects</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">{{ mentor_connections }}</div>
+                <div class="stat-label">Mentor Connections</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">{{ avg_projects|floatformat:1 }}</div>
+                <div class="stat-label">Average Projects</div>
+            </div>
         </div>
     </div>
 
@@ -330,7 +485,7 @@
 
     <div class="students-grid">
         {% for student in students %}
-        <div class="student-card">
+        <div class="student-card" style="--order: {{ forloop.counter }}">
             <div class="student-header">
                 <img src="{% if student.profile_picture %}{{ student.profile_picture.url }}{% else %}https://ui-avatars.com/api/?name={{ student.full_name|default:student.user.username }}&background=9d4edd&color=fff{% endif %}" 
                      alt="{{ student.full_name }}" 

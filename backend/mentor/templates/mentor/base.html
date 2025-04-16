@@ -8,73 +8,207 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root {
-            --sidebar-width: 250px;
+            --primary: #9d4edd;
+            --primary-hover: #8b5cf6;
+            --primary-light: rgba(157, 78, 221, 0.2);
+            --text-light: #F3F4F6;
+            --text-secondary: #D1D5DB;
+            --sidebar-width: 280px;
+            --sidebar-bg: rgba(10, 10, 10, 0.9);
+            --card-bg: rgba(30, 30, 30, 0.5);
+            --card-border: rgba(157, 78, 221, 0.3);
         }
 
         body {
-            background-color: #1a1a2e;
+            background-color: #000000;
             min-height: 100vh;
             margin: 0;
-            color: #fff;
+            color: var(--text-light);
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Custom Scrollbar Styling */
+        ::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(10, 10, 10, 0.8);
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(45deg, var(--primary), var(--primary-hover));
+            border-radius: 10px;
+            border: 2px solid rgba(10, 10, 10, 0.8);
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(45deg, var(--primary-hover), var(--primary));
+        }
+
+        /* Background Elements */
+        .bg-elements {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .bg-gradient {
+            position: absolute;
+            width: 30rem;
+            height: 30rem;
+            border-radius: 50%;
+            filter: blur(10rem);
+            z-index: -1;
+            opacity: 0.4;
+        }
+
+        .bg-gradient:nth-child(1) {
+            top: -15%;
+            right: 5%;
+            background: rgba(157, 78, 221, 0.15);
+        }
+
+        .bg-gradient:nth-child(2) {
+            bottom: -15%;
+            left: 10%;
+            background: rgba(139, 92, 246, 0.15);
+        }
+
+        .static-pattern {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0.1;
+            z-index: -1;
+            background-image: radial-gradient(#555555 1px, transparent 1px);
+            background-size: 30px 30px;
         }
 
         #sidebar {
             width: var(--sidebar-width);
-            background: rgba(157, 78, 221, 0.1);
-            border-right: 2px solid #9d4edd;
+            background: var(--sidebar-bg);
+            backdrop-filter: blur(15px);
+            border-right: 1px solid var(--card-border);
             height: 100vh;
             position: fixed;
             top: 0;
             left: 0;
             padding-top: 20px;
+            z-index: 100;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+            overflow-y: auto;
         }
 
         #content {
             margin-left: var(--sidebar-width);
             padding: 20px;
+            position: relative;
+            z-index: 1;
+            min-height: 100vh;
         }
 
         .nav-link {
-            color: #fff;
-            padding: 10px 20px;
+            color: var(--text-light);
+            padding: 12px 20px;
             transition: all 0.3s;
-            border-radius: 5px;
-            margin: 5px 10px;
+            border-radius: 8px;
+            margin: 5px 15px;
+            display: flex;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-link::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 0;
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary-light), transparent);
+            transition: width 0.3s ease;
+            z-index: -1;
         }
 
         .nav-link:hover {
-            background: rgba(157, 78, 221, 0.3);
-            color: #fff;
+            color: white;
+            transform: translateX(5px);
+        }
+
+        .nav-link:hover::before {
+            width: 100%;
         }
 
         .nav-link.active {
-            background: #9d4edd;
-            color: #fff;
+            background: linear-gradient(90deg, var(--primary), var(--primary-hover));
+            color: white;
+            box-shadow: 0 4px 12px rgba(157, 78, 221, 0.3);
+            transform: translateX(5px);
         }
 
         .nav-link i {
-            margin-right: 10px;
+            margin-right: 12px;
+            font-size: 1.1rem;
+            width: 24px;
+            text-align: center;
         }
 
         .profile-section {
             text-align: center;
-            padding: 20px;
+            padding: 30px 20px;
             border-bottom: 1px solid rgba(157, 78, 221, 0.3);
             margin-bottom: 20px;
+            position: relative;
+            background: rgba(10, 10, 10, 0.6);
+            backdrop-filter: blur(5px);
+        }
+
+        .profile-section::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 50%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--primary), transparent);
         }
 
         .profile-section img {
-            width: 80px;
-            height: 80px;
+            width: 100px;
+            height: 100px;
             border-radius: 50%;
-            margin-bottom: 10px;
-            border: 2px solid #9d4edd;
+            margin-bottom: 15px;
+            border: 2px solid var(--primary);
+            padding: 3px;
+            background: rgba(30, 30, 30, 0.5);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            object-fit: cover;
+        }
+
+        .profile-section img:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(157, 78, 221, 0.6);
         }
 
         .profile-name {
-            color: #9d4edd;
+            color: white;
             font-weight: bold;
             margin-bottom: 5px;
+            font-size: 1.2rem;
         }
 
         .status-badge {
@@ -82,107 +216,164 @@
             padding: 5px 15px;
             border-radius: 15px;
             font-size: 0.8rem;
-            margin-top: 5px;
+            margin-top: 10px;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
         }
 
-        .status-pending { background: #ffd60a; color: #000; }
-        .status-approved { background: #4edd98; color: white; }
-        .status-rejected { background: #ff6b6b; color: white; }
+        .status-pending { 
+            background: linear-gradient(45deg, #ffd60a, #ffb302);
+            color: #000; 
+        }
+        
+        .status-approved { 
+            background: linear-gradient(45deg, #4edd98, #2ec27e);
+            color: white; 
+        }
+        
+        .status-rejected { 
+            background: linear-gradient(45deg, #ff6b6b, #ff4757);
+            color: white; 
+        }
 
         .success-message {
             background: rgba(78, 221, 152, 0.1);
             border: 1px solid #4edd98;
             color: #4edd98;
             padding: 1rem;
-            border-radius: 5px;
-            margin-bottom: 1rem;
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+            animation: fadeIn 0.5s ease;
         }
 
-        .welcome-section {
-            background: rgba(157, 78, 221, 0.1);
-            border: 2px solid #9d4edd;
-            border-radius: 15px;
-            padding: 2rem;
-            margin-bottom: 2rem;
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
-        .card {
-            background: rgba(157, 78, 221, 0.1);
-            border: 1px solid #9d4edd;
-            border-radius: 10px;
-            margin-bottom: 1rem;
+        .nav-section {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid rgba(157, 78, 221, 0.2);
+        }
+        
+        .nav-section-title {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--primary);
+            padding: 0 20px;
+            margin-bottom: 8px;
+            font-weight: 600;
+            opacity: 0.8;
         }
 
-        .card-title {
-            color: #9d4edd;
-            border-bottom: 1px solid rgba(157, 78, 221, 0.3);
-            padding-bottom: 0.5rem;
-        }
-
-        .btn-custom {
-            background: #9d4edd;
-            color: white;
-            border: none;
-            padding: 0.5rem 1rem;
-            border-radius: 5px;
-            transition: all 0.3s;
-        }
-
-        .btn-custom:hover {
-            background: #c77dff;
-            color: white;
-        }
-
-        .message {
-            color: #c77dff;
-            margin-bottom: 1rem;
+        /* Mobile Responsiveness */
+        @media (max-width: 768px) {
+            #sidebar {
+                transform: translateX(-100%);
+            }
+            
+            #content {
+                margin-left: 0;
+            }
+            
+            #sidebar.active {
+                transform: translateX(0);
+            }
+            
+            .sidebar-toggle {
+                display: block;
+                position: fixed;
+                top: 15px;
+                left: 15px;
+                z-index: 101;
+                background: linear-gradient(45deg, var(--primary), var(--primary-hover));
+                color: white;
+                border: none;
+                border-radius: 8px;
+                padding: 10px 15px;
+                cursor: pointer;
+                box-shadow: 0 4px 12px rgba(157, 78, 221, 0.3);
+                transition: all 0.3s ease;
+            }
+            
+            .sidebar-toggle:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 6px 15px rgba(157, 78, 221, 0.4);
+            }
         }
     </style>
     {% block extra_css %}{% endblock %}
 </head>
 <body>
+    <div class="bg-elements">
+        <div class="bg-gradient"></div>
+        <div class="bg-gradient"></div>
+        <div class="static-pattern"></div>
+    </div>
+
+    <button class="sidebar-toggle d-md-none" id="sidebarToggle">
+        <i class="fas fa-bars"></i>
+    </button>
+
     <div id="sidebar">
         <div class="profile-section">
-            <img src="https://via.placeholder.com/80" alt="Profile">
-            <div class="profile-name">{{ mentor.full_name|default:"New Mentor" }}</div>
+            {% if mentor.profile_picture %}
+                <img src="{{ mentor.profile_picture.url }}" alt="{{ mentor.full_name }}">
+            {% else %}
+                <img src="https://via.placeholder.com/100" alt="Profile">
+            {% endif %}
+            <div class="profile-name">{{ mentor.full_name|default:"Mentor Portal" }}</div>
             {% if mentor %}
             <div class="status-badge status-{{ mentor.verification_status }}">
                 {{ mentor.get_verification_status_display }}
             </div>
             {% endif %}
         </div>
+        
         <nav class="nav flex-column">
             <a class="nav-link {% if request.resolver_match.url_name == 'mentor_dashboard' %}active{% endif %}" href="{% url 'mentor_dashboard' %}">
                 <i class="fas fa-home"></i> Dashboard
             </a>
+            
             {% if mentor.verification_status == 'approved' %}
-            <a class="nav-link {% if request.resolver_match.url_name == 'mentor_profile' %}active{% endif %}" href="{% url 'mentor_profile' %}">
-                <i class="fas fa-user"></i> Profile
-            </a>
-            <a class="nav-link {% if request.resolver_match.url_name == 'mentor_students' %}active{% endif %}" href="{% url 'list_students' %}">
-                <i class="fas fa-users"></i> My Students
-            </a>
-            <a class="nav-link {% if request.resolver_match.url_name == 'mentor_schedule' %}active{% endif %}" href="#">
-                <i class="fas fa-calendar"></i> Schedule
-            </a>
-            <a class="nav-link {% if request.resolver_match.url_name == 'mentor_settings' %}active{% endif %}" href="#">
-                <i class="fas fa-cog"></i> Settings
-
-            </a>
-            <li><a href="{% url 'list_students' %}" {% if request.resolver_match.url_name == 'list_students' %}class="active"{% endif %}>Find Students</a></li>
-    <li><a href="{% url 'connected_students' %}" {% if request.resolver_match.url_name == 'connected_students' %}class="active"{% endif %}>Connected Students</a></li>
-    <li><a href="{% url 'mentor_projects' %}" {% if request.resolver_match.url_name == 'mentor_projects' %}class="active"{% endif %}>Projects</a></li>
-    <li><a href="{% url 'meeting_list' %}" {% if request.resolver_match.url_name == 'meeting_list' %}class="active"{% endif %}>Meetings</a></li> 
-    <li class="nav-item">
-        <a class="nav-link {% if request.resolver_match.url_name == 'mentor_view_collaborators' %}active{% endif %}" href="{% url 'mentor_view_collaborators' %}">
-            <i class="fas fa-users"></i>
-            <span>View Collaborators</span>
-        </a>
-    </li>
+            <div class="nav-section">
+                <div class="nav-section-title">My Work</div>
+                
+                <a class="nav-link {% if request.resolver_match.url_name == 'mentor_profile' %}active{% endif %}" href="{% url 'mentor_profile' %}">
+                    <i class="fas fa-user"></i> My Profile
+                </a>
+                
+                <a class="nav-link {% if request.resolver_match.url_name == 'connected_students' %}active{% endif %}" href="{% url 'connected_students' %}">
+                    <i class="fas fa-users"></i> My Students
+                </a>
+                
+                <a class="nav-link {% if request.resolver_match.url_name == 'mentor_projects' %}active{% endif %}" href="{% url 'mentor_projects' %}">
+                    <i class="fas fa-project-diagram"></i> Projects
+                </a>
+            </div>
+            
+            <div class="nav-section">
+                <div class="nav-section-title">Communication</div>
+                
+                <a class="nav-link {% if request.resolver_match.url_name == 'meeting_list' %}active{% endif %}" href="{% url 'meeting_list' %}">
+                    <i class="fas fa-calendar-alt"></i> Meetings
+                </a>
+                
+                <a class="nav-link {% if request.resolver_match.url_name == 'mentor_view_collaborators' %}active{% endif %}" href="{% url 'mentor_view_collaborators' %}">
+                    <i class="fas fa-handshake"></i> Collaborators
+                </a>
+            </div>
             {% endif %}
-            <a class="nav-link" href="{% url 'mentor_logout' %}">
-                <i class="fas fa-sign-out-alt"></i> Logout
-            </a>
+            
+            <div class="nav-section">
+                <a class="nav-link" href="{% url 'mentor_logout' %}">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </a>
+            </div>
         </nav>
     </div>
 
@@ -196,9 +387,28 @@
         {% endif %}
 
         {% block content %}{% endblock %}
-    </div> 
+    </div>
     
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Mobile sidebar toggle
+        document.getElementById('sidebarToggle').addEventListener('click', function() {
+            document.getElementById('sidebar').classList.toggle('active');
+        });
+
+        // Close sidebar when clicking outside on mobile
+        document.addEventListener('click', function(event) {
+            const sidebar = document.getElementById('sidebar');
+            const sidebarToggle = document.getElementById('sidebarToggle');
+            
+            if (window.innerWidth <= 768 && 
+                !sidebar.contains(event.target) && 
+                !sidebarToggle.contains(event.target) &&
+                sidebar.classList.contains('active')) {
+                sidebar.classList.remove('active');
+            }
+        });
+    </script>
     {% block extra_js %}{% endblock %}
 </body>
-</html> 
+</html>

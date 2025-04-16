@@ -2,147 +2,620 @@
 {% load static %}
 
 {% block content %}
-<div class="content-wrapper">
-    <div class="content-header">
-        <div class="container-fluid">
-            <div class="row mb-2">
-                <div class="col-sm-6">
-                    <h1 class="m-0">Project Assessments</h1>
-                </div>
-                <div class="col-sm-6 text-right">
-                    <a href="{% url 'add_project_assessment' %}" class="btn btn-primary">
-                        <i class="fas fa-plus"></i> Add Assessment
-                    </a>
-                </div>
-            </div>
-        </div>
+<div class="dashboard-container">
+    <div class="welcome-section">
+        <h1>Project <span>Assessments</span></h1>
+        <p>Manage and track all project assessments for your college</p>
     </div>
 
-    <section class="content">
-        <div class="container-fluid">
-            {% if messages %}
-                {% for message in messages %}
-                    <div class="alert {% if message.tags == 'success' %}alert-success{% else %}alert-danger{% endif %} alert-dismissible fade show">
-                        {{ message }}
-                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                {% endfor %}
-            {% endif %}
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert {% if message.tags == 'success' %}alert-success{% else %}alert-danger{% endif %} alert-dismissible fade show">
+                {{ message }}
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+        {% endfor %}
+    {% endif %}
 
-            <!-- Filters -->
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title">Filters</h3>
-                </div>
-                <div class="card-body">
-                    <form method="GET" class="row">
-                        <div class="col-md-3 form-group">
-                            <label for="status">Status</label>
-                            <select name="status" id="status" class="form-control">
-                                <option value="">All</option>
-                                {% for status_value, status_label in status_choices %}
-                                <option value="{{ status_value }}" {% if request.GET.status == status_value %}selected{% endif %}>
-                                    {{ status_label }}
-                                </option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                        <div class="col-md-3 form-group">
-                            <label for="semester">Semester</label>
-                            <select name="semester" id="semester" class="form-control">
-                                <option value="">All</option>
-                                {% for sem_value, sem_label in semester_choices %}
-                                <option value="{{ sem_value }}" {% if request.GET.semester == sem_value %}selected{% endif %}>
-                                    {{ sem_label }}
-                                </option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                        <div class="col-md-3 form-group">
-                            <label for="branch">Branch</label>
-                            <input type="text" name="branch" id="branch" class="form-control" 
-                                value="{{ request.GET.branch }}" placeholder="e.g., CSE, ECE">
-                        </div>
-                        <div class="col-md-3 form-group d-flex align-items-end">
-                            <button type="submit" class="btn btn-primary btn-block">
-                                <i class="fas fa-filter"></i> Apply Filters
-                            </button>
-                        </div>
-                    </form>
-                </div>
+    <!-- Filters -->
+    <div class="info-card filter-card">
+        <h2>Filters</h2>
+        <form method="GET" class="row">
+            <div class="col-md-3 form-group">
+                <div class="info-label">Status</div>
+                <select name="status" id="status" class="form-control custom-select">
+                    <option value="">All</option>
+                    {% for status_value, status_label in status_choices %}
+                    <option value="{{ status_value }}" {% if request.GET.status == status_value %}selected{% endif %}>
+                        {{ status_label }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3 form-group">
+                <div class="info-label">Semester</div>
+                <select name="semester" id="semester" class="form-control custom-select">
+                    <option value="">All</option>
+                    {% for sem_value, sem_label in semester_choices %}
+                    <option value="{{ sem_value }}" {% if request.GET.semester == sem_value %}selected{% endif %}>
+                        {{ sem_label }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3 form-group">
+                <div class="info-label">Branch</div>
+                <input type="text" name="branch" id="branch" class="form-control custom-input" 
+                    value="{{ request.GET.branch }}" placeholder="e.g., CSE, ECE">
+            </div>
+            <div class="col-md-3 form-group d-flex align-items-end">
+                <button type="submit" class="btn btn-filter">
+                    <i class="fas fa-filter"></i> Apply Filters
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <div class="action-bar">
+        <a href="{% url 'add_project_assessment' %}" class="btn btn-add-assessment">
+            <i class="fas fa-plus"></i> Add Assessment
+        </a>
+    </div>
+
+    <!-- Assessments List -->
+    {% for assessment in assessments %}
+    <div class="assessment-card">
+        <div class="assessment-header">
+            <h3>{{ assessment.title }}</h3>
+            <div class="assessment-actions">
+                <a href="{% url 'edit_project_assessment' assessment.id %}" class="btn-action edit">
+                    <i class="fas fa-edit"></i>
+                </a>
+                <a href="{% url 'delete_project_assessment' assessment.id %}" class="btn-action delete" 
+                   onclick="return confirm('Are you sure you want to delete this assessment?')">
+                    <i class="fas fa-trash"></i>
+                </a>
+            </div>
+        </div>
+        <div class="assessment-body">
+            <div class="assessment-meta">
+                <span class="status-badge {% if assessment.status == 'upcoming' %}badge-upcoming
+                                 {% elif assessment.status == 'ongoing' %}badge-ongoing
+                                 {% elif assessment.status == 'completed' %}badge-completed
+                                 {% else %}badge-cancelled{% endif %}">
+                    {{ assessment.get_status_display }}
+                </span>
+                <span class="branch-info">{{ assessment.target_branch }} - Semester {{ assessment.get_target_semester_display }}</span>
             </div>
 
-            <!-- Assessments List -->
-            {% for assessment in assessments %}
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title">{{ assessment.title }}</h3>
-                    <div class="card-tools">
-                        <a href="{% url 'edit_project_assessment' assessment.id %}" class="btn btn-tool">
-                            <i class="fas fa-edit"></i>
-                        </a>
-                        <a href="{% url 'delete_project_assessment' assessment.id %}" class="btn btn-tool" 
-                           onclick="return confirm('Are you sure you want to delete this assessment?')">
-                            <i class="fas fa-trash"></i>
-                        </a>
+            <p class="assessment-description">{{ assessment.description }}</p>
+
+            <div class="assessment-details">
+                <div class="detail-section">
+                    <h4>Schedule</h4>
+                    <div class="detail-item">
+                        <div class="detail-label"><i class="fas fa-calendar-day"></i> Start Date:</div>
+                        <div class="detail-value">{{ assessment.start_date|date:"F j, Y, g:i a" }}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label"><i class="fas fa-calendar-check"></i> End Date:</div>
+                        <div class="detail-value">{{ assessment.end_date|date:"F j, Y, g:i a" }}</div>
                     </div>
                 </div>
-                <div class="card-body">
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <span class="badge {% if assessment.status == 'upcoming' %}badge-info
-                                             {% elif assessment.status == 'ongoing' %}badge-success
-                                             {% elif assessment.status == 'completed' %}badge-secondary
-                                             {% else %}badge-danger{% endif %}">
-                                {{ assessment.get_status_display }}
-                            </span>
-                            <span class="ml-2">{{ assessment.target_branch }} - Semester {{ assessment.get_target_semester_display }}</span>
-                        </div>
-                    </div>
 
-                    <p>{{ assessment.description }}</p>
-
-                    <div class="row">
-                        <div class="col-md-6">
-                            <h5>Schedule</h5>
-                            <p><strong>Start:</strong> {{ assessment.start_date|date:"F j, Y, g:i a" }}</p>
-                            <p><strong>End:</strong> {{ assessment.end_date|date:"F j, Y, g:i a" }}</p>
-                        </div>
-
-                        <div class="col-md-6">
-                            <h5>Assessment Details</h5>
-                            {% if assessment.max_marks %}
-                            <p><strong>Maximum Marks:</strong> {{ assessment.max_marks }}</p>
-                            {% endif %}
-                            {% if assessment.assessment_criteria %}
-                            <p><strong>Criteria:</strong> {{ assessment.assessment_criteria }}</p>
-                            {% endif %}
-                            <p><strong>Submission Required:</strong> {% if assessment.submission_required %}Yes{% else %}No{% endif %}</p>
-                        </div>
-                    </div>
-
-                    {% if assessment.resources %}
-                    <div class="row mt-3">
-                        <div class="col-12">
-                            <h5>Resources</h5>
-                            <a href="{{ assessment.resources.url }}" target="_blank" class="btn btn-sm btn-outline-primary">
-                                <i class="fas fa-download"></i> Download Resources
-                            </a>
-                        </div>
+                <div class="detail-section">
+                    <h4>Assessment Details</h4>
+                    {% if assessment.max_marks %}
+                    <div class="detail-item">
+                        <div class="detail-label"><i class="fas fa-star"></i> Maximum Marks:</div>
+                        <div class="detail-value">{{ assessment.max_marks }}</div>
                     </div>
                     {% endif %}
+                    {% if assessment.assessment_criteria %}
+                    <div class="detail-item">
+                        <div class="detail-label"><i class="fas fa-clipboard-list"></i> Criteria:</div>
+                        <div class="detail-value">{{ assessment.assessment_criteria }}</div>
+                    </div>
+                    {% endif %}
+                    <div class="detail-item">
+                        <div class="detail-label"><i class="fas fa-file-upload"></i> Submission Required:</div>
+                        <div class="detail-value">{% if assessment.submission_required %}Yes{% else %}No{% endif %}</div>
+                    </div>
                 </div>
             </div>
-            {% empty %}
-            <div class="card">
-                <div class="card-body text-center text-muted">
-                    No project assessments found. Click "Add Assessment" to create one.
-                </div>
+
+            {% if assessment.resources %}
+            <div class="assessment-resources">
+                <a href="{{ assessment.resources.url }}" target="_blank" class="btn btn-resources">
+                    <i class="fas fa-download"></i> Download Resources
+                </a>
             </div>
-            {% endfor %}
+            {% endif %}
         </div>
-    </section>
+    </div>
+    {% empty %}
+    <div class="empty-state">
+        <i class="fas fa-clipboard-list"></i>
+        <p>No project assessments found</p>
+        <p class="empty-subtitle">Click "Add Assessment" to create one</p>
+    </div>
+    {% endfor %}
 </div>
-{% endblock %} 
+
+<style>
+    .dashboard-container {
+        padding: 2rem 0;
+        position: relative;
+        z-index: 2;
+    }
+
+    .welcome-section {
+        background: rgba(10, 10, 10, 0.8);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(30, 30, 30, 0.8);
+        border-radius: 16px;
+        padding: 2.5rem;
+        margin-bottom: 2rem;
+        text-align: center;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+        position: relative;
+        overflow: hidden;
+        animation: fadeInDown 0.8s ease-out forwards;
+    }
+
+    .welcome-section::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(45deg, rgba(20, 20, 20, 0.3), transparent);
+        z-index: -1;
+    }
+
+    .welcome-section h1 {
+        font-size: 2.5rem;
+        font-weight: 800;
+        letter-spacing: -0.5px;
+        line-height: 1.2;
+        margin-bottom: 1rem;
+        color: white;
+        opacity: 0;
+        animation: fadeIn 0.6s ease-out 0.4s forwards;
+    }
+
+    .welcome-section h1 span {
+        color: #9d4edd;
+        position: relative;
+        display: inline-block;
+    }
+
+    .welcome-section h1 span::after {
+        content: "";
+        position: absolute;
+        bottom: 5px;
+        left: 0;
+        width: 0;
+        height: 8px;
+        background-color: rgba(157, 78, 221, 0.15);
+        z-index: -1;
+        border-radius: 4px;
+        animation: lineGrow 0.6s ease-out 1s forwards;
+    }
+
+    .welcome-section p {
+        color: #9d9d9d;
+        font-size: 1.1rem;
+        margin-bottom: 0;
+        opacity: 0;
+        animation: fadeIn 0.6s ease-out 0.6s forwards;
+    }
+
+    .info-card {
+        background: rgba(10, 10, 10, 0.8);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(30, 30, 30, 0.8);
+        border-radius: 16px;
+        padding: 1.5rem;
+        height: 100%;
+        transition: all 0.3s ease;
+        opacity: 0;
+        transform: translateY(20px);
+        animation: fadeInUp 0.6s ease-out 0.7s forwards;
+        margin-bottom: 2rem;
+    }
+
+    .info-card h2 {
+        color: #e0e0e0;
+        font-size: 1.3rem;
+        font-weight: 600;
+        margin-bottom: 1.5rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 1px solid rgba(30, 30, 30, 0.8);
+    }
+
+    .info-label {
+        color: #9d4edd;
+        font-size: 0.9rem;
+        margin-bottom: 0.3rem;
+        font-weight: 500;
+        opacity: 0.8;
+    }
+
+    .form-control {
+        background: rgba(20, 20, 20, 0.6);
+        border: 1px solid rgba(50, 50, 50, 0.8);
+        border-radius: 8px;
+        color: #e0e0e0;
+        padding: 0.6rem 1rem;
+        transition: all 0.3s ease;
+    }
+
+    .form-control:focus {
+        background: rgba(25, 25, 25, 0.8);
+        border-color: rgba(157, 78, 221, 0.5);
+        box-shadow: 0 0 0 0.2rem rgba(157, 78, 221, 0.25);
+        color: white;
+    }
+
+    .form-control::placeholder {
+        color: #777;
+    }
+
+    .custom-select {
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='4' height='5' viewBox='0 0 4 5'%3e%3cpath fill='%239d4edd' d='M2 0L0 2h4zm0 5L0 3h4z'/%3e%3c/svg%3e");
+        background-repeat: no-repeat;
+        background-position: right 1rem center;
+        background-size: 8px 10px;
+        appearance: none;
+    }
+
+    .btn {
+        padding: 0.6rem 1.5rem;
+        border-radius: 8px;
+        border: none;
+        cursor: pointer;
+        font-size: 0.95rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+    .btn-filter {
+        background: #1a1a1a;
+        color: #9d4edd;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+        border: 1px solid #9d4edd;
+        width: 100%;
+    }
+
+    .btn-filter:hover {
+        background: rgba(157, 78, 221, 0.1);
+        transform: translateY(-3px);
+    }
+
+    .action-bar {
+        display: flex;
+        justify-content: flex-end;
+        margin-bottom: 2rem;
+        opacity: 0;
+        animation: fadeIn 0.6s ease-out 0.8s forwards;
+    }
+
+    .btn-add-assessment {
+        background: #9d4edd;
+        color: white;
+        padding: 0.6rem 1.5rem;
+        border-radius: 8px;
+        border: none;
+        box-shadow: 0 4px 12px rgba(157, 78, 221, 0.25);
+        font-weight: 600;
+        transition: all 0.3s ease;
+        text-decoration: none;
+    }
+
+    .btn-add-assessment:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 16px rgba(157, 78, 221, 0.3);
+        color: white;
+        text-decoration: none;
+    }
+
+    .assessment-card {
+        background: rgba(10, 10, 10, 0.8);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(30, 30, 30, 0.8);
+        border-radius: 16px;
+        margin-bottom: 1.5rem;
+        overflow: hidden;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+        transition: all 0.3s ease;
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    .assessment-card:nth-child(3n+1) {
+        animation: fadeInUp 0.6s ease-out 0.9s forwards;
+    }
+
+    .assessment-card:nth-child(3n+2) {
+        animation: fadeInUp 0.6s ease-out 1.1s forwards;
+    }
+
+    .assessment-card:nth-child(3n+3) {
+        animation: fadeInUp 0.6s ease-out 1.3s forwards;
+    }
+
+    .assessment-card:hover {
+        transform: translateY(-5px);
+        border-color: rgba(157, 78, 221, 0.3);
+    }
+
+    .assessment-header {
+        background: rgba(15, 15, 15, 0.8);
+        padding: 1.2rem 1.5rem;
+        border-bottom: 1px solid rgba(30, 30, 30, 0.8);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .assessment-header h3 {
+        color: #e0e0e0;
+        margin-bottom: 0;
+        font-size: 1.3rem;
+        font-weight: 600;
+    }
+
+    .assessment-actions {
+        display: flex;
+        gap: 0.8rem;
+    }
+
+    .btn-action {
+        width: 36px;
+        height: 36px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+        background: rgba(30, 30, 30, 0.8);
+        color: #9d9d9d;
+    }
+
+    .btn-action.edit {
+        color: #9d4edd;
+    }
+
+    .btn-action.delete {
+        color: #ff6b6b;
+    }
+
+    .btn-action:hover {
+        transform: translateY(-3px);
+        background: rgba(40, 40, 40, 0.8);
+        color: white;
+        text-decoration: none;
+    }
+
+    .assessment-body {
+        padding: 1.5rem;
+    }
+
+    .assessment-meta {
+        display: flex;
+        align-items: center;
+        margin-bottom: 1rem;
+        gap: 1rem;
+    }
+
+    .status-badge {
+        padding: 0.3rem 1rem;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 500;
+    }
+
+    .badge-upcoming {
+        background: rgba(25, 25, 25, 0.8);
+        color: #ffd60a;
+        border: 1px solid #ffd60a;
+    }
+
+    .badge-ongoing {
+        background: rgba(25, 25, 25, 0.8);
+        color: #4edd98;
+        border: 1px solid #4edd98;
+    }
+
+    .badge-completed {
+        background: rgba(25, 25, 25, 0.8);
+        color: #9d9d9d;
+        border: 1px solid #9d9d9d;
+    }
+
+    .badge-cancelled {
+        background: rgba(25, 25, 25, 0.8);
+        color: #ff6b6b;
+        border: 1px solid #ff6b6b;
+    }
+
+    .branch-info {
+        color: #9d9d9d;
+        font-size: 0.95rem;
+    }
+
+    .assessment-description {
+        color: #e0e0e0;
+        margin-bottom: 1.5rem;
+        line-height: 1.6;
+    }
+
+    .assessment-details {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .detail-section {
+        background: rgba(20, 20, 20, 0.5);
+        border-radius: 12px;
+        padding: 1.2rem;
+    }
+
+    .detail-section h4 {
+        color: #9d4edd;
+        font-size: 1.1rem;
+        margin-bottom: 1rem;
+        font-weight: 600;
+        border-bottom: 1px solid rgba(40, 40, 40, 0.8);
+        padding-bottom: 0.5rem;
+    }
+
+    .detail-item {
+        display: flex;
+        margin-bottom: 0.8rem;
+    }
+
+    .detail-label {
+        color: #9d9d9d;
+        font-size: 0.9rem;
+        font-weight: 500;
+        width: 150px;
+        display: flex;
+        align-items: center;
+    }
+
+    .detail-label i {
+        margin-right: 0.5rem;
+        color: #9d4edd;
+        opacity: 0.8;
+    }
+
+    .detail-value {
+        color: #e0e0e0;
+        font-size: 0.95rem;
+    }
+
+    .assessment-resources {
+        margin-top: 1.5rem;
+        text-align: center;
+    }
+
+    .btn-resources {
+        background: #1a1a1a;
+        color: #9d4edd;
+        padding: 0.6rem 1.8rem;
+        border-radius: 8px;
+        border: 1px solid #9d4edd;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+        font-weight: 600;
+        transition: all 0.3s ease;
+        text-decoration: none;
+    }
+
+    .btn-resources:hover {
+        background: rgba(157, 78, 221, 0.1);
+        transform: translateY(-3px);
+        color: #9d4edd;
+        text-decoration: none;
+    }
+
+    .empty-state {
+        background: rgba(10, 10, 10, 0.8);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(30, 30, 30, 0.8);
+        border-radius: 16px;
+        padding: 4rem 2rem;
+        text-align: center;
+        opacity: 0;
+        animation: fadeIn 0.8s ease-out 0.9s forwards;
+    }
+
+    .empty-state i {
+        font-size: 3rem;
+        color: #444;
+        margin-bottom: 1rem;
+    }
+
+    .empty-state p {
+        color: #e0e0e0;
+        font-size: 1.2rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .empty-state .empty-subtitle {
+        color: #9d9d9d;
+        font-size: 1rem;
+    }
+
+    /* Animation Keyframes */
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+        to {
+            opacity: 1;
+        }
+    }
+    
+    @keyframes fadeInDown {
+        from {
+            opacity: 0;
+            transform: translateY(-30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    @keyframes lineGrow {
+        from {
+            width: 0;
+        }
+        to {
+            width: 100%;
+        }
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .welcome-section h1 {
+            font-size: 2rem;
+        }
+        
+        .welcome-section p {
+            font-size: 1rem;
+        }
+        
+        .assessment-details {
+            grid-template-columns: 1fr;
+        }
+        
+        .detail-item {
+            flex-direction: column;
+        }
+        
+        .detail-label {
+            width: 100%;
+            margin-bottom: 0.3rem;
+        }
+    }
+</style>
+{% endblock %}

@@ -6,6 +6,8 @@ from django.contrib import messages
 from django.contrib.auth.models import User
 from .models import CollaboratorProfile, ZoomMeeting
 from students.models import Project, CollaborationRequest, ProjectComment
+from .util import generate_gemini_recommendations
+
 
 # Create your views here.
 
@@ -112,31 +114,110 @@ def collaborator_dashboard(request):
 
 @login_required
 def view_shared_projects(request):
-    """View all projects open for collaboration"""
+    """View all projects open for collaboration with intelligent recommendation functionality"""
     try:
         collaborator = request.user.collaborator_profile
         
-        # Get all projects that are open for collaboration
-        open_projects = Project.objects.filter(is_open_for_collaboration=True)
+        # Base query for projects open for collaboration
+        projects = Project.objects.filter(is_open_for_collaboration=True)
+        
+        # Handle search filters
+        search_query = request.GET.get('search', '')
+        tech_stack = request.GET.get('tech_stack', '')
+        sdgs = request.GET.get('sdgs', '')
+        status = request.GET.get('status', '')
+        recommend = request.GET.get('recommend', '')
+        
+        # Apply regular filters if provided
+        if search_query:
+            projects = projects.filter(title__icontains=search_query)
+        
+        if tech_stack:
+            projects = projects.filter(tech_stack__icontains=tech_stack)
+            
+        if sdgs:
+            projects = projects.filter(sdgs__icontains=sdgs)
+            
+        if status:
+            projects = projects.filter(status=status)
         
         # Get existing collaboration requests for this collaborator
         collaboration_requests = CollaborationRequest.objects.filter(collaborator=collaborator)
         request_status = {req.project_id: req.status for req in collaboration_requests}
         
+        # Apply recommendation using Gemini if requested
+        recommendations = {}
+        if recommend == 'true' and collaborator.expertise:
+            # Prepare project data for Gemini API
+            projects_data = []
+            for project in projects:
+                projects_data.append({
+                    "id": str(project.id),
+                    "title": project.title,
+                    "description": project.description,
+                    "tech_stack": project.tech_stack,
+                    "sdgs": project.sdgs
+                })
+                
+            # Get recommendations from Gemini API
+            if projects_data:
+                recommendations = generate_gemini_recommendations(collaborator.expertise, projects_data)
+            
+            # Sort projects by recommendation score
+            projects_with_scores = []
+            for project in projects:
+                project_id = str(project.id)
+                if project_id in recommendations:
+                    recommendation_data = recommendations[project_id]
+                    project.recommendation_score = recommendation_data.get('score', 0)
+                    project.recommendation_explanation = recommendation_data.get('explanation', '')
+                    projects_with_scores.append(project)
+            
+            # Sort by recommendation score (highest first)
+            projects_with_scores.sort(key=lambda x: x.recommendation_score, reverse=True)
+            
+            # Only show projects with a score above threshold (e.g., 20)
+            threshold = 20
+            projects = [p for p in projects_with_scores if p.recommendation_score >= threshold]
+        
         # Add request status to each project
-        for project in open_projects:
+        for project in projects:
             project.request_status = request_status.get(project.id)
             project.owner_name = project.group.name if project.group else project.student.full_name
             project.owner_type = 'Group' if project.group else 'Student'
         
+        # Get unique tech stacks and SDGs for filters
+        all_tech_stacks = Project.objects.filter(is_open_for_collaboration=True).values_list('tech_stack', flat=True).distinct()
+        all_sdgs = Project.objects.filter(is_open_for_collaboration=True).values_list('sdgs', flat=True).distinct()
+        
+        # Format these for the template
+        tech_stack_options = []
+        for techs in all_tech_stacks:
+            tech_stack_options.extend([tech.strip() for tech in techs.split(',')])
+        tech_stack_options = list(set(tech_stack_options))
+        
+        sdg_options = []
+        for all_sdg in all_sdgs:
+            sdg_options.extend([sdg.strip() for sdg in all_sdg.split(',')])
+        sdg_options = list(set(sdg_options))
+        
         context = {
-            'projects': open_projects,
+            'projects': projects,
+            'search_query': search_query,
+            'tech_stack': tech_stack,
+            'sdgs': sdgs,
+            'status': status,
+            'recommend': recommend,
+            'tech_stack_options': tech_stack_options,
+            'sdg_options': sdg_options,
+            'status_choices': Project._meta.get_field('status').choices,
         }
         return render(request, 'collaborator/shared_projects.html', context)
         
     except Exception as e:
         messages.error(request, f'An error occurred: {str(e)}')
         return redirect('collaborator_dashboard')
+
 
 @login_required
 def send_collaboration_request(request, project_id):

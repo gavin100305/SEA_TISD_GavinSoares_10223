@@ -1,172 +1,651 @@
 {% extends 'college/base.html' %}
 {% load static %}
 
+{% block title %}College Activities{% endblock %}
+
+{% block extra_css %}
+<style>
+    .activities-container {
+        padding: 2rem 0;
+        position: relative;
+        z-index: 2;
+    }
+
+    .header-section {
+        background: rgba(10, 10, 10, 0.8);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(30, 30, 30, 0.8);
+        border-radius: 16px;
+        padding: 2.5rem;
+        margin-bottom: 3rem;
+        text-align: center;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+        position: relative;
+        overflow: hidden;
+        animation: fadeInDown 0.8s ease-out forwards;
+    }
+
+    .header-section::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(45deg, rgba(20, 20, 20, 0.3), transparent);
+        z-index: -1;
+    }
+
+    .header-section h1 {
+        font-size: 2.5rem;
+        font-weight: 800;
+        letter-spacing: -0.5px;
+        line-height: 1.2;
+        margin-bottom: 1rem;
+        color: white;
+        opacity: 0;
+        animation: fadeIn 0.6s ease-out 0.4s forwards;
+    }
+
+    .header-section h1 span {
+        color: #9d4edd;
+        position: relative;
+        display: inline-block;
+    }
+
+    .header-section h1 span::after {
+        content: "";
+        position: absolute;
+        bottom: 5px;
+        left: 0;
+        width: 0;
+        height: 8px;
+        background-color: rgba(157, 78, 221, 0.15);
+        z-index: -1;
+        border-radius: 4px;
+        animation: lineGrow 0.6s ease-out 1s forwards;
+    }
+
+    .add-activity-btn {
+        background: transparent;
+        border: 1px solid #9d4edd;
+        color: #9d4edd;
+        border-radius: 8px;
+        padding: 0.6rem 1.5rem;
+        font-size: 0.95rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        opacity: 0;
+        animation: fadeIn 0.6s ease-out 0.6s forwards;
+        text-decoration: none;
+        display: inline-block;
+        margin-top: 1rem;
+    }
+
+    .add-activity-btn:hover {
+        background: rgba(157, 78, 221, 0.1);
+        transform: translateY(-3px);
+    }
+
+    .add-activity-btn i {
+        margin-right: 0.5rem;
+    }
+
+    .filters-card {
+        background: rgba(10, 10, 10, 0.8);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(30, 30, 30, 0.8);
+        border-radius: 16px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+        opacity: 0;
+        animation: fadeInUp 0.6s ease-out 0.8s forwards;
+        transition: all 0.3s ease;
+    }
+
+    .filters-card:hover {
+        border-color: rgba(157, 78, 221, 0.3);
+    }
+
+    .filters-card h3 {
+        color: #e0e0e0;
+        font-size: 1.3rem;
+        font-weight: 600;
+        margin-bottom: 1.5rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 1px solid rgba(30, 30, 30, 0.8);
+        position: relative;
+    }
+
+    .filters-card h3::after {
+        content: '';
+        position: absolute;
+        bottom: -1px;
+        left: 0;
+        width: 0;
+        height: 2px;
+        background: #9d4edd;
+        border-radius: 2px;
+        animation: lineGrow 0.6s ease-out 1.2s forwards;
+    }
+
+    .form-group {
+        margin-bottom: 1rem;
+    }
+
+    .form-group label {
+        display: block;
+        color: #9d4edd;
+        font-size: 0.9rem;
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+        opacity: 0.8;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        background: rgba(30, 30, 30, 0.5);
+        border: 1px solid rgba(60, 60, 60, 0.8);
+        border-radius: 8px;
+        color: #e0e0e0;
+        font-size: 0.95rem;
+        transition: all 0.3s ease;
+    }
+
+    .form-control:focus {
+        border-color: #9d4edd;
+        outline: none;
+        box-shadow: 0 0 0 2px rgba(157, 78, 221, 0.2);
+    }
+
+    .form-control option {
+        background: #1a1a1a;
+        color: #e0e0e0;
+    }
+
+    .btn-primary {
+        background: #1a1a1a;
+        color: #9d4edd;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+        border: 1px solid #9d4edd;
+        border-radius: 8px;
+        padding: 0.75rem 1.5rem;
+        font-size: 0.95rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        width: 100%;
+    }
+
+    .btn-primary:hover {
+        background: rgba(157, 78, 221, 0.1);
+        transform: translateY(-3px);
+    }
+
+    .btn-primary i {
+        margin-right: 0.5rem;
+    }
+
+    .activity-card {
+        background: rgba(10, 10, 10, 0.8);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(30, 30, 30, 0.8);
+        border-radius: 16px;
+        padding: 2rem;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+        position: relative;
+        overflow: hidden;
+        opacity: 0;
+        transform: translateY(30px);
+        transition: all 0.3s ease;
+    }
+
+    .activity-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 3px;
+        height: 0;
+        background: #9d4edd;
+        transition: height 0.3s ease;
+    }
+
+    .activity-card:hover::before {
+        height: 100%;
+    }
+
+    .activity-card:hover {
+        transform: translateY(-10px);
+        border-color: rgba(157, 78, 221, 0.3);
+    }
+
+    .activity-card:nth-child(3) {
+        animation: fadeInUp 0.6s ease-out 1s forwards;
+    }
+
+    .activity-card:nth-child(4) {
+        animation: fadeInUp 0.6s ease-out 1.2s forwards;
+    }
+
+    .activity-card:nth-child(5) {
+        animation: fadeInUp 0.6s ease-out 1.4s forwards;
+    }
+
+    .activity-card:nth-child(6) {
+        animation: fadeInUp 0.6s ease-out 1.6s forwards;
+    }
+
+    .activity-card:nth-child(7) {
+        animation: fadeInUp 0.6s ease-out 1.8s forwards;
+    }
+
+    .card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid rgba(30, 30, 30, 0.8);
+    }
+
+    .card-title {
+        color: #e0e0e0;
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin: 0;
+    }
+
+    .card-tools {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .btn-tool {
+        background: transparent;
+        border: none;
+        color: #9d9d9d;
+        font-size: 1rem;
+        padding: 0.5rem;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+    }
+
+    .btn-tool:hover {
+        color: #9d4edd;
+        background: rgba(157, 78, 221, 0.1);
+    }
+
+    .badge {
+        padding: 0.4rem 1rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 500;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+    }
+
+    .badge-info {
+        background: rgba(13, 110, 253, 0.1);
+        color: #0d6efd;
+        border: 1px solid rgba(13, 110, 253, 0.3);
+    }
+
+    .badge-success {
+        background: rgba(25, 135, 84, 0.1);
+        color: #198754;
+        border: 1px solid rgba(25, 135, 84, 0.3);
+    }
+
+    .badge-secondary {
+        background: rgba(108, 117, 125, 0.1);
+        color: #6c757d;
+        border: 1px solid rgba(108, 117, 125, 0.3);
+    }
+
+    .badge-danger {
+        background: rgba(220, 53, 69, 0.1);
+        color: #dc3545;
+        border: 1px solid rgba(220, 53, 69, 0.3);
+    }
+
+    .activity-meta {
+        display: flex;
+        align-items: center;
+        margin-bottom: 1.5rem;
+    }
+
+    .activity-meta span {
+        margin-right: 1rem;
+        color: #9d9d9d;
+        font-size: 0.9rem;
+    }
+
+    .activity-description {
+        color: #e0e0e0;
+        line-height: 1.7;
+        margin-bottom: 1.5rem;
+    }
+
+    .activity-details {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .detail-group h5 {
+        color: #9d4edd;
+        font-size: 1.1rem;
+        margin-bottom: 1rem;
+        font-weight: 500;
+    }
+
+    .detail-item {
+        margin-bottom: 0.5rem;
+    }
+
+    .detail-item strong {
+        color: #9d9d9d;
+        font-weight: 500;
+        margin-right: 0.5rem;
+    }
+
+    .detail-item p {
+        color: #e0e0e0;
+        display: inline;
+    }
+
+    .attachment-link {
+        display: inline-block;
+        padding: 0.5rem 1rem;
+        background: rgba(10, 10, 10, 0.8);
+        border: 1px solid #9d4edd;
+        border-radius: 8px;
+        color: #9d4edd;
+        text-decoration: none;
+        font-size: 0.9rem;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        margin-top: 1rem;
+    }
+
+    .attachment-link:hover {
+        background: rgba(157, 78, 221, 0.1);
+        transform: translateY(-3px);
+    }
+
+    .attachment-link i {
+        margin-right: 0.5rem;
+    }
+
+    .empty-state {
+        background: rgba(10, 10, 10, 0.8);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(30, 30, 30, 0.8);
+        border-radius: 16px;
+        padding: 3rem;
+        text-align: center;
+        margin-bottom: 2rem;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+        opacity: 0;
+        animation: fadeIn 0.8s ease-out 1s forwards;
+    }
+
+    .empty-state p {
+        color: #9d9d9d;
+        font-size: 1.1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .alert {
+        background: rgba(10, 10, 10, 0.8);
+        backdrop-filter: blur(10px);
+        border-radius: 8px;
+        padding: 1rem 1.5rem;
+        margin-bottom: 1.5rem;
+        border-left: 4px solid;
+        opacity: 0;
+        animation: fadeIn 0.6s ease-out forwards;
+    }
+
+    .alert-success {
+        border-color: #198754;
+        color: #198754;
+    }
+
+    .alert-danger {
+        border-color: #dc3545;
+        color: #dc3545;
+    }
+
+    .close {
+        color: #9d9d9d;
+        background: transparent;
+        border: none;
+        font-size: 1.2rem;
+        float: right;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .close:hover {
+        color: #e0e0e0;
+    }
+
+    /* Animation Keyframes */
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+        to {
+            opacity: 1;
+        }
+    }
+    
+    @keyframes fadeInDown {
+        from {
+            opacity: 0;
+            transform: translateY(-30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    @keyframes lineGrow {
+        from {
+            width: 0;
+        }
+        to {
+            width: 100%;
+        }
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .header-section h1 {
+            font-size: 2rem;
+        }
+        
+        .activity-details {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="content-wrapper">
-    <div class="content-header">
-        <div class="container-fluid">
-            <div class="row mb-2">
-                <div class="col-sm-6">
-                    <h1 class="m-0">College Activities</h1>
-                </div>
-                <div class="col-sm-6 text-right">
-                    <a href="{% url 'add_college_activity' %}" class="btn btn-primary">
-                        <i class="fas fa-plus"></i> Add New Activity
-                    </a>
-                </div>
-            </div>
-        </div>
+<div class="activities-container">
+    <div class="header-section">
+        <h1>College <span>Activities</span></h1>
+        <a href="{% url 'add_college_activity' %}" class="add-activity-btn">
+            <i class="fas fa-plus"></i> Add New Activity
+        </a>
     </div>
 
-    <section class="content">
-        <div class="container-fluid">
-            {% if messages %}
-                {% for message in messages %}
-                    <div class="alert {% if message.tags == 'success' %}alert-success{% else %}alert-danger{% endif %} alert-dismissible fade show">
-                        {{ message }}
-                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                {% endfor %}
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert {% if message.tags == 'success' %}alert-success{% else %}alert-danger{% endif %} alert-dismissible fade show">
+                {{ message }}
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <!-- Filters -->
+    <div class="filters-card">
+        <h3>Filters</h3>
+        <form method="GET" class="row">
+            <div class="col-md-3 form-group">
+                <label for="status">Status</label>
+                <select name="status" id="status" class="form-control">
+                    <option value="">All</option>
+                    {% for status_value, status_label in status_choices %}
+                    <option value="{{ status_value }}" {% if request.GET.status == status_value %}selected{% endif %}>
+                        {{ status_label }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3 form-group">
+                <label for="activity_type">Activity Type</label>
+                <select name="activity_type" id="activity_type" class="form-control">
+                    <option value="">All</option>
+                    {% for type_value, type_label in activity_types %}
+                    <option value="{{ type_value }}" {% if request.GET.activity_type == type_value %}selected{% endif %}>
+                        {{ type_label }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3 form-group">
+                <label for="semester">Semester</label>
+                <select name="semester" id="semester" class="form-control">
+                    <option value="">All</option>
+                    {% for sem_value, sem_label in semester_choices %}
+                    <option value="{{ sem_value }}" {% if request.GET.semester == sem_value %}selected{% endif %}>
+                        {{ sem_label }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3 form-group d-flex align-items-end">
+                <button type="submit" class="btn-primary">
+                    <i class="fas fa-filter"></i> Apply Filters
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Activities List -->
+    {% for activity in activities %}
+    <div class="activity-card">
+        <div class="card-header">
+            <h3 class="card-title">{{ activity.title }}</h3>
+            <div class="card-tools">
+                <a href="{% url 'edit_college_activity' activity.id %}" class="btn-tool">
+                    <i class="fas fa-edit"></i>
+                </a>
+                <a href="{% url 'delete_college_activity' activity.id %}" class="btn-tool" 
+                   onclick="return confirm('Are you sure you want to delete this activity?')">
+                    <i class="fas fa-trash"></i>
+                </a>
+            </div>
+        </div>
+        
+        <div class="activity-meta">
+            <span class="badge {% if activity.status == 'upcoming' %}badge-info
+                         {% elif activity.status == 'ongoing' %}badge-success
+                         {% elif activity.status == 'completed' %}badge-secondary
+                         {% else %}badge-danger{% endif %}">
+                {{ activity.get_status_display }}
+            </span>
+            <span>{{ activity.get_activity_type_display }}</span>
+            <span>{{ activity.target_branch }} - Semester {{ activity.target_semester }}</span>
+        </div>
+
+        <div class="activity-description">
+            {{ activity.description }}
+        </div>
+
+        <div class="activity-details">
+            <div class="detail-group">
+                <h5>Schedule</h5>
+                <div class="detail-item">
+                    <strong>Start:</strong>
+                    <p>{{ activity.start_date|date:"F j, Y, g:i a" }}</p>
+                </div>
+                <div class="detail-item">
+                    <strong>End:</strong>
+                    <p>{{ activity.end_date|date:"F j, Y, g:i a" }}</p>
+                </div>
+            </div>
+
+            {% if activity.venue or activity.online_meeting_link %}
+            <div class="detail-group">
+                <h5>Location</h5>
+                {% if activity.venue %}
+                <div class="detail-item">
+                    <strong>Venue:</strong>
+                    <p>{{ activity.venue }}</p>
+                </div>
+                {% endif %}
+                {% if activity.online_meeting_link %}
+                <div class="detail-item">
+                    <strong>Online Link:</strong>
+                    <p><a href="{{ activity.online_meeting_link }}" target="_blank" style="color: #9d4edd;">Join Meeting</a></p>
+                </div>
+                {% endif %}
+            </div>
             {% endif %}
 
-            <!-- Filters -->
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title">Filters</h3>
+            {% if activity.assessment_criteria or activity.max_marks %}
+            <div class="detail-group">
+                <h5>Assessment Details</h5>
+                {% if activity.assessment_criteria %}
+                <div class="detail-item">
+                    <p>{{ activity.assessment_criteria }}</p>
                 </div>
-                <div class="card-body">
-                    <form method="GET" class="row">
-                        <div class="col-md-3 form-group">
-                            <label for="status">Status</label>
-                            <select name="status" id="status" class="form-control">
-                                <option value="">All</option>
-                                {% for status_value, status_label in status_choices %}
-                                <option value="{{ status_value }}" {% if request.GET.status == status_value %}selected{% endif %}>
-                                    {{ status_label }}
-                                </option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                        <div class="col-md-3 form-group">
-                            <label for="activity_type">Activity Type</label>
-                            <select name="activity_type" id="activity_type" class="form-control">
-                                <option value="">All</option>
-                                {% for type_value, type_label in activity_types %}
-                                <option value="{{ type_value }}" {% if request.GET.activity_type == type_value %}selected{% endif %}>
-                                    {{ type_label }}
-                                </option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                        <div class="col-md-3 form-group">
-                            <label for="semester">Semester</label>
-                            <select name="semester" id="semester" class="form-control">
-                                <option value="">All</option>
-                                {% for sem_value, sem_label in semester_choices %}
-                                <option value="{{ sem_value }}" {% if request.GET.semester == sem_value %}selected{% endif %}>
-                                    {{ sem_label }}
-                                </option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                        <div class="col-md-3 form-group d-flex align-items-end">
-                            <button type="submit" class="btn btn-primary btn-block">
-                                <i class="fas fa-filter"></i> Apply Filters
-                            </button>
-                        </div>
-                    </form>
+                {% endif %}
+                {% if activity.max_marks %}
+                <div class="detail-item">
+                    <strong>Maximum Marks:</strong>
+                    <p>{{ activity.max_marks }}</p>
                 </div>
+                {% endif %}
             </div>
-
-            <!-- Activities List -->
-            {% for activity in activities %}
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title">{{ activity.title }}</h3>
-                    <div class="card-tools">
-                        <a href="{% url 'edit_college_activity' activity.id %}" class="btn btn-tool">
-                            <i class="fas fa-edit"></i>
-                        </a>
-                        <a href="{% url 'delete_college_activity' activity.id %}" class="btn btn-tool" 
-                           onclick="return confirm('Are you sure you want to delete this activity?')">
-                            <i class="fas fa-trash"></i>
-                        </a>
-                    </div>
-                </div>
-                <div class="card-body">
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <span class="badge {% if activity.status == 'upcoming' %}badge-info
-                                             {% elif activity.status == 'ongoing' %}badge-success
-                                             {% elif activity.status == 'completed' %}badge-secondary
-                                             {% else %}badge-danger{% endif %}">
-                                {{ activity.get_status_display }}
-                            </span>
-                            <span class="ml-2">{{ activity.get_activity_type_display }}</span>
-                            <span class="ml-2">{{ activity.target_branch }} - Semester {{ activity.target_semester }}</span>
-                        </div>
-                    </div>
-
-                    <p>{{ activity.description }}</p>
-
-                    <div class="row">
-                        <div class="col-md-6">
-                            <h5>Schedule</h5>
-                            <p><strong>Start:</strong> {{ activity.start_date|date:"F j, Y, g:i a" }}</p>
-                            <p><strong>End:</strong> {{ activity.end_date|date:"F j, Y, g:i a" }}</p>
-                        </div>
-
-                        {% if activity.venue or activity.online_meeting_link %}
-                        <div class="col-md-6">
-                            <h5>Location</h5>
-                            {% if activity.venue %}
-                            <p><strong>Venue:</strong> {{ activity.venue }}</p>
-                            {% endif %}
-                            {% if activity.online_meeting_link %}
-                            <p><strong>Online Link:</strong> 
-                                <a href="{{ activity.online_meeting_link }}" target="_blank">Join Meeting</a>
-                            </p>
-                            {% endif %}
-                        </div>
-                        {% endif %}
-                    </div>
-
-                    {% if activity.assessment_criteria or activity.max_marks %}
-                    <div class="row mt-3">
-                        <div class="col-12">
-                            <h5>Assessment Details</h5>
-                            {% if activity.assessment_criteria %}
-                            <p>{{ activity.assessment_criteria }}</p>
-                            {% endif %}
-                            {% if activity.max_marks %}
-                            <p><strong>Maximum Marks:</strong> {{ activity.max_marks }}</p>
-                            {% endif %}
-                        </div>
-                    </div>
-                    {% endif %}
-
-                    {% if activity.attachments %}
-                    <div class="row mt-3">
-                        <div class="col-12">
-                            <h5>Attachments</h5>
-                            <a href="{{ activity.attachments.url }}" target="_blank" class="btn btn-sm btn-outline-primary">
-                                <i class="fas fa-download"></i> Download Attachment
-                            </a>
-                        </div>
-                    </div>
-                    {% endif %}
-                </div>
-            </div>
-            {% empty %}
-            <div class="card">
-                <div class="card-body text-center text-muted">
-                    No activities found. Click "Add New Activity" to create one.
-                </div>
-            </div>
-            {% endfor %}
+            {% endif %}
         </div>
-    </section>
+
+        {% if activity.attachments %}
+        <div class="detail-group">
+            <a href="{{ activity.attachments.url }}" target="_blank" class="attachment-link">
+                <i class="fas fa-download"></i> Download Attachment
+            </a>
+        </div>
+        {% endif %}
+    </div>
+    {% empty %}
+    <div class="empty-state">
+        <p>No activities found. Click "Add New Activity" to create one.</p>
+    </div>
+    {% endfor %}
 </div>
 {% endblock %}

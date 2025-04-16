@@ -1,125 +1,518 @@
 {% extends 'college/base.html' %}
 {% load static %}
 
+{% block title %}Add Project Assessment{% endblock %}
+
+{% block extra_css %}
+<style>
+    .content-wrapper {
+        padding: 2rem 0;
+        position: relative;
+        z-index: 2;
+    }
+
+    .header-section {
+        background: rgba(10, 10, 10, 0.8);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(30, 30, 30, 0.8);
+        border-radius: 16px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        text-align: center;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+        position: relative;
+        overflow: hidden;
+        animation: fadeInDown 0.8s ease-out forwards;
+    }
+
+    .header-section::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(45deg, rgba(20, 20, 20, 0.3), transparent);
+        z-index: -1;
+    }
+
+    .header-section h1 {
+        font-size: 2.2rem;
+        font-weight: 800;
+        letter-spacing: -0.5px;
+        line-height: 1.2;
+        margin-bottom: 0.5rem;
+        color: white;
+        opacity: 0;
+        animation: fadeIn 0.6s ease-out 0.4s forwards;
+    }
+
+    .header-section h1 span {
+        color: #9d4edd;
+        position: relative;
+        display: inline-block;
+    }
+
+    .header-section h1 span::after {
+        content: "";
+        position: absolute;
+        bottom: 5px;
+        left: 0;
+        width: 0;
+        height: 8px;
+        background-color: rgba(157, 78, 221, 0.15);
+        z-index: -1;
+        border-radius: 4px;
+        animation: lineGrow 0.6s ease-out 1s forwards;
+    }
+
+    .form-container {
+        background: rgba(10, 10, 10, 0.8);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(30, 30, 30, 0.8);
+        border-radius: 16px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+        position: relative;
+        overflow: hidden;
+        opacity: 0;
+        animation: fadeInUp 0.8s ease-out 0.6s forwards;
+    }
+
+    .form-container::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 3px;
+        height: 0;
+        background: #9d4edd;
+        animation: verticalLineGrow 0.8s ease-out 1.4s forwards;
+    }
+
+    .form-section {
+        margin-bottom: 2rem;
+        opacity: 0;
+        animation: fadeIn 0.6s ease-out 1s forwards;
+    }
+
+    .form-section h3 {
+        color: #e0e0e0;
+        font-size: 1.3rem;
+        font-weight: 600;
+        margin-bottom: 1.5rem;
+        position: relative;
+        display: inline-block;
+        padding-bottom: 0.5rem;
+    }
+
+    .form-section h3::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 0;
+        height: 2px;
+        background: #9d4edd;
+        border-radius: 2px;
+        animation: lineGrow 0.6s ease-out 1.2s forwards;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-group label {
+        display: block;
+        color: #9d4edd;
+        font-size: 0.95rem;
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+        opacity: 0.8;
+    }
+
+    .form-control {
+        background: rgba(20, 20, 20, 0.8);
+        border: 1px solid rgba(50, 50, 50, 0.8);
+        border-radius: 8px;
+        padding: 0.75rem 1rem;
+        color: #e0e0e0;
+        width: 100%;
+        transition: all 0.3s ease;
+    }
+
+    .form-control:focus {
+        border-color: #9d4edd;
+        box-shadow: 0 0 0 2px rgba(157, 78, 221, 0.2);
+        outline: none;
+    }
+
+    .custom-file {
+        position: relative;
+    }
+
+    .custom-file-input {
+        position: absolute;
+        height: 0;
+        width: 0;
+        opacity: 0;
+    }
+
+    .custom-file-label {
+        background: rgba(20, 20, 20, 0.8);
+        border: 1px solid rgba(50, 50, 50, 0.8);
+        border-radius: 8px;
+        padding: 0.75rem 1rem;
+        color: #9d9d9d;
+        width: 100%;
+        display: block;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .custom-file-label:hover {
+        border-color: rgba(157, 78, 221, 0.3);
+    }
+
+    .custom-file-label::after {
+        content: "Browse";
+        position: absolute;
+        right: 0;
+        top: 0;
+        bottom: 0;
+        background: rgba(30, 30, 30, 0.8);
+        color: #9d4edd;
+        display: flex;
+        align-items: center;
+        padding: 0 1rem;
+        border-radius: 0 8px 8px 0;
+        border-left: 1px solid rgba(50, 50, 50, 0.8);
+    }
+
+    .custom-control {
+        display: flex;
+        align-items: center;
+        margin-top: 1rem;
+    }
+
+    .custom-control-input {
+        position: absolute;
+        opacity: 0;
+        height: 0;
+        width: 0;
+    }
+
+    .custom-control-label {
+        position: relative;
+        padding-left: 2rem;
+        cursor: pointer;
+        color: #e0e0e0;
+    }
+
+    .custom-control-label::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0.2rem;
+        width: 1.25rem;
+        height: 1.25rem;
+        background: rgba(20, 20, 20, 0.8);
+        border: 1px solid rgba(50, 50, 50, 0.8);
+        border-radius: 4px;
+        transition: all 0.3s ease;
+    }
+
+    .custom-control-input:checked ~ .custom-control-label::before {
+        background: #9d4edd;
+        border-color: #9d4edd;
+    }
+
+    .custom-control-input:checked ~ .custom-control-label::after {
+        content: '✓';
+        position: absolute;
+        left: 0.35rem;
+        top: 0.1rem;
+        color: white;
+        font-size: 0.9rem;
+    }
+
+    .form-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 1rem;
+        margin-top: 2rem;
+        opacity: 0;
+        animation: fadeIn 0.6s ease-out 1.4s forwards;
+    }
+
+    .btn {
+        padding: 0.7rem 1.8rem;
+        border-radius: 8px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        border: none;
+    }
+
+    .btn-secondary {
+        background: rgba(20, 20, 20, 0.8);
+        color: #9d9d9d;
+        border: 1px solid rgba(50, 50, 50, 0.8);
+    }
+
+    .btn-secondary:hover {
+        background: rgba(30, 30, 30, 0.8);
+        transform: translateY(-3px);
+    }
+
+    .btn-primary {
+        background: #9d4edd;
+        color: white;
+        box-shadow: 0 4px 12px rgba(157, 78, 221, 0.3);
+    }
+
+    .btn-primary:hover {
+        background: #8a2be2;
+        transform: translateY(-3px);
+        box-shadow: 0 6px 16px rgba(157, 78, 221, 0.4);
+    }
+
+    .alert {
+        background: rgba(20, 20, 20, 0.8);
+        backdrop-filter: blur(10px);
+        border-radius: 8px;
+        padding: 1rem;
+        margin-bottom: 1.5rem;
+        border-left: 4px solid;
+        animation: slideInRight 0.5s ease-out forwards;
+    }
+
+    .alert-success {
+        border-color: #4edd98;
+        color: #4edd98;
+    }
+
+    .alert-danger {
+        border-color: #ff6b6b;
+        color: #ff6b6b;
+    }
+
+    .alert .close {
+        background: none;
+        border: none;
+        color: inherit;
+        float: right;
+        font-size: 1.25rem;
+        line-height: 1;
+        opacity: 0.5;
+        cursor: pointer;
+    }
+
+    .alert .close:hover {
+        opacity: 1;
+    }
+
+    /* Animation Keyframes */
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+        to {
+            opacity: 1;
+        }
+    }
+    
+    @keyframes fadeInDown {
+        from {
+            opacity: 0;
+            transform: translateY(-30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    @keyframes slideInRight {
+        from {
+            opacity: 0;
+            transform: translateX(-30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+    
+    @keyframes lineGrow {
+        from {
+            width: 0;
+        }
+        to {
+            width: 100%;
+        }
+    }
+
+    @keyframes verticalLineGrow {
+        from {
+            height: 0;
+        }
+        to {
+            height: 100%;
+        }
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .header-section h1 {
+            font-size: 1.8rem;
+        }
+        
+        .form-actions {
+            flex-direction: column;
+        }
+        
+        .btn {
+            width: 100%;
+        }
+    }
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="content-wrapper">
-    <div class="content-header">
-        <div class="container-fluid">
-            <div class="row mb-2">
-                <div class="col-sm-6">
-                    <h1 class="m-0">Add Project Assessment</h1>
+    <div class="container-fluid">
+        <div class="header-section">
+            <h1>Add <span>Project Assessment</span></h1>
+        </div>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert {% if message.tags == 'success' %}alert-success{% else %}alert-danger{% endif %} alert-dismissible fade show">
+                    {{ message }}
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
                 </div>
-            </div>
+            {% endfor %}
+        {% endif %}
+
+        <div class="form-container">
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                
+                <div class="form-section">
+                    <h3>Basic Information</h3>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="title">Title</label>
+                                <input type="text" name="title" id="title" required class="form-control">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="target_semester">Target Semester</label>
+                                <select name="target_semester" id="target_semester" required class="form-control">
+                                    {% for sem_value, sem_label in semester_choices %}
+                                    <option value="{{ sem_value }}">{{ sem_label }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="target_branch">Target Branch</label>
+                                <input type="text" name="target_branch" id="target_branch" required class="form-control"
+                                    placeholder="e.g., CSE, ECE, ME">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h3>Schedule & Grading</h3>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="start_date">Start Date & Time</label>
+                                <input type="datetime-local" name="start_date" id="start_date" required class="form-control">
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="end_date">End Date & Time</label>
+                                <input type="datetime-local" name="end_date" id="end_date" required class="form-control">
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="max_marks">Maximum Marks</label>
+                                <input type="number" name="max_marks" id="max_marks" class="form-control">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h3>Assessment Details</h3>
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="form-group">
+                                <label for="description">Description</label>
+                                <textarea name="description" id="description" rows="4" required class="form-control" 
+                                    placeholder="Provide detailed information about this project assessment..."></textarea>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="form-group">
+                                <label for="assessment_criteria">Assessment Criteria</label>
+                                <textarea name="assessment_criteria" id="assessment_criteria" rows="3" class="form-control"
+                                    placeholder="Describe how students will be evaluated..."></textarea>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="form-group">
+                                <label for="resources">Resources</label>
+                                <div class="custom-file">
+                                    <input type="file" name="resources" id="resources" class="custom-file-input">
+                                    <label class="custom-file-label" for="resources">Choose file</label>
+                                </div>
+                                <small class="form-text text-muted" style="color: #9d9d9d !important;">Upload any supporting documents (PDF, DOC, etc.)</small>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="custom-control custom-checkbox">
+                                <input type="checkbox" name="submission_required" id="submission_required" class="custom-control-input" checked>
+                                <label class="custom-control-label" for="submission_required">Submission Required</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <a href="{% url 'project_assessment_list' %}" class="btn btn-secondary">
+                        Cancel
+                    </a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-plus-circle mr-2"></i> Add Assessment
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
-
-    <section class="content">
-        <div class="container-fluid">
-            {% if messages %}
-                {% for message in messages %}
-                    <div class="alert {% if message.tags == 'success' %}alert-success{% else %}alert-danger{% endif %} alert-dismissible fade show">
-                        {{ message }}
-                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                {% endfor %}
-            {% endif %}
-
-            <div class="card">
-                <div class="card-body">
-                    <form method="POST" enctype="multipart/form-data">
-                        {% csrf_token %}
-                        
-                        <div class="row">
-                            <!-- Basic Information -->
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="title">Title</label>
-                                    <input type="text" name="title" id="title" required class="form-control">
-                                </div>
-
-                                <div class="form-group">
-                                    <label for="target_semester">Target Semester</label>
-                                    <select name="target_semester" id="target_semester" required class="form-control">
-                                        {% for sem_value, sem_label in semester_choices %}
-                                        <option value="{{ sem_value }}">{{ sem_label }}</option>
-                                        {% endfor %}
-                                    </select>
-                                </div>
-
-                                <div class="form-group">
-                                    <label for="target_branch">Target Branch</label>
-                                    <input type="text" name="target_branch" id="target_branch" required class="form-control"
-                                        placeholder="e.g., CSE, ECE, ME">
-                                </div>
-                            </div>
-
-                            <!-- Schedule -->
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="start_date">Start Date & Time</label>
-                                    <input type="datetime-local" name="start_date" id="start_date" required class="form-control">
-                                </div>
-
-                                <div class="form-group">
-                                    <label for="end_date">End Date & Time</label>
-                                    <input type="datetime-local" name="end_date" id="end_date" required class="form-control">
-                                </div>
-
-                                <div class="form-group">
-                                    <label for="max_marks">Maximum Marks (Optional)</label>
-                                    <input type="number" name="max_marks" id="max_marks" class="form-control">
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Description and Assessment Details -->
-                        <div class="row mt-4">
-                            <div class="col-12">
-                                <div class="form-group">
-                                    <label for="description">Description</label>
-                                    <textarea name="description" id="description" rows="4" required class="form-control"></textarea>
-                                </div>
-
-                                <div class="form-group">
-                                    <label for="assessment_criteria">Assessment Criteria (Optional)</label>
-                                    <textarea name="assessment_criteria" id="assessment_criteria" rows="3" class="form-control"></textarea>
-                                </div>
-
-                                <div class="form-group">
-                                    <label for="resources">Resources (Optional)</label>
-                                    <div class="custom-file">
-                                        <input type="file" name="resources" id="resources" class="custom-file-input">
-                                        <label class="custom-file-label" for="resources">Choose file</label>
-                                    </div>
-                                    <small class="form-text text-muted">Upload any supporting documents (PDF, DOC, etc.)</small>
-                                </div>
-
-                                <div class="form-group">
-                                    <div class="custom-control custom-checkbox">
-                                        <input type="checkbox" name="submission_required" id="submission_required" class="custom-control-input" checked>
-                                        <label class="custom-control-label" for="submission_required">Submission Required</label>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="row mt-4">
-                            <div class="col-12 text-right">
-                                <a href="{% url 'project_assessment_list' %}" class="btn btn-secondary mr-2">
-                                    Cancel
-                                </a>
-                                <button type="submit" class="btn btn-primary">
-                                    Add Assessment
-                                </button>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </section>
 </div>
 {% endblock %}
 
@@ -131,5 +524,10 @@
         var label = e.target.nextElementSibling;
         label.innerHTML = fileName;
     });
+
+    // Add animation classes to form sections as they come into view
+    document.addEventListener('DOMContentLoaded', function() {
+        // Add any additional animations or interactive elements here
+    });
 </script>
-{% endblock %} 
+{% endblock %}

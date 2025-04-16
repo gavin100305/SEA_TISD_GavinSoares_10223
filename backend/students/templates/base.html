@@ -133,10 +133,6 @@
             <li><a href="{% url 'my_connections' %}" {% if request.resolver_match.url_name == 'my_connections' %}class="active"{% endif %}>My Connections</a></li>
             <li><a href="{% url 'my_groups' %}" {% if request.resolver_match.url_name == 'my_groups' %}class="active"{% endif %}>My Groups</a></li>
             <li><a href="{% url 'student_meetings' %}" {% if request.resolver_match.url_name == 'student_meetings' %}class="active"{% endif %}>Meetings</a></li>
-            <li><a href="#">Courses</a></li>
-            <li><a href="#">Assignments</a></li>
-            <li><a href="#">Grades</a></li>
-            <li><a href="#">Schedule</a></li>
         </ul>
         <div class="logout-link">
             <a href="{% url 'logout' %}">Logout</a>

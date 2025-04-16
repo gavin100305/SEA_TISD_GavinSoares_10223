@@ -1,156 +1,471 @@
 {% extends 'college/base.html' %}
 {% load static %}
 
+{% block title %}Registered Collaborators{% endblock %}
+
+{% block extra_css %}
+<style>
+    .dashboard-container {
+        padding: 2rem 0;
+        position: relative;
+        z-index: 2;
+    }
+
+    .header-section {
+        background: rgba(10, 10, 10, 0.8);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(30, 30, 30, 0.8);
+        border-radius: 16px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        text-align: center;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+        position: relative;
+        overflow: hidden;
+        animation: fadeInDown 0.8s ease-out forwards;
+    }
+
+    .header-section::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(45deg, rgba(20, 20, 20, 0.3), transparent);
+        z-index: -1;
+    }
+
+    .header-section h4 {
+        font-size: 2rem;
+        font-weight: 700;
+        letter-spacing: -0.5px;
+        line-height: 1.2;
+        color: white;
+        margin-bottom: 0;
+        opacity: 0;
+        animation: fadeIn 0.6s ease-out 0.4s forwards;
+    }
+
+    .header-section h4 span {
+        color: #9d4edd;
+        position: relative;
+        display: inline-block;
+    }
+
+    .header-section h4 span::after {
+        content: "";
+        position: absolute;
+        bottom: 5px;
+        left: 0;
+        width: 0;
+        height: 8px;
+        background-color: rgba(157, 78, 221, 0.15);
+        z-index: -1;
+        border-radius: 4px;
+        animation: lineGrow 0.6s ease-out 1s forwards;
+    }
+
+    .collaborator-card {
+        background: rgba(10, 10, 10, 0.8);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(30, 30, 30, 0.8);
+        border-radius: 16px;
+        margin-bottom: 1.5rem;
+        transition: all 0.3s ease;
+        opacity: 0;
+        transform: translateY(30px);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .collaborator-card:nth-child(1) {
+        animation: fadeInUp 0.6s ease-out 0.7s forwards;
+    }
+    
+    .collaborator-card:nth-child(2) {
+        animation: fadeInUp 0.6s ease-out 0.9s forwards;
+    }
+    
+    .collaborator-card:nth-child(3) {
+        animation: fadeInUp 0.6s ease-out 1.1s forwards;
+    }
+    
+    .collaborator-card:nth-child(4) {
+        animation: fadeInUp 0.6s ease-out 1.3s forwards;
+    }
+    
+    .collaborator-card:nth-child(5) {
+        animation: fadeInUp 0.6s ease-out 1.5s forwards;
+    }
+
+    .collaborator-card:hover {
+        transform: translateY(-10px);
+        border-color: rgba(157, 78, 221, 0.3);
+    }
+
+    .collaborator-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 3px;
+        height: 0;
+        background: #9d4edd;
+        transition: height 0.3s ease;
+    }
+
+    .collaborator-card:hover::before {
+        height: 100%;
+    }
+
+    .card-body {
+        padding: 2rem;
+    }
+
+    .profile-section {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+
+    .profile-image {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 3px solid rgba(157, 78, 221, 0.3);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+        transition: all 0.3s ease;
+    }
+
+    .collaborator-card:hover .profile-image {
+        transform: scale(1.05);
+        border-color: rgba(157, 78, 221, 0.6);
+    }
+
+    .profile-info {
+        padding-left: 1.5rem;
+        flex: 1;
+    }
+
+    .profile-info h5 {
+        color: #e0e0e0;
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin-bottom: 0.8rem;
+    }
+
+    .profile-info p {
+        color: #9d9d9d;
+        margin-bottom: 0.5rem;
+        font-size: 1rem;
+    }
+
+    .profile-info p strong {
+        color: #9d4edd;
+        font-weight: 500;
+        margin-right: 0.3rem;
+    }
+
+    .profile-info a {
+        color: #9d4edd;
+        text-decoration: none;
+        transition: all 0.3s ease;
+    }
+
+    .profile-info a:hover {
+        color: #be73ff;
+        text-decoration: underline;
+    }
+
+    .stats-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1.5rem;
+        margin-top: 2rem;
+    }
+
+    .stat-card {
+        flex: 1;
+        min-width: 200px;
+        background: rgba(20, 20, 20, 0.7);
+        border-radius: 12px;
+        padding: 1.5rem;
+        text-align: center;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+        transform: scale(0.95);
+    }
+
+    .collaborator-card:hover .stat-card {
+        transform: scale(1);
+        background: rgba(25, 25, 25, 0.8);
+    }
+
+    .stat-card h6 {
+        color: #9d4edd;
+        font-size: 1rem;
+        font-weight: 500;
+        margin-bottom: 0.5rem;
+        opacity: 0.9;
+    }
+
+    .stat-card h4 {
+        color: white;
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 0;
+    }
+
+    .table-section {
+        margin-top: 2rem;
+        background: rgba(20, 20, 20, 0.7);
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+    }
+
+    .table-section h6 {
+        color: #e0e0e0;
+        font-size: 1.1rem;
+        font-weight: 600;
+        padding: 1rem 1.5rem;
+        margin-bottom: 0;
+        border-bottom: 1px solid rgba(157, 78, 221, 0.2);
+    }
+
+    .table {
+        margin-bottom: 0;
+    }
+
+    .table thead th {
+        color: #9d4edd;
+        font-weight: 500;
+        padding: 1rem 1.5rem;
+        border-bottom: 1px solid rgba(157, 78, 221, 0.2);
+        background: rgba(10, 10, 10, 0.5);
+    }
+
+    .table tbody td {
+        color: #e0e0e0;
+        padding: 0.8rem 1.5rem;
+        border-bottom: 1px solid rgba(30, 30, 30, 0.8);
+    }
+
+    .table tbody tr:hover td {
+        background: rgba(157, 78, 221, 0.05);
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 3rem 0;
+        color: #9d9d9d;
+        opacity: 0;
+        animation: fadeIn 0.8s ease-out 0.8s forwards;
+    }
+
+    /* Animation Keyframes */
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+        to {
+            opacity: 1;
+        }
+    }
+    
+    @keyframes fadeInDown {
+        from {
+            opacity: 0;
+            transform: translateY(-30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    @keyframes lineGrow {
+        from {
+            width: 0;
+        }
+        to {
+            width: 100%;
+        }
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .profile-section {
+            flex-direction: column;
+            text-align: center;
+        }
+        
+        .profile-image {
+            margin-bottom: 1.5rem;
+        }
+        
+        .profile-info {
+            padding-left: 0;
+        }
+        
+        .stats-row {
+            flex-direction: column;
+        }
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="container-fluid py-4">
+<div class="dashboard-container container-fluid">
+    <div class="header-section">
+        <h4>Registered <span>Collaborators</span> ({{ total_collaborators }})</h4>
+    </div>
+
     <div class="row">
         <div class="col-12">
-            <div class="card mb-4">
-                <div class="card-header pb-0">
-                    <h4>Registered Collaborators ({{ total_collaborators }})</h4>
-                </div>
-                <div class="card-body px-0 pt-0 pb-2">
-                    {% for data in collaborator_data %}
-                    <div class="card mb-4 mx-4">
-                        <div class="card-body">
-                            <!-- Collaborator Profile -->
-                            <div class="row">
-                                <div class="col-md-3">
-                                    {% if data.profile.profile_picture %}
-                                        <img src="{{ data.profile.profile_picture.url }}" alt="Profile Picture" class="rounded-circle" style="width: 100px; height: 100px; object-fit: cover;">
-                                    {% endif %}
-                                </div>
-                                <div class="col-md-9">
-                                    <h5>{{ data.profile.full_name }}</h5>
-                                    <p><strong>Expertise:</strong> {{ data.profile.expertise }}</p>
-                                    <p><strong>Experience:</strong> {{ data.profile.experience_years }} years</p>
-                                    <p><strong>Email:</strong> {{ data.profile.user.email }}</p>
-                                    {% if data.profile.linkedin %}
-                                        <p><strong>LinkedIn:</strong> <a href="{{ data.profile.linkedin }}" target="_blank">Profile</a></p>
-                                    {% endif %}
-                                </div>
-                            </div>
-
-                            <!-- Collaboration Statistics -->
-                            <div class="row mt-4">
-                                <div class="col-md-4">
-                                    <div class="card bg-light">
-                                        <div class="card-body text-center">
-                                            <h6>Total Requests</h6>
-                                            <h4>{{ data.total_requests }}</h4>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="card bg-light">
-                                        <div class="card-body text-center">
-                                            <h6>Accepted Collaborations</h6>
-                                            <h4>{{ data.accepted_collaborations }}</h4>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Connected Students -->
-                            {% if data.connected_students %}
-                            <div class="mt-4">
-                                <h6>Connected Students:</h6>
-                                <div class="table-responsive">
-                                    <table class="table table-hover">
-                                        <thead>
-                                            <tr>
-                                                <th>Name</th>
-                                                <th>Roll Number</th>
-                                                <th>Branch</th>
-                                                <th>Semester</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {% for student in data.connected_students %}
-                                            <tr>
-                                                <td>{{ student.full_name }}</td>
-                                                <td>{{ student.roll_number }}</td>
-                                                <td>{{ student.branch }}</td>
-                                                <td>{{ student.semester }}</td>
-                                            </tr>
-                                            {% endfor %}
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                            {% endif %}
-
-                            <!-- Connected Groups -->
-                            {% if data.connected_groups %}
-                            <div class="mt-4">
-                                <h6>Connected Groups:</h6>
-                                <div class="table-responsive">
-                                    <table class="table table-hover">
-                                        <thead>
-                                            <tr>
-                                                <th>Group Name</th>
-                                                <th>Leader</th>
-                                                <th>Members</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {% for group in data.connected_groups %}
-                                            <tr>
-                                                <td>{{ group.name }}</td>
-                                                <td>{{ group.leader.full_name }}</td>
-                                                <td>{{ group.members.count }}</td>
-                                            </tr>
-                                            {% endfor %}
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                            {% endif %}
-
-                            <!-- Recent Collaborations -->
-                            {% if data.recent_collaborations %}
-                            <div class="mt-4">
-                                <h6>Recent Project Collaborations:</h6>
-                                <div class="table-responsive">
-                                    <table class="table table-hover">
-                                        <thead>
-                                            <tr>
-                                                <th>Project Title</th>
-                                                <th>Owner</th>
-                                                <th>Status</th>
-                                                <th>Tech Stack</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {% for collab in data.recent_collaborations %}
-                                            <tr>
-                                                <td>{{ collab.project.title }}</td>
-                                                <td>
-                                                    {% if collab.project.student %}
-                                                        {{ collab.project.student.full_name }}
-                                                    {% else %}
-                                                        {{ collab.project.group.name }}
-                                                    {% endif %}
-                                                </td>
-                                                <td>{{ collab.status }}</td>
-                                                <td>{{ collab.project.tech_stack }}</td>
-                                            </tr>
-                                            {% endfor %}
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
+            {% for data in collaborator_data %}
+            <div class="collaborator-card">
+                <div class="card-body">
+                    <!-- Collaborator Profile -->
+                    <div class="profile-section">
+                        {% if data.profile.profile_picture %}
+                            <img src="{{ data.profile.profile_picture.url }}" alt="Profile Picture" class="profile-image">
+                        {% endif %}
+                        <div class="profile-info">
+                            <h5>{{ data.profile.full_name }}</h5>
+                            <p><strong>Expertise:</strong> {{ data.profile.expertise }}</p>
+                            <p><strong>Experience:</strong> {{ data.profile.experience_years }} years</p>
+                            <p><strong>Email:</strong> {{ data.profile.user.email }}</p>
+                            {% if data.profile.linkedin %}
+                                <p><strong>LinkedIn:</strong> <a href="{{ data.profile.linkedin }}" target="_blank">Profile</a></p>
                             {% endif %}
                         </div>
                     </div>
-                    {% empty %}
-                    <div class="text-center py-4">
-                        <p>No collaborators registered yet.</p>
+
+                    <!-- Collaboration Statistics -->
+                    <div class="stats-row">
+                        <div class="stat-card">
+                            <h6>Total Requests</h6>
+                            <h4>{{ data.total_requests }}</h4>
+                        </div>
+                        <div class="stat-card">
+                            <h6>Accepted Collaborations</h6>
+                            <h4>{{ data.accepted_collaborations }}</h4>
+                        </div>
                     </div>
-                    {% endfor %}
+
+                    <!-- Connected Students -->
+                    {% if data.connected_students %}
+                    <div class="table-section">
+                        <h6>Connected Students</h6>
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Roll Number</th>
+                                        <th>Branch</th>
+                                        <th>Semester</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for student in data.connected_students %}
+                                    <tr>
+                                        <td>{{ student.full_name }}</td>
+                                        <td>{{ student.roll_number }}</td>
+                                        <td>{{ student.branch }}</td>
+                                        <td>{{ student.semester }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- Connected Groups -->
+                    {% if data.connected_groups %}
+                    <div class="table-section">
+                        <h6>Connected Groups</h6>
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Group Name</th>
+                                        <th>Leader</th>
+                                        <th>Members</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for group in data.connected_groups %}
+                                    <tr>
+                                        <td>{{ group.name }}</td>
+                                        <td>{{ group.leader.full_name }}</td>
+                                        <td>{{ group.members.count }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- Recent Collaborations -->
+                    {% if data.recent_collaborations %}
+                    <div class="table-section">
+                        <h6>Recent Project Collaborations</h6>
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Project Title</th>
+                                        <th>Owner</th>
+                                        <th>Status</th>
+                                        <th>Tech Stack</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for collab in data.recent_collaborations %}
+                                    <tr>
+                                        <td>{{ collab.project.title }}</td>
+                                        <td>
+                                            {% if collab.project.student %}
+                                                {{ collab.project.student.full_name }}
+                                            {% else %}
+                                                {{ collab.project.group.name }}
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ collab.status }}</td>
+                                        <td>{{ collab.project.tech_stack }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    {% endif %}
                 </div>
             </div>
+            {% empty %}
+            <div class="empty-state">
+                <p>No collaborators registered yet.</p>
+            </div>
+            {% endfor %}
         </div>
     </div>
 </div>
-{% endblock %} 
+{% endblock %}

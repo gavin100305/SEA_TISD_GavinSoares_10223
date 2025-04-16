@@ -1,169 +1,471 @@
 {% extends 'college/base.html' %}
 {% block title %}Edit NGO - College Portal{% endblock %}
 
+{% block extra_css %}
+<style>
+    .ngo-form-container {
+        padding: 2rem 0;
+        position: relative;
+        z-index: 2;
+    }
+
+    .header-section {
+        background: rgba(10, 10, 10, 0.8);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(30, 30, 30, 0.8);
+        border-radius: 16px;
+        padding: 2.5rem;
+        margin-bottom: 3rem;
+        text-align: center;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+        position: relative;
+        overflow: hidden;
+        animation: fadeInDown 0.8s ease-out forwards;
+    }
+
+    .header-section::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(45deg, rgba(20, 20, 20, 0.3), transparent);
+        z-index: -1;
+    }
+
+    .header-section h2 {
+        font-size: 2.5rem;
+        font-weight: 800;
+        letter-spacing: -0.5px;
+        line-height: 1.2;
+        margin-bottom: 1rem;
+        color: white;
+        opacity: 0;
+        animation: fadeIn 0.6s ease-out 0.4s forwards;
+    }
+
+    .header-section h2 span {
+        color: #9d4edd;
+        position: relative;
+        display: inline-block;
+    }
+
+    .header-section h2 span::after {
+        content: "";
+        position: absolute;
+        bottom: 5px;
+        left: 0;
+        width: 0;
+        height: 8px;
+        background-color: rgba(157, 78, 221, 0.15);
+        z-index: -1;
+        border-radius: 4px;
+        animation: lineGrow 0.6s ease-out 1s forwards;
+    }
+
+    .header-section p {
+        color: #9d9d9d;
+        font-size: 1.1rem;
+        margin-bottom: 0;
+        opacity: 0;
+        animation: fadeIn 0.6s ease-out 0.6s forwards;
+    }
+
+    .form-card {
+        background: rgba(10, 10, 10, 0.8);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(30, 30, 30, 0.8);
+        border-radius: 16px;
+        padding: 2rem;
+        height: 100%;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+        position: relative;
+        overflow: hidden;
+        opacity: 0;
+        transform: translateY(30px);
+        animation: fadeInUp 0.6s ease-out 0.7s forwards;
+    }
+    
+    .form-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 3px;
+        height: 0;
+        background: #9d4edd;
+        transition: height 0.3s ease;
+    }
+
+    .form-card:hover::before {
+        height: 100%;
+    }
+
+    .info-card {
+        background: rgba(10, 10, 10, 0.8);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(30, 30, 30, 0.8);
+        border-radius: 16px;
+        padding: 1.5rem;
+        height: 100%;
+        transition: all 0.3s ease;
+        margin-bottom: 1.5rem;
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    .info-card:nth-child(1) {
+        animation: fadeInUp 0.6s ease-out 0.9s forwards;
+    }
+    
+    .info-card:nth-child(2) {
+        animation: fadeInUp 0.6s ease-out 1.1s forwards;
+    }
+
+    .info-card:hover {
+        transform: translateY(-5px);
+        border-color: rgba(157, 78, 221, 0.3);
+    }
+
+    .info-card h5 {
+        color: #e0e0e0;
+        font-size: 1.3rem;
+        font-weight: 600;
+        margin-bottom: 1.5rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 1px solid rgba(30, 30, 30, 0.8);
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-label {
+        color: #e0e0e0;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        font-size: 1rem;
+    }
+
+    .input-group-text {
+        background: rgba(157, 78, 221, 0.3);
+        border-color: rgba(157, 78, 221, 0.6);
+        color: #d3b1fc;
+    }
+
+    .form-control {
+        background: rgba(40, 40, 60, 0.6);
+        border-color: rgba(157, 78, 221, 0.5);
+        color: #F3F4F6;
+        transition: all 0.3s ease;
+    }
+
+    .form-control:focus {
+        box-shadow: 0 0 0 0.25rem rgba(157, 78, 221, 0.25);
+        border-color: rgba(157, 78, 221, 0.7);
+    }
+
+    .btn {
+        padding: 0.6rem 1.5rem;
+        border-radius: 8px;
+        border: none;
+        cursor: pointer;
+        font-size: 0.95rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+    .btn-primary {
+        background: linear-gradient(90deg, #b366ff, #9d4edd);
+        color: white;
+        border: none;
+        box-shadow: 0 4px 15px rgba(157, 78, 221, 0.3);
+        opacity: 0;
+        animation: fadeIn 0.5s ease-out 1.3s forwards;
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 20px rgba(157, 78, 221, 0.4);
+    }
+
+    .btn-outline-secondary {
+        background: transparent;
+        border: 1px solid rgba(157, 78, 221, 0.7);
+        color: #d3b1fc;
+        opacity: 0;
+        animation: fadeIn 0.5s ease-out 1.3s forwards;
+    }
+
+    .btn-outline-secondary:hover {
+        background: rgba(157, 78, 221, 0.1);
+        transform: translateY(-3px);
+    }
+
+    .btn-danger {
+        background: linear-gradient(90deg, #dc3545, #c82333);
+        color: white;
+        border: none;
+        box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3);
+        opacity: 0;
+        animation: fadeIn 0.5s ease-out 1.3s forwards;
+    }
+
+    .btn-danger:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 20px rgba(220, 53, 69, 0.4);
+    }
+
+    .alert {
+        background: rgba(179, 102, 255, 0.15);
+        border: 1px solid rgba(157, 78, 221, 0.5);
+        color: #e6d8ff;
+        border-radius: 8px;
+    }
+
+    .text-muted {
+        color: #b8b9e3 !important;
+    }
+
+    .modal-content {
+        background: rgba(10, 10, 10, 0.95);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(157, 78, 221, 0.5);
+        border-radius: 16px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+    }
+
+    .modal-header, .modal-footer {
+        border-color: rgba(157, 78, 221, 0.3);
+    }
+
+    .modal-title {
+        color: white;
+    }
+
+    .text-warning {
+        color: #ffbb00 !important;
+    }
+
+    /* Animation Keyframes */
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+        to {
+            opacity: 1;
+        }
+    }
+    
+    @keyframes fadeInDown {
+        from {
+            opacity: 0;
+            transform: translateY(-30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    @keyframes lineGrow {
+        from {
+            width: 0;
+        }
+        to {
+            width: 100%;
+        }
+    }
+
+    .img-preview {
+        max-width: 200px;
+        border-radius: 8px;
+        border: 1px solid rgba(157, 78, 221, 0.5);
+        box-shadow: 0 4px 15px rgba(157, 78, 221, 0.2);
+        transition: all 0.3s ease;
+    }
+
+    .img-preview:hover {
+        transform: scale(1.05);
+        box-shadow: 0 6px 20px rgba(157, 78, 221, 0.3);
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .header-section h2 {
+            font-size: 2rem;
+        }
+        
+        .header-section p {
+            font-size: 1rem;
+        }
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="container-fluid">
-    <div class="row mb-4">
-        <div class="col-12">
-            <h2 class="text-light mb-0"><i class="fas fa-edit me-2 text-primary" style="color: #9d4edd !important;"></i>Edit NGO: {{ ngo.name }}</h2>
-            <p class="text-secondary" style="color: #D1D5DB !important;">Update the NGO partner information</p>
-        </div>
+<div class="ngo-form-container">
+    <div class="header-section">
+        <h2>Edit <span>NGO</span>: {{ ngo.name }}</h2>
+        <p>Update the NGO partner information</p>
     </div>
 
     <div class="row">
         <div class="col-lg-8">
-            <div class="card" style="background: rgba(40, 40, 50, 0.6); backdrop-filter: blur(10px); border: 1px solid rgba(157, 78, 221, 0.5); border-radius: 12px; box-shadow: 0 4px 20px rgba(157, 78, 221, 0.15);">
-                <div class="card-body p-4">
-                    <form method="post" enctype="multipart/form-data">
-                        {% csrf_token %}
-                        
-                        <div class="row">
-                            <!-- Left column -->
-                            <div class="col-md-6">
-                                <div class="form-group mb-4">
-                                    <label for="id_name" class="form-label text-light fw-bold">NGO Name</label>
-                                    {{ form.name.errors }}
-                                    <div class="input-group">
-                                        <span class="input-group-text" style="background: rgba(157, 78, 221, 0.3); border-color: rgba(157, 78, 221, 0.6);">
-                                            <i class="fas fa-building" style="color: #d3b1fc;"></i>
-                                        </span>
-                                        <input type="text" name="name" id="id_name" class="form-control" value="{{ ngo.name }}" required 
-                                               style="background: rgba(40, 40, 60, 0.6); border-color: rgba(157, 78, 221, 0.5); color: #F3F4F6;">
-                                    </div>
-                                </div>
-                                
-                                <div class="form-group mb-4">
-                                    <label for="id_description" class="form-label text-light fw-bold">Description</label>
-                                    {{ form.description.errors }}
-                                    <textarea name="description" id="id_description" class="form-control" rows="4" required
-                                              style="background: rgba(40, 40, 60, 0.6); border-color: rgba(157, 78, 221, 0.5); color: #F3F4F6;">{{ ngo.description }}</textarea>
-                                </div>
-                                
-                                <div class="form-group mb-4">
-                                    <label for="id_requirements" class="form-label text-light fw-bold">Requirements</label>
-                                    {{ form.requirements.errors }}
-                                    <textarea name="requirements" id="id_requirements" class="form-control" rows="4" required
-                                              style="background: rgba(40, 40, 60, 0.6); border-color: rgba(157, 78, 221, 0.5); color: #F3F4F6;">{{ ngo.requirements }}</textarea>
-                                    <small class="text-muted" style="color: #b8b9e3 !important;">Describe what the NGO needs or is looking for</small>
+            <div class="form-card">
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    
+                    <div class="row">
+                        <!-- Left column -->
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="id_name" class="form-label">NGO Name</label>
+                                {{ form.name.errors }}
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        <i class="fas fa-building"></i>
+                                    </span>
+                                    <input type="text" name="name" id="id_name" class="form-control" value="{{ ngo.name }}" required>
                                 </div>
                             </div>
                             
-                            <!-- Right column -->
-                            <div class="col-md-6">
-                                <div class="form-group mb-4">
-                                    <label for="id_contact_person" class="form-label text-light fw-bold">Contact Person</label>
-                                    {{ form.contact_person.errors }}
-                                    <div class="input-group">
-                                        <span class="input-group-text" style="background: rgba(157, 78, 221, 0.3); border-color: rgba(157, 78, 221, 0.6);">
-                                            <i class="fas fa-user" style="color: #d3b1fc;"></i>
-                                        </span>
-                                        <input type="text" name="contact_person" id="id_contact_person" class="form-control" value="{{ ngo.contact_person|default_if_none:'' }}"
-                                               style="background: rgba(40, 40, 60, 0.6); border-color: rgba(157, 78, 221, 0.5); color: #F3F4F6;">
-                                    </div>
-                                </div>
-                                
-                                <div class="form-group mb-4">
-                                    <label for="id_contact_email" class="form-label text-light fw-bold">Contact Email</label>
-                                    {{ form.contact_email.errors }}
-                                    <div class="input-group">
-                                        <span class="input-group-text" style="background: rgba(157, 78, 221, 0.3); border-color: rgba(157, 78, 221, 0.6);">
-                                            <i class="fas fa-envelope" style="color: #d3b1fc;"></i>
-                                        </span>
-                                        <input type="email" name="contact_email" id="id_contact_email" class="form-control" value="{{ ngo.contact_email|default_if_none:'' }}"
-                                               style="background: rgba(40, 40, 60, 0.6); border-color: rgba(157, 78, 221, 0.5); color: #F3F4F6;">
-                                    </div>
-                                </div>
-                                
-                                <div class="form-group mb-4">
-                                    <label for="id_contact_phone" class="form-label text-light fw-bold">Contact Phone</label>
-                                    {{ form.contact_phone.errors }}
-                                    <div class="input-group">
-                                        <span class="input-group-text" style="background: rgba(157, 78, 221, 0.3); border-color: rgba(157, 78, 221, 0.6);">
-                                            <i class="fas fa-phone" style="color: #d3b1fc;"></i>
-                                        </span>
-                                        <input type="text" name="contact_phone" id="id_contact_phone" class="form-control" value="{{ ngo.contact_phone|default_if_none:'' }}"
-                                               style="background: rgba(40, 40, 60, 0.6); border-color: rgba(157, 78, 221, 0.5); color: #F3F4F6;">
-                                    </div>
-                                </div>
-                                
-                                <div class="form-group mb-4">
-                                    <label for="id_website" class="form-label text-light fw-bold">Website</label>
-                                    {{ form.website.errors }}
-                                    <div class="input-group">
-                                        <span class="input-group-text" style="background: rgba(157, 78, 221, 0.3); border-color: rgba(157, 78, 221, 0.6);">
-                                            <i class="fas fa-globe" style="color: #d3b1fc;"></i>
-                                        </span>
-                                        <input type="url" name="website" id="id_website" class="form-control" value="{{ ngo.website|default_if_none:'' }}"
-                                               style="background: rgba(40, 40, 60, 0.6); border-color: rgba(157, 78, 221, 0.5); color: #F3F4F6;">
-                                    </div>
-                                </div>
+                            <div class="form-group">
+                                <label for="id_description" class="form-label">Description</label>
+                                {{ form.description.errors }}
+                                <textarea name="description" id="id_description" class="form-control" rows="4" required>{{ ngo.description }}</textarea>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="id_requirements" class="form-label">Requirements</label>
+                                {{ form.requirements.errors }}
+                                <textarea name="requirements" id="id_requirements" class="form-control" rows="4" required>{{ ngo.requirements }}</textarea>
+                                <small class="text-muted">Describe what the NGO needs or is looking for</small>
                             </div>
                         </div>
                         
-                        <div class="row mt-2">
-                            <div class="col-md-12">
-                                <div class="form-group mb-4">
-                                    <label for="id_address" class="form-label text-light fw-bold">Address</label>
-                                    {{ form.address.errors }}
-                                    <div class="input-group">
-                                        <span class="input-group-text" style="background: rgba(157, 78, 221, 0.3); border-color: rgba(157, 78, 221, 0.6);">
-                                            <i class="fas fa-map-marker-alt" style="color: #d3b1fc;"></i>
-                                        </span>
-                                        <textarea name="address" id="id_address" class="form-control" rows="3"
-                                                  style="background: rgba(40, 40, 60, 0.6); border-color: rgba(157, 78, 221, 0.5); color: #F3F4F6;">{{ ngo.address|default_if_none:'' }}</textarea>
-                                    </div>
+                        <!-- Right column -->
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="id_contact_person" class="form-label">Contact Person</label>
+                                {{ form.contact_person.errors }}
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        <i class="fas fa-user"></i>
+                                    </span>
+                                    <input type="text" name="contact_person" id="id_contact_person" class="form-control" value="{{ ngo.contact_person|default_if_none:'' }}">
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="id_contact_email" class="form-label">Contact Email</label>
+                                {{ form.contact_email.errors }}
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        <i class="fas fa-envelope"></i>
+                                    </span>
+                                    <input type="email" name="contact_email" id="id_contact_email" class="form-control" value="{{ ngo.contact_email|default_if_none:'' }}">
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="id_contact_phone" class="form-label">Contact Phone</label>
+                                {{ form.contact_phone.errors }}
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        <i class="fas fa-phone"></i>
+                                    </span>
+                                    <input type="text" name="contact_phone" id="id_contact_phone" class="form-control" value="{{ ngo.contact_phone|default_if_none:'' }}">
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="id_website" class="form-label">Website</label>
+                                {{ form.website.errors }}
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        <i class="fas fa-globe"></i>
+                                    </span>
+                                    <input type="url" name="website" id="id_website" class="form-control" value="{{ ngo.website|default_if_none:'' }}">
                                 </div>
                             </div>
                         </div>
-                        
-                        <div class="row">
-                            <div class="col-md-12">
-                                <div class="form-group mb-4">
-                                    <label for="id_image" class="form-label text-light fw-bold">NGO Image</label>
-                                    {{ form.image.errors }}
-                                    <div class="input-group">
-                                        <span class="input-group-text" style="background: rgba(157, 78, 221, 0.3); border-color: rgba(157, 78, 221, 0.6);">
-                                            <i class="fas fa-image" style="color: #d3b1fc;"></i>
-                                        </span>
-                                        <input type="file" name="image" id="id_image" class="form-control"
-                                               style="background: rgba(40, 40, 60, 0.6); border-color: rgba(157, 78, 221, 0.5); color: #F3F4F6;">
-                                    </div>
-                                    <small class="text-muted" style="color: #b8b9e3 !important;">Upload a new image to replace the current one</small>
-                                    {% if ngo.image %}
-                                        <div class="mt-2">
-                                            <img src="{{ ngo.image.url }}" alt="{{ ngo.name }}" style="max-width: 200px; border-radius: 8px; border: 1px solid rgba(157, 78, 221, 0.5);">
-                                            <p class="text-muted" style="color: #b8b9e3 !important;">Current image</p>
-                                        </div>
-                                    {% endif %}
+                    </div>
+                    
+                    <div class="row mt-2">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="id_address" class="form-label">Address</label>
+                                {{ form.address.errors }}
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        <i class="fas fa-map-marker-alt"></i>
+                                    </span>
+                                    <textarea name="address" id="id_address" class="form-control" rows="3">{{ ngo.address|default_if_none:'' }}</textarea>
                                 </div>
                             </div>
                         </div>
-                        
-                        <div class="form-group text-end mt-4">
-                            <a href="{% url 'ngo_list' %}" class="btn btn-outline-secondary me-2" style="border-color: rgba(157, 78, 221, 0.7); color: #d3b1fc;">
-                                <i class="fas fa-times me-1"></i> Cancel
-                            </a>
-                            <button type="submit" class="btn" style="background: linear-gradient(90deg, #b366ff, #9d4edd); color: white; border: none; box-shadow: 0 4px 15px rgba(157, 78, 221, 0.3);">
-                                <i class="fas fa-save me-1"></i> Update NGO
-                            </button>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="id_image" class="form-label">NGO Image</label>
+                                {{ form.image.errors }}
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        <i class="fas fa-image"></i>
+                                    </span>
+                                    <input type="file" name="image" id="id_image" class="form-control">
+                                </div>
+                                <small class="text-muted">Upload a new image to replace the current one</small>
+                                {% if ngo.image %}
+                                    <div class="mt-2">
+                                        <img src="{{ ngo.image.url }}" alt="{{ ngo.name }}" class="img-preview">
+                                        <p class="text-muted">Current image</p>
+                                    </div>
+                                {% endif %}
+                            </div>
                         </div>
-                    </form>
-                </div>
+                    </div>
+                    
+                    <div class="form-group text-end mt-4">
+                        <a href="{% url 'ngo_list' %}" class="btn btn-outline-secondary me-2">
+                            <i class="fas fa-times me-1"></i> Cancel
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-1"></i> Update NGO
+                        </button>
+                        <button type="button" class="btn btn-danger ms-2" data-bs-toggle="modal" data-bs-target="#deleteNgoModal">
+                            <i class="fas fa-trash-alt me-1"></i> Delete
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
         
         <div class="col-lg-4">
-            <div class="card mb-4" style="background: rgba(40, 40, 50, 0.6); backdrop-filter: blur(10px); border: 1px solid rgba(157, 78, 221, 0.5); border-radius: 12px; box-shadow: 0 4px 20px rgba(157, 78, 221, 0.15);">
-                <div class="card-body p-4">
-                    <h5 class="text-light mb-3"><i class="fas fa-info-circle me-2" style="color: #b366ff;"></i>Information</h5>
-                    <p style="color: #d1d5db;">
-                        You're editing the information for <strong style="color: #e6d8ff;">{{ ngo.name }}</strong>. 
-                        Please ensure all required fields are completed correctly to maintain accurate NGO details.
-                    </p>
-                    <div class="alert" style="background: rgba(179, 102, 255, 0.15); border: 1px solid rgba(157, 78, 221, 0.5); color: #e6d8ff; border-radius: 8px;">
-                        <i class="fas fa-lightbulb me-2" style="color: #b366ff;"></i> 
-                        Updated information will be immediately visible to students on the platform.
-                    </div>
+            <div class="info-card">
+                <h5><i class="fas fa-info-circle me-2" style="color: #b366ff;"></i>Information</h5>
+                <p style="color: #d1d5db;">
+                    You're editing the information for <strong style="color: #e6d8ff;">{{ ngo.name }}</strong>. 
+                    Please ensure all required fields are completed correctly to maintain accurate NGO details.
+                </p>
+                <div class="alert">
+                    <i class="fas fa-lightbulb me-2" style="color: #b366ff;"></i> 
+                    Updated information will be immediately visible to students on the platform.
                 </div>
             </div>
         </div>
@@ -173,20 +475,20 @@
 <!-- Delete Confirmation Modal -->
 <div class="modal fade" id="deleteNgoModal" tabindex="-1" aria-labelledby="deleteNgoModalLabel" aria-hidden="true">
     <div class="modal-dialog">
-        <div class="modal-content" style="background: rgba(40, 40, 50, 0.95); backdrop-filter: blur(10px); border: 1px solid rgba(157, 78, 221, 0.5);">
-            <div class="modal-header" style="border-bottom: 1px solid rgba(157, 78, 221, 0.3);">
-                <h5 class="modal-title text-light" id="deleteNgoModalLabel">Confirm Deletion</h5>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteNgoModalLabel">Confirm Deletion</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <p class="text-light">Are you sure you want to delete the NGO "{{ ngo.name }}"?</p>
                 <p class="text-warning"><i class="fas fa-exclamation-triangle me-2"></i>This action cannot be undone.</p>
             </div>
-            <div class="modal-footer" style="border-top: 1px solid rgba(157, 78, 221, 0.3);">
-                <button type="button" class="btn btn-outline-secondary" style="border-color: rgba(157, 78, 221, 0.7); color: #d3b1fc;" data-bs-dismiss="modal">Cancel</button>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
                 <form method="post" action="{% url 'delete_ngo' ngo.id %}">
                     {% csrf_token %}
-                    <button type="submit" class="btn btn-danger" style="background: linear-gradient(90deg, #dc3545, #c82333); color: white; border: none;">Delete</button>
+                    <button type="submit" class="btn btn-danger">Delete</button>
                 </form>
             </div>
         </div>
@@ -225,13 +527,10 @@
                             previewDiv.className = 'mt-2';
                             
                             imagePreview = document.createElement('img');
-                            imagePreview.style.maxWidth = '200px';
-                            imagePreview.style.borderRadius = '8px';
-                            imagePreview.style.border = '1px solid rgba(157, 78, 221, 0.5)';
+                            imagePreview.className = 'img-preview';
                             
                             const previewText = document.createElement('p');
                             previewText.className = 'text-muted';
-                            previewText.style.color = '#b8b9e3 !important';
                             previewText.textContent = 'New image preview';
                             
                             previewDiv.appendChild(imagePreview);
@@ -245,6 +544,15 @@
                     reader.readAsDataURL(this.files[0]);
                 }
             });
+        }
+
+        // Apply some animation to existing elements
+        if (document.querySelector('.img-preview')) {
+            document.querySelector('.img-preview').style.opacity = '0';
+            setTimeout(() => {
+                document.querySelector('.img-preview').style.opacity = '1';
+                document.querySelector('.img-preview').style.transition = 'opacity 0.5s ease-out';
+            }, 1000);
         }
     });
 </script>

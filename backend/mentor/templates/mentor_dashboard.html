@@ -4,93 +4,425 @@
 
 {% block extra_css %}
 <style>
-    .feature-card {
-        background: rgba(157, 78, 221, 0.1);
-        border: 1px solid #9d4edd;
-        border-radius: 10px;
-        padding: 1.5rem;
-        margin-bottom: 1.5rem;
-        transition: all 0.3s ease;
+    /* Core Styles */
+    .dashboard-container {
+        padding: 2rem 0;
+        position: relative;
+        z-index: 2;
+    }
+
+    /* Welcome Section */
+    .welcome-section {
+        background: rgba(15, 15, 15, 0.8);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(157, 78, 221, 0.3);
+        border-radius: 16px;
+        padding: 2.5rem;
+        margin-bottom: 3rem;
         text-align: center;
-        color: #fff;
+        box-shadow: 0 8px 32px rgba(157, 78, 221, 0.15);
+        position: relative;
+        overflow: hidden;
+        animation: fadeInUp 0.8s ease-out forwards;
     }
 
-    .feature-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 5px 15px rgba(157, 78, 221, 0.2);
+    .welcome-section::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, rgba(157, 78, 221, 0.1), transparent);
+        z-index: -1;
     }
 
-    .feature-card i {
-        font-size: 2rem;
+    .welcome-section h1 {
+        font-size: 2.5rem;
+        font-weight: 800;
+        letter-spacing: -0.5px;
+        color: white;
+        margin-bottom: 1rem;
+        opacity: 0;
+        animation: fadeIn 0.6s ease-out 0.4s forwards;
+    }
+
+    .welcome-section h1 span {
         color: #9d4edd;
+        position: relative;
+        display: inline-block;
+    }
+
+    .welcome-section h1 span::after {
+        content: "";
+        position: absolute;
+        bottom: 5px;
+        left: 0;
+        width: 0;
+        height: 8px;
+        background-color: rgba(157, 78, 221, 0.15);
+        z-index: -1;
+        border-radius: 4px;
+        animation: lineGrow 0.6s ease-out 0.8s forwards;
+    }
+
+    .welcome-section p.message {
+        color: #c77dff;
+        font-size: 1.1rem;
+        margin-bottom: 1.5rem;
+        opacity: 0;
+        animation: fadeIn 0.6s ease-out 0.6s forwards;
+    }
+
+    /* Stats Cards */
+    .stats-row {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2.5rem;
+    }
+
+    .stat-card {
+        background: rgba(15, 15, 15, 0.8);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(157, 78, 221, 0.2);
+        border-radius: 16px;
+        padding: 1.8rem;
+        text-align: center;
+        transition: all 0.3s ease;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+        position: relative;
+        overflow: hidden;
+        opacity: 0;
+    }
+
+    .stat-card:nth-child(1) {
+        animation: fadeInRight 0.5s ease-out 0.9s forwards;
+    }
+    
+    .stat-card:nth-child(2) {
+        animation: fadeInRight 0.5s ease-out 1.1s forwards;
+    }
+    
+    .stat-card:nth-child(3) {
+        animation: fadeInRight 0.5s ease-out 1.3s forwards;
+    }
+
+    .stat-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 3px;
+        height: 0;
+        background: #c77dff;
+        transition: height 0.3s ease;
+    }
+
+    .stat-card:hover::before {
+        height: 100%;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-7px);
+        border-color: rgba(157, 78, 221, 0.4);
+    }
+
+    .stat-card h5 {
+        color: #9d4edd;
+        font-size: 1.2rem;
+        font-weight: 600;
         margin-bottom: 1rem;
     }
 
-    .feature-card h3 {
+    .stat-card p.h2 {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: white;
+        margin-bottom: 0;
+    }
+
+    /* Feature Cards */
+    .feature-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2.5rem;
+    }
+
+    .feature-card {
+        background: rgba(15, 15, 15, 0.8);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(157, 78, 221, 0.2);
+        border-radius: 16px;
+        padding: 2rem;
+        text-align: center;
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        height: 100%;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+        position: relative;
+        overflow: hidden;
+        opacity: 0;
+        transform: translateY(30px);
+    }
+
+    .feature-card::before {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 0;
+        height: 3px;
+        background: #9d4edd;
+        transition: width 0.3s ease;
+    }
+
+    .feature-card:hover::before {
+        width: 100%;
+    }
+
+    .feature-card:hover {
+        transform: translateY(-10px);
+        border-color: rgba(157, 78, 221, 0.4);
+    }
+
+    .feature-card i {
+        font-size: 2.5rem;
         color: #9d4edd;
-        margin-bottom: 0.5rem;
+        margin-bottom: 1.5rem;
+        transition: transform 0.3s ease;
+        opacity: 0.8;
+        transform: scale(1);
+    }
+
+    .feature-card:hover i {
+        transform: scale(1.15);
+        opacity: 1;
+        color: #c77dff;
+    }
+
+    .feature-card h3 {
+        color: #e0e0e0;
+        margin-bottom: 1rem;
+        font-size: 1.3rem;
+        font-weight: 600;
     }
 
     .feature-card p {
-        color: #c77dff;
+        color: #9d9d9d;
+        font-size: 0.95rem;
+        line-height: 1.6;
     }
 
     .feature-link {
         text-decoration: none;
+        color: inherit;
+        display: block;
+        height: 100%;
     }
 
-    .feature-link:hover {
-        text-decoration: none;
+    .feature-link:nth-child(1) .feature-card {
+        animation: fadeInUp 0.6s ease-out 1.5s forwards;
+    }
+    
+    .feature-link:nth-child(2) .feature-card {
+        animation: fadeInUp 0.6s ease-out 1.7s forwards;
+    }
+    
+    .feature-link:nth-child(3) .feature-card {
+        animation: fadeInUp 0.6s ease-out 1.9s forwards;
+    }
+    
+    .feature-link:nth-child(4) .feature-card {
+        animation: fadeInUp 0.6s ease-out 2.1s forwards;
+    }
+
+    /* Profile Summary */
+    .profile-summary {
+        margin-top: 3rem;
+        opacity: 0;
+        animation: fadeIn 0.8s ease-out 2.3s forwards;
+    }
+
+    .profile-summary h3 {
+        color: #e0e0e0;
+        font-size: 1.6rem;
+        font-weight: 700;
+        margin-bottom: 1.5rem;
+        position: relative;
+        display: inline-block;
+        padding-bottom: 0.5rem;
+    }
+
+    .profile-summary h3::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 0;
+        height: 2px;
+        background: #9d4edd;
+        border-radius: 2px;
+        animation: lineGrow 0.6s ease-out 2.5s forwards;
+    }
+
+    .profile-card {
+        background: rgba(15, 15, 15, 0.8);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(157, 78, 221, 0.2);
+        border-radius: 16px;
+        padding: 2rem;
+        transition: all 0.3s ease;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+        position: relative;
+        overflow: hidden;
+        transform: translateY(20px);
+        opacity: 0;
+        animation: fadeInUp 0.6s ease-out 2.7s forwards;
+    }
+
+    .profile-card:hover {
+        border-color: rgba(157, 78, 221, 0.4);
+        transform: translateY(-5px);
+    }
+
+    .profile-info {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .info-group strong {
+        color: #9d4edd;
+        font-size: 0.9rem;
+        display: block;
+        margin-bottom: 0.3rem;
+        font-weight: 500;
+    }
+
+    .info-group p {
+        color: #e0e0e0;
+        font-size: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    /* Buttons */
+    .btn-custom {
+        background: rgba(157, 78, 221, 0.1);
+        color: #9d4edd;
+        border: 1px solid #9d4edd;
+        border-radius: 8px;
+        padding: 0.6rem 1.5rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 12px rgba(157, 78, 221, 0.15);
+        opacity: 0;
+        animation: fadeIn 0.5s ease-out 2.9s forwards;
+    }
+
+    .btn-custom:hover {
+        background: rgba(157, 78, 221, 0.2);
+        transform: translateY(-3px);
+        box-shadow: 0 8px 16px rgba(157, 78, 221, 0.25);
+        color: #c77dff;
+    }
+
+    .btn-custom i {
+        margin-right: 0.5rem;
+    }
+
+    /* Animations */
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+        to {
+            opacity: 1;
+        }
+    }
+    
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    @keyframes fadeInRight {
+        from {
+            opacity: 0;
+            transform: translateX(-30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+    
+    @keyframes lineGrow {
+        from {
+            width: 0;
+        }
+        to {
+            width: 100%;
+        }
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .welcome-section h1 {
+            font-size: 2rem;
+        }
+        
+        .welcome-section p {
+            font-size: 1rem;
+        }
+        
+        .profile-info {
+            grid-template-columns: 1fr;
+        }
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="welcome-section">
-    <h1>Welcome to Your Dashboard!</h1>
-    
-    {% if mentor.verification_status == 'pending' %}
-    <p class="message">Your application is under review. Please wait for college verification.</p>
-    {% elif mentor.verification_status == 'rejected' %}
-    <p class="message">Unfortunately, your application has been rejected.</p>
-    {% else %}
-    <p class="message">You are now verified as a mentor!</p>
-    <a href="{% url 'mentor_profile' %}?mode=update" class="btn btn-custom mt-3">
-        <i class="fas fa-user-edit"></i> Update Profile
-    </a>
-    {% endif %}
-</div>
+<div class="dashboard-container">
+    <div class="welcome-section">
+        <h1>Welcome to Your <span>Mentor Dashboard</span></h1>
+        
+        {% if mentor.verification_status == 'pending' %}
+        <p class="message">Your application is under review. Please wait for college verification.</p>
+        {% elif mentor.verification_status == 'rejected' %}
+        <p class="message">Unfortunately, your application has been rejected.</p>
+        {% else %}
+        <p class="message">You are now verified as a mentor!</p>
+        <a href="{% url 'mentor_profile' %}?mode=update" class="btn btn-custom mt-3">
+            <i class="fas fa-user-edit"></i> Update Profile
+        </a>
+        {% endif %}
+    </div>
 
-{% if mentor.verification_status == 'approved' %}
-<div class="row">
-    <div class="col-md-4 mb-4">
-        <div class="card">
-            <div class="card-body">
-                <h5 class="card-title text-center mb-3">Total Students</h5>
-                <p class="h2 text-center">0</p>
-            </div>
+    {% if mentor.verification_status == 'approved' %}
+    <div class="stats-row">
+        <div class="stat-card">
+            <h5>Total Students</h5>
+            <p class="h2">0</p>
+        </div>
+        <div class="stat-card">
+            <h5>Upcoming Sessions</h5>
+            <p class="h2">0</p>
+        </div>
+        <div class="stat-card">
+            <h5>Completed Sessions</h5>
+            <p class="h2">0</p>
         </div>
     </div>
-    <div class="col-md-4 mb-4">
-        <div class="card">
-            <div class="card-body">
-                <h5 class="card-title text-center mb-3">Upcoming Sessions</h5>
-                <p class="h2 text-center">0</p>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-4 mb-4">
-        <div class="card">
-            <div class="card-body">
-                <h5 class="card-title text-center mb-3">Completed Sessions</h5>
-                <p class="h2 text-center">0</p>
-            </div>
-        </div>
-    </div>
-</div>
 
-<div class="row mt-4">
-    <div class="col-md-4">
+    <div class="feature-grid">
         <a href="{% url 'list_students' %}" class="feature-link">
             <div class="feature-card">
                 <i class="fas fa-users"></i>
@@ -98,8 +430,6 @@
                 <p>Browse all registered students and their profiles</p>
             </div>
         </a>
-    </div>
-    <div class="col-md-4">
         <a href="{% url 'connection_requests' %}" class="feature-link">
             <div class="feature-card">
                 <i class="fas fa-user-plus"></i>
@@ -107,8 +437,6 @@
                 <p>Manage student connection requests</p>
             </div>
         </a>
-    </div>
-    <div class="col-md-4">
         <a href="{% url 'connected_students' %}" class="feature-link">
             <div class="feature-card">
                 <i class="fas fa-user-check"></i>
@@ -116,11 +444,6 @@
                 <p>View your connected students</p>
             </div>
         </a>
-    </div>
-</div>
-
-<div class="row mt-4">
-    <div class="col-md-6">
         <a href="{% url 'mentor_projects' %}" class="feature-link">
             <div class="feature-card">
                 <i class="fas fa-project-diagram"></i>
@@ -129,39 +452,43 @@
             </div>
         </a>
     </div>
-    <div class="col-md-6">
-        <a href="{% url 'mentor_profile' %}?mode=update" class="feature-link">
-            <div class="feature-card">
-                <i class="fas fa-user-edit"></i>
-                <h3>Update Profile</h3>
-                <p>Keep your mentor profile up to date</p>
-            </div>
-        </a>
-    </div>
-</div>
 
-<div class="row mt-4">
-    <div class="col-12">
-        <div class="card">
-            <div class="card-body">
-                <h5 class="card-title mb-3">Your Profile Summary</h5>
-                <div class="row">
-                    <div class="col-md-6">
-                        <p><strong>Name:</strong> {{ mentor.full_name }}</p>
-                        <p><strong>Specialization:</strong> {{ mentor.specialization }}</p>
-                        <p><strong>Experience:</strong> {{ mentor.experience_years }} years</p>
-                        <p><strong>Teaching Branch:</strong> {{ mentor.teaching_branch }}</p>
-                    </div>
-                    <div class="col-md-6">
-                        <p><strong>Current Role:</strong> {{ mentor.current_role }}</p>
-                        <p><strong>Qualification:</strong> {{ mentor.highest_qualification }}</p>
-                        <p><strong>University:</strong> {{ mentor.university }}</p>
-                        <p><strong>Areas of Expertise:</strong> {{ mentor.expertise_areas }}</p>
-                    </div>
+    <div class="profile-summary">
+        <h3>Your Profile</h3>
+        <div class="profile-card">
+            <div class="profile-info">
+                <div class="info-group">
+                    <strong>Name</strong>
+                    <p>{{ mentor.full_name }}</p>
+                    
+                    <strong>Current Role</strong>
+                    <p>{{ mentor.current_role }}</p>
+                    
+                    <strong>Experience</strong>
+                    <p>{{ mentor.experience_years }} years</p>
+                </div>
+                
+                <div class="info-group">
+                    <strong>Specialization</strong>
+                    <p>{{ mentor.specialization }}</p>
+                    
+                    <strong>Qualification</strong>
+                    <p>{{ mentor.highest_qualification }}</p>
+                    
+                    <strong>Teaching Branch</strong>
+                    <p>{{ mentor.teaching_branch }}</p>
+                </div>
+                
+                <div class="info-group">
+                    <strong>University</strong>
+                    <p>{{ mentor.university }}</p>
+                    
+                    <strong>Areas of Expertise</strong>
+                    <p>{{ mentor.expertise_areas }}</p>
                 </div>
             </div>
         </div>
     </div>
+    {% endif %}
 </div>
-{% endif %}
-{% endblock %} 
+{% endblock %}

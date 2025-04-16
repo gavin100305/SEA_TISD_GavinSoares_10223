@@ -5,6 +5,50 @@
 <div class="content-section">
     <h1 class="section-title">Shared Projects</h1>
 
+    <!-- New Search Section -->
+    <div class="search-section">
+        <form method="GET" action="{% url 'view_shared_projects' %}" class="search-form">
+            <div class="search-row">
+                <div class="search-field">
+                    <input type="text" name="search" placeholder="Search by project title" value="{{ search_query }}">
+                </div>
+                <div class="search-field">
+                    <select name="tech_stack">
+                        <option value="">-- Filter by Tech Stack --</option>
+                        {% for tech in tech_stack_options %}
+                            <option value="{{ tech }}" {% if tech == tech_stack %}selected{% endif %}>{{ tech }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="search-field">
+                    <select name="sdgs">
+                        <option value="">-- Filter by SDGs --</option>
+                        {% for sdg in sdg_options %}
+                            <option value="{{ sdg }}" {% if sdg == sdgs %}selected{% endif %}>{{ sdg }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="search-field">
+                    <select name="status">
+                        <option value="">-- Filter by Status --</option>
+                        {% for status_code, status_name in status_choices %}
+                            <option value="{{ status_code }}" {% if status_code == status %}selected{% endif %}>{{ status_name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="search-buttons">
+                    <button type="submit" class="btn btn-primary">Search</button>
+                    <a href="{% url 'view_shared_projects' %}" class="btn btn-secondary">Clear</a>
+                    <!-- New Recommend Button -->
+                    <button type="submit" name="recommend" value="true" class="btn btn-accent {% if recommend == 'true' %}active{% endif %}">
+                        <i class="fas fa-magic"></i> Recommend Projects
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+    <!-- End New Search Section -->
+
     {% if messages %}
     <div class="messages">
         {% for message in messages %}
@@ -15,10 +59,22 @@
     </div>
     {% endif %}
 
+    {% if recommend == 'true' %}
+    <div class="recommendation-info">
+        <p><i class="fas fa-info-circle"></i> Showing projects that match your expertise profile. Projects are ranked by match score.</p>
+    </div>
+    {% endif %}
+
     {% if projects %}
     <div class="projects-grid">
         {% for project in projects %}
-        <div class="project-card">
+        <div class="project-card {% if project.recommendation_score %}recommended{% endif %}">
+            {% if project.recommendation_score %}
+            <div class="recommendation-badge">
+                <span class="score">{{ project.recommendation_score }}% Match</span>
+            </div>
+            {% endif %}
+            
             <div class="project-header">
                 <h3>{{ project.title }}</h3>
                 <span class="status-badge {{ project.status }}">{{ project.get_status_display }}</span>
@@ -28,8 +84,14 @@
                 {{ project.description|truncatewords:30 }}
             </div>
 
+            {% if project.recommendation_explanation %}
+            <div class="recommendation-explanation">
+                <p><strong>Why this matches you:</strong> {{ project.recommendation_explanation }}</p>
+            </div>
+            {% endif %}
+
             <div class="project-details">
-                <p><strong>Owner:</strong> {{ project.student.full_name }}</p>
+                <p><strong>Owner:</strong> {{ project.owner_name }} ({{ project.owner_type }})</p>
                 <p><strong>Tech Stack:</strong> {{ project.tech_stack }}</p>
                 <p><strong>SDGs:</strong> {{ project.sdgs }}</p>
             </div>
@@ -135,7 +197,12 @@
     </div>
     {% else %}
     <div class="empty-state">
-        <p>No shared projects available at the moment.</p>
+        {% if search_query or tech_stack or sdgs or status or recommend == 'true' %}
+            <p>No projects found matching your search criteria.</p>
+            <a href="{% url 'view_shared_projects' %}" class="btn btn-primary">Clear Search</a>
+        {% else %}
+            <p>No shared projects available at the moment.</p>
+        {% endif %}
     </div>
     {% endif %}
 </div>
@@ -177,6 +244,132 @@
         font-size: 2rem;
         margin-bottom: 2rem;
     }
+
+    /* New Search Section Styles */
+    .search-section {
+        margin-bottom: 2rem;
+        background: rgba(157, 78, 221, 0.05);
+        border-radius: 10px;
+        padding: 1.5rem;
+        border: 1px solid rgba(157, 78, 221, 0.3);
+    }
+
+    .search-form {
+        width: 100%;
+    }
+
+    .search-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+        align-items: flex-end;
+    }
+
+    .search-field {
+        flex: 1;
+        min-width: 200px;
+    }
+
+    .search-field input,
+    .search-field select {
+        width: 100%;
+        padding: 0.5rem;
+        border-radius: 5px;
+        background: rgba(157, 78, 221, 0.1);
+        border: 1px solid #9d4edd;
+        color: #fff;
+    }
+
+    .search-field select {
+        appearance: none;
+        background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%239d4edd' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+        background-repeat: no-repeat;
+        background-position: right 0.7rem center;
+        background-size: 1em;
+    }
+
+    .search-buttons {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
+
+    /* New styles for recommend button */
+    .btn-accent {
+        background: #7209b7;
+        color: #fff;
+        border: 1px solid #7209b7;
+    }
+
+    .btn-accent:hover {
+        background: #9d4edd;
+        border-color: #9d4edd;
+    }
+
+    .btn-accent.active {
+        background: #c77dff;
+        border-color: #c77dff;
+        position: relative;
+    }
+
+    .recommendation-info {
+        background: rgba(114, 9, 183, 0.1);
+        border: 1px solid rgba(114, 9, 183, 0.3);
+        border-radius: 8px;
+        padding: 1rem;
+        margin-bottom: 2rem;
+        color: #c77dff;
+    }
+
+    .recommendation-badge {
+        position: absolute;
+        top: -10px;
+        right: -10px;
+        background: #7209b7;
+        color: #fff;
+        border-radius: 20px;
+        padding: 0.25rem 0.75rem;
+        font-size: 0.875rem;
+        font-weight: bold;
+        box-shadow: 0 3px 5px rgba(0, 0, 0, 0.2);
+    }
+
+    .project-card.recommended {
+        border: 2px solid #7209b7;
+        position: relative;
+        box-shadow: 0 0 15px rgba(114, 9, 183, 0.2);
+    }
+
+    .recommendation-explanation {
+        background: rgba(114, 9, 183, 0.05);
+        border-left: 3px solid #7209b7;
+        padding: 0.75rem;
+        margin: 1rem 0;
+        font-style: italic;
+        color: #fff;
+        opacity: 0.9;
+    }
+
+    /* For mobile responsiveness */
+    @media (max-width: 768px) {
+        .search-row {
+            flex-direction: column;
+        }
+        
+        .search-field {
+            width: 100%;
+        }
+        
+        .search-buttons {
+            width: 100%;
+            margin-top: 0.5rem;
+        }
+        
+        .search-buttons .btn {
+            flex: 1;
+        }
+    }
+    /* End Search Section Styles */
 
     .projects-grid {
         display: grid;
@@ -502,4 +695,4 @@ function hideReplyForm(commentId) {
 }
 </script>
 {% endblock %}
-{% endblock %} 
+{% endblock %}

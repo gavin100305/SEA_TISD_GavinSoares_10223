@@ -14,15 +14,39 @@
             font-family: 'Inter', sans-serif;
         }
 
+        /* For WebKit browsers (Chrome, Safari, newer versions of Opera) */
+        ::-webkit-scrollbar {
+          width: 12px;
+        }
+        
+        ::-webkit-scrollbar-track {
+          background: #121212; /* Dark background to match the dark theme */
+        }
+        
+        ::-webkit-scrollbar-thumb {
+          background: #9966FF; /* Purple color to match the theme */
+          border-radius: 6px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+          background: #7d4cff; /* Slightly darker purple on hover */
+        }
+        
+        /* For Firefox */
+        * {
+          scrollbar-width: thin;
+          scrollbar-color: #9966FF #121212;
+        }
+
         :root {
             --primary: #8B5CF6;
             --primary-hover: #7C3AED;
             --primary-light: rgba(139, 92, 246, 0.2);
             --text-light: #F3F4F6;
             --text-secondary: #D1D5DB;
-            --card-bg: rgba(30, 30, 30, 0.5);
+            --card-bg: rgba(12, 12, 14, 0.85);
             --card-border: rgba(139, 92, 246, 0.3);
-            --card-shadow: rgba(0, 0, 0, 0.4);
+            --card-shadow: rgba(0, 0, 0, 0.6);
         }
 
         body {
@@ -38,7 +62,7 @@
             padding-top: 3rem;
         }
 
-        /* Updated Background Elements to match signup page */
+        /* Updated Background Elements - more subtle and elegant */
         .bg-elements {
             position: absolute;
             top: 0;
@@ -49,38 +73,27 @@
             overflow: hidden;
         }
 
-        .bg-gradient {
-            position: absolute;
-            width: 24rem;
-            height: 24rem;
-            border-radius: 50%;
-            filter: blur(7rem);
-            z-index: -1;
-        }
-
-        .bg-gradient:nth-child(1) {
-            top: -10%;
-            right: 5%;
-            background: rgba(168, 85, 247, 0.2);
-        }
-
-        .bg-gradient:nth-child(2) {
-            bottom: -5%;
-            left: 10%;
-            background: rgba(168, 85, 247, 0.1);
-        }
-
-        /* Static pattern background like signup page */
+        /* Static pattern background - more subtle */
         .static-pattern {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            opacity: 0.15;
+            opacity: 0.07;
             z-index: -1;
-            background-image: radial-gradient(#a855f7 1px, transparent 1px);
-            background-size: 30px 30px;
+            background-image: radial-gradient(#555555 1px, transparent 1px);
+            background-size: 40px 40px;
+        }
+
+        /* Subtle glow effect for depth */
+        .glow {
+            position: absolute;
+            width: 100%;
+            height: 300px;
+            bottom: 0;
+            background: radial-gradient(ellipse at bottom, rgba(30, 30, 30, 0.3) 0%, rgba(0, 0, 0, 0) 70%);
+            z-index: -1;
         }
 
         .logo {
@@ -102,31 +115,6 @@
             font-weight: 800;
         }
 
-        .nav-links {
-            display: flex;
-            gap: 2rem;
-        }
-
-        .nav-links a {
-            color: var(--text-secondary);
-            text-decoration: none;
-            font-size: 0.95rem;
-            font-weight: 500;
-            transition: all 0.3s ease;
-            padding: 0.5rem 0.8rem;
-            border-radius: 6px;
-        }
-
-        .nav-links a:hover {
-            color: var(--text-light);
-            background-color: rgba(255, 255, 255, 0.05);
-        }
-
-        .nav-links a.active {
-            color: var(--primary);
-            font-weight: 600;
-        }
-
         .container {
             width: 100%;
             max-width: 1200px;
@@ -142,6 +130,16 @@
             text-align: center;
             max-width: 800px;
             margin: 0 auto 4rem;
+            opacity: 0;
+            transform: translateY(-20px);
+            animation: fadeInDown 1s ease forwards;
+        }
+
+        @keyframes fadeInDown {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         h1 {
@@ -164,11 +162,18 @@
             position: absolute;
             bottom: 5px;
             left: 0;
-            width: 100%;
+            width: 0;
             height: 8px;
             background-color: var(--primary-light);
             z-index: -1;
             border-radius: 4px;
+            animation: underlineExpand 1.2s ease-out 0.5s forwards;
+        }
+
+        @keyframes underlineExpand {
+            to {
+                width: 100%;
+            }
         }
 
         .subtitle {
@@ -180,7 +185,7 @@
             font-weight: 400;
         }
 
-        /* Modified cards container to create two rows */
+        /* Modified cards container with animation */
         .cards-container {
             display: flex;
             flex-wrap: wrap;
@@ -206,38 +211,81 @@
             width: 100%;
         }
 
-        /* College card specific - make it the same width as other cards */
+        /* College card specific */
         .college-card {
             width: 33%;
             min-width: 280px;
         }
 
         .card {
-            background: rgba(12, 10, 20, 0.7);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(168, 85, 247, 0.3);
+            background: var(--card-bg);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(60, 60, 60, 0.3);
             border-radius: 16px;
             padding: 2.5rem 2rem;
             text-align: center;
             cursor: pointer;
-            transition: transform 0.3s ease, border-color 0.3s ease;
+            transition: all 0.4s cubic-bezier(0.215, 0.61, 0.355, 1);
             position: relative;
             overflow: hidden;
             display: flex;
             flex-direction: column;
             align-items: center;
-            box-shadow: 0 8px 32px rgba(31, 38, 135, 0.15);
+            box-shadow: 0 10px 30px var(--card-shadow);
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        /* Animated card appearance */
+        .top-row .card:nth-child(1) {
+            animation: fadeInUp 0.6s cubic-bezier(0.215, 0.61, 0.355, 1) 0.2s forwards;
+        }
+        .top-row .card:nth-child(2) {
+            animation: fadeInUp 0.6s cubic-bezier(0.215, 0.61, 0.355, 1) 0.4s forwards;
+        }
+        .top-row .card:nth-child(3) {
+            animation: fadeInUp 0.6s cubic-bezier(0.215, 0.61, 0.355, 1) 0.6s forwards;
+        }
+        .bottom-row .card {
+            animation: fadeInUp 0.6s cubic-bezier(0.215, 0.61, 0.355, 1) 0.8s forwards;
+        }
+
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .card:hover {
-            transform: translateY(-10px);
+            transform: translateY(-12px);
             border-color: var(--primary);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.8), 0 0 20px rgba(139, 92, 246, 0.15);
+        }
+
+        /* Enhanced hover state with subtle glow */
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 0;
+            background: linear-gradient(to bottom, var(--primary-light), transparent);
+            opacity: 0;
+            transition: opacity 0.4s ease, height 0.4s ease;
+        }
+
+        .card:hover::before {
+            opacity: 0.3;
+            height: 6px;
         }
 
         .card-icon-wrapper {
             width: 80px;
             height: 80px;
-            background: linear-gradient(135deg, var(--primary-light), rgba(139, 92, 246, 0.3));
+            background: rgba(20, 20, 20, 0.8);
+            border: 1px solid rgba(139, 92, 246, 0.3);
             border-radius: 16px;
             display: flex;
             align-items: center;
@@ -245,21 +293,25 @@
             margin-bottom: 1.5rem;
             position: relative;
             z-index: 2;
-            transition: transform 0.3s ease;
+            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
         .card:hover .card-icon-wrapper {
-            transform: scale(1.1);
+            transform: scale(1.1) rotate(5deg);
+            background: linear-gradient(135deg, rgba(12, 12, 14, 0.9), rgba(30, 30, 35, 0.9));
+            border-color: var(--primary);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
         }
 
         .card i {
             font-size: 2.5rem;
             color: var(--primary);
-            transition: color 0.3s ease;
+            transition: all 0.4s ease;
         }
 
         .card:hover i {
             color: white;
+            transform: scale(1.1);
         }
 
         .card h2 {
@@ -292,40 +344,46 @@
             font-size: 1rem;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 12px rgba(168, 85, 247, 0.25);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
             display: flex;
             align-items: center;
             justify-content: center;
             width: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: all 0.5s ease;
+        }
+
+        .card:hover button::before {
+            left: 100%;
         }
 
         .card button:hover {
             background: var(--primary-hover);
             transform: translateY(-3px);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.4);
         }
 
         .card button i {
             margin-left: 8px;
             font-size: 1rem;
             color: white;
-            transition: transform 0.2s ease;
+            transition: transform 0.3s ease;
         }
 
         .card button:hover i {
-            transform: translateX(4px);
-        }
-
-        /* Make sure the college card is properly centered in content too */
-        .college-card {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .college-card p {
-            text-align: center;
+            transform: translateX(6px);
         }
 
         /* Footer styles */
@@ -334,10 +392,18 @@
             padding: 2rem 0;
             text-align: center;
             width: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
+            background-color: rgba(0, 0, 0, 0.7);
             position: relative;
             z-index: 2;
-            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            border-top: 1px solid rgba(60, 60, 60, 0.2);
+            opacity: 0;
+            animation: fadeIn 1s ease 1.2s forwards;
+        }
+
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+            }
         }
 
         .footer-content {
@@ -382,12 +448,12 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            background-color: rgba(255, 255, 255, 0.05);
+            background-color: rgba(30, 30, 30, 0.7);
         }
 
         .social-icons a:hover {
             color: var(--primary);
-            background-color: rgba(255, 255, 255, 0.1);
+            background-color: rgba(40, 40, 40, 0.9);
             transform: translateY(-3px);
         }
 
@@ -396,27 +462,32 @@
             font-size: 0.9rem;
         }
 
-        /* Ripple effect styles */
+        /* Improved ripple effect styles */
         @keyframes ripple {
             to {
-                transform: translate(-50%, -50%) scale(15);
+                transform: translate(-50%, -50%) scale(20);
                 opacity: 0;
             }
         }
 
         .ripple {
             position: absolute;
-            background: rgba(255, 255, 255, 0.2);
+            background: radial-gradient(circle, rgba(139, 92, 246, 0.4) 0%, rgba(139, 92, 246, 0.1) 40%, transparent 70%);
             border-radius: 50%;
             transform: translate(-50%, -50%) scale(0);
-            animation: ripple 0.6s linear forwards;
+            animation: ripple 0.8s cubic-bezier(0.19, 1, 0.22, 1) forwards;
             pointer-events: none;
+            z-index: 1;
         }
 
         /* Responsive adjustments */
         @media (max-width: 900px) {
             .top-row {
                 grid-template-columns: repeat(2, 1fr);
+            }
+            
+            h1 {
+                font-size: 2.8rem;
             }
         }
 
@@ -428,17 +499,24 @@
             .college-card {
                 width: 100%;
             }
+            
+            h1 {
+                font-size: 2.2rem;
+            }
+            
+            .subtitle {
+                font-size: 1rem;
+            }
         }
     </style>
 </head>
 <body>
-    <!-- Updated Background Elements to match signup page -->
+    <!-- Updated Background Elements - more subtle and elegant -->
     <div class="bg-elements">
-        <div class="bg-gradient"></div>
-        <div class="bg-gradient"></div>
-        
-        <!-- Static dot pattern like signup page -->
+        <!-- Static dot pattern - more subtle -->
         <div class="static-pattern"></div>
+        <!-- Subtle glow effect for depth -->
+        <div class="glow"></div>
     </div>
 
     <div class="container">
@@ -508,10 +586,16 @@
                 'college': '/college/login/'
             };
             
-            window.location.href = loginUrls[role];
+            // Add fade-out transition before navigating
+            document.body.style.opacity = '0';
+            document.body.style.transition = 'opacity 0.5s ease';
+            
+            setTimeout(() => {
+                window.location.href = loginUrls[role];
+            }, 500);
         }
 
-        // Add improved ripple effect on cards
+        // Enhanced ripple effect on cards
         document.querySelectorAll('.card').forEach(card => {
             card.addEventListener('click', function(e) {
                 const rect = card.getBoundingClientRect();
@@ -523,7 +607,7 @@
                 ripple.style.left = `${x}px`;
                 ripple.style.top = `${y}px`;
                 
-                // Use this for better performance instead of adding/removing many elements
+                // Remove existing ripples
                 if (card.querySelectorAll('.ripple').length > 0) {
                     card.querySelector('.ripple').remove();
                 }
@@ -533,8 +617,20 @@
                 // Clean up ripple after animation completes
                 setTimeout(() => {
                     ripple.remove();
-                }, 700);
+                }, 800);
             });
+        });
+        
+        // Add hover sound effect (subtle)
+        document.querySelectorAll('.card').forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                // Optional: Add subtle hover sound here if desired
+            });
+        });
+        
+        // Add page load animation completion event
+        document.addEventListener('DOMContentLoaded', function() {
+            document.body.classList.add('loaded');
         });
     </script>
 </body>

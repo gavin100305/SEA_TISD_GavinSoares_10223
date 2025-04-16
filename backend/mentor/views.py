@@ -130,7 +130,7 @@ def mentor_profile(request):
     except MentorProfile.DoesNotExist:
         messages.error(request, 'Mentor profile not found.')
         return redirect('mentor_login')
-
+    
 @login_required
 def mentor_dashboard(request):
     try:
