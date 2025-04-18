@@ -1,0 +1,657 @@
+{% extends 'college/base.html' %}
+
+{% block title %}Project Statistics Dashboard{% endblock %}
+
+{% block extra_css %}
+<style>
+    .statistics-container {
+        padding: 2rem 0;
+        position: relative;
+        z-index: 2;
+        max-width: 1200px;
+        margin: 0 auto;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .welcome-section {
+        background: rgba(10, 10, 10, 0.8);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(30, 30, 30, 0.8);
+        border-radius: 16px;
+        padding: 2.5rem;
+        margin-bottom: 3rem;
+        text-align: center;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+        position: relative;
+        overflow: hidden;
+        animation: fadeInDown 0.8s ease-out forwards;
+    }
+
+    .welcome-section::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(45deg, rgba(20, 20, 20, 0.3), transparent);
+        z-index: -1;
+    }
+
+    .welcome-section h1 {
+        font-size: 2.5rem;
+        font-weight: 800;
+        letter-spacing: -0.5px;
+        line-height: 1.2;
+        margin-bottom: 1rem;
+        color: white;
+        opacity: 0;
+        animation: fadeIn 0.6s ease-out 0.4s forwards;
+    }
+
+    .welcome-section h1 span {
+        color: #9d4edd;
+        position: relative;
+        display: inline-block;
+    }
+
+    .welcome-section h1 span::after {
+        content: "";
+        position: absolute;
+        bottom: 5px;
+        left: 0;
+        width: 0;
+        height: 8px;
+        background-color: rgba(157, 78, 221, 0.15);
+        z-index: -1;
+        border-radius: 4px;
+        animation: lineGrow 0.6s ease-out 1s forwards;
+    }
+
+    /* Summary Cards */
+    .summary-cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 3rem;
+    }
+
+    .card {
+        background: rgba(10, 10, 10, 0.8);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(30, 30, 30, 0.8);
+        border-radius: 16px;
+        padding: 2rem;
+        text-align: center;
+        transition: all 0.3s ease;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+        position: relative;
+        overflow: hidden;
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    
+    .card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 3px;
+        height: 0;
+        background: #9d4edd;
+        transition: height 0.3s ease;
+    }
+
+    .card:hover::before {
+        height: 100%;
+    }
+
+    .card:hover {
+        transform: translateY(-10px);
+        border-color: rgba(157, 78, 221, 0.3);
+    }
+
+    .card:nth-child(1) {
+        animation: fadeInUp 0.6s ease-out 0.7s forwards;
+    }
+    
+    .card:nth-child(2) {
+        animation: fadeInUp 0.6s ease-out 0.9s forwards;
+    }
+    
+    .card:nth-child(3) {
+        animation: fadeInUp 0.6s ease-out 1.1s forwards;
+    }
+    
+    .card:nth-child(4) {
+        animation: fadeInUp 0.6s ease-out 1.3s forwards;
+    }
+
+    .card h3 {
+        color: #9d9d9d;
+        margin-top: 0;
+        font-size: 1.1rem;
+        margin-bottom: 1rem;
+        font-weight: 600;
+    }
+
+    .big-number {
+        font-size: 2.5rem;
+        font-weight: bold;
+        color: white;
+        margin: 10px 0 0;
+    }
+
+    /* Charts Section */
+    .stats-section {
+        margin-bottom: 3rem;
+        opacity: 0;
+        animation: fadeIn 0.8s ease-out 1.4s forwards;
+    }
+
+    .stats-section h2 {
+        color: #e0e0e0;
+        font-size: 1.8rem;
+        font-weight: 700;
+        margin-bottom: 1.5rem;
+        position: relative;
+        display: inline-block;
+        padding-bottom: 0.5rem;
+    }
+
+    .stats-section h2::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 0;
+        height: 2px;
+        background: #9d4edd;
+        border-radius: 2px;
+        animation: lineGrow 0.6s ease-out 1.8s forwards;
+    }
+
+    .charts-section {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 3rem;
+    }
+
+    .chart-container {
+        background: rgba(10, 10, 10, 0.8);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(30, 30, 30, 0.8);
+        border-radius: 16px;
+        padding: 2rem;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+        transition: all 0.3s ease;
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    .chart-container:nth-child(1) {
+        animation: fadeInUp 0.6s ease-out 1.9s forwards;
+    }
+    
+    .chart-container:nth-child(2) {
+        animation: fadeInUp 0.6s ease-out 2.1s forwards;
+    }
+    
+    .chart-container:nth-child(3) {
+        animation: fadeInUp 0.6s ease-out 2.3s forwards;
+    }
+    
+    .chart-container:nth-child(4) {
+        animation: fadeInUp 0.6s ease-out 2.5s forwards;
+    }
+
+    .chart-container:hover {
+        transform: translateY(-5px);
+        border-color: rgba(157, 78, 221, 0.3);
+    }
+
+    .chart-container h2 {
+        color: #e0e0e0;
+        font-size: 1.3rem;
+        margin-top: 0;
+        margin-bottom: 20px;
+        text-align: center;
+        font-weight: 600;
+        padding-bottom: 0.5rem;
+        border-bottom: 1px solid rgba(30, 30, 30, 0.8);
+    }
+
+    /* Additional Stats Section */
+    .additional-stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 1.5rem;
+        margin-top: 2rem;
+    }
+
+    .stats-column {
+        background: rgba(10, 10, 10, 0.8);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(30, 30, 30, 0.8);
+        border-radius: 16px;
+        padding: 1.5rem;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+        transition: all 0.3s ease;
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    .stats-column:nth-child(1) {
+        animation: fadeInUp 0.6s ease-out 2.7s forwards;
+    }
+    
+    .stats-column:nth-child(2) {
+        animation: fadeInUp 0.6s ease-out 2.9s forwards;
+    }
+    
+    .stats-column:nth-child(3) {
+        animation: fadeInUp 0.6s ease-out 3.1s forwards;
+    }
+
+    .stats-column:hover {
+        transform: translateY(-5px);
+        border-color: rgba(157, 78, 221, 0.3);
+    }
+
+    .stats-column h2 {
+        color: #e0e0e0;
+        font-size: 1.2rem;
+        margin-top: 0;
+        margin-bottom: 15px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid rgba(30, 30, 30, 0.8);
+        font-weight: 600;
+    }
+
+    .stat-item {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 10px;
+        padding: 8px 0;
+        border-bottom: 1px dashed rgba(30, 30, 30, 0.8);
+    }
+
+    .stat-item span:first-child {
+        color: #9d9d9d;
+    }
+
+    .stat-item span:last-child {
+        font-weight: bold;
+        color: #e0e0e0;
+    }
+
+    /* Animation Keyframes */
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+        to {
+            opacity: 1;
+        }
+    }
+    
+    @keyframes fadeInDown {
+        from {
+            opacity: 0;
+            transform: translateY(-30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    @keyframes lineGrow {
+        from {
+            width: 0;
+        }
+        to {
+            width: 100%;
+        }
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .welcome-section h1 {
+            font-size: 2rem;
+        }
+        
+        .charts-section {
+            grid-template-columns: 1fr;
+        }
+        
+        .summary-cards {
+            grid-template-columns: 1fr 1fr;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .summary-cards {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="statistics-container">
+    <div class="welcome-section">
+        <h1><span>Project Statistics</span> Dashboard</h1>
+    </div>
+    
+    <!-- Summary Cards -->
+    <div class="summary-cards">
+        <div class="card">
+            <h3>Total Projects</h3>
+            <p class="big-number">{{ total_projects }}</p>
+        </div>
+        <div class="card">
+            <h3>Completed</h3>
+            <p class="big-number">{{ completed_projects }}</p>
+        </div>
+        <div class="card">
+            <h3>In Progress</h3>
+            <p class="big-number">{{ in_progress_projects }}</p>
+        </div>
+        <div class="card">
+            <h3>Under Review</h3>
+            <p class="big-number">{{ under_review_projects }}</p>
+        </div>
+    </div>
+
+    <!-- Charts Section -->
+    <div class="stats-section">
+        <h2>Visual Analytics</h2>
+        
+        <div class="charts-section">
+            <div class="chart-container">
+                <h2>Project Status Distribution</h2>
+                <canvas id="statusChart"></canvas>
+            </div>
+            
+            <div class="chart-container">
+                <h2>SDGs Distribution</h2>
+                <canvas id="sdgChart"></canvas>
+            </div>
+            
+            <div class="chart-container">
+                <h2>Technologies Used</h2>
+                <canvas id="techChart"></canvas>
+            </div>
+            
+            <div class="chart-container">
+                <h2>Projects Timeline</h2>
+                <canvas id="timelineChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Additional Stats Section -->
+    <div class="stats-section">
+        <h2>Detailed Metrics</h2>
+        
+        <div class="additional-stats">
+            <div class="stats-column">
+                <h2>Mentorship Stats</h2>
+                <div class="stat-item">
+                    <span>Projects with mentor:</span>
+                    <span>{{ with_mentor }}</span>
+                </div>
+                <div class="stat-item">
+                    <span>Projects without mentor:</span>
+                    <span>{{ without_mentor }}</span>
+                </div>
+                <div class="stat-item">
+                    <span>Average mentor grade:</span>
+                    <span>{{ avg_grade|floatformat:1 }}</span>
+                </div>
+            </div>
+            
+            <div class="stats-column">
+                <h2>Project Types</h2>
+                <div class="stat-item">
+                    <span>Group projects:</span>
+                    <span>{{ group_projects }}</span>
+                </div>
+                <div class="stat-item">
+                    <span>Individual projects:</span>
+                    <span>{{ individual_projects }}</span>
+                </div>
+            </div>
+            
+            <div class="stats-column">
+                <h2>Collaboration</h2>
+                <div class="stat-item">
+                    <span>Open for collaboration:</span>
+                    <span>{{ open_for_collab }}</span>
+                </div>
+                <div class="stat-item">
+                    <span>With collaborator:</span>
+                    <span>{{ with_collaborator }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Include Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// Load chart data via AJAX
+function loadChartData(chartType, canvasId, chartTypeConfig) {
+  fetch(`{% url 'project_charts_data' %}?chart_type=${chartType}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                console.error(data.error);
+                return;
+            }
+            
+            const ctx = document.getElementById(canvasId).getContext('2d');
+            
+            // Custom dark theme for charts
+            Chart.defaults.color = '#9d9d9d';
+            Chart.defaults.borderColor = 'rgba(30, 30, 30, 0.8)';
+            
+            // Customize colors for dark theme
+            if (data.datasets && data.datasets.length > 0) {
+                // For status chart (doughnut/pie)
+                // Status Chart and SDGs Chart - Replace purple theme with colorful palette
+        if (chartType === 'status' || chartType === 'sdgs') {
+            // Generate vibrant colorful palette instead of just purple shades
+            const colorfulPalette = [
+                'rgba(255, 99, 132, 0.8)',   // Pink
+                'rgba(54, 162, 235, 0.8)',    // Blue
+                'rgba(255, 206, 86, 0.8)',    // Yellow
+                'rgba(75, 192, 192, 0.8)',    // Teal
+                'rgba(153, 102, 255, 0.8)',   // Purple
+                'rgba(255, 159, 64, 0.8)',    // Orange
+                'rgba(46, 204, 113, 0.8)',    // Green
+                'rgba(231, 76, 60, 0.8)',     // Red
+                'rgba(52, 152, 219, 0.8)',    // Light Blue
+                'rgba(155, 89, 182, 0.8)'     // Violet
+            ];
+
+            data.datasets[0].backgroundColor = colorfulPalette;
+        }
+
+        // For bar charts and line charts
+        if (chartType === 'tech_stack') {
+            // Create colorful bars instead of just purple
+            const colors = [
+                'rgba(255, 99, 132, 0.7)',
+                'rgba(54, 162, 235, 0.7)',
+                'rgba(255, 206, 86, 0.7)',
+                'rgba(75, 192, 192, 0.7)',
+                'rgba(153, 102, 255, 0.7)',
+                'rgba(255, 159, 64, 0.7)',
+                'rgba(46, 204, 113, 0.7)'
+            ];
+
+            // Create a background color array based on data length
+            const backgroundColors = [];
+            if (data.labels) {
+                for (let i = 0; i < data.labels.length; i++) {
+                    backgroundColors.push(colors[i % colors.length]);
+                }
+            }
+
+            data.datasets[0].backgroundColor = backgroundColors;
+            data.datasets[0].borderColor = backgroundColors.map(color => color.replace('0.7', '1'));
+            data.datasets[0].borderWidth = 1;
+        }
+
+// For timeline chart
+                if (chartType === 'timeline') {
+                    data.datasets[0].borderColor = 'rgba(46, 204, 113, 0.8)'; // Green line
+                    data.datasets[0].backgroundColor = 'rgba(46, 204, 113, 0.2)';
+                    data.datasets[0].borderWidth = 2;
+                    
+                    // Add gradient background
+                    chartTypeConfig.options.plugins = chartTypeConfig.options.plugins || {};
+                    chartTypeConfig.options.plugins.tooltip = {
+                        backgroundColor: 'rgba(10, 10, 10, 0.8)',
+                        titleColor: '#ffffff',
+                        bodyColor: '#e0e0e0',
+                        borderColor: 'rgba(46, 204, 113, 0.5)',
+                        borderWidth: 1,
+                        displayColors: false
+                    };
+                }
+            }
+            
+            // Create chart
+            new Chart(ctx, {
+                type: chartTypeConfig.type || 'bar',
+                data: data,
+                options: chartTypeConfig.options || {}
+            });
+        })
+        .catch(error => console.error('Error loading chart data:', error));
+}
+
+// Initialize all charts when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    // Status Chart (Doughnut)
+    loadChartData('status', 'statusChart', {
+        type: 'doughnut',
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'right',
+                },
+                tooltip: {
+                    backgroundColor: 'rgba(10, 10, 10, 0.8)',
+                    titleColor: '#ffffff',
+                    bodyColor: '#e0e0e0',
+                    borderColor: 'rgba(157, 78, 221, 0.5)',
+                    borderWidth: 1
+                }
+            }
+        }
+    });
+    
+    // SDG Chart (Pie)
+    loadChartData('sdgs', 'sdgChart', {
+        type: 'pie',
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'right',
+                },
+                tooltip: {
+                    backgroundColor: 'rgba(10, 10, 10, 0.8)',
+                    titleColor: '#ffffff',
+                    bodyColor: '#e0e0e0',
+                    borderColor: 'rgba(157, 78, 221, 0.5)',
+                    borderWidth: 1
+                }
+            }
+        }
+    });
+    
+    // Tech Chart (Bar)
+    loadChartData('tech_stack', 'techChart', {
+        type: 'bar',
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: {
+                        color: 'rgba(70, 70, 70, 0.1)'
+                    },
+                    ticks: {
+                        color: '#9d9d9d'
+                    }
+                },
+                x: {
+                    grid: {
+                        display: false
+                    },
+                    ticks: {
+                        color: '#9d9d9d'
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                }
+            }
+        }
+    });
+    
+    // Timeline Chart (Line)
+    loadChartData('timeline', 'timelineChart', {
+        type: 'line',
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: {
+                        color: 'rgba(70, 70, 70, 0.1)'
+                    },
+                    ticks: {
+                        color: '#9d9d9d'
+                    }
+                },
+                x: {
+                    grid: {
+                        display: false
+                    },
+                    ticks: {
+                        color: '#9d9d9d'
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                }
+            }
+        }
+    });
+});
+</script>
+{% endblock %}

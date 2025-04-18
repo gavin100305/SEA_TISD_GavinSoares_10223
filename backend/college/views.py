@@ -9,13 +9,230 @@ from mentor.models import MentorProfile
 from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from .serializers import CollegeProfileSerializer
+from .serializers import CollegeProfileSerializer,UserSerializer,NGOSerializer,ProjectAssessmentSerializer
 from django.forms import ModelForm
 from django.db.models import Count, Avg, Q
 from students.models import StudentProfile, Project, MentorConnection, StudentGroup, CollaborationRequest
 from collabrators.models import CollaboratorProfile
 from datetime import datetime, date
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+
+import json
+import pandas as pd
+import matplotlib.pyplot as plt
+import io
+import base64
+import urllib
+from django.db.models import Count, Sum, Avg, F, Case, When, IntegerField, Value
+from django.db.models.functions import TruncMonth, TruncYear
+from django.http import JsonResponse
+from students.models import Project
+
+@login_required
+def project_statistics(request):
+    """View to display statistical information about all projects"""
+    try:
+        college = CollegeProfile.objects.get(user=request.user)
+        
+        # Get all projects for this college
+        projects = Project.objects.filter(college=college)
+        
+        # Basic statistics
+        total_projects = projects.count()
+        completed_projects = projects.filter(status='completed').count()
+        in_progress_projects = projects.filter(status='in_progress').count()
+        under_review_projects = projects.filter(status='under_review').count()
+        
+        # Projects by SDGs
+        sdg_data = []
+        for project in projects:
+            sdgs = [sdg.strip() for sdg in project.sdgs.split(',')]
+            for sdg in sdgs:
+                if sdg:  # Ensure not empty
+                    sdg_data.append(sdg)
+                    
+        sdg_counts = pd.Series(sdg_data).value_counts().to_dict()
+        
+        # Projects by tech stack
+        tech_data = []
+        for project in projects:
+            techs = [tech.strip() for tech in project.tech_stack.split(',')]
+            for tech in techs:
+                if tech:  # Ensure not empty
+                    tech_data.append(tech)
+                    
+        tech_counts = pd.Series(tech_data).value_counts().to_dict()
+        
+        # Projects by month/year
+        projects_by_month = (
+            projects
+            .annotate(month=TruncMonth('created_at'))
+            .values('month')
+            .annotate(count=Count('id'))
+            .order_by('month')
+        )
+        
+        # Convert to format suitable for charts
+        month_labels = [item['month'].strftime('%b %Y') for item in projects_by_month]
+        month_counts = [item['count'] for item in projects_by_month]
+        
+        # Projects with mentor vs without mentor
+        with_mentor = projects.filter(mentor__isnull=False).count()
+        without_mentor = projects.filter(mentor__isnull=True).count()
+        
+        # Group projects vs individual projects
+        group_projects = projects.filter(group__isnull=False).count()
+        individual_projects = projects.filter(student__isnull=False).count()
+        
+        # Average mentor grade
+        avg_grade = projects.filter(mentor_grade__isnull=False).aggregate(avg=Avg('mentor_grade'))['avg'] or 0
+        
+        # Open for collaboration stats
+        open_for_collab = projects.filter(is_open_for_collaboration=True).count()
+        with_collaborator = projects.filter(collaborator=True).count()
+        
+        context = {
+            'college': college,
+            'total_projects': total_projects,
+            'completed_projects': completed_projects,
+            'in_progress_projects': in_progress_projects,
+            'under_review_projects': under_review_projects,
+            'sdg_counts': json.dumps(sdg_counts),
+            'tech_counts': json.dumps(tech_counts),
+            'month_labels': json.dumps(month_labels),
+            'month_counts': json.dumps(month_counts),
+            'with_mentor': with_mentor,
+            'without_mentor': without_mentor,
+            'group_projects': group_projects,
+            'individual_projects': individual_projects,
+            'avg_grade': avg_grade,
+            'open_for_collab': open_for_collab,
+            'with_collaborator': with_collaborator,
+        }
+        
+        return render(request, 'college/project_statistics.html', context)
+        
+    except CollegeProfile.DoesNotExist:
+        messages.error(request, 'College profile not found!')
+        return redirect('college_dashboard')
+    except Exception as e:
+        messages.error(request, f'An error occurred: {str(e)}')
+        return redirect('college_dashboard')
+
+@login_required
+def project_charts_data(request):
+    """API endpoint to get chart data for AJAX requests"""
+    try:
+        college = CollegeProfile.objects.get(user=request.user)
+        projects = Project.objects.filter(college=college)
+        chart_type = request.GET.get('chart_type', 'sdgs')
+        
+        if chart_type == 'sdgs':
+            # SDG distribution
+            sdg_data = []
+            for project in projects:
+                sdgs = [sdg.strip() for sdg in project.sdgs.split(',')]
+                for sdg in sdgs:
+                    if sdg:
+                        sdg_data.append(sdg)
+            
+            sdg_counts = pd.Series(sdg_data).value_counts().to_dict()
+            data = {
+                'labels': list(sdg_counts.keys()),
+                'datasets': [{
+                    'label': 'SDGs Distribution',
+                    'data': list(sdg_counts.values()),
+                    'backgroundColor': [
+                        '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF',
+                        '#FF9F40', '#E7E9ED', '#6C757D', '#198754', '#FFC107'
+                    ]
+                }]
+            }
+            
+        elif chart_type == 'tech_stack':
+            # Tech stack distribution
+            tech_data = []
+            for project in projects:
+                techs = [tech.strip() for tech in project.tech_stack.split(',')]
+                for tech in techs:
+                    if tech:
+                        tech_data.append(tech)
+            
+            tech_counts = pd.Series(tech_data).value_counts().to_dict()
+            data = {
+                'labels': list(tech_counts.keys()),
+                'datasets': [{
+                    'label': 'Technologies Used',
+                    'data': list(tech_counts.values()),
+                    'backgroundColor': [
+                        '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF',
+                        '#FF9F40', '#E7E9ED', '#6C757D', '#198754', '#FFC107'
+                    ]
+                }]
+            }
+            
+        elif chart_type == 'status':
+            # Project status distribution
+            status_counts = projects.values('status').annotate(count=Count('id'))
+            status_dict = {item['status']: item['count'] for item in status_counts}
+            
+            data = {
+                'labels': ['Completed', 'In Progress', 'Under Review'],
+                'datasets': [{
+                    'label': 'Project Status',
+                    'data': [
+                        status_dict.get('completed', 0),
+                        status_dict.get('in_progress', 0),
+                        status_dict.get('under_review', 0)
+                    ],
+                    'backgroundColor': ['#198754', '#0D6EFD', '#FFC107']
+                }]
+            }
+            
+        elif chart_type == 'timeline':
+            # Projects created over time
+            monthly_data = (
+                projects
+                .annotate(month=TruncMonth('created_at'))
+                .values('month')
+                .annotate(count=Count('id'))
+                .order_by('month')
+            )
+            
+            data = {
+                'labels': [item['month'].strftime('%b %Y') for item in monthly_data],
+                'datasets': [{
+                    'label': 'Projects Created',
+                    'data': [item['count'] for item in monthly_data],
+                    'borderColor': '#36A2EB',
+                    'fill': False
+                }]
+            }
+            
+        else:
+            data = {'error': 'Invalid chart type'}
+        
+        return JsonResponse(data)
+        
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=400)
+
+
+@login_required
+def ngo_detail(request, ngo_id):
+    """View to display details of a specific NGO"""
+    try:
+        profile = CollegeProfile.objects.get(user=request.user)
+        ngo = get_object_or_404(NGO, id=ngo_id, college=profile)
+        
+        context = {
+            'profile': profile,
+            'ngo': ngo
+        }
+        return render(request, 'college/ngo_detail.html', context)
+    except CollegeProfile.DoesNotExist:
+        messages.error(request, 'College profile not found!')
+        return redirect('college_login')
 
 
 def college_signup(request):

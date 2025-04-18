@@ -23,4 +23,9 @@ urlpatterns = [
     path('project-assessments/add/', views.add_project_assessment, name='add_project_assessment'),
     path('project-assessments/edit/<int:assessment_id>/', views.edit_project_assessment, name='edit_project_assessment'),
     path('project-assessments/delete/<int:assessment_id>/', views.delete_project_assessment, name='delete_project_assessment'),
+
+    path('project-statistics/', views.project_statistics, name='project_statistics'),
+    path('api/project-charts-data/', views.project_charts_data, name='project_charts_data'),
+    path('ngo/<int:ngo_id>/', views.ngo_detail, name='ngo_detail'),
+
 ]

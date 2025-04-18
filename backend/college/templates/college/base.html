@@ -374,7 +374,11 @@
                 <a class="nav-link {% if request.resolver_match.url_name == 'add_project_assessment' %}active{% endif %}" href="{% url 'add_project_assessment' %}">
                     <i class="fas fa-plus-circle"></i> Add Assessment
                 </a>
+                <a class="nav-link {% if request.resolver_match.url_name == 'project_statistics' %}active{% endif %}" href="{% url 'project_statistics' %}">
+                    <i class="fas fa-chart-bar"></i> Project Statistics
+                </a>
             </div>
+            
             
             <!-- NGO Management Section -->
             <div class="nav-section">

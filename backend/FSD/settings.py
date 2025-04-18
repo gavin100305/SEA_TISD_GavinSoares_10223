@@ -94,9 +94,6 @@ DEFAULT_FROM_EMAIL = 'Mentorship Platform crce.secea.10223@gmail.com'
 
 
 
-
-
-
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
