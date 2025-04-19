@@ -16,7 +16,7 @@ def generate_gemini_recommendations(expertise, projects_data):
     """
     try:
         # api_key = settings.GEMINI_API_KEY
-        api_key = ""
+        api_key = settings.GEMINI_API_KEY
         api_url = "https://generativelanguage.googleapis.com/v1/models/gemini-2.0-flash:generateContent"
         
         # Format the expertise and project data for the prompt

@@ -5,200 +5,560 @@
 
 {% block extra_css %}
 <style>
+    /* Core Styles */
+    :root {
+        --primary: #9d4edd;
+        --primary-light: rgba(157, 78, 221, 0.1);
+        --primary-border: rgba(157, 78, 221, 0.3);
+        --primary-hover: #c77dff;
+        --dark-bg: rgba(15, 15, 15, 0.8);
+        --card-border: rgba(157, 78, 221, 0.2);
+        --text-primary: #e0e0e0;
+        --text-secondary: #9d9d9d;
+    }
+
     .review-container {
+        padding: 2rem 0;
+        position: relative;
+        z-index: 2;
+    }
+
+    /* Header Section */
+    .page-header {
+        background: var(--dark-bg);
+        backdrop-filter: blur(10px);
+        border: 1px solid var(--card-border);
+        border-radius: 16px;
         padding: 2rem;
+        margin-bottom: 2rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+        position: relative;
+        overflow: hidden;
+        animation: fadeInDown 0.8s ease-out forwards;
     }
 
-    .project-card {
-        background: rgba(157, 78, 221, 0.1);
-        border: 1px solid #9d4edd;
-        border-radius: 10px;
-        padding: 1.5rem;
+    .page-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, rgba(157, 78, 221, 0.1), transparent);
+        z-index: -1;
+    }
+
+    .page-title {
+        font-size: 2.2rem;
+        font-weight: 800;
+        letter-spacing: -0.5px;
+        color: var(--text-primary);
+        margin: 0;
+        position: relative;
+        display: inline-block;
+    }
+
+    .page-title span {
+        color: var(--primary);
+        position: relative;
+    }
+
+    .page-title span::after {
+        content: "";
+        position: absolute;
+        bottom: 5px;
+        left: 0;
+        width: 0;
+        height: 8px;
+        background-color: rgba(157, 78, 221, 0.15);
+        z-index: -1;
+        border-radius: 4px;
+        animation: lineGrow 0.6s ease-out 0.8s forwards;
+    }
+
+    /* Card Styles */
+    .card {
+        background: var(--dark-bg);
+        backdrop-filter: blur(10px);
+        border: 1px solid var(--card-border);
+        border-radius: 16px;
+        padding: 1.8rem;
         margin-bottom: 1.5rem;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+        position: relative;
+        overflow: hidden;
+        transition: all 0.3s ease;
+        opacity: 0;
     }
 
-    .project-title {
-        color: #9d4edd;
-        margin-bottom: 0.5rem;
+    .card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, rgba(157, 78, 221, 0.05), transparent);
+        z-index: -1;
     }
 
-    .project-details {
-        margin: 1rem 0;
-        padding: 1rem;
-        background: rgba(157, 78, 221, 0.05);
-        border-radius: 5px;
-        color: #fff;
+    .card:hover {
+        transform: translateY(-5px);
+        border-color: var(--primary-border);
+    }
+
+    .card-header {
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        padding-bottom: 1rem;
+        margin-bottom: 1.5rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+    }
+
+    .card-title {
+        color: var(--primary);
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin: 0;
+        display: flex;
+        align-items: center;
+    }
+
+    .card-title i {
+        margin-right: 10px;
+    }
+
+    /* Project Card */
+    .project-card {
+        animation: fadeInUp 0.6s ease-out 0.4s forwards;
+    }
+
+    .project-info {
+        display: flex;
+        flex-direction: column;
     }
 
     .project-meta {
-        color: #c77dff;
-        font-size: 0.9rem;
         margin-top: 1rem;
     }
 
-    .project-meta p {
-        margin-bottom: 0.3rem;
+    .meta-item {
+        display: flex;
+        align-items: center;
+        margin-bottom: 0.8rem;
+        color: var(--text-secondary);
     }
 
-    .review-form {
-        background: rgba(157, 78, 221, 0.1);
-        border: 1px solid #9d4edd;
-        border-radius: 10px;
-        padding: 1.5rem;
+    .meta-item i {
+        color: var(--primary);
+        width: 20px;
+        margin-right: 10px;
+        text-align: center;
     }
 
-    .form-label {
-        color: #9d4edd;
-        font-weight: bold;
+    .meta-item strong {
+        margin-right: 5px;
+        color: var(--primary-hover);
     }
 
-    .form-control {
-        background: rgba(157, 78, 221, 0.05);
-        border: 1px solid #9d4edd;
-        color: #fff;
-    }
-
-    .form-control:focus {
-        background: rgba(157, 78, 221, 0.1);
-        border-color: #c77dff;
-        color: #fff;
-        box-shadow: 0 0 0 0.2rem rgba(157, 78, 221, 0.25);
-    }
-
-    .btn-custom {
-        background: #9d4edd;
-        color: white;
-        border: none;
-        padding: 0.5rem 1.5rem;
-        border-radius: 25px;
+    .meta-item a {
+        color: var(--primary);
+        text-decoration: none;
         transition: all 0.3s ease;
     }
 
-    .btn-custom:hover {
-        background: #c77dff;
-        color: white;
-        transform: scale(1.05);
+    .meta-item a:hover {
+        color: var(--primary-hover);
+        text-decoration: underline;
     }
 
-    .status-select {
-        background: rgba(157, 78, 221, 0.05);
-        border: 1px solid #9d4edd;
-        color: #fff;
-        border-radius: 5px;
-        padding: 0.5rem;
-    }
-
-    .status-select option {
-        background: #2b2b2b;
-        color: #fff;
-    }
-
-    .meeting-section {
-        margin-top: 2rem;
-        background: rgba(157, 78, 221, 0.1);
-        border: 1px solid #9d4edd;
-        border-radius: 10px;
+    .project-description {
+        background: rgba(0, 0, 0, 0.2);
+        border-radius: 12px;
         padding: 1.5rem;
+        margin: 1.5rem 0;
+        color: var(--text-primary);
+        border-left: 3px solid var(--primary);
+        line-height: 1.6;
     }
 
-    .meeting-form {
-        margin-top: 1rem;
-    }
-
-    .meeting-title {
-        color: #9d4edd;
-        margin-bottom: 1rem;
-    }
-    
-    /* GitHub Stats Styles */
+    /* GitHub Stats Card */
     .github-stats-card {
+        animation: fadeInUp 0.6s ease-out 0.6s forwards;
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .stat-item {
+        background: rgba(0, 0, 0, 0.2);
+        border-radius: 12px;
+        padding: 1.2rem;
+        text-align: center;
+        transition: all 0.3s ease;
+    }
+
+    .stat-item:hover {
+        transform: translateY(-5px);
         background: rgba(157, 78, 221, 0.1);
-        border: 1px solid #9d4edd;
-        border-radius: 10px;
-        padding: 1.5rem;
-        margin-top: 1.5rem;
     }
-    
-    .github-stats-title {
-        color: #9d4edd;
-        margin-bottom: 1rem;
+
+    .stat-value {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin-bottom: 0.5rem;
     }
-    
-    .github-stat-item {
+
+    .stat-label {
+        color: var(--text-secondary);
+        font-size: 0.9rem;
         display: flex;
-        justify-content: space-between;
-        margin-bottom: 0.5rem;
-        padding: 0.5rem;
-        background: rgba(157, 78, 221, 0.05);
-        border-radius: 5px;
+        align-items: center;
+        justify-content: center;
     }
-    
-    .github-stat-label {
-        color: #c77dff;
-        font-weight: bold;
+
+    .stat-label i {
+        margin-right: 8px;
+        color: var(--primary);
     }
-    
-    .github-stat-value {
-        color: #fff;
+
+    /* Charts Section */
+    .charts-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 1.5rem;
     }
-    
-    .language-item {
-        display: inline-block;
-        background: rgba(157, 78, 221, 0.3);
-        color: #fff;
-        padding: 0.2rem 0.5rem;
-        border-radius: 15px;
-        margin-right: 0.5rem;
-        margin-bottom: 0.5rem;
-        font-size: 0.85rem;
+
+    .chart-card {
+        background: rgba(0, 0, 0, 0.2);
+        border-radius: 12px;
+        padding: 1.5rem;
+        transition: all 0.3s ease;
     }
-    
-    .refresh-stats {
-        font-size: 0.8rem;
-        margin-top: 1rem;
-        color: #c77dff;
+
+    .chart-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
     }
-    
-    /* Chart Containers */
-    .chart-container {
-        margin-top: 1.5rem;
-        background: rgba(157, 78, 221, 0.1);
-        border: 1px solid #9d4edd;
-        border-radius: 10px;
-        padding: 1rem;
-    }
-    
+
     .chart-title {
-        color: #9d4edd;
+        color: var(--primary);
+        font-size: 1.2rem;
+        font-weight: 600;
         margin-bottom: 1rem;
-        font-size: 1.1rem;
+        display: flex;
+        align-items: center;
     }
-    
+
+    .chart-title i {
+        margin-right: 10px;
+    }
+
     .chart-wrapper {
         position: relative;
-        height: 300px;
+        height: 250px;
         width: 100%;
     }
-    
+
+    /* Contributors Section */
+    .contributors-section {
+        margin-top: 1.5rem;
+    }
+
     .contributors-list {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 1rem;
         margin-top: 1rem;
     }
-    
+
     .contributor-item {
         display: flex;
+        align-items: center;
         justify-content: space-between;
-        padding: 0.5rem;
-        background: rgba(157, 78, 221, 0.05);
-        border-radius: 5px;
-        margin-bottom: 0.5rem;
+        background: rgba(0, 0, 0, 0.2);
+        border-radius: 12px;
+        padding: 1rem;
+        transition: all 0.3s ease;
     }
-    
+
+    .contributor-item:hover {
+        transform: translateX(5px);
+        background: rgba(157, 78, 221, 0.1);
+    }
+
+    .contributor-info {
+        display: flex;
+        align-items: center;
+    }
+
+    .contributor-avatar {
+        width: 40px;
+        height: 40px;
+        background: var(--primary-light);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 1rem;
+        color: var(--primary);
+        font-weight: bold;
+        font-size: 1rem;
+    }
+
     .contributor-name {
-        color: #c77dff;
+        color: var(--text-primary);
+        font-weight: 500;
+    }
+
+    .contributor-commits {
+        background: rgba(157, 78, 221, 0.1);
+        color: var(--primary);
+        padding: 0.3rem 0.8rem;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        font-weight: 600;
+    }
+
+    .languages-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-top: 1rem;
+    }
+
+    .language-item {
+        display: inline-flex;
+        align-items: center;
+        background: rgba(157, 78, 221, 0.1);
+        color: var(--text-primary);
+        padding: 0.4rem 0.8rem;
+        border-radius: 20px;
+        font-size: 0.85rem;
+    }
+
+    .language-color {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        margin-right: 8px;
+    }
+
+    .refresh-stats {
+        font-size: 0.8rem;
+        color: var(--text-secondary);
+        text-align: right;
+        font-style: italic;
+        margin-top: 1rem;
+    }
+
+    /* Meeting Card */
+    .meeting-card {
+        animation: fadeInUp 0.6s ease-out 0.8s forwards;
+    }
+
+    /* Review Form Card */
+    .review-form-card {
+        animation: fadeInUp 0.6s ease-out 1s forwards;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-label {
+        color: var(--primary);
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        display: block;
+    }
+
+    .form-control {
+        background: rgba(0, 0, 0, 0.2);
+        border: 1px solid var(--primary-border);
+        border-radius: 8px;
+        padding: 0.8rem;
+        color: var(--text-primary);
+        width: 100%;
+    }
+
+    .form-control:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 2px rgba(157, 78, 221, 0.2);
+    }
+
+    textarea.form-control {
+        min-height: 150px;
+        resize: vertical;
+    }
+
+    .form-select {
+        background: rgba(0, 0, 0, 0.2);
+        border: 1px solid var(--primary-border);
+        border-radius: 8px;
+        padding: 0.8rem;
+        color: var(--text-primary);
+        width: 100%;
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%239d4edd' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 1rem center;
+        background-size: 16px 12px;
+    }
+
+    .form-select:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 2px rgba(157, 78, 221, 0.2);
+    }
+
+    .form-text {
+        color: var(--text-secondary);
+        font-size: 0.85rem;
+        margin-top: 0.5rem;
+    }
+
+    /* Buttons */
+    .btn-custom {
+        background: rgba(157, 78, 221, 0.1);
+        color: var(--primary);
+        border: 1px solid var(--primary);
+        border-radius: 8px;
+        padding: 0.7rem 1.5rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        text-decoration: none;
+    }
+
+    .btn-custom:hover {
+        background: rgba(157, 78, 221, 0.2);
+        transform: translateY(-3px);
+        color: var(--primary-hover);
+    }
+
+    .btn-custom i {
+        margin-right: 8px;
+    }
+
+    .btn-primary {
+        background: var(--primary);
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background: var(--primary-hover);
+        color: white;
+    }
+
+    /* Alerts */
+    .alert {
+        background: var(--dark-bg);
+        backdrop-filter: blur(10px);
+        border-radius: 8px;
+        padding: 1rem;
+        margin-bottom: 1rem;
+        animation: fadeIn 0.6s ease-out forwards;
+    }
+
+    .alert-success {
+        border-left: 4px solid #4edd98;
+        color: #4edd98;
+    }
+
+    .alert-danger {
+        border-left: 4px solid #ff6b6b;
+        color: #ff6b6b;
+    }
+
+    .alert-info {
+        border-left: 4px solid var(--primary);
+        color: var(--primary);
+    }
+
+    /* Animations */
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+        to {
+            opacity: 1;
+        }
     }
     
-    .contributor-commits {
-        color: #fff;
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    @keyframes fadeInDown {
+        from {
+            opacity: 0;
+            transform: translateY(-30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    @keyframes lineGrow {
+        from {
+            width: 0;
+        }
+        to {
+            width: 100%;
+        }
+    }
+
+    /* Responsive Adjustments */
+    @media (max-width: 992px) {
+        .charts-container {
+            grid-template-columns: 1fr;
+        }
+    }
+    
+    @media (max-width: 768px) {
+        .page-header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        
+        .page-header .btn-custom {
+            margin-top: 1rem;
+        }
+        
+        .stats-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        
+        .contributors-list {
+            grid-template-columns: 1fr;
+        }
+    }
+    
+    @media (max-width: 576px) {
+        .stats-grid {
+            grid-template-columns: 1fr;
+        }
     }
 </style>
 {% endblock %}
@@ -208,10 +568,11 @@
 {% endblock %}
 
 {% block content %}
-<div class="review-container">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1 style="color: #9d4edd;">Review Project</h1>
-        <a href="{% url 'mentor_projects' %}" class="btn btn-custom">
+<div class="container review-container">
+    <!-- Page Header -->
+    <div class="page-header">
+        <h1 class="page-title">Project <span>Review</span></h1>
+        <a href="{% url 'mentor_projects' %}" class="btn-custom">
             <i class="fas fa-arrow-left"></i> Back to Projects
         </a>
     </div>
@@ -226,152 +587,234 @@
     </div>
     {% endif %}
 
+    <!-- Main Content -->
     <div class="row">
-        <div class="col-md-6">
-            <div class="project-card">
-                <h3 class="project-title">{{ project.title }}</h3>
-                {% if project.student %}
-                    <p class="text-muted">By: {{ project.student.full_name }}</p>
-                {% elif project.group %}
-                    <p class="text-muted">By: {{ project.group.name }} (Group)</p>
-                    <p class="text-muted">Leader: {{ project.group.leader.full_name }}</p>
-                {% endif %}
-
-                <div class="project-details">
-                    <p>{{ project.description }}</p>
-                    
-                    <div class="project-meta">
-                        <p><strong>SDGs:</strong> {{ project.sdgs }}</p>
-                        <p><strong>Tech Stack:</strong> {{ project.tech_stack }}</p>
-                        {% if project.github_link %}
-                        <p><strong>GitHub:</strong> <a href="{{ project.github_link }}" target="_blank" style="color: #9d4edd;">View Repository</a></p>
-                        {% endif %}
-                        {% if project.project_file %}
-                        <p><strong>Project File:</strong> <a href="{{ project.project_file.url }}" style="color: #9d4edd;">Download</a></p>
+        <!-- Left Column -->
+        <div class="col-lg-7">
+            <!-- Project Details Card -->
+            <div class="card project-card">
+                <div class="card-header">
+                    <div class="project-info">
+                        <h3 class="card-title">
+                            <i class="fas fa-project-diagram"></i> {{ project.title }}
+                        </h3>
+                        {% if project.student %}
+                            <span class="text-secondary">By: {{ project.student.full_name }}</span>
+                        {% elif project.group %}
+                            <span class="text-secondary">By: {{ project.group.name }} (Group)</span>
+                            <span class="text-secondary">Leader: {{ project.group.leader.full_name }}</span>
                         {% endif %}
                     </div>
                 </div>
+
+                <div class="project-description">
+                    {{ project.description }}
+                </div>
+                
+                <div class="project-meta">
+                    <div class="meta-item">
+                        <i class="fas fa-globe"></i>
+                        <strong>SDGs:</strong> {{ project.sdgs }}
+                    </div>
+                    <div class="meta-item">
+                        <i class="fas fa-code"></i>
+                        <strong>Tech Stack:</strong> {{ project.tech_stack }}
+                    </div>
+                    {% if project.github_link %}
+                    <div class="meta-item">
+                        <i class="fab fa-github"></i>
+                        <strong>GitHub:</strong> 
+                        <a href="{{ project.github_link }}" target="_blank">View Repository</a>
+                    </div>
+                    {% endif %}
+                    {% if project.project_file %}
+                    <div class="meta-item">
+                        <i class="fas fa-file-alt"></i>
+                        <strong>Project File:</strong> 
+                        <a href="{{ project.project_file.url }}">Download</a>
+                    </div>
+                    {% endif %}
+                </div>
             </div>
 
-            <!-- GitHub Stats Section -->
+            <!-- GitHub Stats Card -->
             {% if project.github_link %}
-            <div class="github-stats-card">
-                <h3 class="github-stats-title">
-                    <i class="fab fa-github"></i> GitHub Stats
-                </h3>
+            <div class="card github-stats-card">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fab fa-github"></i> GitHub Stats
+                    </h3>
+                </div>
                 
                 {% if github_stats %}
-                <div class="github-stats-content">
-                    <div class="github-stat-item">
-                        <span class="github-stat-label">Stars:</span>
-                        <span class="github-stat-value">{{ github_stats.stars }}</span>
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-value">{{ github_stats.stars }}</div>
+                        <div class="stat-label"><i class="fas fa-star"></i> Stars</div>
                     </div>
-                    <div class="github-stat-item">
-                        <span class="github-stat-label">Forks:</span>
-                        <span class="github-stat-value">{{ github_stats.forks }}</span>
+                    <div class="stat-item">
+                        <div class="stat-value">{{ github_stats.forks }}</div>
+                        <div class="stat-label"><i class="fas fa-code-branch"></i> Forks</div>
                     </div>
-                    <div class="github-stat-item">
-                        <span class="github-stat-label">Watchers:</span>
-                        <span class="github-stat-value">{{ github_stats.watchers }}</span>
+                    <div class="stat-item">
+                        <div class="stat-value">{{ github_stats.watchers }}</div>
+                        <div class="stat-label"><i class="fas fa-eye"></i> Watchers</div>
                     </div>
-                    
+                    <div class="stat-item">
+                        <div class="stat-value">{{ github_stats.contributors|length }}</div>
+                        <div class="stat-label"><i class="fas fa-users"></i> Contributors</div>
+                    </div>
+                </div>
+                
+                <div class="charts-container">
                     <!-- Languages Chart -->
-                    <div class="chart-container">
-                        <h4 class="chart-title">Languages Used</h4>
+                    <div class="chart-card">
+                        <h4 class="chart-title">
+                            <i class="fas fa-code"></i> Languages Used
+                        </h4>
                         <div class="chart-wrapper">
                             <canvas id="languagesChart"></canvas>
                         </div>
-                    </div>
-                    
-                    <!-- Contributors Chart -->
-                    <div class="chart-container">
-                        <h4 class="chart-title">Top Contributors</h4>
-                        <div class="chart-wrapper">
-                            <canvas id="contributorsChart"></canvas>
-                        </div>
-                        <div class="contributors-list">
-                            {% for contributor, commits in github_stats.contributors.items %}
-                            <div class="contributor-item">
-                                <span class="contributor-name">{{ contributor }}</span>
-                                <span class="contributor-commits">{{ commits }} commits</span>
+                        <div class="languages-list">
+                            {% for language, percentage in github_stats.languages.items %}
+                            <div class="language-item">
+                                <span class="language-color" id="color-{{ language|slugify }}"></span>
+                                {{ language }}: {{ percentage }}%
                             </div>
                             {% endfor %}
                         </div>
                     </div>
+                    
+                    <!-- Contributors Chart -->
+                    <div class="chart-card">
+                        <h4 class="chart-title">
+                            <i class="fas fa-chart-pie"></i> Contribution Distribution
+                        </h4>
+                        <div class="chart-wrapper">
+                            <canvas id="contributorsChart"></canvas>
+                        </div>
+                    </div>
                 </div>
-                <p class="refresh-stats text-muted">
+                
+                <!-- Contributors Section -->
+                <div class="contributors-section">
+                    <h4 class="chart-title">
+                        <i class="fas fa-users"></i> Contributors ({{ github_stats.contributors|length }})
+                    </h4>
+                    <div class="contributors-list">
+                        {% for contributor, commits in github_stats.contributors.items %}
+                        <div class="contributor-item">
+                            <div class="contributor-info">
+                                <div class="contributor-avatar">{{ contributor|slice:":1" }}</div>
+                                <span class="contributor-name">{{ contributor }}</span>
+                            </div>
+                            <span class="contributor-commits">{{ commits }} commits</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                
+                <p class="refresh-stats">
                     Last updated: {{ github_stats.last_updated|date:"F j, Y H:i" }}
                 </p>
                 {% else %}
-                <p>GitHub stats are not available for this project.</p>
+                <div class="text-center py-4">
+                    <i class="fas fa-exclamation-circle" style="font-size: 3rem; color: var(--primary); margin-bottom: 1rem;"></i>
+                    <p>GitHub stats are not available for this project.</p>
+                </div>
                 {% endif %}
             </div>
             {% endif %}
-
-            <!-- Meeting Scheduling Section -->
-            <div class="meeting-section">
-                <h3 class="meeting-title">Schedule a Meeting</h3>
-                {% if project.student %}
-                    <form method="POST" action="{% url 'schedule_meeting' project.student.id %}" class="meeting-form">
-                {% elif project.group %}
-                    <form method="POST" action="{% url 'schedule_meeting' project.group.leader.id %}" class="meeting-form">
-                {% endif %}
-                    {% csrf_token %}
-                    <div class="mb-3">
-                        <label for="title" class="form-label">Meeting Title</label>
-                        <input type="text" class="form-control" id="title" name="title" required 
-                               value="Project Review: {{ project.title }}">
-                    </div>
-                    <div class="mb-3">
-                        <label for="description" class="form-label">Meeting Description</label>
-                        <textarea class="form-control" id="description" name="description" rows="3" 
-                                  placeholder="Discuss project progress, feedback, and next steps..."></textarea>
-                    </div>
-                    <div class="mb-3">
-                        <label for="meeting_link" class="form-label">Meeting Link</label>
-                        <input type="url" class="form-control" id="meeting_link" name="meeting_link" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="meeting_time" class="form-label">Meeting Time</label>
-                        <input type="datetime-local" class="form-control" id="meeting_time" name="meeting_time" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="duration" class="form-label">Duration (minutes)</label>
-                        <input type="number" class="form-control" id="duration" name="duration" required value="30">
-                    </div>
-                    <button type="submit" class="btn btn-custom">Schedule Meeting</button>
-                </form>
-            </div>
         </div>
 
-        <div class="col-md-6">
-            <div class="review-form">
-                <h3 class="mb-4" style="color: #9d4edd;">Your Review</h3>
+        <!-- Right Column -->
+        <div class="col-lg-5">
+            <!-- Review Form Card -->
+            <div class="card review-form-card">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-clipboard-check"></i> Your Review
+                    </h3>
+                </div>
+                
                 <form method="POST">
                     {% csrf_token %}
-                    <div class="mb-3">
+                    <div class="form-group">
                         <label for="status" class="form-label">Project Status</label>
-                        <select name="status" id="status" class="form-control status-select" required>
+                        <select name="status" id="status" class="form-select" required>
                             <option value="in_progress" {% if project.status == 'in_progress' %}selected{% endif %}>In Progress</option>
                             <option value="completed" {% if project.status == 'completed' %}selected{% endif %}>Completed</option>
                             <option value="under_review" {% if project.status == 'under_review' %}selected{% endif %}>Under Review</option>
                         </select>
                     </div>
 
-                    <div class="mb-3">
+                    <div class="form-group">
                         <label for="feedback" class="form-label">Feedback</label>
-                        <textarea name="feedback" id="feedback" class="form-control" rows="6" placeholder="Provide your feedback on the project...">{{ project.mentor_feedback }}</textarea>
+                        <textarea name="feedback" id="feedback" class="form-control" rows="8" 
+                                  placeholder="Provide your feedback on the project...">{{ project.mentor_feedback }}</textarea>
                     </div>
 
-                    <div class="mb-4">
+                    <div class="form-group">
                         <label for="grade" class="form-label">Grade (Optional)</label>
-                        <input type="number" name="grade" id="grade" class="form-control" min="0" max="100" value="{{ project.mentor_grade }}" placeholder="Enter grade (0-100)">
-                        <small class="text-muted">Leave empty if you don't want to grade yet</small>
+                        <input type="number" name="grade" id="grade" class="form-control" min="0" max="100" 
+                               value="{{ project.mentor_grade }}" placeholder="Enter grade (0-100)">
+                        <small class="form-text">Leave empty if you don't want to grade yet</small>
                     </div>
 
                     <div class="text-end">
-                        <button type="submit" class="btn btn-custom">
+                        <button type="submit" class="btn-custom btn-primary">
+                            <i class="fas fa-save"></i> 
                             {% if project.mentor_feedback %}Update Review{% else %}Submit Review{% endif %}
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Meeting Scheduling Card -->
+            <div class="card meeting-card">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-calendar-alt"></i> Schedule a Meeting
+                    </h3>
+                </div>
+                
+                {% if project.student %}
+                    <form method="POST" action="{% url 'schedule_meeting' project.student.id %}">
+                {% elif project.group %}
+                    <form method="POST" action="{% url 'schedule_meeting' project.group.leader.id %}">
+                {% endif %}
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="title" class="form-label">Meeting Title</label>
+                        <input type="text" class="form-control" id="title" name="title" required 
+                               value="Project Review: {{ project.title }}">
+                    </div>
+                    <div class="form-group">
+                        <label for="description" class="form-label">Meeting Description</label>
+                        <textarea class="form-control" id="description" name="description" rows="3" 
+                                  placeholder="Discuss project progress, feedback, and next steps..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="meeting_link" class="form-label">Meeting Link</label>
+                        <input type="url" class="form-control" id="meeting_link" name="meeting_link" required>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="form-group">
+                                <label for="meeting_time" class="form-label">Meeting Time</label>
+                                <input type="datetime-local" class="form-control" id="meeting_time" name="meeting_time" required>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="duration" class="form-label">Duration (minutes)</label>
+                                <input type="number" class="form-control" id="duration" name="duration" required value="30">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="text-end">
+                        <button type="submit" class="btn-custom">
+                            <i class="fas fa-calendar-plus"></i> Schedule Meeting
                         </button>
                     </div>
                 </form>
@@ -385,13 +828,15 @@
 {{ github_stats.contributors|json_script:"contributors-data" }}
 <script>
 document.addEventListener('DOMContentLoaded', function () {
+    // Parse data from Django template
     const languagesDataRaw = JSON.parse(document.getElementById('languages-data').textContent);
     const contributorsDataRaw = JSON.parse(document.getElementById('contributors-data').textContent);
 
+    // Get chart contexts
     const languagesCtx = document.getElementById('languagesChart').getContext('2d');
     const contributorsCtx = document.getElementById('contributorsChart').getContext('2d');
 
-    // Vibrant color palette for languages chart
+    // Generate vibrant colors for language chart
     const languageColors = [
         '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF',
         '#FF9F40', '#8AC24A', '#EA5F89', '#00B4D8', '#FF6B6B',
@@ -399,19 +844,27 @@ document.addEventListener('DOMContentLoaded', function () {
         '#6930C3', '#5E60CE', '#5390D9', '#4EA8DE', '#64DFDF'
     ];
 
-    const languagesData = {
-        labels: Object.keys(languagesDataRaw),
-        datasets: [{
-            data: Object.values(languagesDataRaw),
-            backgroundColor: languageColors.slice(0, Object.keys(languagesDataRaw).length),
-            borderColor: '#2b2b2b',
-            borderWidth: 1
-        }]
-    };
+    // Set language color indicators in the language list
+    const languages = Object.keys(languagesDataRaw);
+    languages.forEach((language, index) => {
+        const colorElement = document.getElementById(`color-${language.toLowerCase().replace(/\s+/g, '-')}`);
+        if (colorElement) {
+            colorElement.style.backgroundColor = languageColors[index % languageColors.length];
+        }
+    });
 
+    // Languages Chart
     new Chart(languagesCtx, {
         type: 'doughnut',
-        data: languagesData,
+        data: {
+            labels: Object.keys(languagesDataRaw),
+            datasets: [{
+                data: Object.values(languagesDataRaw),
+                backgroundColor: languageColors.slice(0, Object.keys(languagesDataRaw).length),
+                borderColor: 'rgba(30, 30, 30, 0.8)',
+                borderWidth: 2
+            }]
+        },
         options: {
             responsive: true,
             maintainAspectRatio: false,
@@ -419,10 +872,11 @@ document.addEventListener('DOMContentLoaded', function () {
                 legend: {
                     position: 'right',
                     labels: {
-                        color: '#fff',
+                        color: '#e0e0e0',
                         font: {
                             size: 12
-                        }
+                        },
+                        padding: 15
                     }
                 },
                 tooltip: {
@@ -433,82 +887,83 @@ document.addEventListener('DOMContentLoaded', function () {
                     },
                     bodyFont: {
                         size: 14
-                    }
+                    },
+                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                    titleColor: '#9d4edd',
+                    bodyColor: '#e0e0e0',
+                    borderColor: '#9d4edd',
+                    borderWidth: 1
                 }
             },
-            cutout: '60%'
+            cutout: '65%',
+            animation: {
+                animateScale: true,
+                animateRotate: true,
+                duration: 2000,
+                easing: 'easeOutQuart'
+            }
         }
     });
 
-    // Colorful gradient for contributors chart
+    // Contributors Chart (Pie Chart)
+    const contributorNames = Object.keys(contributorsDataRaw);
+    const contributorCommits = Object.values(contributorsDataRaw);
+    
+    // Generate gradient colors for contributors
     const contributorColors = [];
-    const contributorCount = Object.keys(contributorsDataRaw).length;
-    for (let i = 0; i < contributorCount; i++) {
-        const hue = (i * (360 / contributorCount)) % 360;
+    contributorNames.forEach((_, index) => {
+        const hue = (index * (360 / contributorNames.length)) % 360;
         contributorColors.push(`hsl(${hue}, 70%, 60%)`);
-    }
-
-    const contributorsData = {
-        labels: Object.keys(contributorsDataRaw),
-        datasets: [{
-            label: 'Commits',
-            data: Object.values(contributorsDataRaw),
-            backgroundColor: contributorColors,
-            borderColor: '#2b2b2b',
-            borderWidth: 1,
-            borderRadius: 6,
-            borderSkipped: false
-        }]
-    };
+    });
 
     new Chart(contributorsCtx, {
-        type: 'bar',
-        data: contributorsData,
+        type: 'pie',
+        data: {
+            labels: contributorNames,
+            datasets: [{
+                data: contributorCommits,
+                backgroundColor: contributorColors,
+                borderColor: 'rgba(30, 30, 30, 0.8)',
+                borderWidth: 2
+            }]
+        },
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    ticks: {
-                        color: '#fff',
-                        font: {
-                            size: 12
-                        }
-                    },
-                    grid: {
-                        color: 'rgba(255, 255, 255, 0.1)'
-                    }
-                },
-                x: {
-                    ticks: {
-                        color: '#fff',
-                        font: {
-                            size: 12
-                        }
-                    },
-                    grid: {
-                        display: false
-                    }
-                }
-            },
             plugins: {
                 legend: {
-                    display: false
+                    position: 'right',
+                    labels: {
+                        color: '#e0e0e0',
+                        font: {
+                            size: 12
+                        },
+                        padding: 15
+                    }
                 },
                 tooltip: {
                     callbacks: {
                         label: function (context) {
-                            return `Commits: ${context.raw}`;
+                            const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                            const percentage = Math.round((context.raw / total) * 100);
+                            return `${context.label}: ${context.raw} commits (${percentage}%)`;
                         }
                     },
                     bodyFont: {
                         size: 14
-                    }
+                    },
+                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                    titleColor: '#9d4edd',
+                    bodyColor: '#e0e0e0',
+                    borderColor: '#9d4edd',
+                    borderWidth: 1
                 }
             },
             animation: {
-                duration: 1500
+                animateScale: true,
+                animateRotate: true,
+                duration: 2000,
+                easing: 'easeOutQuart'
             }
         }
     });

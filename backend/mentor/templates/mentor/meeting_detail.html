@@ -1,47 +1,697 @@
 {% extends 'mentor/base.html' %}
 
-{% block content %}
-<div class="container mt-4">
-    <h2>Meeting Details</h2>
+{% load static %}
+
+{% block title %}Meeting Details{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --primary: #9d4edd;
+        --primary-light: rgba(157, 78, 221, 0.2);
+        --primary-border: rgba(157, 78, 221, 0.3);
+        --success: #4edd98;
+        --danger: #ff6b6b;
+        --dark-bg: rgba(10, 10, 10, 0.8);
+        --card-border: rgba(30, 30, 30, 0.8);
+        --text-primary: #e0e0e0;
+        --text-secondary: #9d9d9d;
+    }
+
+    .dashboard-container {
+        padding: 2rem 0;
+        position: relative;
+        z-index: 2;
+    }
+
+    .welcome-section {
+        background: var(--dark-bg);
+        backdrop-filter: blur(10px);
+        border: 1px solid var(--card-border);
+        border-radius: 16px;
+        padding: 2.5rem;
+        margin-bottom: 3rem;
+        text-align: center;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+        position: relative;
+        overflow: hidden;
+        animation: fadeInDown 0.8s ease-out forwards;
+    }
+
+    .welcome-section::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(45deg, rgba(20, 20, 20, 0.3), transparent);
+        z-index: -1;
+    }
+
+    .welcome-section h1 {
+        font-size: 2.5rem;
+        font-weight: 800;
+        letter-spacing: -0.5px;
+        line-height: 1.2;
+        margin-bottom: 1rem;
+        color: white;
+        opacity: 0;
+        animation: fadeIn 0.6s ease-out 0.4s forwards;
+    }
+
+    .welcome-section h1 span {
+        color: var(--primary);
+        position: relative;
+        display: inline-block;
+    }
+
+    .welcome-section h1 span::after {
+        content: "";
+        position: absolute;
+        bottom: 5px;
+        left: 0;
+        width: 0;
+        height: 8px;
+        background-color: rgba(157, 78, 221, 0.15);
+        z-index: -1;
+        border-radius: 4px;
+        animation: lineGrow 0.6s ease-out 1s forwards;
+    }
+
+    .back-link {
+        display: inline-flex;
+        align-items: center;
+        color: var(--primary);
+        text-decoration: none;
+        font-weight: 500;
+        margin-bottom: 2rem;
+        transition: all 0.3s ease;
+        opacity: 0;
+        animation: fadeIn 0.6s ease-out 0.6s forwards;
+    }
+
+    .back-link i {
+        margin-right: 8px;
+    }
+
+    .back-link:hover {
+        transform: translateX(-5px);
+        color: var(--primary);
+    }
+
+    /* Meeting Detail Card */
+    .meeting-detail-card {
+        background: var(--dark-bg);
+        backdrop-filter: blur(10px);
+        border: 1px solid var(--card-border);
+        border-radius: 16px;
+        margin-bottom: 2rem;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+        position: relative;
+        overflow: hidden;
+        opacity: 0;
+        animation: fadeInUp 0.8s ease-out 0.7s forwards;
+    }
+
+    .meeting-detail-header {
+        position: relative;
+        padding: 2rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+    }
+
+    .meeting-detail-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(to right, rgba(157, 78, 221, 0.1), transparent);
+        z-index: -1;
+    }
+
+    .meeting-detail-body {
+        padding: 2rem;
+    }
+
+    .meeting-detail-footer {
+        padding: 1.5rem 2rem;
+        background: rgba(0, 0, 0, 0.2);
+        border-top: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .meeting-title {
+        color: var(--text-primary);
+        margin-bottom: 0.5rem;
+        font-size: 1.8rem;
+        font-weight: 700;
+    }
+
+    .meeting-status {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.25rem 1rem;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        font-weight: 500;
+    }
+
+    .status-scheduled {
+        background: rgba(78, 221, 152, 0.1);
+        color: var(--success);
+        border: 1px solid var(--success);
+    }
+
+    .status-completed {
+        background: rgba(40, 167, 69, 0.1);
+        color: #28a745;
+        border: 1px solid #28a745;
+    }
+
+    .status-cancelled {
+        background: rgba(255, 107, 107, 0.1);
+        color: var(--danger);
+        border: 1px solid var(--danger);
+    }
+
+    .status-indicator {
+        display: inline-block;
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        margin-right: 6px;
+    }
+
+    .status-scheduled .status-indicator {
+        background-color: var(--success);
+        box-shadow: 0 0 8px var(--success);
+    }
+
+    .status-completed .status-indicator {
+        background-color: #28a745;
+        box-shadow: 0 0 8px #28a745;
+    }
+
+    .status-cancelled .status-indicator {
+        background-color: var(--danger);
+        box-shadow: 0 0 8px var(--danger);
+    }
+
+    .meeting-participant {
+        margin-top: 2rem;
+    }
+
+    .participant-label {
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+        margin-bottom: 0.5rem;
+        display: block;
+    }
+
+    .participant-card {
+        display: flex;
+        align-items: center;
+        background: rgba(0, 0, 0, 0.2);
+        border-radius: 12px;
+        padding: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .participant-avatar {
+        width: 48px;
+        height: 48px;
+        background: var(--primary-light);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 1rem;
+        color: var(--primary);
+        font-weight: bold;
+        font-size: 1.2rem;
+    }
+
+    .participant-info h4 {
+        color: var(--text-primary);
+        margin: 0 0 0.25rem 0;
+        font-size: 1.1rem;
+    }
+
+    .participant-info p {
+        color: var(--text-secondary);
+        margin: 0;
+        font-size: 0.9rem;
+    }
+
+    .meeting-info-section {
+        margin-bottom: 2rem;
+    }
+
+    .section-title {
+        color: var(--primary);
+        font-size: 1.2rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+    }
+
+    .section-title i {
+        margin-right: 10px;
+    }
+
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .info-item {
+        background: rgba(0, 0, 0, 0.2);
+        border-radius: 12px;
+        padding: 1.2rem;
+        transition: all 0.3s ease;
+    }
+
+    .info-item:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+    }
+
+    .info-label {
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+    }
+
+    .info-label i {
+        margin-right: 8px;
+        color: var(--primary);
+        width: 16px;
+        text-align: center;
+    }
+
+    .info-value {
+        color: var(--text-primary);
+        font-size: 1.1rem;
+        font-weight: 500;
+    }
+
+    .meeting-description {
+        color: var(--text-secondary);
+        background: rgba(0, 0, 0, 0.2);
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-top: 1rem;
+        border-left: 3px solid var(--primary);
+        line-height: 1.6;
+    }
+
+    .meeting-actions {
+        display: flex;
+        gap: 1rem;
+    }
+
+    .btn-custom {
+        padding: 0.8rem 2rem;
+        border-radius: 8px;
+        border: none;
+        cursor: pointer;
+        font-size: 1rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .btn-join {
+        background: rgba(78, 221, 152, 0.1);
+        color: var(--success);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+        border: 1px solid var(--success);
+    }
+
+    .btn-join:hover {
+        transform: translateY(-3px);
+        background: rgba(78, 221, 152, 0.2);
+    }
+
+    .btn-join i {
+        margin-right: 8px;
+    }
+
+    .btn-cancel {
+        background: rgba(255, 107, 107, 0.1);
+        color: var(--danger);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+        border: 1px solid var(--danger);
+    }
+
+    .btn-cancel:hover {
+        transform: translateY(-3px);
+        background: rgba(255, 107, 107, 0.2);
+    }
+
+    .btn-cancel i {
+        margin-right: 8px;
+    }
+
+    .btn-back {
+        background: rgba(157, 78, 221, 0.1);
+        color: var(--primary);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+        border: 1px solid var(--primary);
+    }
+
+    .btn-back:hover {
+        transform: translateY(-3px);
+        background: rgba(157, 78, 221, 0.2);
+    }
+
+    .btn-back i {
+        margin-right: 8px;
+    }
+
+    .alerts {
+        margin-bottom: 2rem;
+        opacity: 0;
+        animation: fadeIn 0.6s ease-out 0.6s forwards;
+    }
+
+    .alert {
+        background: var(--dark-bg);
+        backdrop-filter: blur(10px);
+        border-radius: 8px;
+        padding: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .alert-success {
+        border-left: 4px solid var(--success);
+        color: var(--success);
+    }
+
+    .alert-danger {
+        border-left: 4px solid var(--danger);
+        color: var(--danger);
+    }
+
+    .alert-info {
+        border-left: 4px solid var(--primary);
+        color: var(--primary);
+    }
+
+    /* Notes Section */
+    .notes-section {
+        margin-top: 2rem;
+        opacity: 0;
+        animation: fadeInUp 0.8s ease-out 1s forwards;
+    }
+
+    .notes-container {
+        background: var(--dark-bg);
+        backdrop-filter: blur(10px);
+        border: 1px solid var(--card-border);
+        border-radius: 16px;
+        padding: 2rem;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+    }
+
+    .notes-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+    }
+
+    .notes-title {
+        color: var(--text-primary);
+        font-size: 1.4rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+    }
+
+    .notes-title i {
+        margin-right: 10px;
+        color: var(--primary);
+    }
+
+    .notes-content {
+        color: var(--text-secondary);
+        background: rgba(0, 0, 0, 0.2);
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        border-left: 3px solid var(--primary);
+        line-height: 1.6;
+    }
+
+    .notes-form textarea {
+        width: 100%;
+        background: rgba(0, 0, 0, 0.3);
+        border: 1px solid rgba(157, 78, 221, 0.3);
+        border-radius: 8px;
+        padding: 1rem;
+        color: var(--text-primary);
+        margin-bottom: 1rem;
+        resize: vertical;
+        min-height: 120px;
+    }
+
+    .notes-form textarea:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 2px rgba(157, 78, 221, 0.2);
+    }
+
+    /* Animation Keyframes */
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+        to {
+            opacity: 1;
+        }
+    }
     
-    <div class="card">
-        <div class="card-header">
-            {{ meeting.title }}
-            <span class="badge {% if meeting.status == 'scheduled' %}badge-primary{% elif meeting.status == 'completed' %}badge-success{% elif meeting.status == 'cancelled' %}badge-danger{% endif %} float-right">
-                {{ meeting.get_status_display }}
+    @keyframes fadeInDown {
+        from {
+            opacity: 0;
+            transform: translateY(-30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    @keyframes lineGrow {
+        from {
+            width: 0;
+        }
+        to {
+            width: 100%;
+        }
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .welcome-section h1 {
+            font-size: 2rem;
+        }
+        
+        .info-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .meeting-actions {
+            flex-direction: column;
+        }
+        
+        .meeting-detail-header {
+            flex-direction: column;
+        }
+        
+        .meeting-status {
+            margin-top: 1rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Add Font Awesome for professional icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<div class="dashboard-container container">
+    <a href="{% url 'meeting_list' %}" class="back-link">
+        <i class="fas fa-arrow-left"></i> Back to Meetings
+    </a>
+
+    <div class="welcome-section">
+        <h1>Meeting <span>Details</span></h1>
+    </div>
+
+    {% if messages %}
+    <div class="alerts">
+        {% for message in messages %}
+        <div class="alert {% if message.tags == 'success' %}alert-success{% elif message.tags == 'error' %}alert-danger{% else %}alert-info{% endif %}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="meeting-detail-card">
+        <div class="meeting-detail-header">
+            <div>
+                <h2 class="meeting-title">{{ meeting.title }}</h2>
+            </div>
+            <span class="meeting-status status-{{ meeting.status }}">
+                <span class="status-indicator"></span>
+                {{ meeting.status|title }}
             </span>
         </div>
-        <div class="card-body">
-            {% if meeting.description %}
-            <p class="card-text"><strong>Description:</strong> {{ meeting.description }}</p>
-            {% endif %}
-            
-            <p><strong>Student:</strong> {{ meeting.student.full_name }}</p>
-            <p><strong>Date & Time:</strong> {{ meeting.meeting_time }}</p>
-            <p><strong>Duration:</strong> {{ meeting.duration }} minutes</p>
-            <p><strong>Meeting Link:</strong> <a href="{{ meeting.meeting_link }}" target="_blank">{{ meeting.meeting_link }}</a></p>
-            
-            {% if meeting.status == 'scheduled' %}
-            <div class="mt-3">
-                <a href="{% url 'update_meeting' meeting.id %}" class="btn btn-primary">Update Meeting</a>
+
+        <div class="meeting-detail-body">
+            <div class="meeting-participant">
+                <span class="participant-label">Meeting with:</span>
+                <div class="participant-card">
+                    <div class="participant-avatar">{{ meeting.student.full_name|slice:":1" }}</div>
+                    <div class="participant-info">
+                        <h4>{{ meeting.student.full_name }}</h4>
+                        <p>{{ meeting.student.email }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="meeting-info-section">
+                <h3 class="section-title">
+                    <i class="fas fa-info-circle"></i> Meeting Information
+                </h3>
                 
-                <form method="post" action="{% url 'cancel_meeting' meeting.id %}" class="d-inline">
+                <div class="info-grid">
+                    <div class="info-item">
+                        <div class="info-label">
+                            <i class="fas fa-calendar-alt"></i> Date
+                        </div>
+                        <div class="info-value">{{ meeting.meeting_time|date:"F j, Y" }}</div>
+                    </div>
+                    
+                    <div class="info-item">
+                        <div class="info-label">
+                            <i class="fas fa-clock"></i> Time
+                        </div>
+                        <div class="info-value">{{ meeting.meeting_time|date:"g:i A" }}</div>
+                    </div>
+                    
+                    <div class="info-item">
+                        <div class="info-label">
+                            <i class="fas fa-hourglass-half"></i> Duration
+                        </div>
+                        <div class="info-value">{{ meeting.duration }} minutes</div>
+                    </div>
+                    
+                    {% if meeting.meeting_link %}
+                    <div class="info-item">
+                        <div class="info-label">
+                            <i class="fas fa-link"></i> Meeting Link
+                        </div>
+                        <div class="info-value">
+                            <a href="{{ meeting.meeting_link }}" target="_blank" style="color: var(--success); text-decoration: none;">
+                                Join URL
+                            </a>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+                
+                {% if meeting.description %}
+                <div class="meeting-description">
+                    <div class="info-label" style="margin-bottom: 10px;">
+                        <i class="fas fa-align-left"></i> Description
+                    </div>
+                    {{ meeting.description }}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        {% if meeting.status == 'scheduled' %}
+        <div class="meeting-detail-footer">
+            <div class="meeting-actions">
+                <a href="{{ meeting.meeting_link }}" target="_blank" class="btn-custom btn-join">
+                    <i class="fas fa-video"></i> Join Meeting
+                </a>
+                <form method="POST" action="{% url 'cancel_meeting' meeting.id %}" style="display: inline;">
                     {% csrf_token %}
-                    <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure you want to cancel this meeting?')">Cancel Meeting</button>
+                    <button type="submit" class="btn-custom btn-cancel" onclick="return confirm('Are you sure you want to cancel this meeting?')">
+                        <i class="fas fa-times-circle"></i> Cancel Meeting
+                    </button>
                 </form>
+                <a href="{% url 'meeting_list' %}" class="btn-custom btn-back">
+                    <i class="fas fa-arrow-left"></i> Back to Meetings
+                </a>
+            </div>
+        </div>
+        {% else %}
+        <div class="meeting-detail-footer">
+            <div class="meeting-actions">
+                <a href="{% url 'meeting_list' %}" class="btn-custom btn-back">
+                    <i class="fas fa-arrow-left"></i> Back to Meetings
+                </a>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    {% if meeting.notes or meeting.status == 'completed' %}
+    <div class="notes-section">
+        <div class="notes-container">
+            <div class="notes-header">
+                <h3 class="notes-title">
+                    <i class="fas fa-sticky-note"></i> Meeting Notes
+                </h3>
+            </div>
+            
+            {% if meeting.notes %}
+            <div class="notes-content">
+                {{ meeting.notes }}
             </div>
             {% endif %}
-        </div>
-        <div class="card-footer text-muted">
-            Created: {{ meeting.created_at }}
-            {% if meeting.created_at != meeting.updated_at %}
-            <br>Last Updated: {{ meeting.updated_at }}
+            
+            {% if meeting.status == 'completed' and not meeting.notes %}
+            <form method="POST" action="{% url 'add_meeting_notes' meeting.id %}" class="notes-form">
+                {% csrf_token %}
+                <textarea name="notes" placeholder="Add your meeting notes here..."></textarea>
+                <button type="submit" class="btn-custom btn-join">
+                    <i class="fas fa-save"></i> Save Notes
+                </button>
+            </form>
             {% endif %}
         </div>
     </div>
-    
-    <div class="mt-3">
-        <a href="{% url 'meeting_list' %}" class="btn btn-secondary">Back to Meetings</a>
-    </div>
+    {% endif %}
 </div>
 {% endblock %}

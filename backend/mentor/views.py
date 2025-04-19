@@ -500,17 +500,30 @@ def cancel_meeting(request, meeting_id):
 
 @login_required
 def meeting_detail(request, meeting_id):
+    """
+    View function to display details of a specific meeting
+    """
     try:
+        # Get the mentor profile from the logged-in user
         mentor = request.user.mentor_profile
+        
+        # Get the meeting object with the specified ID belonging to this mentor
         meeting = get_object_or_404(ZoomMeeting, id=meeting_id, mentor=mentor)
         
         context = {
-            'meeting': meeting
+            'meeting': meeting,
         }
-        return render(request, 'mentor/meeting_detail.html', context)
         
+        return render(request, 'mentor/meeting_detail.html', context)
+    
+    except AttributeError:
+        # Handle the case where the user doesn't have a mentor profile
+        messages.error(request, "You don't have permission to view this meeting.")
+        return redirect('meeting_list')
+    
     except Exception as e:
-        messages.error(request, f'An error occurred: {str(e)}')
+        # Handle any other unexpected errors
+        messages.error(request, f"An error occurred while retrieving the meeting details: {str(e)}")
         return redirect('meeting_list')
 
 @login_required

@@ -8,26 +8,83 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <style>
         body {
-            background-color: #1a1a2e;
+            background-color: #000000; /* Changed to pitch black */
             min-height: 100vh;
             color: #fff;
             padding: 0;
             margin: 0;
         }
         
+        /* Improved navbar styling */
         .navbar {
-            background: rgba(15, 15, 15, 0.8);
+            background: rgba(0, 0, 0, 0.95); /* Darker background */
             backdrop-filter: blur(10px);
-            border-bottom: 2px solid #9d4edd;
-            padding: 1rem 2rem;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            border-bottom: 1px solid #9d4edd; /* Thinner border */
+            padding: 0.8rem 2rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+        
+        .navbar-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+        }
+        
+        .nav-logo-section {
+            display: flex;
+            align-items: center;
+        }
+        
+        .logo-icon {
+            color: #9d4edd;
+            font-size: 1.5rem;
+            margin-right: 0.8rem;
         }
         
         .navbar-brand {
-            color: #9d4edd !important;
-            font-size: 1.5rem;
-            font-weight: bold;
-            letter-spacing: -0.5px;
+            color: #ffffff !important;
+            font-size: 1.3rem;
+            font-weight: 600;
+            letter-spacing: -0.3px;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .brand-accent {
+            color: #9d4edd;
+            font-weight: 700;
+        }
+        
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+        
+        .nav-link {
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            font-size: 0.95rem;
+            font-weight: 500;
+            padding: 0.5rem 0;
+            position: relative;
+            transition: all 0.2s ease;
+        }
+        
+        .nav-link:hover {
+            color: #9d4edd;
+        }
+        
+        .nav-link:hover::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background-color: #9d4edd;
+            border-radius: 2px;
         }
         
         .dashboard-container {
@@ -43,7 +100,7 @@
         }
         
         .status-section {
-            background: rgba(15, 15, 15, 0.8);
+            background: rgba(10, 10, 10, 0.8); /* Darker background */
             backdrop-filter: blur(10px);
             border: 1px solid rgba(157, 78, 221, 0.3);
             border-radius: 16px;
@@ -112,7 +169,7 @@
         }
         
         .college-info {
-            background: rgba(15, 15, 15, 0.8);
+            background: rgba(10, 10, 10, 0.9); /* Darker background */
             backdrop-filter: blur(10px);
             border: 1px solid rgba(157, 78, 221, 0.2);
             border-radius: 16px;
@@ -184,6 +241,8 @@
             transition: all 0.3s ease;
             font-weight: 600;
             box-shadow: 0 4px 12px rgba(255, 107, 107, 0.15);
+            display: flex;
+            align-items: center;
         }
         
         .logout-btn:hover {
@@ -240,17 +299,42 @@
             .college-info {
                 padding: 1.5rem;
             }
+            
+            .nav-links {
+                display: none;
+            }
+            
+            .navbar {
+                padding: 0.8rem 1rem;
+            }
+            
+            .logo-icon {
+                font-size: 1.3rem;
+                margin-right: 0.5rem;
+            }
+            
+            .navbar-brand {
+                font-size: 1.1rem;
+            }
         }
     </style>
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg">
+    <nav class="navbar">
         <div class="container">
-            <a class="navbar-brand" href="#">Mentor Dashboard</a>
-            <div class="ms-auto">
-                <a href="{% url 'mentor_logout' %}" class="logout-btn">
-                    <i class="fas fa-sign-out-alt"></i> Logout
-                </a>
+            <div class="navbar-content">
+                <div class="nav-logo-section">
+                    <div class="logo-icon">
+                        <i class="fas fa-graduation-cap"></i>
+                    </div>
+                    <h1 class="navbar-brand"><span class="brand-accent">Mentor</span> Dashboard</h1>
+                </div>
+                
+                <div class="nav-actions">
+                    <a href="{% url 'mentor_logout' %}" class="logout-btn">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </a>
+                </div>
             </div>
         </div>
     </nav>

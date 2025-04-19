@@ -203,6 +203,36 @@
             animation: fadeIn 0.6s ease-out forwards;
         }
 
+        /* Updated Dropdown Styles */
+select.form-control {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%239d4edd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    background-size: 16px 12px;
+    appearance: none;
+    color: #e0e0e0; /* Ensure text is visible */
+}
+
+select.form-control option {
+    background-color: #1a1a1a; /* Dark background for options */
+    color: #e0e0e0; /* Light text for options */
+}
+
+select.form-control:focus {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+/* Dropdown menu styling */
+select.form-control option:hover {
+    background-color: #9d4edd !important; /* Purple highlight on hover */
+    color: white !important;
+}
+
+select.form-control option:checked {
+    background-color: #9d4edd; /* Purple for selected option */
+    color: white;
+}
+
         /* Animations */
         @keyframes fadeIn {
             from {
@@ -352,8 +382,8 @@
                                     <option value="CSE" {% if mentor.teaching_branch == 'CSE' %}selected{% endif %}>Computer Science</option>
                                     <option value="ECE" {% if mentor.teaching_branch == 'ECE' %}selected{% endif %}>Electronics & Communication</option>
                                     <option value="ME" {% if mentor.teaching_branch == 'ME' %}selected{% endif %}>Mechanical Engineering</option>
-                                    <option value="CE" {% if mentor.teaching_branch == 'CE' %}selected{% endif %}>Civil Engineering</option>
-                                    <option value="EE" {% if mentor.teaching_branch == 'EE' %}selected{% endif %}>Electrical Engineering</option>
+                                    <option value="AIDS" {% if mentor.teaching_branch == 'AIDS' %}selected{% endif %}>Artificial intelligence & Data Science </option>
+                                    <option value="CE" {% if mentor.teaching_branch == 'CE' %}selected{% endif %}>Computer Engineering</option>
                                 </select>
                             </div>
                         </div>

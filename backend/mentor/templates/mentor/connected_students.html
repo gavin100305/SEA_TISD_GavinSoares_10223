@@ -5,56 +5,54 @@
 
 {% block extra_css %}
 <style>
-    /* Core Styles */
     .connected-container {
         padding: 2rem 0;
         position: relative;
         z-index: 2;
     }
 
-    /* Header Section */
-    .page-header {
-        background: rgba(15, 15, 15, 0.8);
+    .connected-header {
+        background: rgba(10, 10, 10, 0.8);
         backdrop-filter: blur(10px);
-        border: 1px solid rgba(157, 78, 221, 0.3);
+        border: 1px solid rgba(30, 30, 30, 0.8);
         border-radius: 16px;
         padding: 2.5rem;
         margin-bottom: 3rem;
         text-align: center;
-        box-shadow: 0 8px 32px rgba(157, 78, 221, 0.15);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
         position: relative;
         overflow: hidden;
-        animation: fadeInUp 0.8s ease-out forwards;
+        animation: fadeInDown 0.8s ease-out forwards;
     }
 
-    .page-header::before {
+    .connected-header::before {
         content: '';
         position: absolute;
         top: 0;
         left: 0;
         width: 100%;
         height: 100%;
-        background: linear-gradient(135deg, rgba(157, 78, 221, 0.1), transparent);
+        background: linear-gradient(45deg, rgba(20, 20, 20, 0.3), transparent);
         z-index: -1;
     }
 
-    .page-header h1 {
+    .connected-header h1 {
         font-size: 2.5rem;
         font-weight: 800;
         letter-spacing: -0.5px;
-        color: white;
+        line-height: 1.2;
         margin-bottom: 1rem;
-        opacity: 0;
+        color: white;
         animation: fadeIn 0.6s ease-out 0.4s forwards;
     }
 
-    .page-header h1 span {
+    .connected-header h1 span {
         color: #9d4edd;
         position: relative;
         display: inline-block;
     }
 
-    .page-header h1 span::after {
+    .connected-header h1 span::after {
         content: "";
         position: absolute;
         bottom: 5px;
@@ -64,57 +62,41 @@
         background-color: rgba(157, 78, 221, 0.15);
         z-index: -1;
         border-radius: 4px;
-        animation: lineGrow 0.6s ease-out 0.8s forwards;
-    }
-
-    /* Student Cards */
-    .students-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-        gap: 1.5rem;
-        margin-bottom: 2.5rem;
+        animation: lineGrow 0.6s ease-out 1s forwards;
     }
 
     .student-card {
-        background: rgba(15, 15, 15, 0.8);
+        background: rgba(10, 10, 10, 0.8);
         backdrop-filter: blur(10px);
-        border: 1px solid rgba(157, 78, 221, 0.2);
+        border: 1px solid rgba(30, 30, 30, 0.8);
         border-radius: 16px;
         padding: 2rem;
-        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+        margin-bottom: 2rem;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
         position: relative;
         overflow: hidden;
-        opacity: 0;
-        transform: translateY(30px);
-    }
-
-    .student-card:nth-child(odd) {
-        animation: fadeInRight 0.6s ease-out 0.8s forwards;
-    }
-    
-    .student-card:nth-child(even) {
-        animation: fadeInLeft 0.6s ease-out 1s forwards;
+        animation: fadeInUp 0.8s ease-out 0.6s forwards;
+        transition: all 0.3s ease;
     }
 
     .student-card::before {
         content: '';
         position: absolute;
-        bottom: 0;
+        top: 0;
         left: 0;
-        width: 0;
-        height: 3px;
+        width: 3px;
+        height: 0;
         background: #9d4edd;
-        transition: width 0.3s ease;
-    }
-
-    .student-card:hover::before {
-        width: 100%;
+        transition: height 0.4s ease;
     }
 
     .student-card:hover {
-        transform: translateY(-10px);
-        border-color: rgba(157, 78, 221, 0.4);
+        transform: translateY(-5px);
+        box-shadow: 0 12px 30px rgba(157, 78, 221, 0.4);
+    }
+
+    .student-card:hover::before {
+        height: 100%;
     }
 
     .student-header {
@@ -129,56 +111,44 @@
         border-radius: 50%;
         margin-right: 1.5rem;
         border: 2px solid #9d4edd;
-        box-shadow: 0 4px 12px rgba(157, 78, 221, 0.3);
         object-fit: cover;
-        transition: all 0.3s ease;
-    }
-
-    .student-card:hover .student-image {
-        transform: scale(1.05);
-        border-color: #c77dff;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
     }
 
     .student-info h3 {
-        color: #e0e0e0;
-        font-size: 1.3rem;
-        font-weight: 600;
+        color: #9d4edd;
         margin-bottom: 0.5rem;
+        font-size: 1.4rem;
+        font-weight: 600;
     }
 
     .student-info p {
-        color: #9d9d9d;
-        margin-bottom: 0.2rem;
+        color: #e0e0e0;
+        margin-bottom: 0.3rem;
         font-size: 0.95rem;
-    }
-    
-    .student-info p strong {
-        color: #9d4edd;
-        font-weight: 500;
-    }
-
-    .section-divider {
-        height: 1px;
-        background: linear-gradient(to right, transparent, rgba(157, 78, 221, 0.3), transparent);
-        margin: 1.5rem 0;
     }
 
     .student-details, .contact-info {
-        padding: 0.8rem;
-        background: rgba(157, 78, 221, 0.05);
-        border-radius: 8px;
-        color: #9d9d9d;
-        font-size: 0.95rem;
-        margin-bottom: 1.5rem;
-    }
-
-    .student-details p, .contact-info p {
-        margin-bottom: 0.5rem;
+        margin: 1.5rem 0;
+        padding: 1.5rem;
+        background: rgba(15, 15, 15, 0.6);
+        border-radius: 12px;
+        color: #e0e0e0;
+        border: 1px solid rgba(50, 50, 50, 0.5);
+        font-size: 1rem;
+        line-height: 1.6;
     }
 
     .student-details strong, .contact-info strong {
         color: #9d4edd;
-        font-weight: 500;
+        font-weight: 600;
+        display: block;
+        margin-bottom: 0.5rem;
+        font-size: 0.95rem;
+    }
+
+    .contact-info p {
+        margin-bottom: 0.5rem;
     }
 
     .contact-info a {
@@ -192,87 +162,130 @@
         text-decoration: underline;
     }
 
+    .connection-actions {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 1.5rem;
+        opacity: 0;
+        animation: fadeIn 0.5s ease-out 1.4s forwards;
+    }
+
+    .schedule-btn {
+        padding: 0.8rem 1.5rem;
+        border-radius: 30px;
+        border: none;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        font-size: 1rem;
+        background: linear-gradient(45deg, #9d4edd, #c77dff);
+        color: white;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+    }
+
+    .schedule-btn i {
+        margin-right: 0.5rem;
+    }
+
+    .schedule-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        color: white;
+        text-decoration: none;
+    }
+
     .connection-date {
         color: #9d9d9d;
         font-size: 0.85rem;
         font-style: italic;
-        text-align: right;
-        margin-top: 0.5rem;
     }
 
-    .btn-custom {
-        background: rgba(157, 78, 221, 0.1);
-        color: #9d4edd;
-        border: 1px solid #9d4edd;
-        border-radius: 8px;
-        padding: 0.6rem 1.5rem;
-        font-weight: 600;
-        transition: all 0.3s ease;
-        box-shadow: 0 4px 12px rgba(157, 78, 221, 0.15);
-        display: inline-block;
-        text-decoration: none;
-    }
-
-    .btn-custom:hover {
-        background: rgba(157, 78, 221, 0.2);
-        transform: translateY(-3px);
-        box-shadow: 0 8px 16px rgba(157, 78, 221, 0.25);
-        color: #c77dff;
-    }
-
-    .btn-custom i {
-        margin-right: 0.5rem;
-    }
-
-    .empty-state {
-        background: rgba(15, 15, 15, 0.8);
-        backdrop-filter: blur(10px);
-        border: 1px solid rgba(157, 78, 221, 0.2);
-        border-radius: 16px;
-        padding: 3rem;
-        text-align: center;
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
-        opacity: 0;
-        animation: fadeIn 0.8s ease-out 0.8s forwards;
-    }
-
-    .empty-state p {
-        color: #9d9d9d;
-        font-size: 1.1rem;
-        margin-bottom: 2rem;
-    }
-
-    /* Alert messages */
     .alert {
-        background: rgba(15, 15, 15, 0.8);
-        backdrop-filter: blur(10px);
+        padding: 1rem;
         border-radius: 8px;
-        border-left: 4px solid #9d4edd;
-        padding: 1rem 1.5rem;
-        margin-bottom: 2rem;
-        color: #e0e0e0;
-        animation: fadeIn 0.6s ease-out forwards;
+        margin-bottom: 1.5rem;
+        background: rgba(15, 15, 15, 0.7);
+        animation: fadeIn 0.5s ease-out forwards;
     }
 
     .alert-success {
-        border-left-color: #4CAF50;
+        border-left: 4px solid #4edd98;
+        color: #4edd98;
     }
 
     .alert-danger {
-        border-left-color: #F44336;
+        border-left: 4px solid #ff6b6b;
+        color: #ff6b6b;
     }
 
     .alert-info {
-        border-left-color: #2196F3;
+        border-left: 4px solid #9d4edd;
+        color: #c77dff;
     }
 
-    /* Animations */
+    .no-students {
+        text-align: center;
+        color: #e0e0e0;
+        font-size: 1.1rem;
+        padding: 3rem;
+        background: rgba(10, 10, 10, 0.8);
+        border-radius: 16px;
+        border: 1px solid rgba(30, 30, 30, 0.8);
+        animation: fadeIn 0.8s ease-out 0.6s forwards;
+    }
+
+    .browse-btn {
+        margin-top: 1.5rem;
+        padding: 0.8rem 1.5rem;
+        border-radius: 30px;
+        border: none;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        font-size: 1rem;
+        background: linear-gradient(45deg, #9d4edd, #c77dff);
+        color: white;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+    }
+
+    .browse-btn i {
+        margin-right: 0.5rem;
+    }
+
+    .browse-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        color: white;
+        text-decoration: none;
+    }
+
+    /* Animation Keyframes */
     @keyframes fadeIn {
         from {
             opacity: 0;
         }
         to {
             opacity: 1;
+        }
+    }
+    
+    @keyframes fadeInDown {
+        from {
+            opacity: 0;
+            transform: translateY(-30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
         }
     }
     
@@ -287,28 +300,6 @@
         }
     }
     
-    @keyframes fadeInRight {
-        from {
-            opacity: 0;
-            transform: translateX(-30px);
-        }
-        to {
-            opacity: 1;
-            transform: translateX(0);
-        }
-    }
-    
-    @keyframes fadeInLeft {
-        from {
-            opacity: 0;
-            transform: translateX(30px);
-        }
-        to {
-            opacity: 1;
-            transform: translateX(0);
-        }
-    }
-    
     @keyframes lineGrow {
         from {
             width: 0;
@@ -320,21 +311,40 @@
 
     /* Responsive adjustments */
     @media (max-width: 768px) {
-        .page-header h1 {
+        .connected-header h1 {
             font-size: 2rem;
         }
         
-        .students-grid {
-            grid-template-columns: 1fr;
+        .student-card {
+            padding: 1.5rem;
+        }
+        
+        .student-header {
+            flex-direction: column;
+            text-align: center;
+        }
+        
+        .student-image {
+            margin-right: 0;
+            margin-bottom: 1rem;
+        }
+        
+        .connection-actions {
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .connection-date {
+            text-align: center;
         }
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="connected-container container">
-    <div class="page-header">
-        <h1>Your <span>Connected Students</span></h1>
+<div class="connected-container">
+    <div class="connected-header">
+        <h1>Your <span>Connected</span> Students</h1>
     </div>
     
     {% if messages %}
@@ -347,56 +357,60 @@
     </div>
     {% endif %}
 
-    {% if connections %}
-    <div class="students-grid">
-        {% for connection in connections %}
-        <div class="student-card">
-            <div class="student-header">
-                <img src="{% if connection.student.profile_picture %}{{ connection.student.profile_picture.url }}{% else %}https://ui-avatars.com/api/?name={{ connection.student.full_name|default:connection.student.user.username }}&background=9d4edd&color=fff{% endif %}" 
-                     alt="{{ connection.student.full_name }}" 
-                     class="student-image">
-                <div class="student-info">
-                    <h3>{{ connection.student.full_name }}</h3>
-                    <p><strong>Branch:</strong> {{ connection.student.get_branch_display }}</p>
-                    <p><strong>Semester:</strong> {{ connection.student.semester }}</p>
+    <div class="row">
+        {% if connections %}
+            {% for connection in connections %}
+            <div class="col-md-6 mb-4">
+                <div class="student-card">
+                    <div class="student-header">
+                        <img src="{% if connection.student.profile_picture %}{{ connection.student.profile_picture.url }}{% else %}https://ui-avatars.com/api/?name={{ connection.student.full_name|default:connection.student.user.username }}&background=9d4edd&color=fff{% endif %}" 
+                             alt="{{ connection.student.full_name }}" 
+                             class="student-image">
+                        <div class="student-info">
+                            <h3>{{ connection.student.full_name }}</h3>
+                            <p>Branch: {{ connection.student.get_branch_display }}</p>
+                            <p>Semester: {{ connection.student.semester }}</p>
+                        </div>
+                    </div>
+
+                    <div class="student-details">
+                        <strong>Academic Details:</strong>
+                        <p>Section: {{ connection.student.section }}</p>
+                        <p>Admission Year: {{ connection.student.admission_year }}</p>
+                        {% if connection.student.bio %}
+                        <p>Bio: {{ connection.student.bio }}</p>
+                        {% endif %}
+                    </div>
+
+                    <div class="contact-info">
+                        <strong>Contact Information:</strong>
+                        <p>Email: <a href="mailto:{{ connection.student.user.email }}">{{ connection.student.user.email }}</a></p>
+                        {% if connection.student.phone %}
+                        <p>Phone: {{ connection.student.phone }}</p>
+                        {% endif %}
+                    </div>
+
+                    <div class="connection-actions">
+                        <a href="{% url 'schedule_meeting' connection.student.id %}" class="schedule-btn">
+                            <i class="fas fa-calendar-plus"></i> Schedule Meeting
+                        </a>
+                        <div class="connection-date">
+                            Connected since {{ connection.updated_at|date:"F j, Y" }}
+                        </div>
+                    </div>
                 </div>
             </div>
-
-            <div class="section-divider"></div>
-
-            <div class="student-details">
-                <p><strong>Section:</strong> {{ connection.student.section }}</p>
-                <p><strong>Admission Year:</strong> {{ connection.student.admission_year }}</p>
-                {% if connection.student.bio %}
-                <p><strong>Bio:</strong> {{ connection.student.bio }}</p>
-                {% endif %}
-            </div>
-
-            <div class="contact-info">
-                <p><strong>Email:</strong> <a href="mailto:{{ connection.student.user.email }}">{{ connection.student.user.email }}</a></p>
-                {% if connection.student.phone %}
-                <p><strong>Phone:</strong> {{ connection.student.phone }}</p>
-                {% endif %}
-            </div>
-
-            <div class="d-flex justify-content-between align-items-center">
-                <a href="{% url 'schedule_meeting' connection.student.id %}" class="btn-custom">
-                    <i class="fas fa-calendar-plus"></i> Schedule Meeting
-                </a>
-                <div class="connection-date">
-                    Connected since {{ connection.updated_at|date:"F j, Y" }}
+            {% endfor %}
+        {% else %}
+            <div class="col-12">
+                <div class="no-students">
+                    <p>You don't have any connected students yet.</p>
+                    <a href="{% url 'list_students' %}" class="browse-btn">
+                        <i class="fas fa-users"></i> Browse Students
+                    </a>
                 </div>
             </div>
-        </div>
-        {% endfor %}
+        {% endif %}
     </div>
-    {% else %}
-    <div class="empty-state">
-        <p>You don't have any connected students yet.</p>
-        <a href="{% url 'list_students' %}" class="btn-custom">
-            <i class="fas fa-users"></i> Browse Students
-        </a>
-    </div>
-    {% endif %}
 </div>
 {% endblock %}

@@ -94,6 +94,7 @@ DEFAULT_FROM_EMAIL = 'Mentorship Platform crce.secea.10223@gmail.com'
 
 
 GITHUB_API_TOKEN = '' 
+GEMINI_API_KEY = ''
 
 
 # Database
