@@ -574,32 +574,21 @@ def add_group_project(request, group_id):
         messages.error(request, 'You must be a group member to add projects.')
         return redirect('my_groups')
     
-    # Get connected mentors of the group leader
-    connected_mentors = MentorConnection.objects.filter(
+    # Get the group leader's mentor (the first accepted connection)
+    leader_mentor = MentorConnection.objects.filter(
         student=group.leader,
         status='accepted'
-    ).select_related('mentor')
+    ).select_related('mentor').first()
     
     if request.method == 'POST':
         try:
-            mentor_id = request.POST.get('mentor')
-            mentor = None
-            if mentor_id:
-                mentor = MentorProfile.objects.get(id=mentor_id)
-                
-                # Verify mentor connection with group leader
-                if not MentorConnection.objects.filter(
-                    student=group.leader,
-                    mentor=mentor,
-                    status='accepted'
-                ).exists():
-                    messages.error(request, 'The group leader must be connected with the mentor.')
-                    return redirect('group_detail', group_id=group.id)
+            # Automatically assign the leader's mentor to the project
+            mentor = leader_mentor.mentor if leader_mentor else None
             
             # Create project
             project = Project.objects.create(
                 group=group,
-                mentor=mentor,
+                mentor=mentor,  # This will be the leader's mentor or None
                 title=request.POST.get('title'),
                 description=request.POST.get('description'),
                 sdgs=request.POST.get('sdgs'),
@@ -616,7 +605,7 @@ def add_group_project(request, group_id):
     
     context = {
         'group': group,
-        'connected_mentors': connected_mentors
+        'leader_mentor': leader_mentor.mentor if leader_mentor else None
     }
     return render(request, 'student/add_group_project.html', context)
 
@@ -1022,7 +1011,3 @@ def assessment_detail(request, assessment_id):
         'student': student
     }
     return render(request, 'student/assessment_detail.html', context)
-
-
-
-

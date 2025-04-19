@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import CollaboratorProfile, ZoomMeeting
+from .models import CollaboratorProfile, CollabZoomMeeting
 
 @admin.register(CollaboratorProfile)
 class CollaboratorProfileAdmin(admin.ModelAdmin):
@@ -31,22 +31,4 @@ class CollaboratorProfileAdmin(admin.ModelAdmin):
         }),
     )
 
-@admin.register(ZoomMeeting)
-class ZoomMeetingAdmin(admin.ModelAdmin):
-    list_display = ('meeting_title', 'collaborator', 'student', 'project', 'scheduled_time', 'duration', 'status')
-    list_filter = ('status', 'scheduled_time', 'created_at')
-    search_fields = ('meeting_title', 'meeting_description', 'zoom_meeting_id', 'zoom_link', 'student__user__username', 'collaborator__user__username')
-    readonly_fields = ('created_at', 'updated_at')
-
-    fieldsets = (
-        ('Meeting Info', {
-            'fields': ('meeting_title', 'meeting_description', 'collaborator', 'student', 'project')
-        }),
-        ('Zoom Details', {
-            'fields': ('scheduled_time', 'duration', 'zoom_link', 'zoom_meeting_id', 'zoom_password')
-        }),
-        ('Status & Timestamps', {
-            'fields': ('status', 'created_at', 'updated_at'),
-            'classes': ('collapse',)
-        }),
-    )
+admin.site.register(CollabZoomMeeting)

@@ -4,122 +4,420 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mentor Signup</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
         body {
-            background-color: #1a1a2e;
+            background-color: #000000;
             min-height: 100vh;
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
             color: #fff;
-            padding: 2rem 0;
+            position: relative;
+            overflow: hidden;
+            padding: 1rem;
         }
-        .card {
-            background: rgba(255, 255, 255, 0.1);
-            border: 2px solid #9d4edd;
+
+        /* Background elements */
+        .bg-elements {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
         }
-        .card-header {
+
+        .bg-gradient {
+            position: absolute;
+            width: 24rem;
+            height: 24rem;
+            border-radius: 50%;
+            filter: blur(7rem);
+            z-index: -1;
+        }
+
+        .bg-gradient:nth-child(1) {
+            top: -10%;
+            right: 5%;
+            background: rgba(157, 78, 221, 0.2);
+        }
+
+        .bg-gradient:nth-child(2) {
+            bottom: -5%;
+            left: 10%;
             background: rgba(157, 78, 221, 0.1);
-            border-bottom: 2px solid #9d4edd;
-            color: #9d4edd;
         }
-        .form-control {
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            color: #fff;
+
+        /* Static pattern background */
+        .static-pattern {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0.15;
+            z-index: -1;
+            background-image: radial-gradient(#9d4edd 1px, transparent 1px);
+            background-size: 30px 30px;
         }
-        .form-control:focus {
-            background: rgba(255, 255, 255, 0.15);
-            border-color: #9d4edd;
-            color: #fff;
-            box-shadow: 0 0 0 0.25rem rgba(157, 78, 221, 0.25);
+
+        /* Signup container */
+        .container {
+            background: rgba(12, 10, 20, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(157, 78, 221, 0.3);
+            border-radius: 16px;
+            padding: 2rem;
+            width: 100%;
+            max-width: 500px;
+            box-shadow: 0 8px 32px rgba(31, 38, 135, 0.15);
+            margin: 1rem;
         }
-        label {
-            color: #c77dff;
+
+        h1 {
+            color: #ffffff;
             margin-bottom: 0.5rem;
+            font-size: 1.75rem;
+            font-weight: 700;
+            text-align: center;
         }
-        .btn-primary {
-            background: #9d4edd;
-            border: none;
-            padding: 0.8rem 2rem;
+
+        .subtitle {
+            color: #a1a1aa;
+            margin-bottom: 2rem;
+            font-size: 0.95rem;
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+            text-align: left;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #d1d1d6;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        input {
+            width: 100%;
+            padding: 0.875rem 1rem;
+            border: 1px solid rgba(157, 78, 221, 0.3);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            color: white;
             font-size: 1rem;
+            transition: all 0.2s ease;
         }
-        .btn-primary:hover {
-            background: #c77dff;
-            transform: scale(1.05);
+
+        input:focus {
+            outline: none;
+            border-color: #9d4edd;
+            box-shadow: 0 0 0 3px rgba(157, 78, 221, 0.25);
         }
-        .alert {
-            background: rgba(78, 221, 152, 0.1);
-            border: 1px solid #4edd98;
-            color: #4edd98;
+
+        button {
+            background: linear-gradient(90deg, #9d4edd 0%, #c77dff 100%);
+            color: white;
+            border: none;
+            padding: 1rem;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            width: 100%;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 12px rgba(157, 78, 221, 0.25);
         }
+
+        button:hover {
+            transform: translateY(-2px);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .links {
+            margin-top: 1rem;
+            text-align: center;
+        }
+
+        .links a {
+            color: #9d4edd;
+            text-decoration: none;
+            font-size: 0.95rem;
+            font-weight: 500;
+        }
+
+        .links a:hover {
+            text-decoration: underline;
+        }
+
+        .error-message {
+            background: rgba(244, 63, 94, 0.1);
+            border: 1px solid rgba(244, 63, 94, 0.3);
+            color: #f43f5e;
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            font-size: 0.875rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .error-message svg {
+            margin-right: 0.5rem;
+            flex-shrink: 0;
+        }
+
         .form-text {
-            color: #c77dff !important;
-            opacity: 0.8;
+            color: #a1a1aa;
+            font-size: 0.8rem;
+            margin-top: 0.5rem;
+        }
+
+        /* Responsive Styles */
+        @media (max-width: 640px) {
+            body {
+                padding: 0.5rem;
+            }
+
+            .container {
+                padding: 1.5rem;
+                margin: 0.5rem;
+                max-width: 100%;
+            }
+
+            h1 {
+                font-size: 1.5rem;
+            }
+
+            .subtitle {
+                font-size: 0.85rem;
+                margin-bottom: 1.5rem;
+            }
+
+            input {
+                padding: 0.75rem 0.875rem;
+                font-size: 0.95rem;
+            }
+
+            button {
+                padding: 0.875rem;
+                font-size: 0.95rem;
+            }
+
+            .bg-gradient {
+                width: 18rem;
+                height: 18rem;
+            }
+        }
+
+        @media (max-width: 400px) {
+            .container {
+                padding: 1.25rem;
+                border-radius: 12px;
+            }
+
+            h1 {
+                font-size: 1.35rem;
+            }
+
+            .form-group {
+                margin-bottom: 1.25rem;
+            }
+
+            input {
+                padding: 0.7rem 0.8rem;
+            }
+
+            .bg-gradient {
+                width: 15rem;
+                height: 15rem;
+                filter: blur(5rem);
+            }
+        }
+
+        /* Fix for iOS Safari backdrop-filter support */
+        @supports not (backdrop-filter: blur(10px)) {
+            .container {
+                background: rgba(12, 10, 20, 0.9);
+            }
+        }
+
+        /* Fix for smaller height screens */
+        @media (max-height: 700px) {
+            body {
+                padding: 1rem 1rem 3rem;
+                height: auto;
+                min-height: 100vh;
+            }
+
+            .container {
+                margin-top: 1rem;
+                margin-bottom: 1rem;
+            }
+
+            .form-group {
+                margin-bottom: 1rem;
+            }
+        }
+
+        /* Fix for touch devices */
+        @media (hover: none) {
+            button:hover {
+                transform: none;
+            }
+        }
+
+        /* Improve readability on very large screens */
+        @media (min-width: 1400px) {
+            html {
+                font-size: 18px;
+            }
+
+            .container {
+                max-width: 550px;
+            }
         }
     </style>
 </head>
 <body>
+    <!-- Background elements -->
+    <div class="bg-elements">
+        <div class="bg-gradient"></div>
+        <div class="bg-gradient"></div>
+        <!-- Static pattern -->
+        <div class="static-pattern"></div>
+    </div>
+
     <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-md-6">
-                <div class="card">
-                    <div class="card-header">
-                        <h3 class="text-center mb-0">Mentor Signup</h3>
-                    </div>
-                    <div class="card-body">
-                        {% if messages %}
-                        <div class="messages mb-4">
-                            {% for message in messages %}
-                            <div class="alert alert-{{ message.tags }}">
-                                {{ message }}
-                            </div>
-                            {% endfor %}
-                        </div>
-                        {% endif %}
-
-                        <form method="POST">
-                            {% csrf_token %}
-                            <div class="form-group mb-3">
-                                <label for="username">Username*</label>
-                                <input type="text" class="form-control" id="username" name="username" required>
-                            </div>
-
-                            <div class="form-group mb-3">
-                                <label for="email">Email*</label>
-                                <input type="email" class="form-control" id="email" name="email" required>
-                            </div>
-
-                            <div class="form-group mb-3">
-                                <label for="college_code">College Code*</label>
-                                <input type="text" class="form-control" id="college_code" name="college_code" required>
-                                <small class="form-text">Enter the code provided by your college</small>
-                            </div>
-
-                            <div class="form-group mb-3">
-                                <label for="password1">Password*</label>
-                                <input type="password" class="form-control" id="password1" name="password1" required>
-                            </div>
-
-                            <div class="form-group mb-3">
-                                <label for="password2">Confirm Password*</label>
-                                <input type="password" class="form-control" id="password2" name="password2" required>
-                            </div>
-
-                            <div class="text-center">
-                                <button type="submit" class="btn btn-primary">Sign Up</button>
-                            </div>
-
-                            <div class="text-center mt-3">
-                                <p>Already have an account? <a href="{% url 'mentor_login' %}" class="text-decoration-none" style="color: #9d4edd;">Login here</a></p>
-                            </div>
-                        </form>
-                    </div>
-                </div>
+        <h1>Mentor Signup</h1>
+        <p class="subtitle">Create an account to access the mentor portal</p>
+        
+        {% if messages %}
+        <div class="error-message">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="8" x2="12" y2="12"></line>
+                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+            </svg>
+            {% for message in messages %}
+                {{ message }}
+            {% endfor %}
+        </div>
+        {% endif %}
+        
+        <form method="POST">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" required autocomplete="username">
             </div>
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" required autocomplete="email">
+            </div>
+            <div class="form-group">
+                <label for="college_code">College Code</label>
+                <input type="text" id="college_code" name="college_code" required>
+                <div class="form-text">Enter the code provided by your college</div>
+            </div>
+            <div class="form-group">
+                <label for="password1">Password</label>
+                <input type="password" id="password1" name="password1" required autocomplete="new-password">
+            </div>
+            <div class="form-group">
+                <label for="password2">Confirm Password</label>
+                <input type="password" id="password2" name="password2" required autocomplete="new-password">
+            </div>
+            
+            <button type="submit">Sign Up</button>
+        </form>
+        
+        <div class="links">
+            <a href="{% url 'mentor_login' %}">Already have an account? Login</a>
         </div>
     </div>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Focus first input on page load
+            document.getElementById('username').focus();
+            
+            // Form validation
+            const form = document.querySelector('form');
+            form.addEventListener('submit', function(e) {
+                const username = document.getElementById('username').value.trim();
+                const email = document.getElementById('email').value.trim();
+                const collegeCode = document.getElementById('college_code').value.trim();
+                const password1 = document.getElementById('password1').value.trim();
+                const password2 = document.getElementById('password2').value.trim();
+                
+                if (!username || !email || !collegeCode || !password1 || !password2) {
+                    e.preventDefault();
+                    
+                    // Create error message if not exists
+                    if (!document.querySelector('.error-message')) {
+                        const errorMsg = document.createElement('div');
+                        errorMsg.className = 'error-message';
+                        errorMsg.innerHTML = `
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <line x1="12" y1="8" x2="12" y2="12"></line>
+                                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                            </svg>
+                            Please fill in all fields
+                        `;
+                        form.insertBefore(errorMsg, form.firstChild);
+                    }
+                    return;
+                }
+                
+                if (password1 !== password2) {
+                    e.preventDefault();
+                    
+                    // Create error message if not exists
+                    if (!document.querySelector('.error-message')) {
+                        const errorMsg = document.createElement('div');
+                        errorMsg.className = 'error-message';
+                        errorMsg.innerHTML = `
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <line x1="12" y1="8" x2="12" y2="12"></line>
+                                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                            </svg>
+                            Passwords do not match
+                        `;
+                        form.insertBefore(errorMsg, form.firstChild);
+                    } else {
+                        // Update existing error message
+                        document.querySelector('.error-message').innerHTML = `
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <line x1="12" y1="8" x2="12" y2="12"></line>
+                                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                            </svg>
+                            Passwords do not match
+                        `;
+                    }
+                }
+            });
+        });
+    </script>
 </body>
-</html> 
+</html>

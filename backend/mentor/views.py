@@ -7,6 +7,11 @@ from .models import MentorProfile, ZoomMeeting
 from college.models import CollegeProfile
 from students.models import StudentProfile, MentorConnection, Project, StudentGroup, CollaborationRequest
 from collabrators.models import CollaboratorProfile
+from django.utils import timezone
+from .models import GitHubStats
+from datetime import timedelta
+from .utils.github_utils import fetch_github_stats
+
 
 def mentor_login(request):
     if request.method == 'POST':
@@ -300,18 +305,35 @@ def mentor_projects(request):
         messages.error(request, f'An error occurred: {str(e)}')
         return redirect('mentor_dashboard')
 
+
+
 @login_required
 def review_project(request, project_id):
     try:
         mentor = request.user.mentor_profile
         
-        # Only approved mentors can review projects
         if mentor.verification_status != 'approved':
             messages.error(request, 'You need to be approved by the college to review projects.')
             return redirect('mentor_dashboard')
             
         project = get_object_or_404(Project, id=project_id, mentor=mentor)
         
+        # Get or create GitHub stats
+        github_stats, created = GitHubStats.objects.get_or_create(project=project)
+        
+        # Refresh stats if they're older than 1 hour or never fetched
+        if created or (timezone.now() - github_stats.last_updated) > timedelta(hours=1):
+            stats_data = fetch_github_stats(project)
+            if stats_data:
+                github_stats.stars = stats_data['stars']
+                github_stats.forks = stats_data['forks']
+                github_stats.watchers = stats_data['watchers']
+                github_stats.contributors = stats_data['contributors']
+                github_stats.languages = stats_data['languages']
+                github_stats.save()
+            else:
+                messages.warning(request, 'Could not fetch GitHub stats. Please check the repository URL.')
+
         if request.method == 'POST':
             feedback = request.POST.get('feedback')
             grade = request.POST.get('grade')
@@ -327,10 +349,8 @@ def review_project(request, project_id):
                         project.mentor_grade = grade
                     else:
                         messages.error(request, 'Grade must be between 0 and 100.')
-                        return redirect('review_project', project_id=project_id)
                 except ValueError:
                     messages.error(request, 'Invalid grade value.')
-                    return redirect('review_project', project_id=project_id)
             
             if status in ['in_progress', 'completed', 'under_review']:
                 project.status = status
@@ -339,8 +359,10 @@ def review_project(request, project_id):
             messages.success(request, 'Project review submitted successfully!')
             return redirect('mentor_projects')
         
+        # Ensure we always return a response for GET requests
         context = {
-            'project': project
+            'project': project,
+            'github_stats': github_stats
         }
         return render(request, 'mentor/review_project.html', context)
         
@@ -552,3 +574,4 @@ def view_collaborators(request):
     }
     
     return render(request, 'mentor/view_collaborators.html', context)
+

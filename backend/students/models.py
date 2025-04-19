@@ -4,7 +4,6 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.core.validators import MinValueValidator, MaxValueValidator
 from college.models import CollegeProfile
-from mentor.models import MentorProfile
 from collabrators.models import CollaboratorProfile
 
 class StudentProfile(models.Model):
@@ -115,11 +114,19 @@ class MentorConnection(models.Model):
     def __str__(self):
         return f"{self.student.full_name} -> {self.mentor.full_name} ({self.status})"
 
+
+def get_default_college():
+    # Try to get the admin college, or return None if it doesn't exist
+    try:
+        return CollegeProfile.objects.get(college_name="admin")
+    except CollegeProfile.DoesNotExist:
+        return None
+
 class Project(models.Model):
     student = models.ForeignKey(StudentProfile, on_delete=models.CASCADE, related_name='projects', null=True, blank=True)
     group = models.ForeignKey(StudentGroup, on_delete=models.CASCADE, related_name='group_projects', null=True, blank=True)
     mentor = models.ForeignKey('mentor.MentorProfile', on_delete=models.SET_NULL, null=True, blank=True, related_name='guided_projects')
-    college = models.ForeignKey(CollegeProfile, on_delete=models.SET_NULL, null=True, blank=True, related_name='college_projects')
+    college = models.ForeignKey(CollegeProfile, on_delete=models.SET_NULL, null=True, blank=True,related_name='college_projects', default=get_default_college)
     collaborator = models.BooleanField(default=False)
     is_open_for_collaboration = models.BooleanField(default=False)
     title = models.CharField(max_length=200)

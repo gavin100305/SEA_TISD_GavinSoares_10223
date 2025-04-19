@@ -93,6 +93,8 @@ EMAIL_HOST_PASSWORD = 'gtstbbwobsvzcqsf'  # replace with your email password or 
 DEFAULT_FROM_EMAIL = 'Mentorship Platform crce.secea.10223@gmail.com'
 
 
+GITHUB_API_TOKEN = '' 
+
 
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases

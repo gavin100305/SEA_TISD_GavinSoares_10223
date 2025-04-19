@@ -15,7 +15,7 @@
                 <p>Student: {{ project.student.full_name }}</p>
             </div>
 
-            <form method="POST" class="needs-validation" novalidate>
+            <form method="POST" action="{% url 'collab_schedule_meeting' project.id %}" class="needs-validation" novalidate>
                 {% csrf_token %}
                 
                 <div class="mb-3">

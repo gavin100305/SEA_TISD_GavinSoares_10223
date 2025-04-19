@@ -47,9 +47,10 @@ class CollaboratorProfile(models.Model):
         self.is_profile_complete = required_fields_filled
         super().save(*args, **kwargs)
 
-class ZoomMeeting(models.Model):
+class CollabZoomMeeting(models.Model):
     collaborator = models.ForeignKey('CollaboratorProfile', on_delete=models.CASCADE)
-    student = models.ForeignKey('students.StudentProfile', on_delete=models.CASCADE)
+    student = models.ForeignKey('students.StudentProfile', on_delete=models.CASCADE, null=True, blank=True)
+    group = models.ForeignKey('students.StudentGroup', on_delete=models.CASCADE, null=True, blank=True)
     project = models.ForeignKey('students.Project', on_delete=models.CASCADE)
     meeting_title = models.CharField(max_length=200)
     meeting_description = models.TextField(blank=True)
@@ -71,3 +72,14 @@ class ZoomMeeting(models.Model):
 
     def __str__(self):
         return f"{self.meeting_title} - {self.scheduled_time}"
+        
+    def clean(self):
+        from django.core.exceptions import ValidationError
+        if not self.student and not self.group:
+            raise ValidationError('A meeting must have either a student or a group')
+        if self.student and self.group:
+            raise ValidationError('A meeting cannot have both a student and a group')
+            
+    def save(self, *args, **kwargs):
+        self.clean()
+        super().save(*args, **kwargs)

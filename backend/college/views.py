@@ -330,6 +330,12 @@ def college_dashboard(request):
             college=profile,
             verification_status='rejected'
         ).count()
+
+        students = StudentProfile.objects.all()
+        mentors = MentorProfile.objects.all()
+
+        total_students = students.count()
+        total_mentors = mentors.count()
         
         context = {
             'profile': profile,
@@ -337,9 +343,8 @@ def college_dashboard(request):
             'pending_count': pending_count,
             'verified_mentors': verified_mentors,
             'rejected_mentors': rejected_mentors,
-            'total_students': profile.total_students,
-            'total_faculty': profile.total_faculty,
-            'total_courses': 0  # You can update this when you add courses
+            'total_students': total_students,
+            'total_mentors': total_mentors,
         }
         return render(request, 'college_dashboard.html', context)
     except CollegeProfile.DoesNotExist:

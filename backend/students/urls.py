@@ -47,4 +47,5 @@ urlpatterns = [
     path('comment/<int:comment_id>/delete/', views.delete_project_comment, name='delete_project_comment'),
     path('assessments/', views.view_assessments, name='student_view_assessments'),
     path('assessments/<int:assessment_id>/', views.assessment_detail, name='student_assessment_detail'),
+
 ]

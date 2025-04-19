@@ -4,10 +4,10 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.contrib.auth.models import User
-from .models import CollaboratorProfile, ZoomMeeting
+from .models import CollaboratorProfile, CollabZoomMeeting
 from students.models import Project, CollaborationRequest, ProjectComment
 from .util import generate_gemini_recommendations
-
+from django.utils import timezone
 
 # Create your views here.
 
@@ -262,7 +262,7 @@ def send_collaboration_request(request, project_id):
     return redirect('view_shared_projects')
 
 @login_required
-def schedule_meeting(request, project_id):
+def collab_schedule_meeting(request, project_id):
     try:
         collaborator = request.user.collaborator_profile
         project = get_object_or_404(Project, id=project_id)
@@ -279,25 +279,41 @@ def schedule_meeting(request, project_id):
         if request.method == 'POST':
             meeting_title = request.POST.get('meeting_title')
             meeting_description = request.POST.get('meeting_description')
-            scheduled_time = request.POST.get('scheduled_time')
+            scheduled_time_str = request.POST.get('scheduled_time')
+            
+            # Convert the string to a datetime object and make it timezone-aware
+            from datetime import datetime
+            scheduled_time = datetime.fromisoformat(scheduled_time_str)
+            scheduled_time = timezone.make_aware(scheduled_time) if timezone.is_naive(scheduled_time) else scheduled_time
+            
             duration = request.POST.get('duration')
             zoom_link = request.POST.get('zoom_link')
             zoom_meeting_id = request.POST.get('zoom_meeting_id')
             zoom_password = request.POST.get('zoom_password')
             
-            # Create the meeting
-            meeting = ZoomMeeting.objects.create(
-                collaborator=collaborator,
-                student=project.student,
-                project=project,
-                meeting_title=meeting_title,
-                meeting_description=meeting_description,
-                scheduled_time=scheduled_time,
-                duration=duration,
-                zoom_link=zoom_link,
-                zoom_meeting_id=zoom_meeting_id,
-                zoom_password=zoom_password
-            )
+            # Create the meeting based on whether project is associated with student or group
+            meeting_data = {
+                'collaborator': collaborator,
+                'project': project,
+                'meeting_title': meeting_title,
+                'meeting_description': meeting_description,
+                'scheduled_time': scheduled_time,
+                'duration': duration,
+                'zoom_link': zoom_link,
+                'zoom_meeting_id': zoom_meeting_id,
+                'zoom_password': zoom_password
+            }
+            
+            # Add either student or group
+            if project.student:
+                meeting_data['student'] = project.student
+            elif project.group:
+                meeting_data['group'] = project.group
+            
+            meeting = CollabZoomMeeting.objects.create(**meeting_data)
+            
+            # Add debug print to confirm meeting creation
+            print(f"Meeting created with ID: {meeting.id}")
             
             messages.success(request, 'Meeting scheduled successfully!')
             return redirect('view_meetings', project_id=project_id)
@@ -305,11 +321,13 @@ def schedule_meeting(request, project_id):
         context = {
             'project': project
         }
-        return render(request, 'collaborator/schedule_meeting.html', context)
+        return render(request, 'collaborator/collab_schedule_meeting.html', context)
         
     except Exception as e:
+        print(f"Error in collab_schedule_meeting: {e}")  # Add this for debugging
         messages.error(request, f'An error occurred: {str(e)}')
         return redirect('collaborator_dashboard')
+    
 
 @login_required
 def view_meetings(request, project_id=None):
@@ -328,7 +346,7 @@ def view_meetings(request, project_id=None):
                 messages.error(request, 'You are not connected to this project.')
                 return redirect('collaborator_dashboard')
                 
-            meetings = ZoomMeeting.objects.filter(
+            meetings = CollabZoomMeeting.objects.filter(
                 collaborator=collaborator,
                 project=project
             )
@@ -339,7 +357,7 @@ def view_meetings(request, project_id=None):
             template = 'collaborator/project_meetings.html'
         else:
             # View all meetings
-            meetings = ZoomMeeting.objects.filter(collaborator=collaborator)
+            meetings = CollabZoomMeeting.objects.filter(collaborator=collaborator)
             context = {'meetings': meetings}
             template = 'collaborator/all_meetings.html'
             
@@ -353,7 +371,7 @@ def view_meetings(request, project_id=None):
 def update_meeting(request, meeting_id):
     try:
         collaborator = request.user.collaborator_profile
-        meeting = get_object_or_404(ZoomMeeting, id=meeting_id, collaborator=collaborator)
+        meeting = get_object_or_404(CollabZoomMeeting, id=meeting_id, collaborator=collaborator)
         
         if request.method == 'POST':
             meeting.meeting_title = request.POST.get('meeting_title')

@@ -109,7 +109,102 @@
         color: #9d4edd;
         margin-bottom: 1rem;
     }
+    
+    /* GitHub Stats Styles */
+    .github-stats-card {
+        background: rgba(157, 78, 221, 0.1);
+        border: 1px solid #9d4edd;
+        border-radius: 10px;
+        padding: 1.5rem;
+        margin-top: 1.5rem;
+    }
+    
+    .github-stats-title {
+        color: #9d4edd;
+        margin-bottom: 1rem;
+    }
+    
+    .github-stat-item {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 0.5rem;
+        padding: 0.5rem;
+        background: rgba(157, 78, 221, 0.05);
+        border-radius: 5px;
+    }
+    
+    .github-stat-label {
+        color: #c77dff;
+        font-weight: bold;
+    }
+    
+    .github-stat-value {
+        color: #fff;
+    }
+    
+    .language-item {
+        display: inline-block;
+        background: rgba(157, 78, 221, 0.3);
+        color: #fff;
+        padding: 0.2rem 0.5rem;
+        border-radius: 15px;
+        margin-right: 0.5rem;
+        margin-bottom: 0.5rem;
+        font-size: 0.85rem;
+    }
+    
+    .refresh-stats {
+        font-size: 0.8rem;
+        margin-top: 1rem;
+        color: #c77dff;
+    }
+    
+    /* Chart Containers */
+    .chart-container {
+        margin-top: 1.5rem;
+        background: rgba(157, 78, 221, 0.1);
+        border: 1px solid #9d4edd;
+        border-radius: 10px;
+        padding: 1rem;
+    }
+    
+    .chart-title {
+        color: #9d4edd;
+        margin-bottom: 1rem;
+        font-size: 1.1rem;
+    }
+    
+    .chart-wrapper {
+        position: relative;
+        height: 300px;
+        width: 100%;
+    }
+    
+    .contributors-list {
+        margin-top: 1rem;
+    }
+    
+    .contributor-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 0.5rem;
+        background: rgba(157, 78, 221, 0.05);
+        border-radius: 5px;
+        margin-bottom: 0.5rem;
+    }
+    
+    .contributor-name {
+        color: #c77dff;
+    }
+    
+    .contributor-commits {
+        color: #fff;
+    }
 </style>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 {% endblock %}
 
 {% block content %}
@@ -157,6 +252,61 @@
                     </div>
                 </div>
             </div>
+
+            <!-- GitHub Stats Section -->
+            {% if project.github_link %}
+            <div class="github-stats-card">
+                <h3 class="github-stats-title">
+                    <i class="fab fa-github"></i> GitHub Stats
+                </h3>
+                
+                {% if github_stats %}
+                <div class="github-stats-content">
+                    <div class="github-stat-item">
+                        <span class="github-stat-label">Stars:</span>
+                        <span class="github-stat-value">{{ github_stats.stars }}</span>
+                    </div>
+                    <div class="github-stat-item">
+                        <span class="github-stat-label">Forks:</span>
+                        <span class="github-stat-value">{{ github_stats.forks }}</span>
+                    </div>
+                    <div class="github-stat-item">
+                        <span class="github-stat-label">Watchers:</span>
+                        <span class="github-stat-value">{{ github_stats.watchers }}</span>
+                    </div>
+                    
+                    <!-- Languages Chart -->
+                    <div class="chart-container">
+                        <h4 class="chart-title">Languages Used</h4>
+                        <div class="chart-wrapper">
+                            <canvas id="languagesChart"></canvas>
+                        </div>
+                    </div>
+                    
+                    <!-- Contributors Chart -->
+                    <div class="chart-container">
+                        <h4 class="chart-title">Top Contributors</h4>
+                        <div class="chart-wrapper">
+                            <canvas id="contributorsChart"></canvas>
+                        </div>
+                        <div class="contributors-list">
+                            {% for contributor, commits in github_stats.contributors.items %}
+                            <div class="contributor-item">
+                                <span class="contributor-name">{{ contributor }}</span>
+                                <span class="contributor-commits">{{ commits }} commits</span>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                <p class="refresh-stats text-muted">
+                    Last updated: {{ github_stats.last_updated|date:"F j, Y H:i" }}
+                </p>
+                {% else %}
+                <p>GitHub stats are not available for this project.</p>
+                {% endif %}
+            </div>
+            {% endif %}
 
             <!-- Meeting Scheduling Section -->
             <div class="meeting-section">
@@ -229,4 +379,140 @@
         </div>
     </div>
 </div>
-{% endblock %} 
+
+{% if github_stats %}
+{{ github_stats.languages|json_script:"languages-data" }}
+{{ github_stats.contributors|json_script:"contributors-data" }}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const languagesDataRaw = JSON.parse(document.getElementById('languages-data').textContent);
+    const contributorsDataRaw = JSON.parse(document.getElementById('contributors-data').textContent);
+
+    const languagesCtx = document.getElementById('languagesChart').getContext('2d');
+    const contributorsCtx = document.getElementById('contributorsChart').getContext('2d');
+
+    // Vibrant color palette for languages chart
+    const languageColors = [
+        '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF',
+        '#FF9F40', '#8AC24A', '#EA5F89', '#00B4D8', '#FF6B6B',
+        '#48BFE3', '#56CFE1', '#72EFDD', '#80FFDB', '#7400B8',
+        '#6930C3', '#5E60CE', '#5390D9', '#4EA8DE', '#64DFDF'
+    ];
+
+    const languagesData = {
+        labels: Object.keys(languagesDataRaw),
+        datasets: [{
+            data: Object.values(languagesDataRaw),
+            backgroundColor: languageColors.slice(0, Object.keys(languagesDataRaw).length),
+            borderColor: '#2b2b2b',
+            borderWidth: 1
+        }]
+    };
+
+    new Chart(languagesCtx, {
+        type: 'doughnut',
+        data: languagesData,
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'right',
+                    labels: {
+                        color: '#fff',
+                        font: {
+                            size: 12
+                        }
+                    }
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function (context) {
+                            return `${context.label}: ${context.raw}%`;
+                        }
+                    },
+                    bodyFont: {
+                        size: 14
+                    }
+                }
+            },
+            cutout: '60%'
+        }
+    });
+
+    // Colorful gradient for contributors chart
+    const contributorColors = [];
+    const contributorCount = Object.keys(contributorsDataRaw).length;
+    for (let i = 0; i < contributorCount; i++) {
+        const hue = (i * (360 / contributorCount)) % 360;
+        contributorColors.push(`hsl(${hue}, 70%, 60%)`);
+    }
+
+    const contributorsData = {
+        labels: Object.keys(contributorsDataRaw),
+        datasets: [{
+            label: 'Commits',
+            data: Object.values(contributorsDataRaw),
+            backgroundColor: contributorColors,
+            borderColor: '#2b2b2b',
+            borderWidth: 1,
+            borderRadius: 6,
+            borderSkipped: false
+        }]
+    };
+
+    new Chart(contributorsCtx, {
+        type: 'bar',
+        data: contributorsData,
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        color: '#fff',
+                        font: {
+                            size: 12
+                        }
+                    },
+                    grid: {
+                        color: 'rgba(255, 255, 255, 0.1)'
+                    }
+                },
+                x: {
+                    ticks: {
+                        color: '#fff',
+                        font: {
+                            size: 12
+                        }
+                    },
+                    grid: {
+                        display: false
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function (context) {
+                            return `Commits: ${context.raw}`;
+                        }
+                    },
+                    bodyFont: {
+                        size: 14
+                    }
+                }
+            },
+            animation: {
+                duration: 1500
+            }
+        }
+    });
+});
+</script>
+{% endif %}
+{% endblock %}
