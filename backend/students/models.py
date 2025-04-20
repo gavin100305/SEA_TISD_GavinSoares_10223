@@ -135,6 +135,15 @@ class Project(models.Model):
     tech_stack = models.CharField(max_length=500, help_text='Technologies used')
     github_link = models.URLField(blank=True, null=True)
     project_file = models.FileField(upload_to='project_files/', blank=True, null=True)
+    
+    # Project images
+    image1 = models.ImageField(upload_to='project_images/', blank=True, null=True, help_text='Project image 1')
+    image2 = models.ImageField(upload_to='project_images/', blank=True, null=True, help_text='Project image 2')
+    image3 = models.ImageField(upload_to='project_images/', blank=True, null=True, help_text='Project image 3')
+    image4 = models.ImageField(upload_to='project_images/', blank=True, null=True, help_text='Project image 4')
+    image5 = models.ImageField(upload_to='project_images/', blank=True, null=True, help_text='Project image 5')
+    image6 = models.ImageField(upload_to='project_images/', blank=True, null=True, help_text='Project image 6')
+    
     status = models.CharField(max_length=20, choices=[
         ('in_progress', 'In Progress'),
         ('completed', 'Completed'),

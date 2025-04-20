@@ -10,7 +10,7 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from college.models import CollegeProfile, NGO, ProjectAssessment
 from django.db.models import Q
 from django.utils import timezone
-from collabrators.models import CollaboratorProfile
+from collabrators.models import CollaboratorProfile,CollabZoomMeeting
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 from datetime import date
@@ -486,14 +486,94 @@ def group_detail(request, group_id):
     pending_members = group.groupmembership_set.filter(status='pending')
     projects = group.group_projects.all()
     
+    # Get all project IDs for this group
+    project_ids = projects.values_list('id', flat=True)
+    
+    # Fetch comments for all projects in this group
+    comments = ProjectComment.objects.filter(project__id__in=project_ids).order_by('-created_at')
+    
+    # Fetch upcoming meetings
+    # 1. Meetings between mentors and individual students in the group
+    mentor_meetings = ZoomMeeting.objects.filter(
+        student__in=group.members.all(),
+        status='scheduled'
+    ).order_by('meeting_time')
+    
+    # 2. Meetings between collaborators and this group
+    collab_group_meetings = CollabZoomMeeting.objects.filter(
+        group=group,
+        status='scheduled'
+    ).order_by('scheduled_time')
+    
+    # 3. Meetings between collaborators and specific projects of this group
+    collab_project_meetings = CollabZoomMeeting.objects.filter(
+        project__in=projects,
+        status='scheduled'
+    ).order_by('scheduled_time')
+    
     context = {
         'group': group,
         'is_leader': is_leader,
         'members': members,
         'pending_members': pending_members,
         'projects': projects,
+        'mentor_meetings': mentor_meetings,
+        'collab_group_meetings': collab_group_meetings,
+        'collab_project_meetings': collab_project_meetings,
+        'comments': comments,
     }
     return render(request, 'student/group_detail.html', context)
+
+
+def project_detail(request, project_id):
+    project = get_object_or_404(Project, id=project_id)
+    student = request.user.student_profile
+    
+    # Check if user has permission to view this project
+    is_owner = project.student == student
+    is_group_member = False
+    
+    if project.group:
+        is_group_member = project.group.members.filter(
+            id=student.id, 
+            groupmembership__status='accepted'
+        ).exists()
+    
+    if not (is_owner or is_group_member):
+        messages.error(request, 'You do not have permission to view this project.')
+        return redirect('my_projects')
+    
+    # Get comments for this project
+    comments = project.comments.all().order_by('-created_at')
+    
+    # Get meetings for this project
+    mentor_meetings = ZoomMeeting.objects.filter(
+        student=student,
+        status='scheduled'
+    ).order_by('meeting_time')
+    
+    collab_meetings = CollabZoomMeeting.objects.filter(
+        project=project,
+        status='scheduled'
+    ).order_by('scheduled_time')
+    
+    # Check if user can edit this project
+    can_edit = is_owner
+    if project.group:
+        can_edit = project.group.leader == student
+    
+    context = {
+        'project': project,
+        'comments': comments,
+        'mentor_meetings': mentor_meetings,
+        'collab_meetings': collab_meetings,
+        'can_edit': can_edit,
+    }
+    
+    return render(request, 'student/group_project_detail.html', context)
+
+
+
 
 @login_required
 def invite_member(request, group_id):
@@ -586,15 +666,30 @@ def add_group_project(request, group_id):
             mentor = leader_mentor.mentor if leader_mentor else None
             
             # Create project
-            project = Project.objects.create(
+            project = Project(
                 group=group,
                 mentor=mentor,  # This will be the leader's mentor or None
                 title=request.POST.get('title'),
                 description=request.POST.get('description'),
                 sdgs=request.POST.get('sdgs'),
                 tech_stack=request.POST.get('tech_stack'),
-                is_open_for_collaboration=request.POST.get('is_open_for_collaboration') == 'on'
+                github_link=request.POST.get('github_link'),
+                is_open_for_collaboration=request.POST.get('is_open_for_collaboration') == 'on',
+                collaborator=request.POST.get('collaborator') == 'on',
+                status=request.POST.get('status')
             )
+            
+            # Handle file uploads
+            if 'project_file' in request.FILES:
+                project.project_file = request.FILES['project_file']
+            
+            # Handle image uploads
+            for i in range(1, 7):
+                image_field = f'image{i}'
+                if image_field in request.FILES:
+                    setattr(project, image_field, request.FILES[image_field])
+            
+            project.save()
             
             messages.success(request, 'Group project added successfully!')
             return redirect('group_detail', group_id=group.id)
@@ -608,6 +703,54 @@ def add_group_project(request, group_id):
         'leader_mentor': leader_mentor.mentor if leader_mentor else None
     }
     return render(request, 'student/add_group_project.html', context)
+
+@login_required
+def edit_group_project(request, project_id):
+    project = get_object_or_404(Project, id=project_id)
+    group = project.group
+    student = request.user.student_profile
+    
+    # Verify user is group leader or member
+    if not group or not group.members.filter(id=student.id, groupmembership__status='accepted').exists():
+        messages.error(request, 'You must be a group member to edit this project.')
+        return redirect('my_projects')
+    
+    if request.method == 'POST':
+        try:
+            # Update project details
+            project.title = request.POST.get('title')
+            project.description = request.POST.get('description')
+            project.sdgs = request.POST.get('sdgs')
+            project.tech_stack = request.POST.get('tech_stack')
+            project.github_link = request.POST.get('github_link')
+            project.is_open_for_collaboration = request.POST.get('is_open_for_collaboration') == 'on'
+            project.collaborator = request.POST.get('collaborator') == 'on'
+            project.status = request.POST.get('status')
+            
+            # Handle file uploads
+            if 'project_file' in request.FILES:
+                project.project_file = request.FILES['project_file']
+            
+            # Handle image uploads
+            for i in range(1, 7):
+                image_field = f'image{i}'
+                if image_field in request.FILES:
+                    setattr(project, image_field, request.FILES[image_field])
+            
+            project.save()
+            
+            messages.success(request, 'Group project updated successfully!')
+            return redirect('project_detail', project_id=project.id)
+            
+        except Exception as e:
+            messages.error(request, f'An error occurred: {str(e)}')
+            return redirect('project_detail', project_id=project.id)
+    
+    context = {
+        'project': project,
+        'group': group
+    }
+    return render(request, 'student/edit_group_project.html', context)
 
 @login_required
 def student_meetings(request):
@@ -835,7 +978,7 @@ def schedule_meeting(request, project_id, collaborator_id):
             zoom_password = request.POST.get('zoom_password')
             
             # Create the meeting
-            meeting = ZoomMeeting.objects.create(
+            meeting = CollabZoomMeeting.objects.create(
                 collaborator=collaborator,
                 student=student,
                 project=project,

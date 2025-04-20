@@ -1,11 +1,11 @@
 {% extends '../base.html' %}
 {% load static %}
 
-{% block title %}Add Group Project | TISD{% endblock %}
+{% block title %}Edit Group Project | TISD{% endblock %}
 
 {% block content %}
 <div class="container mt-4">
-    <h2>Add Group Project</h2>
+    <h2>Edit Group Project</h2>
     
     {% if messages %}
     <div class="messages">
@@ -24,34 +24,33 @@
                 
                 <div class="form-group">
                     <label for="title">Project Title</label>
-                    <input type="text" class="form-control" id="title" name="title" required>
+                    <input type="text" class="form-control" id="title" name="title" value="{{ project.title }}" required>
                 </div>
 
                 <div class="form-group">
                     <label for="description">Project Description</label>
-                    <textarea class="form-control" id="description" name="description" rows="4" required></textarea>
+                    <textarea class="form-control" id="description" name="description" rows="4" required>{{ project.description }}</textarea>
                 </div>
 
                 <div class="form-group">
                     <label for="tech_stack">Tech Stack</label>
-                    <input type="text" class="form-control" id="tech_stack" name="tech_stack" placeholder="e.g., Python, Django, React" required>
+                    <input type="text" class="form-control" id="tech_stack" name="tech_stack" value="{{ project.tech_stack }}" placeholder="e.g., Python, Django, React" required>
                 </div>
 
                 <div class="form-group">
                     <label for="sdgs">Sustainable Development Goals (SDGs)</label>
-                    <input type="text" class="form-control" id="sdgs" name="sdgs" placeholder="e.g., Quality Education, Climate Action" required>
+                    <input type="text" class="form-control" id="sdgs" name="sdgs" value="{{ project.sdgs }}" placeholder="e.g., Quality Education, Climate Action" required>
                 </div>
 
                 <div class="form-group">
                     <label for="github_link">GitHub Link</label>
-                    <input type="url" class="form-control" id="github_link" name="github_link" placeholder="https://github.com/username/repository">
+                    <input type="url" class="form-control" id="github_link" name="github_link" value="{{ project.github_link }}" placeholder="https://github.com/username/repository">
                 </div>
 
-                {% if leader_mentor %}
+                {% if project.mentor %}
                 <div class="form-group">
                     <label>Project Mentor</label>
-                    <input type="text" class="form-control" value="{{ leader_mentor.full_name }}" readonly>
-                    <small class="form-text text-muted">This project will be associated with the group leader's mentor.</small>
+                    <input type="text" class="form-control" value="{{ project.mentor.full_name }}" readonly>
                 </div>
                 {% else %}
                 <div class="alert alert-info">
@@ -62,7 +61,7 @@
                 <!-- Collaboration Options -->
                 <div class="form-group mt-3">
                     <div class="custom-control custom-switch">
-                        <input type="checkbox" class="custom-control-input" id="is_open_for_collaboration" name="is_open_for_collaboration">
+                        <input type="checkbox" class="custom-control-input" id="is_open_for_collaboration" name="is_open_for_collaboration" {% if project.is_open_for_collaboration %}checked{% endif %}>
                         <label class="custom-control-label" for="is_open_for_collaboration">Open for Collaboration</label>
                     </div>
                     <small class="form-text text-muted">Enable this to allow others to view and request to join this project.</small>
@@ -70,7 +69,7 @@
 
                 <div class="form-group">
                     <div class="custom-control custom-switch">
-                        <input type="checkbox" class="custom-control-input" id="collaborator" name="collaborator">
+                        <input type="checkbox" class="custom-control-input" id="collaborator" name="collaborator" {% if project.collaborator %}checked{% endif %}>
                         <label class="custom-control-label" for="collaborator">Seeking Collaborators</label>
                     </div>
                     <small class="form-text text-muted">Enable this if you're actively looking for more team members.</small>
@@ -80,52 +79,101 @@
                 <div class="form-group">
                     <label for="status">Project Status</label>
                     <select class="form-control" id="status" name="status">
-                        <option value="planning">Planning</option>
-                        <option value="in_progress">In Progress</option>
-                        <option value="completed">Completed</option>
+                        <option value="planning" {% if project.status == 'planning' %}selected{% endif %}>Planning</option>
+                        <option value="in_progress" {% if project.status == 'in_progress' %}selected{% endif %}>In Progress</option>
+                        <option value="completed" {% if project.status == 'completed' %}selected{% endif %}>Completed</option>
                     </select>
                 </div>
 
+                <!-- Current Files -->
+                {% if project.project_file %}
+                <div class="form-group">
+                    <label>Current Project File</label>
+                    <p><a href="{{ project.project_file.url }}" target="_blank">{{ project.project_file.name }}</a></p>
+                </div>
+                {% endif %}
+
                 <!-- File Upload -->
                 <div class="form-group">
-                    <label for="project_file">Project File</label>
+                    <label for="project_file">Update Project File</label>
                     <input type="file" class="form-control-file" id="project_file" name="project_file">
-                    <small class="form-text text-muted">Upload project documentation or other relevant files.</small>
+                    <small class="form-text text-muted">Upload a new file to replace the current one.</small>
                 </div>
 
                 <!-- Image Uploads -->
                 <div class="form-group">
-                    <label>Project Images (Optional)</label>
+                    <label>Project Images</label>
                     <div class="row">
+                        <!-- Image 1 -->
                         <div class="col-md-4 mb-3">
                             <label for="image1">Image 1</label>
+                            {% if project.image1 %}
+                            <div class="mb-2">
+                                <img src="{{ project.image1.url }}" class="img-thumbnail" style="max-height: 100px;">
+                            </div>
+                            {% endif %}
                             <input type="file" class="form-control-file" id="image1" name="image1" accept="image/*">
                         </div>
+                        
+                        <!-- Image 2 -->
                         <div class="col-md-4 mb-3">
                             <label for="image2">Image 2</label>
+                            {% if project.image2 %}
+                            <div class="mb-2">
+                                <img src="{{ project.image2.url }}" class="img-thumbnail" style="max-height: 100px;">
+                            </div>
+                            {% endif %}
                             <input type="file" class="form-control-file" id="image2" name="image2" accept="image/*">
                         </div>
+                        
+                        <!-- Image 3 -->
                         <div class="col-md-4 mb-3">
                             <label for="image3">Image 3</label>
+                            {% if project.image3 %}
+                            <div class="mb-2">
+                                <img src="{{ project.image3.url }}" class="img-thumbnail" style="max-height: 100px;">
+                            </div>
+                            {% endif %}
                             <input type="file" class="form-control-file" id="image3" name="image3" accept="image/*">
                         </div>
+                        
+                        <!-- Image 4 -->
                         <div class="col-md-4 mb-3">
                             <label for="image4">Image 4</label>
+                            {% if project.image4 %}
+                            <div class="mb-2">
+                                <img src="{{ project.image4.url }}" class="img-thumbnail" style="max-height: 100px;">
+                            </div>
+                            {% endif %}
                             <input type="file" class="form-control-file" id="image4" name="image4" accept="image/*">
                         </div>
+                        
+                        <!-- Image 5 -->
                         <div class="col-md-4 mb-3">
                             <label for="image5">Image 5</label>
+                            {% if project.image5 %}
+                            <div class="mb-2">
+                                <img src="{{ project.image5.url }}" class="img-thumbnail" style="max-height: 100px;">
+                            </div>
+                            {% endif %}
                             <input type="file" class="form-control-file" id="image5" name="image5" accept="image/*">
                         </div>
+                        
+                        <!-- Image 6 -->
                         <div class="col-md-4 mb-3">
                             <label for="image6">Image 6</label>
+                            {% if project.image6 %}
+                            <div class="mb-2">
+                                <img src="{{ project.image6.url }}" class="img-thumbnail" style="max-height: 100px;">
+                            </div>
+                            {% endif %}
                             <input type="file" class="form-control-file" id="image6" name="image6" accept="image/*">
                         </div>
                     </div>
                 </div>
 
-                <button type="submit" class="btn btn-primary">Create Project</button>
-                <a href="{% url 'group_detail' group.id %}" class="btn btn-secondary">Cancel</a>
+                <button type="submit" class="btn btn-primary">Update Project</button>
+                <a href="{% url 'project_detail' project.id %}" class="btn btn-secondary">Cancel</a>
             </form>
         </div>
     </div>

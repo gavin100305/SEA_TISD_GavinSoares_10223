@@ -1,0 +1,362 @@
+{% extends '../base.html' %}
+
+{% block title %}{{ project.title }} | TISD{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="mb-8">
+        {% if project.group %}
+        <a href="{% url 'group_detail' project.group.id %}" class="text-text-secondary hover:text-white flex items-center gap-2">
+            <i class="fas fa-arrow-left"></i>
+            Back to Group
+        </a>
+        {% else %}
+        <a href="{% url 'my_projects' %}" class="text-text-secondary hover:text-white flex items-center gap-2">
+            <i class="fas fa-arrow-left"></i>
+            Back to My Projects
+        </a>
+        {% endif %}
+    </div>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="mb-4 p-4 rounded-lg {% if message.tags == 'success' %}bg-green-100 text-green-700 border border-green-200{% elif message.tags == 'error' %}bg-red-100 text-red-700 border border-red-200{% endif %}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Project Info -->
+        <div class="lg:col-span-1 space-y-8">
+            <!-- Project Details -->
+            <div class="bg-card border border-card-border rounded-xl p-6">
+                <h1 class="text-2xl font-bold text-white mb-4">{{ project.title }}</h1>
+                
+                <div class="space-y-4">
+                    <div>
+                        <h2 class="text-lg font-semibold text-white mb-2">Description</h2>
+                        <p class="text-text-secondary">{{ project.description }}</p>
+                    </div>
+                    
+                    <div>
+                        <h2 class="text-lg font-semibold text-white mb-2">Project Details</h2>
+                        <div class="space-y-2">
+                            <div class="flex justify-between">
+                                <span class="text-text-secondary">Status:</span>
+                                <span class="text-white">{{ project.status|title }}</span>
+                            </div>
+                            
+                            {% if project.tech_stack %}
+                            <div class="flex justify-between">
+                                <span class="text-text-secondary">Tech Stack:</span>
+                                <span class="text-white">{{ project.tech_stack }}</span>
+                            </div>
+                            {% endif %}
+                            
+                            {% if project.sdgs %}
+                            <div class="flex justify-between">
+                                <span class="text-text-secondary">SDGs:</span>
+                                <span class="text-white">{{ project.sdgs }}</span>
+                            </div>
+                            {% endif %}
+                            
+                            <div class="flex justify-between">
+                                <span class="text-text-secondary">Created:</span>
+                                <span class="text-white">{{ project.created_at|date:"M d, Y" }}</span>
+                            </div>
+                            
+                            <div class="flex justify-between">
+                                <span class="text-text-secondary">Last Updated:</span>
+                                <span class="text-white">{{ project.updated_at|date:"M d, Y" }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    {% if project.group %}
+                    <div>
+                        <h2 class="text-lg font-semibold text-white mb-2">Group</h2>
+                        <a href="{% url 'group_detail' project.group.id %}" class="text-primary hover:text-primary-hover">
+                            {{ project.group.name }}
+                        </a>
+                    </div>
+                    {% endif %}
+                    
+                    {% if project.mentor %}
+                    <div>
+                        <h2 class="text-lg font-semibold text-white mb-2">Mentor</h2>
+                        <div class="flex items-center gap-3">
+                            {% if project.mentor.profile_picture %}
+                            <img src="{{ project.mentor.profile_picture.url }}" alt="{{ project.mentor.full_name }}" class="w-10 h-10 rounded-full">
+                            {% else %}
+                            <div class="w-10 h-10 rounded-full bg-primary-light flex items-center justify-center">
+                                <i class="fas fa-user-tie text-primary"></i>
+                            </div>
+                            {% endif %}
+                            <div>
+                                <p class="text-white">{{ project.mentor.full_name }}</p>
+                                <p class="text-text-secondary text-sm">{{ project.mentor.specialization }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    {% if project.github_link %}
+                    <div>
+                        <a href="{{ project.github_link }}" target="_blank" class="bg-primary hover:bg-primary-hover text-white px-4 py-2 rounded-lg flex items-center gap-2 w-full justify-center">
+                            <i class="fab fa-github"></i>
+                            View on GitHub
+                        </a>
+                    </div>
+                    {% endif %}
+                    
+                    {% if project.project_file %}
+                    <div>
+                        <a href="{{ project.project_file.url }}" target="_blank" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 w-full justify-center">
+                            <i class="fas fa-file-download"></i>
+                            Download Project File
+                        </a>
+                    </div>
+                    {% endif %}
+                    
+                    {% if can_edit %}
+                    <div class="flex gap-2 pt-2">
+                        <a href="{% url 'edit_project' project.id %}" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 flex-1 justify-center">
+                            <i class="fas fa-edit"></i>
+                            Edit
+                        </a>
+                        
+                        <form method="post" action="{% url 'delete_project' project.id %}" class="flex-1" onsubmit="return confirm('Are you sure you want to delete this project?');">
+                            {% csrf_token %}
+                            <button type="submit" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 w-full justify-center">
+                                <i class="fas fa-trash-alt"></i>
+                                Delete
+                            </button>
+                        </form>
+                    </div>
+                    
+                    <form method="post" action="{% url 'toggle_project_collaboration' project.id %}" class="mt-2">
+                        {% csrf_token %}
+                        <button type="submit" class="w-full px-4 py-2 rounded-lg {% if project.is_open_for_collaboration %}bg-yellow-500 hover:bg-yellow-600{% else %}bg-green-500 hover:bg-green-600{% endif %} text-white transition-colors flex items-center gap-2 justify-center">
+                            <i class="{% if project.is_open_for_collaboration %}fas fa-lock{% else %}fas fa-unlock{% endif %}"></i>
+                            {% if project.is_open_for_collaboration %}
+                                Close Collaboration
+                            {% else %}
+                                Open for Collaboration
+                            {% endif %}
+                        </button>
+                    </form>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Mentor Feedback -->
+            {% if project.mentor_feedback or project.mentor_grade %}
+            <div class="bg-card border border-card-border rounded-xl p-6">
+                <h2 class="text-xl font-semibold text-white mb-4">Mentor Assessment</h2>
+                
+                {% if project.mentor_grade %}
+                <div class="mb-4">
+                    <h3 class="text-lg font-medium text-white mb-2">Grade</h3>
+                    <div class="flex items-center">
+                        <div class="w-16 h-16 rounded-full bg-primary flex items-center justify-center text-2xl font-bold text-white">
+                            {{ project.mentor_grade }}
+                        </div>
+                        <div class="ml-4">
+                            <p class="text-text-secondary">
+                                {% if project.mentor_grade >= 90 %}
+                                    Excellent
+                                {% elif project.mentor_grade >= 80 %}
+                                    Very Good
+                                {% elif project.mentor_grade >= 70 %}
+                                    Good
+                                {% elif project.mentor_grade >= 60 %}
+                                    Satisfactory
+                                {% else %}
+                                    Needs Improvement
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+                
+                {% if project.mentor_feedback %}
+                <div>
+                    <h3 class="text-lg font-medium text-white mb-2">Feedback</h3>
+                    <p class="text-text-secondary">{{ project.mentor_feedback }}</p>
+                </div>
+                {% endif %}
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Meetings and Comments -->
+        <div class="lg:col-span-2 space-y-8">
+            <!-- Meetings -->
+            <div class="bg-card border border-card-border rounded-xl p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-xl font-semibold text-white">Project Meetings</h2>
+                    {% if can_edit %}
+                    <a href="{% url 'view_collaborators' %}?project_id={{ project.id }}" class="bg-primary hover:bg-primary-hover text-white px-4 py-2 rounded-lg flex items-center gap-2">
+                        <i class="fas fa-calendar-plus"></i>
+                        Schedule Meeting
+                    </a>
+                    {% endif %}
+                </div>
+                
+                {% if mentor_meetings or collab_meetings %}
+                <div class="space-y-4">
+                    <!-- Mentor Meetings -->
+                    {% if mentor_meetings %}
+                    <div class="mb-4">
+                        <h3 class="text-text-secondary font-medium mb-2">Mentor Meetings</h3>
+                        {% for meeting in mentor_meetings %}
+                        <div class="bg-black bg-opacity-30 border border-card-border rounded-lg p-3 mb-2">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <h4 class="text-white font-medium">{{ meeting.title }}</h4>
+                                    <p class="text-text-secondary text-sm">{{ meeting.meeting_time|date:"M d, Y • h:i A" }}</p>
+                                    <p class="text-text-secondary text-sm">Duration: {{ meeting.duration }} minutes</p>
+                                    <p class="text-text-secondary text-sm">With: {{ meeting.mentor.full_name }}</p>
+                                </div>
+                                <a href="{{ meeting.meeting_link }}" target="_blank" class="bg-blue-500 hover:bg-blue-600 text-white text-sm px-3 py-1 rounded-lg transition-colors">
+                                    Join
+                                </a>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Collaborator Meetings -->
+                    {% if collab_meetings %}
+                    <div class="mb-4">
+                        <h3 class="text-text-secondary font-medium mb-2">Collaboration Meetings</h3>
+                        {% for meeting in collab_meetings %}
+                        <div class="bg-black bg-opacity-30 border border-card-border rounded-lg p-3 mb-2">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <h4 class="text-white font-medium">{{ meeting.meeting_title }}</h4>
+                                    <p class="text-text-secondary text-sm">{{ meeting.scheduled_time|date:"M d, Y • h:i A" }}</p>
+                                    <p class="text-text-secondary text-sm">Duration: {{ meeting.duration }} minutes</p>
+                                    <p class="text-text-secondary text-sm">With: {{ meeting.collaborator.full_name }}</p>
+                                </div>
+                                <a href="{{ meeting.zoom_link }}" target="_blank" class="bg-blue-500 hover:bg-blue-600 text-white text-sm px-3 py-1 rounded-lg transition-colors">
+                                    Join
+                                </a>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+                {% else %}
+                <div class="text-center py-4">
+                    <div class="text-4xl mb-2 text-text-secondary">
+                        <i class="fas fa-calendar-alt"></i>
+                    </div>
+                    <p class="text-text-secondary">No upcoming meetings scheduled</p>
+                </div>
+                {% endif %}
+            </div>
+            
+            <!-- Comments -->
+            <div class="bg-card border border-card-border rounded-xl p-6">
+                <h2 class="text-xl font-semibold text-white mb-4">Comments</h2>
+                                
+                <!-- Comments List -->
+                {% if comments %}
+                <div class="space-y-6">
+                    {% for comment in comments %}
+                    {% if not comment.parent_comment %}
+                    <div class="bg-black bg-opacity-30 border border-card-border rounded-lg overflow-hidden">
+                        <div class="p-4">
+                            <div class="flex justify-between items-start mb-2">
+                                <div class="flex items-center gap-3">
+                                    {% if comment.author_type == 'student' and comment.author_student.profile_picture %}
+                                    <img src="{{ comment.author_student.profile_picture.url }}" alt="{{ comment.get_author_name }}" class="w-10 h-10 rounded-full">
+                                    {% else %}
+                                    <div class="w-10 h-10 rounded-full bg-primary-light flex items-center justify-center">
+                                        <i class="fas fa-user text-primary"></i>
+                                    </div>
+                                    {% endif %}
+                                    <div>
+                                        <p class="text-white font-medium">{{ comment.get_author_name }}</p>
+                                        <p class="text-text-secondary text-xs">
+                                            {{ comment.get_author_type }} • {{ comment.created_at|date:"M d, Y • h:i A" }}
+                                        </p>
+                                    </div>
+                                </div>
+                                
+                                {% if request.user.student_profile.id == comment.author_id and comment.author_type == 'student' %}
+                                <form method="post" action="{% url 'delete_project_comment' comment.id %}" onsubmit="return confirm('Are you sure you want to delete this comment?');">
+                                    {% csrf_token %}
+                                    <button type="submit" class="text-red-500 hover:text-red-600">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </button>
+                                </form>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="mt-2 text-text-secondary">
+                                {{ comment.content }}
+                            </div>
+                        </div>
+                        
+                        <!-- Replies -->
+                        {% if comment.replies.exists %}
+                        <div class="border-t border-card-border">
+                            {% for reply in comment.replies.all %}
+                            <div class="p-4 {% if not forloop.last %}border-b border-card-border{% endif %}">
+                                <div class="flex justify-between items-start mb-2">
+                                    <div class="flex items-center gap-3">
+                                        {% if reply.author_type == 'student' and reply.author_student.profile_picture %}
+                                        <img src="{{ reply.author_student.profile_picture.url }}" alt="{{ reply.get_author_name }}" class="w-8 h-8 rounded-full">
+                                        {% else %}
+                                        <div class="w-8 h-8 rounded-full bg-primary-light flex items-center justify-center">
+                                            <i class="fas fa-user text-primary"></i>
+                                        </div>
+                                        {% endif %}
+                                        <div>
+                                            <p class="text-white font-medium">{{ reply.get_author_name }}</p>
+                                            <p class="text-text-secondary text-xs">
+                                                {{ reply.get_author_type }} • {{ reply.created_at|date:"M d, Y • h:i A" }}
+                                            </p>
+                                        </div>
+                                    </div>
+                                    
+                                    {% if request.user.student_profile.id == reply.author_id and reply.author_type == 'student' %}
+                                    <form method="post" action="{% url 'delete_project_comment' reply.id %}" onsubmit="return confirm('Are you sure you want to delete this reply?');">
+                                        {% csrf_token %}
+                                        <button type="submit" class="text-red-500 hover:text-red-600">
+                                            <i class="fas fa-trash-alt"></i>
+                                        </button>
+                                    </form>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="mt-2 text-text-secondary">
+                                    {{ reply.content }}
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="text-center py-6">
+                    <div class="text-4xl mb-2 text-text-secondary">
+                        <i class="fas fa-comments"></i>
+                    </div>
+                    <p class="text-text-secondary">No comments yet. Be the first to comment!</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

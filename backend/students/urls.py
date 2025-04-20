@@ -34,10 +34,13 @@ urlpatterns = [
     path('groups/invitation/<int:membership_id>/', views.handle_invitation, name='handle_invitation'),
     path('groups/<int:group_id>/remove/<int:member_id>/', views.remove_member, name='remove_member'),
     path('groups/<int:group_id>/add-project/', views.add_group_project, name='add_group_project'),
+
+    path('group-project/<int:project_id>/edit/', views.edit_group_project, name='edit_group_project'),
+    
     # Add new URL patterns for meetings
     path('my-meetings/', views.student_meetings, name='student_meetings'),
     path('meeting/<int:meeting_id>/', views.meeting_detail, name='student_meeting_detail'),
-    path('meetings/', views.student_meetings, name='student_meetings'),
+    # path('meetings/', views.student_meetings, name='student_meetings'),
     path('view-collaborators/', views.view_collaborators, name='view_collaborators'),
     path('schedule-meeting/<int:project_id>/<int:collaborator_id>/', views.schedule_meeting, name='student_schedule_meeting'),
     path('meetings/', views.view_meetings, name='student_all_meetings'),
@@ -47,5 +50,7 @@ urlpatterns = [
     path('comment/<int:comment_id>/delete/', views.delete_project_comment, name='delete_project_comment'),
     path('assessments/', views.view_assessments, name='student_view_assessments'),
     path('assessments/<int:assessment_id>/', views.assessment_detail, name='student_assessment_detail'),
+
+    path('projects/<int:project_id>/', views.project_detail, name='project_detail'),
 
 ]

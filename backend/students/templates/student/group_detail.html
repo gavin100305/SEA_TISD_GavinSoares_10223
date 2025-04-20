@@ -114,10 +114,98 @@
                     {% endif %}
                 </div>
             </div>
+            
+            <!-- Upcoming Meetings -->
+            <div class="bg-card border border-card-border rounded-xl p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-xl font-semibold text-white">Upcoming Meetings</h2>
+                </div>
+                
+                {% if mentor_meetings or collab_group_meetings or collab_project_meetings %}
+                <div class="space-y-4">
+                    <!-- Mentor Meetings -->
+                    {% if mentor_meetings %}
+                    <div class="mb-4">
+                        <h3 class="text-text-secondary font-medium mb-2">Mentor Meetings</h3>
+                        {% for meeting in mentor_meetings %}
+                        <div class="bg-black bg-opacity-30 border border-card-border rounded-lg p-3 mb-2">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <h4 class="text-white font-medium">{{ meeting.title }}</h4>
+                                    <p class="text-text-secondary text-sm">{{ meeting.meeting_time|date:"M d, Y • h:i A" }}</p>
+                                    <p class="text-text-secondary text-sm">Duration: {{ meeting.duration }} minutes</p>
+                                    <p class="text-text-secondary text-sm">With: {{ meeting.mentor.full_name }}</p>
+                                    <p class="text-text-secondary text-sm">For: {{ meeting.student.full_name }}</p>
+                                </div>
+                                <a href="{{ meeting.meeting_link }}" target="_blank" class="bg-blue-500 hover:bg-blue-600 text-white text-sm px-3 py-1 rounded-lg transition-colors">
+                                    Join
+                                </a>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Collaborator Group Meetings -->
+                    {% if collab_group_meetings %}
+                    <div class="mb-4">
+                        <h3 class="text-text-secondary font-medium mb-2">Group Collaboration Meetings</h3>
+                        {% for meeting in collab_group_meetings %}
+                        <div class="bg-black bg-opacity-30 border border-card-border rounded-lg p-3 mb-2">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <h4 class="text-white font-medium">{{ meeting.meeting_title }}</h4>
+                                    <p class="text-text-secondary text-sm">{{ meeting.scheduled_time|date:"M d, Y • h:i A" }}</p>
+                                    <p class="text-text-secondary text-sm">Duration: {{ meeting.duration }} minutes</p>
+                                    <p class="text-text-secondary text-sm">With: {{ meeting.collaborator.full_name }}</p>
+                                    <p class="text-text-secondary text-sm">Project: {{ meeting.project.title }}</p>
+                                </div>
+                                <a href="{{ meeting.zoom_link }}" target="_blank" class="bg-blue-500 hover:bg-blue-600 text-white text-sm px-3 py-1 rounded-lg transition-colors">
+                                    Join
+                                </a>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Collaborator Project Meetings -->
+                    {% if collab_project_meetings %}
+                    <div class="mb-4">
+                        <h3 class="text-text-secondary font-medium mb-2">Project Collaboration Meetings</h3>
+                        {% for meeting in collab_project_meetings %}
+                        <div class="bg-black bg-opacity-30 border border-card-border rounded-lg p-3 mb-2">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <h4 class="text-white font-medium">{{ meeting.meeting_title }}</h4>
+                                    <p class="text-text-secondary text-sm">{{ meeting.scheduled_time|date:"M d, Y • h:i A" }}</p>
+                                    <p class="text-text-secondary text-sm">Duration: {{ meeting.duration }} minutes</p>
+                                    <p class="text-text-secondary text-sm">With: {{ meeting.collaborator.full_name }}</p>
+                                    <p class="text-text-secondary text-sm">Project: {{ meeting.project.title }}</p>
+                                </div>
+                                <a href="{{ meeting.zoom_link }}" target="_blank" class="bg-blue-500 hover:bg-blue-600 text-white text-sm px-3 py-1 rounded-lg transition-colors">
+                                    Join
+                                </a>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+                {% else %}
+                <div class="text-center py-4">
+                    <div class="text-4xl mb-2 text-text-secondary">
+                        <i class="fas fa-calendar-alt"></i>
+                    </div>
+                    <p class="text-text-secondary">No upcoming meetings scheduled</p>
+                </div>
+                {% endif %}
+            </div>
         </div>
 
-        <!-- Projects -->
-        <div class="lg:col-span-2">
+        <!-- Projects and Comments -->
+        <div class="lg:col-span-2 space-y-8">
+            <!-- Projects -->
             <div class="bg-card border border-card-border rounded-xl p-6">
                 <div class="flex justify-between items-center mb-6">
                     <h2 class="text-xl font-semibold text-white">Group Projects</h2>
@@ -126,11 +214,11 @@
                         Add Project
                     </a>
                 </div>
-
+            
                 {% if projects %}
                 <div class="grid gap-4">
                     {% for project in projects %}
-                    <div class="bg-black bg-opacity-30 border border-card-border rounded-lg p-4 hover:border-primary transition-all">
+                    <a href="{% url 'project_detail' project.id %}" class="block bg-black bg-opacity-30 border border-card-border rounded-lg p-4 hover:border-primary transition-all">
                         <div class="flex justify-between items-start">
                             <div>
                                 <h3 class="text-lg font-medium text-white mb-2">{{ project.title }}</h3>
@@ -155,30 +243,34 @@
                                     <i class="fas fa-clock"></i>
                                     {{ project.status|title }}
                                 </div>
+                                
                                 {% if is_leader %}
-                                <div class="mt-2 flex flex-col gap-2">
-                                    <form method="post" action="{% url 'toggle_project_collaboration' project.id %}" class="inline">
-                                        {% csrf_token %}
-                                        <button type="submit" class="w-full text-sm px-3 py-1 rounded-lg {% if project.is_open_for_collaboration %}bg-yellow-500 hover:bg-yellow-600{% else %}bg-green-500 hover:bg-green-600{% endif %} text-white transition-colors">
-                                            {% if project.is_open_for_collaboration %}
-                                                Close Collaboration
-                                            {% else %}
-                                                Open for Collaboration
-                                            {% endif %}
-                                        </button>
-                                    </form>
-                                    <div class="flex gap-2">
-                                        <a href="{% url 'edit_project' project.id %}" class="flex-1 text-center bg-blue-500 hover:bg-blue-600 text-white text-sm px-3 py-1 rounded-lg transition-colors">Edit</a>
-                                        <form method="post" action="{% url 'delete_project' project.id %}" class="flex-1" onsubmit="return confirm('Are you sure you want to delete this project?');">
+                                <div class="mt-2 bg-gray-800 bg-opacity-50 rounded p-2">
+                                    <div class="text-xs text-center text-text-secondary mb-1">Actions</div>
+                                    <div class="flex flex-col gap-2">
+                                        <form method="post" action="{% url 'toggle_project_collaboration' project.id %}" class="inline">
                                             {% csrf_token %}
-                                            <button type="submit" class="w-full bg-red-500 hover:bg-red-600 text-white text-sm px-3 py-1 rounded-lg transition-colors">Delete</button>
+                                            <button type="submit" class="w-full text-sm px-3 py-1 rounded-lg {% if project.is_open_for_collaboration %}bg-yellow-500 hover:bg-yellow-600{% else %}bg-green-500 hover:bg-green-600{% endif %} text-white transition-colors">
+                                                {% if project.is_open_for_collaboration %}
+                                                    Close Collaboration
+                                                {% else %}
+                                                    Open for Collaboration
+                                                {% endif %}
+                                            </button>
                                         </form>
+                                        <div class="flex gap-2">
+                                            <a href="{% url 'edit_group_project' project.id %}" class="flex-1 text-center bg-blue-500 hover:bg-blue-600 text-white text-sm px-3 py-1 rounded-lg transition-colors">Edit</a>
+                                            <form method="post" action="{% url 'delete_project' project.id %}" class="flex-1" onsubmit="return confirm('Are you sure you want to delete this project?');">
+                                                {% csrf_token %}
+                                                <button type="submit" class="w-full bg-red-500 hover:bg-red-600 text-white text-sm px-3 py-1 rounded-lg transition-colors">Delete</button>
+                                            </form>
+                                        </div>
                                     </div>
                                 </div>
                                 {% endif %}
                             </div>
                         </div>
-                    </div>
+                    </a>
                     {% endfor %}
                 </div>
                 {% else %}
@@ -192,6 +284,72 @@
                         <i class="fas fa-plus"></i>
                         Add Project
                     </a>
+                </div>
+                {% endif %}
+            </div>
+            
+            <!-- Project Comments -->
+            <div class="bg-card border border-card-border rounded-xl p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-xl font-semibold text-white">Recent Comments</h2>
+                </div>
+
+                {% if comments %}
+                <div class="space-y-4">
+                    {% for comment in comments %}
+                    <div class="bg-black bg-opacity-30 border border-card-border rounded-lg p-4">
+                        <div class="flex justify-between items-start mb-2">
+                            <div class="flex items-center gap-3">
+                                {% if comment.author_type == 'student' and comment.author_student.profile_picture %}
+                                <img src="{{ comment.author_student.profile_picture.url }}" alt="{{ comment.get_author_name }}" class="w-8 h-8 rounded-full">
+                                {% else %}
+                                <div class="w-8 h-8 rounded-full bg-primary-light flex items-center justify-center">
+                                    <i class="fas fa-user text-primary"></i>
+                                </div>
+                                {% endif %}
+                                <div>
+                                    <p class="text-white font-medium">{{ comment.get_author_name }}</p>
+                                    <p class="text-text-secondary text-xs">
+                                        {{ comment.get_author_type }} • {{ comment.created_at|date:"M d, Y • h:i A" }}
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="text-text-secondary text-xs">
+                                On <span class="text-primary">{{ comment.project.title }}</span>
+                            </div>
+                        </div>
+                        <div class="mt-2 text-text-secondary">
+                            {{ comment.content }}
+                        </div>
+                        
+                        <!-- Display replies if any -->
+                        {% if comment.replies.exists %}
+                        <div class="mt-3 pl-4 border-l border-card-border">
+                            {% for reply in comment.replies.all %}
+                            <div class="mb-2">
+                                <div class="flex items-center gap-2">
+                                    <div class="w-6 h-6 rounded-full bg-primary-light flex items-center justify-center">
+                                        <i class="fas fa-user text-primary text-xs"></i>
+                                    </div>
+                                    <div>
+                                        <p class="text-white text-sm font-medium">{{ reply.get_author_name }}</p>
+                                        <p class="text-text-secondary text-xs">{{ reply.created_at|date:"M d, Y • h:i A" }}</p>
+                                    </div>
+                                </div>
+                                <p class="text-text-secondary text-sm mt-1 pl-8">{{ reply.content }}</p>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="text-center py-6">
+                    <div class="text-4xl mb-2 text-text-secondary">
+                        <i class="fas fa-comments"></i>
+                    </div>
+                    <p class="text-text-secondary">No comments yet</p>
                 </div>
                 {% endif %}
             </div>
@@ -232,4 +390,4 @@
     </div>
 </div>
 {% endif %}
-{% endblock %} 
+{% endblock %}
