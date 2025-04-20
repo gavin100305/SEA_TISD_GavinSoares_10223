@@ -1,0 +1,790 @@
+{% extends 'collaborator/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="content-section">
+    <div class="project-navigation">
+        <a href="{% url 'view_shared_projects' %}" class="back-link">
+            <i class="fas fa-arrow-left"></i> Back to Projects
+        </a>
+    </div>
+    
+    <div class="project-detail-container">
+        <div class="project-header">
+            <h1 class="project-title">{{ project.title }}</h1>
+            <span class="status-badge {{ project.status }}">{{ project.get_status_display }}</span>
+        </div>
+        
+        <div class="project-meta">
+            <div class="meta-item">
+                <i class="fas fa-user"></i>
+                <span>Owner: {{ project.owner_name }} ({{ project.owner_type }})</span>
+            </div>
+            <div class="meta-item">
+                <i class="fas fa-calendar"></i>
+                <span>Created: {{ project.created_at|date:"F j, Y" }}</span>
+            </div>
+            <div class="meta-item">
+                <i class="fas fa-clock"></i>
+                <span>Last Updated: {{ project.updated_at|date:"F j, Y" }}</span>
+            </div>
+        </div>
+        
+        <div class="project-sections">
+            <div class="project-section">
+                <h2 class="section-title">Description</h2>
+                <div class="section-content">
+                    {{ project.description|linebreaks }}
+                </div>
+            </div>
+            
+            <div class="project-section">
+                <h2 class="section-title">Tech Stack</h2>
+                <div class="section-content tech-tags">
+                    {% for tech in project.tech_stack_list %}
+                        <span class="tag tech-tag">{{ tech }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <div class="project-section">
+                <h2 class="section-title">SDGs (Sustainable Development Goals)</h2>
+                <div class="section-content sdg-tags">
+                    {% for sdg in project.sdgs_list %}
+                        <span class="tag sdg-tag">{{ sdg }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            {% if project.github_link %}
+            <div class="project-section">
+                <h2 class="section-title">GitHub Repository</h2>
+                <div class="section-content">
+                    <a href="{{ project.github_link }}" target="_blank" class="github-link">
+                        <i class="fab fa-github"></i> View Repository
+                    </a>
+                </div>
+            </div>
+            {% endif %}
+            
+            {% if project.project_image1 or project.project_image2 or project.project_image3 or project.project_image4 or project.project_image5 %}
+            <div class="project-section">
+                <h2 class="section-title">Project Images</h2>
+                <div class="project-images">
+                    {% if project.project_image1 %}
+                    <div class="image-container">
+                        <img src="{{ project.project_image1.url }}" alt="Project Image 1" class="project-image">
+                    </div>
+                    {% endif %}
+                    
+                    {% if project.project_image2 %}
+                    <div class="image-container">
+                        <img src="{{ project.project_image2.url }}" alt="Project Image 2" class="project-image">
+                    </div>
+                    {% endif %}
+                    
+                    {% if project.project_image3 %}
+                    <div class="image-container">
+                        <img src="{{ project.project_image3.url }}" alt="Project Image 3" class="project-image">
+                    </div>
+                    {% endif %}
+                    
+                    {% if project.project_image4 %}
+                    <div class="image-container">
+                        <img src="{{ project.project_image4.url }}" alt="Project Image 4" class="project-image">
+                    </div>
+                    {% endif %}
+                    
+                    {% if project.project_image5 %}
+                    <div class="image-container">
+                        <img src="{{ project.project_image5.url }}" alt="Project Image 5" class="project-image">
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+
+            {% if project.project_file %}
+            <div class="project-section">
+                <h2 class="section-title">Project Files</h2>
+                <div class="section-content">
+                    <a href="{{ project.project_file.url }}" class="file-link" download>
+                        <i class="fas fa-file-download"></i> Download Project File
+                    </a>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+        
+        {% if not project.request_status %}
+        <div class="collaboration-actions">
+            <button onclick="openCollaborationModal('{{ project.id }}')" class="btn btn-primary btn-lg">
+                <i class="fas fa-handshake"></i> Request to Collaborate
+            </button>
+        </div>
+        {% else %}
+        <div class="request-status-container">
+            <h3>Your Collaboration Request</h3>
+            <div class="request-status">
+                <span class="status-badge {{ project.request_status }}">
+                    Status: {{ project.request_status|title }}
+                </span>
+            </div>
+        </div>
+        {% endif %}
+        
+        {% if project.request_status == 'accepted' %}
+        <div class="meeting-actions">
+            <a href="{% url 'view_meetings' project.id %}" class="btn btn-primary">
+                <i class="fas fa-video"></i> View Meetings
+            </a>
+            <a href="{% url 'collab_schedule_meeting' project.id %}" class="btn btn-secondary">
+                <i class="fas fa-plus"></i> Schedule Meeting
+            </a>
+        </div>
+        {% endif %}
+        
+        <!-- Comments Section -->
+        <div class="comments-section">
+            <h2 class="section-title">Comments</h2>
+            
+            <!-- Comment Form -->
+            <form method="POST" action="{% url 'collaborator_add_comment' project.id %}" class="comment-form">
+                {% csrf_token %}
+                <div class="form-group">
+                    <textarea name="content" rows="3" placeholder="Write a comment..." class="comment-input"></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">Post Comment</button>
+            </form>
+
+            <!-- Comments List -->
+            <div class="comments-list">
+                {% if project.comments.all %}
+                    {% for comment in project.comments.all %}
+                        {% if not comment.parent_comment %}
+                            <div class="comment" id="comment-{{ comment.id }}">
+                                <div class="comment-header">
+                                    <span class="comment-author">{{ comment.get_author_name }} ({{ comment.get_author_type }})</span>
+                                    <span class="comment-time">{{ comment.created_at|timesince }} ago</span>
+                                </div>
+                                <div class="comment-content">{{ comment.content }}</div>
+                                <div class="comment-actions">
+                                    <button onclick="showReplyForm('{{ comment.id }}')" class="btn btn-link">Reply</button>
+                                    {% if comment.author_type == 'collaborator' and comment.author_collaborator.user == request.user %}
+                                        <form method="POST" action="{% url 'collaborator_delete_comment' comment.id %}" class="inline-form">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-link text-danger" onclick="return confirm('Delete this comment?')">Delete</button>
+                                        </form>
+                                    {% endif %}
+                                </div>
+
+                                <!-- Reply Form -->
+                                <div id="reply-form-{{ comment.id }}" class="reply-form" style="display: none;">
+                                    <form method="POST" action="{% url 'collaborator_add_comment' project.id %}">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="parent_id" value="{{ comment.id }}">
+                                        <div class="form-group">
+                                            <textarea name="content" rows="2" placeholder="Write a reply..." class="comment-input"></textarea>
+                                        </div>
+                                        <div class="form-actions">
+                                            <button type="submit" class="btn btn-primary btn-sm">Reply</button>
+                                            <button type="button" onclick="hideReplyForm('{{ comment.id }}')" class="btn btn-secondary btn-sm">Cancel</button>
+                                        </div>
+                                    </form>
+                                </div>
+
+                                <!-- Replies -->
+                                {% for reply in comment.replies.all %}
+                                    <div class="reply">
+                                        <div class="comment-header">
+                                            <span class="comment-author">{{ reply.get_author_name }} ({{ reply.get_author_type }})</span>
+                                            <span class="comment-time">{{ reply.created_at|timesince }} ago</span>
+                                        </div>
+                                        <div class="comment-content">{{ reply.content }}</div>
+                                        {% if reply.author_type == 'collaborator' and reply.author_collaborator.user == request.user %}
+                                            <div class="comment-actions">
+                                                <form method="POST" action="{% url 'collaborator_delete_comment' reply.id %}" class="inline-form">
+                                                    {% csrf_token %}
+                                                    <button type="submit" class="btn btn-link text-danger" onclick="return confirm('Delete this reply?')">Delete</button>
+                                                </form>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                {% else %}
+                    <div class="empty-comments">
+                        <p>No comments yet. Be the first to comment!</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Collaboration Request Modal -->
+<div id="collaborationModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Request to Collaborate</h3>
+        </div>
+        <form id="collaborationForm" method="POST">
+            {% csrf_token %}
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="message">Message</label>
+                    <textarea name="message" id="message" rows="3" placeholder="Explain why you'd like to collaborate on this project"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="proposed_contribution">Proposed Contribution</label>
+                    <textarea name="proposed_contribution" id="proposed_contribution" rows="3" placeholder="Describe how you plan to contribute to this project"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" onclick="closeCollaborationModal()" class="btn btn-secondary">Cancel</button>
+                <button type="submit" class="btn btn-primary">Send Request</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% block extra_css %}
+<style>
+    .content-section {
+        padding: 2rem;
+    }
+    
+    .project-navigation {
+        margin-bottom: 2rem;
+    }
+    
+    .back-link {
+        display: inline-flex;
+        align-items: center;
+        color: #9d4edd;
+        text-decoration: none;
+        font-weight: 500;
+        transition: color 0.2s ease;
+    }
+    
+    .back-link:hover {
+        color: #c77dff;
+    }
+    
+    .back-link i {
+        margin-right: 0.5rem;
+    }
+    
+    .project-detail-container {
+        background: rgba(157, 78, 221, 0.05);
+        border: 1px solid rgba(157, 78, 221, 0.3);
+        border-radius: 10px;
+        padding: 2rem;
+    }
+    
+    .project-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: start;
+        margin-bottom: 1.5rem;
+        border-bottom: 1px solid rgba(157, 78, 221, 0.3);
+        padding-bottom: 1rem;
+    }
+    
+    .project-title {
+        color: #c77dff;
+        font-size: 2rem;
+        margin: 0;
+    }
+    
+    .project-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    
+    .meta-item {
+        display: flex;
+        align-items: center;
+        color: #fff;
+        opacity: 0.8;
+    }
+    
+    .meta-item i {
+        color: #9d4edd;
+        margin-right: 0.5rem;
+    }
+    
+    .project-sections {
+        display: flex;
+        flex-direction: column;
+        gap: 2rem;
+    }
+    
+    .project-section {
+        border-bottom: 1px solid rgba(157, 78, 221, 0.2);
+        padding-bottom: 1.5rem;
+    }
+    
+    .project-section:last-child {
+        border-bottom: none;
+    }
+    
+    .section-title {
+        color: #c77dff;
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+    }
+    
+    .section-content {
+        color: #fff;
+        line-height: 1.6;
+    }
+    
+    .tech-tags, .sdg-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+    
+    .tag {
+        padding: 0.35rem 0.75rem;
+        border-radius: 15px;
+        font-size: 0.875rem;
+        font-weight: 500;
+    }
+    
+    .tech-tag {
+        background: rgba(157, 78, 221, 0.2);
+        color: #c77dff;
+        border: 1px solid rgba(157, 78, 221, 0.3);
+    }
+    
+    .sdg-tag {
+        background: rgba(114, 9, 183, 0.2);
+        color: #9d4edd;
+        border: 1px solid rgba(114, 9, 183, 0.3);
+    }
+    
+    .github-link {
+        display: inline-flex;
+        align-items: center;
+        color: #c77dff;
+        font-weight: 500;
+        text-decoration: none;
+        padding: 0.5rem 1rem;
+        border: 1px solid #9d4edd;
+        border-radius: 5px;
+        transition: all 0.3s ease;
+    }
+    
+    .github-link:hover {
+        background: rgba(157, 78, 221, 0.1);
+    }
+    
+    .github-link i {
+        margin-right: 0.5rem;
+    }
+    
+    .project-images {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+    
+    .image-container {
+        border-radius: 5px;
+        overflow: hidden;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    }
+    
+    .project-image {
+        width: 100%;
+        height: auto;
+        display: block;
+        transition: transform 0.3s ease;
+    }
+    
+    .image-container:hover .project-image {
+        transform: scale(1.05);
+    }
+    
+    .file-link {
+        display: inline-flex;
+        align-items: center;
+        color: #c77dff;
+        font-weight: 500;
+        text-decoration: none;
+        padding: 0.5rem 1rem;
+        border: 1px solid #9d4edd;
+        border-radius: 5px;
+        transition: all 0.3s ease;
+    }
+    
+    .file-link:hover {
+        background: rgba(157, 78, 221, 0.1);
+    }
+    
+    .file-link i {
+        margin-right: 0.5rem;
+    }
+    
+    .collaboration-actions {
+        margin: 2rem 0;
+        text-align: center;
+    }
+    
+    .btn-lg {
+        padding: 0.75rem 1.5rem;
+        font-size: 1rem;
+    }
+    
+    .request-status-container {
+        margin: 2rem 0;
+        padding: 1rem;
+        border-radius: 5px;
+        background: rgba(157, 78, 221, 0.05);
+        border: 1px solid rgba(157, 78, 221, 0.2);
+    }
+    
+    .request-status-container h3 {
+        color: #c77dff;
+        margin-top: 0;
+        margin-bottom: 0.5rem;
+    }
+    
+    .status-badge {
+        padding: 0.25rem 0.75rem;
+        border-radius: 15px;
+        font-size: 0.875rem;
+        font-weight: 500;
+    }
+    
+    .status-badge.pending {
+        background: rgba(255, 193, 7, 0.2);
+        color: #ffc107;
+    }
+    
+    .status-badge.accepted {
+        background: rgba(40, 167, 69, 0.2);
+        color: #28a745;
+    }
+    
+    .status-badge.rejected {
+        background: rgba(220, 53, 69, 0.2);
+        color: #dc3545;
+    }
+    
+    .status-badge.in_progress {
+        background: rgba(0, 123, 255, 0.2);
+        color: #0d6efd;
+    }
+    
+    .status-badge.completed {
+        background: rgba(40, 167, 69, 0.2);
+        color: #28a745;
+    }
+    
+    .status-badge.under_review {
+        background: rgba(108, 117, 125, 0.2);
+        color: #6c757d;
+    }
+    
+    .meeting-actions {
+        display: flex;
+        gap: 1rem;
+        margin: 2rem 0;
+    }
+    
+    .comments-section {
+        margin-top: 3rem;
+    }
+    
+    .comment-form {
+        margin-bottom: 2rem;
+    }
+    
+    .comment-input {
+        width: 100%;
+        padding: 0.75rem;
+        border-radius: 5px;
+        border: 1px solid #9d4edd;
+        background: rgba(157, 78, 221, 0.1);
+        color: #fff;
+        resize: vertical;
+        margin-bottom: 1rem;
+    }
+    
+    .comments-list {
+        margin-top: 2rem;
+    }
+    
+    .comment {
+        margin-bottom: 2rem;
+        padding-bottom: 1.5rem;
+        border-bottom: 1px solid rgba(157, 78, 221, 0.1);
+    }
+    
+    .comment-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.75rem;
+    }
+    
+    .comment-author {
+        color: #c77dff;
+        font-weight: 500;
+    }
+    
+    .comment-time {
+        color: rgba(255, 255, 255, 0.5);
+        font-size: 0.875rem;
+    }
+    
+    .comment-content {
+        color: #fff;
+        margin-bottom: 0.75rem;
+        line-height: 1.5;
+    }
+    
+    .comment-actions {
+        display: flex;
+        gap: 1rem;
+    }
+    
+    .btn-link {
+        background: none;
+        border: none;
+        padding: 0;
+        color: #9d4edd;
+        cursor: pointer;
+        font-size: 0.875rem;
+    }
+    
+    .btn-link:hover {
+        color: #c77dff;
+        text-decoration: underline;
+    }
+    
+    .text-danger {
+        color: #dc3545;
+    }
+    
+    .text-danger:hover {
+        color: #ff4757;
+    }
+    
+    .reply-form {
+        margin: 1rem 0;
+        padding: 1rem;
+        background: rgba(157, 78, 221, 0.05);
+        border-radius: 5px;
+        border: 1px solid rgba(157, 78, 221, 0.2);
+    }
+    
+    .form-actions {
+        display: flex;
+        gap: 0.5rem;
+        margin-top: 0.5rem;
+    }
+    
+    .reply {
+        margin: 1rem 0 1rem 2rem;
+        padding: 1rem;
+        background: rgba(157, 78, 221, 0.05);
+        border-left: 3px solid rgba(157, 78, 221, 0.3);
+        border-radius: 0 5px 5px 0;
+    }
+    
+    .inline-form {
+        display: inline;
+    }
+    
+    .btn-sm {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.875rem;
+    }
+    
+    .empty-comments {
+        text-align: center;
+        padding: 2rem;
+        color: rgba(255, 255, 255, 0.6);
+        font-style: italic;
+    }
+    
+    .btn {
+        padding: 0.5rem 1rem;
+        border-radius: 5px;
+        border: none;
+        cursor: pointer;
+        font-size: 0.875rem;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-block;
+    }
+    
+    .btn-primary {
+        background: #9d4edd;
+        color: #fff;
+    }
+    
+    .btn-primary:hover {
+        background: #c77dff;
+    }
+    
+    .btn-secondary {
+        background: transparent;
+        border: 1px solid #9d4edd;
+        color: #9d4edd;
+    }
+    
+    .btn-secondary:hover {
+        background: rgba(157, 78, 221, 0.1);
+    }
+    
+    .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 1000;
+    }
+    
+    .modal.show {
+        display: block;
+    }
+    
+    .modal-content {
+        background: #1a1a2e;
+        border: 1px solid #9d4edd;
+        border-radius: 10px;
+        width: 90%;
+        max-width: 500px;
+        margin: 2rem auto;
+        position: relative;
+        top: 50%;
+        transform: translateY(-50%);
+    }
+    
+    .modal-header {
+        padding: 1rem 1.5rem;
+        border-bottom: 1px solid #9d4edd;
+    }
+    
+    .modal-header h3 {
+        color: #c77dff;
+        margin: 0;
+    }
+    
+    .modal-body {
+        padding: 1.5rem;
+    }
+    
+    .form-group {
+        margin-bottom: 1rem;
+    }
+    
+    .form-group label {
+        display: block;
+        color: #c77dff;
+        margin-bottom: 0.5rem;
+    }
+    
+    .form-group textarea {
+        width: 100%;
+        padding: 0.5rem;
+        border-radius: 5px;
+        border: 1px solid #9d4edd;
+        background: rgba(157, 78, 221, 0.1);
+        color: #fff;
+        resize: vertical;
+    }
+    
+    .modal-footer {
+        padding: 1rem 1.5rem;
+        border-top: 1px solid #9d4edd;
+        display: flex;
+        justify-content: flex-end;
+        gap: 1rem;
+    }
+    
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .content-section {
+            padding: 1rem;
+        }
+        
+        .project-detail-container {
+            padding: 1rem;
+        }
+        
+        .project-title {
+            font-size: 1.5rem;
+        }
+        
+        .project-meta {
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+        
+        .project-images {
+            grid-template-columns: 1fr;
+        }
+        
+        .meeting-actions {
+            flex-direction: column;
+        }
+        
+        .meeting-actions .btn {
+            width: 100%;
+            margin-bottom: 0.5rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function openCollaborationModal(projectId) {
+    const modal = document.getElementById('collaborationModal');
+    const form = document.getElementById('collaborationForm');
+    form.action = `/collabrators/send-collaboration-request/${projectId}/`;
+    modal.classList.add('show');
+}
+
+function closeCollaborationModal() {
+    const modal = document.getElementById('collaborationModal');
+    modal.classList.remove('show');
+}
+
+function showReplyForm(commentId) {
+    document.getElementById(`reply-form-${commentId}`).style.display = 'block';
+}
+
+function hideReplyForm(commentId) {
+    document.getElementById(`reply-form-${commentId}`).style.display = 'none';
+}
+
+// Image preview functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const imageContainers = document.querySelectorAll('.image-container');
+    
+    imageContainers.forEach(container => {
+        container.addEventListener('click', function() {
+            const img = this.querySelector('img');
+            // You could implement a lightbox here
+            console.log('Image clicked:', img.src);
+        });
+    });
+});
+</script>
+{% endblock %}
+{% endblock %}

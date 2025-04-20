@@ -1,0 +1,67 @@
+{% extends 'collaborator/base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Update Meeting</h2>
+    
+    {% if messages %}
+    <div class="messages">
+        {% for message in messages %}
+        <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    
+    <form method="post">
+        {% csrf_token %}
+        <div class="mb-3">
+            <label for="meeting_title" class="form-label">Meeting Title</label>
+            <input type="text" class="form-control" id="meeting_title" name="meeting_title" value="{{ meeting.meeting_title }}" required>
+        </div>
+        
+        <div class="mb-3">
+            <label for="meeting_description" class="form-label">Description</label>
+            <textarea class="form-control" id="meeting_description" name="meeting_description" rows="3">{{ meeting.meeting_description }}</textarea>
+        </div>
+        
+        <div class="mb-3">
+            <label for="scheduled_time" class="form-label">Scheduled Time</label>
+            <input type="datetime-local" class="form-control" id="scheduled_time" name="scheduled_time" value="{{ meeting.scheduled_time|date:'Y-m-d\TH:i' }}" required>
+        </div>
+        
+        <div class="mb-3">
+            <label for="duration" class="form-label">Duration (minutes)</label>
+            <input type="number" class="form-control" id="duration" name="duration" value="{{ meeting.duration }}" required>
+        </div>
+        
+        <div class="mb-3">
+            <label for="zoom_link" class="form-label">Zoom Link</label>
+            <input type="url" class="form-control" id="zoom_link" name="zoom_link" value="{{ meeting.zoom_link }}" required>
+        </div>
+        
+        <div class="mb-3">
+            <label for="zoom_meeting_id" class="form-label">Zoom Meeting ID</label>
+            <input type="text" class="form-control" id="zoom_meeting_id" name="zoom_meeting_id" value="{{ meeting.zoom_meeting_id }}" required>
+        </div>
+        
+        <div class="mb-3">
+            <label for="zoom_password" class="form-label">Zoom Password</label>
+            <input type="text" class="form-control" id="zoom_password" name="zoom_password" value="{{ meeting.zoom_password }}" required>
+        </div>
+        
+        <div class="mb-3">
+            <label for="status" class="form-label">Status</label>
+            <select class="form-select" id="status" name="status">
+                <option value="scheduled" {% if meeting.status == 'scheduled' %}selected{% endif %}>Scheduled</option>
+                <option value="completed" {% if meeting.status == 'completed' %}selected{% endif %}>Completed</option>
+                <option value="cancelled" {% if meeting.status == 'cancelled' %}selected{% endif %}>Cancelled</option>
+            </select>
+        </div>
+        
+        <button type="submit" class="btn btn-primary">Update Meeting</button>
+        <a href="{% url 'view_meetings' project.id %}" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,68 @@
+
+{% extends 'collaborator/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Meetings for Project: {{ project.title }}</h2>
+    
+    <div class="mb-3">
+        <a href="{% url 'collab_schedule_meeting' project.id %}" class="btn btn-primary">Schedule New Meeting</a>
+        <a href="{% url 'project_detail' project.id %}" class="btn btn-secondary">Back to Project</a>
+    </div>
+    
+    {% if messages %}
+    <div class="messages">
+        {% for message in messages %}
+        <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    
+    {% if meetings %}
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Description</th>
+                    <th>Scheduled Time</th>
+                    <th>Duration</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for meeting in meetings %}
+                <tr>
+                    <td>{{ meeting.meeting_title }}</td>
+                    <td>{{ meeting.meeting_description|truncatechars:50 }}</td>
+                    <td>{{ meeting.scheduled_time|date:"M d, Y - H:i" }}</td>
+                    <td>{{ meeting.duration }} minutes</td>
+                    <td>
+                        {% if meeting.status == 'scheduled' %}
+                        <span class="badge bg-warning">Scheduled</span>
+                        {% elif meeting.status == 'completed' %}
+                        <span class="badge bg-success">Completed</span>
+                        {% elif meeting.status == 'cancelled' %}
+                        <span class="badge bg-danger">Cancelled</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="{% url 'update_meeting' meeting.id %}" class="btn btn-sm btn-primary">Edit</a>
+                        <a href="{% url 'delete_meeting' meeting.id %}" class="btn btn-sm btn-danger">Delete</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="alert alert-info">
+        No meetings scheduled yet. Click "Schedule New Meeting" to create one.
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

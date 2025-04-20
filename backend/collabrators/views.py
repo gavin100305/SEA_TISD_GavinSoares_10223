@@ -220,6 +220,43 @@ def view_shared_projects(request):
 
 
 @login_required
+def shared_project_details(request, project_id):
+    """Display detailed view of a specific shared project"""
+    try:
+        collaborator = request.user.collaborator_profile
+        
+        # Get the project
+        project = get_object_or_404(Project, id=project_id, is_open_for_collaboration=True)
+        
+        # Get collaboration request status if exists
+        try:
+            collab_request = CollaborationRequest.objects.get(
+                collaborator=collaborator,
+                project=project
+            )
+            project.request_status = collab_request.status
+        except CollaborationRequest.DoesNotExist:
+            project.request_status = None
+        
+        # Add owner info
+        project.owner_name = project.group.name if project.group else project.student.full_name
+        project.owner_type = 'Group' if project.group else 'Student'
+        
+        # Format tech stack and SDGs as lists for display
+        project.tech_stack_list = [tech.strip() for tech in project.tech_stack.split(',')]
+        project.sdgs_list = [sdg.strip() for sdg in project.sdgs.split(',')]
+        
+        context = {
+            'project': project,
+        }
+        
+        return render(request, 'collaborator/shared_project_detail.html', context)
+        
+    except Exception as e:
+        messages.error(request, f'An error occurred: {str(e)}')
+        return redirect('view_shared_projects')
+
+@login_required
 def send_collaboration_request(request, project_id):
     """Send a collaboration request for a project"""
     if request.method == 'POST':
@@ -329,41 +366,37 @@ def collab_schedule_meeting(request, project_id):
         return redirect('collaborator_dashboard')
     
 
+# Views for CollabZoomMeetings
+
 @login_required
-def view_meetings(request, project_id=None):
+def view_meetings(request, project_id):
     try:
         collaborator = request.user.collaborator_profile
+        project = get_object_or_404(Project, id=project_id)
         
-        if project_id:
-            # View meetings for a specific project
-            project = get_object_or_404(Project, id=project_id)
-            # Verify if collaborator is connected to this project
-            if not CollaborationRequest.objects.filter(
-                project=project,
-                collaborator=collaborator,
-                status='accepted'
-            ).exists():
-                messages.error(request, 'You are not connected to this project.')
-                return redirect('collaborator_dashboard')
-                
-            meetings = CollabZoomMeeting.objects.filter(
-                collaborator=collaborator,
-                project=project
-            )
-            context = {
-                'project': project,
-                'meetings': meetings
-            }
-            template = 'collaborator/project_meetings.html'
-        else:
-            # View all meetings
-            meetings = CollabZoomMeeting.objects.filter(collaborator=collaborator)
-            context = {'meetings': meetings}
-            template = 'collaborator/all_meetings.html'
-            
-        return render(request, template, context)
+        # Verify if collaborator is connected to this project
+        if not CollaborationRequest.objects.filter(
+            project=project,
+            collaborator=collaborator,
+            status='accepted'
+        ).exists():
+            messages.error(request, 'You are not connected to this project.')
+            return redirect('collaborator_dashboard')
+        
+        # Get all meetings related to this project
+        meetings = CollabZoomMeeting.objects.filter(
+            project=project,
+            collaborator=collaborator
+        ).order_by('-scheduled_time')
+        
+        context = {
+            'project': project,
+            'meetings': meetings
+        }
+        return render(request, 'collaborator/view_meetings.html', context)
         
     except Exception as e:
+        print(f"Error in view_meetings: {e}")
         messages.error(request, f'An error occurred: {str(e)}')
         return redirect('collaborator_dashboard')
 
@@ -372,30 +405,133 @@ def update_meeting(request, meeting_id):
     try:
         collaborator = request.user.collaborator_profile
         meeting = get_object_or_404(CollabZoomMeeting, id=meeting_id, collaborator=collaborator)
+        project = meeting.project
         
         if request.method == 'POST':
-            meeting.meeting_title = request.POST.get('meeting_title')
-            meeting.meeting_description = request.POST.get('meeting_description')
-            meeting.scheduled_time = request.POST.get('scheduled_time')
-            meeting.duration = request.POST.get('duration')
-            meeting.zoom_link = request.POST.get('zoom_link')
-            meeting.zoom_meeting_id = request.POST.get('zoom_meeting_id')
-            meeting.zoom_password = request.POST.get('zoom_password')
-            meeting.status = request.POST.get('status', 'scheduled')
+            meeting_title = request.POST.get('meeting_title')
+            meeting_description = request.POST.get('meeting_description')
+            scheduled_time_str = request.POST.get('scheduled_time')
+            
+            # Convert the string to a datetime object and make it timezone-aware
+            from datetime import datetime
+            scheduled_time = datetime.fromisoformat(scheduled_time_str)
+            scheduled_time = timezone.make_aware(scheduled_time) if timezone.is_naive(scheduled_time) else scheduled_time
+            
+            duration = request.POST.get('duration')
+            zoom_link = request.POST.get('zoom_link')
+            zoom_meeting_id = request.POST.get('zoom_meeting_id')
+            zoom_password = request.POST.get('zoom_password')
+            status = request.POST.get('status')
+            
+            # Update meeting details
+            meeting.meeting_title = meeting_title
+            meeting.meeting_description = meeting_description
+            meeting.scheduled_time = scheduled_time
+            meeting.duration = duration
+            meeting.zoom_link = zoom_link
+            meeting.zoom_meeting_id = zoom_meeting_id
+            meeting.zoom_password = zoom_password
+            if status in ['scheduled', 'completed', 'cancelled']:
+                meeting.status = status
+            
             meeting.save()
             
             messages.success(request, 'Meeting updated successfully!')
-            return redirect('view_meetings', project_id=meeting.project.id)
-            
+            return redirect('view_meetings', project_id=project.id)
+        
         context = {
             'meeting': meeting,
-            'project': meeting.project
+            'project': project
         }
         return render(request, 'collaborator/update_meeting.html', context)
         
     except Exception as e:
+        print(f"Error in update_meeting: {e}")
         messages.error(request, f'An error occurred: {str(e)}')
         return redirect('collaborator_dashboard')
+
+@login_required
+def delete_meeting(request, meeting_id):
+    try:
+        collaborator = request.user.collaborator_profile
+        meeting = get_object_or_404(CollabZoomMeeting, id=meeting_id, collaborator=collaborator)
+        project_id = meeting.project.id
+        
+        if request.method == 'POST':
+            meeting.delete()
+            messages.success(request, 'Meeting deleted successfully!')
+            return redirect('view_meetings', project_id=project_id)
+        
+        context = {
+            'meeting': meeting
+        }
+        return render(request, 'collaborator/confirm_delete_meeting.html', context)
+        
+    except Exception as e:
+        print(f"Error in delete_meeting: {e}")
+        messages.error(request, f'An error occurred: {str(e)}')
+        return redirect('collaborator_dashboard')
+
+@login_required
+def all_collaborator_meetings(request):
+    try:
+        collaborator = request.user.collaborator_profile
+        
+        # Get filter parameters
+        status_filter = request.GET.get('status', '')
+        date_from = request.GET.get('date_from', '')
+        date_to = request.GET.get('date_to', '')
+        
+        # Base query for all meetings for this collaborator
+        meetings = CollabZoomMeeting.objects.filter(collaborator=collaborator)
+        
+        # Apply filters if provided
+        if status_filter and status_filter in ['scheduled', 'completed', 'cancelled']:
+            meetings = meetings.filter(status=status_filter)
+            
+        # Filter by date range if provided
+        if date_from:
+            try:
+                from_date = timezone.make_aware(datetime.strptime(date_from, '%Y-%m-%d'))
+                meetings = meetings.filter(scheduled_time__gte=from_date)
+            except ValueError:
+                messages.error(request, 'Invalid "From" date format. Please use YYYY-MM-DD.')
+        
+        if date_to:
+            try:
+                to_date = timezone.make_aware(datetime.strptime(date_to, '%Y-%m-%d'))
+                # Add a day to include the end date fully
+                to_date = to_date + timedelta(days=1)
+                meetings = meetings.filter(scheduled_time__lt=to_date)
+            except ValueError:
+                messages.error(request, 'Invalid "To" date format. Please use YYYY-MM-DD.')
+        
+        # Default ordering by scheduled time, showing upcoming meetings first
+        meetings = meetings.order_by('scheduled_time')
+        
+        # Group meetings by project for better organization
+        projects_with_meetings = {}
+        for meeting in meetings:
+            if meeting.project.id not in projects_with_meetings:
+                projects_with_meetings[meeting.project.id] = {
+                    'project': meeting.project,
+                    'meetings': []
+                }
+            projects_with_meetings[meeting.project.id]['meetings'].append(meeting)
+        
+        context = {
+            'projects_with_meetings': projects_with_meetings,
+            'status_filter': status_filter,
+            'date_from': date_from,
+            'date_to': date_to
+        }
+        return render(request, 'collaborator/all_collaborator_meetings.html', context)
+        
+    except Exception as e:
+        print(f"Error in all_collaborator_meetings: {e}")
+        messages.error(request, f'An error occurred: {str(e)}')
+        return redirect('collaborator_dashboard')
+
 
 @login_required
 def add_project_comment(request, project_id):

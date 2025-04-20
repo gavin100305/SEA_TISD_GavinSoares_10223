@@ -1,7 +1,7 @@
 {% extends '../base.html' %}
 {% load static %}
 
-{% block title %}Add Project{% endblock %}
+{% block title %}Edit Project{% endblock %}
 
 {% block extra_css %}
 <style>
@@ -103,12 +103,23 @@
         color: #9d4edd;
         margin-bottom: 1rem;
     }
+    
+    .current-image {
+        margin-bottom: 0.5rem;
+        border-radius: 5px;
+        max-height: 150px;
+        border: 1px solid #9d4edd;
+    }
+    
+    .current-image-container {
+        margin-bottom: 1rem;
+    }
 </style>
 {% endblock %}
 
 {% block content %}
 <div class="form-container">
-    <h1 class="mb-4" style="color: #9d4edd;">Add New Project</h1>
+    <h1 class="mb-4" style="color: #9d4edd;">Edit Project</h1>
 
     {% if messages %}
     <div class="messages mb-4">
@@ -129,44 +140,60 @@
                 <select name="mentor" id="mentor" class="form-select" required>
                     <option value="">Select a mentor</option>
                     {% for connection in connected_mentors %}
-                    <option value="{{ connection.mentor.id }}">{{ connection.mentor.full_name }}</option>
+                    <option value="{{ connection.mentor.id }}" {% if project.mentor.id == connection.mentor.id %}selected{% endif %}>
+                        {{ connection.mentor.full_name }}
+                    </option>
                     {% endfor %}
                 </select>
             </div>
 
             <div class="form-group">
                 <label for="title" class="form-label">Project Title</label>
-                <input type="text" class="form-control" id="title" name="title" required>
+                <input type="text" class="form-control" id="title" name="title" value="{{ project.title }}" required>
             </div>
 
             <div class="form-group">
                 <label for="description" class="form-label">Project Description</label>
-                <textarea class="form-control" id="description" name="description" required></textarea>
+                <textarea class="form-control" id="description" name="description" required>{{ project.description }}</textarea>
                 <div class="form-text">Describe your project, its objectives, and what you aim to achieve.</div>
             </div>
 
             <div class="form-group">
                 <label for="sdgs" class="form-label">Sustainable Development Goals (SDGs)</label>
-                <input type="text" class="form-control" id="sdgs" name="sdgs" required>
+                <input type="text" class="form-control" id="sdgs" name="sdgs" value="{{ project.sdgs }}" required>
                 <div class="form-text">List the SDGs your project addresses (e.g., "Quality Education, Climate Action")</div>
             </div>
 
             <div class="form-group">
                 <label for="tech_stack" class="form-label">Tech Stack</label>
-                <input type="text" class="form-control" id="tech_stack" name="tech_stack" required>
+                <input type="text" class="form-control" id="tech_stack" name="tech_stack" value="{{ project.tech_stack }}" required>
                 <div class="form-text">List the technologies, frameworks, and tools used in your project</div>
             </div>
 
             <div class="form-group">
                 <label for="github_link" class="form-label">GitHub Repository Link</label>
-                <input type="url" class="form-control" id="github_link" name="github_link">
+                <input type="url" class="form-control" id="github_link" name="github_link" value="{{ project.github_link|default:'' }}">
                 <div class="form-text">Optional: Link to your project's GitHub repository</div>
+            </div>
+            
+            <div class="form-group">
+                <label for="status" class="form-label">Project Status</label>
+                <select name="status" id="status" class="form-select" required>
+                    <option value="in_progress" {% if project.status == 'in_progress' %}selected{% endif %}>In Progress</option>
+                    <option value="completed" {% if project.status == 'completed' %}selected{% endif %}>Completed</option>
+                    <option value="under_review" {% if project.status == 'under_review' %}selected{% endif %}>Under Review</option>
+                </select>
             </div>
 
             <div class="form-group">
                 <label for="project_file" class="form-label">Project Files</label>
+                {% if project.project_file %}
+                <div class="mb-2">
+                    <p>Current file: <a href="{{ project.project_file.url }}" target="_blank" style="color: #c77dff;">{{ project.project_file.name|slice:"14:" }}</a></p>
+                </div>
+                {% endif %}
                 <input type="file" class="form-control" id="project_file" name="project_file">
-                <div class="form-text">Optional: Upload project documentation, presentations, or other relevant files</div>
+                <div class="form-text">Optional: Upload new project documentation, presentations, or other relevant files</div>
             </div>
             
             <div class="images-section">
@@ -177,12 +204,24 @@
                     <div class="col-md-6 mb-3">
                         <div class="form-group">
                             <label for="project_image1" class="form-label">Image 1</label>
+                            {% if project.project_image1 %}
+                            <div class="current-image-container">
+                                <img src="{{ project.project_image1.url }}" alt="Project Image 1" class="img-fluid current-image">
+                                <p class="form-text">Current image. Upload a new one to replace it.</p>
+                            </div>
+                            {% endif %}
                             <input type="file" class="form-control" id="project_image1" name="project_image1" accept="image/*">
                         </div>
                     </div>
                     <div class="col-md-6 mb-3">
                         <div class="form-group">
                             <label for="project_image2" class="form-label">Image 2</label>
+                            {% if project.project_image2 %}
+                            <div class="current-image-container">
+                                <img src="{{ project.project_image2.url }}" alt="Project Image 2" class="img-fluid current-image">
+                                <p class="form-text">Current image. Upload a new one to replace it.</p>
+                            </div>
+                            {% endif %}
                             <input type="file" class="form-control" id="project_image2" name="project_image2" accept="image/*">
                         </div>
                     </div>
@@ -192,12 +231,24 @@
                     <div class="col-md-6 mb-3">
                         <div class="form-group">
                             <label for="project_image3" class="form-label">Image 3</label>
+                            {% if project.project_image3 %}
+                            <div class="current-image-container">
+                                <img src="{{ project.project_image3.url }}" alt="Project Image 3" class="img-fluid current-image">
+                                <p class="form-text">Current image. Upload a new one to replace it.</p>
+                            </div>
+                            {% endif %}
                             <input type="file" class="form-control" id="project_image3" name="project_image3" accept="image/*">
                         </div>
                     </div>
                     <div class="col-md-6 mb-3">
                         <div class="form-group">
                             <label for="project_image4" class="form-label">Image 4</label>
+                            {% if project.project_image4 %}
+                            <div class="current-image-container">
+                                <img src="{{ project.project_image4.url }}" alt="Project Image 4" class="img-fluid current-image">
+                                <p class="form-text">Current image. Upload a new one to replace it.</p>
+                            </div>
+                            {% endif %}
                             <input type="file" class="form-control" id="project_image4" name="project_image4" accept="image/*">
                         </div>
                     </div>
@@ -207,6 +258,12 @@
                     <div class="col-md-6 mb-3">
                         <div class="form-group">
                             <label for="project_image5" class="form-label">Image 5</label>
+                            {% if project.project_image5 %}
+                            <div class="current-image-container">
+                                <img src="{{ project.project_image5.url }}" alt="Project Image 5" class="img-fluid current-image">
+                                <p class="form-text">Current image. Upload a new one to replace it.</p>
+                            </div>
+                            {% endif %}
                             <input type="file" class="form-control" id="project_image5" name="project_image5" accept="image/*">
                         </div>
                     </div>
@@ -215,7 +272,7 @@
 
             <div class="mt-4">
                 <button type="submit" class="btn btn-custom">
-                    <i class="fas fa-plus"></i> Add Project
+                    <i class="fas fa-save"></i> Update Project
                 </button>
                 <a href="{% url 'my_projects' %}" class="btn btn-custom btn-secondary ms-2">
                     <i class="fas fa-times"></i> Cancel

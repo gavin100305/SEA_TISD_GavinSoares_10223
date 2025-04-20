@@ -23,8 +23,11 @@ urlpatterns = [
     path('collaboration-requests/<int:request_id>/handle/', views.handle_collaboration_request, name='handle_collaboration_request'),
     path('projects/<int:project_id>/comments/', views.view_project_comments, name='view_project_comments'),
 
-    path('ngos/', views.ngo_list, name='ngo_list'),
-    path('ngos/<int:ngo_id>/', views.ngo_detail, name='ngo_detail'),
+    path('projects/<int:project_id>/', views.project_detail, name='project_detail'),
+
+
+    path('ngos/', views.ngo_list, name='ngos_list'),
+    path('ngos/<int:ngo_id>/', views.ngo_detail, name='ngos_detail'),
     
     # Group URLs
     path('groups/', views.my_groups, name='my_groups'),
@@ -34,6 +37,14 @@ urlpatterns = [
     path('groups/invitation/<int:membership_id>/', views.handle_invitation, name='handle_invitation'),
     path('groups/<int:group_id>/remove/<int:member_id>/', views.remove_member, name='remove_member'),
     path('groups/<int:group_id>/add-project/', views.add_group_project, name='add_group_project'),
+
+    path('groups/<int:group_id>/projects/<int:project_id>/edit/', views.edit_group_project, name='edit_group_project'),
+
+    path('groups/<int:group_id>/projects/<int:project_id>/delete/', views.delete_group_project, name='delete_group_project'),
+
+    path('groups/<int:group_id>/projects/<int:project_id>/', views.group_project_detail, name='group_project_detail'),
+
+
     # Add new URL patterns for meetings
     path('my-meetings/', views.student_meetings, name='student_meetings'),
     path('meeting/<int:meeting_id>/', views.meeting_detail, name='student_meeting_detail'),

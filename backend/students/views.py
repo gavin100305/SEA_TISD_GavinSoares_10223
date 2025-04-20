@@ -10,7 +10,7 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from college.models import CollegeProfile, NGO, ProjectAssessment
 from django.db.models import Q
 from django.utils import timezone
-from collabrators.models import CollaboratorProfile
+from collabrators.models import CollaboratorProfile,CollabZoomMeeting
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 from datetime import date
@@ -202,16 +202,29 @@ def my_connections(request):
 def my_projects(request):
     try:
         student = request.user.student_profile
-        projects = Project.objects.filter(student=student)
         
-        # Get collaboration requests for projects
+        # Get individual projects
+        individual_projects = Project.objects.filter(student=student)
+        
+        # Get groups the student is a member of
+        # Assuming there's a StudentGroupMembership model or similar
+        student_groups = student.groups.all()  # Adjust based on your actual relationship
+        
+        # Get projects associated with these groups
+        group_projects = Project.objects.filter(group__in=student_groups)
+        
+        # Combine both querysets
+        # Using | operator instead of union() for compatibility and ordering
+        projects = individual_projects | group_projects
+        
+        # Get collaboration requests for all projects (both individual and group)
         collaboration_requests = CollaborationRequest.objects.filter(
             project__in=projects,
             status='pending'
         ).count()
         
         context = {
-            'projects': projects,
+            'projects': projects.order_by('-created_at'),  # Sort by newest first
             'pending_requests': collaboration_requests,
         }
         return render(request, 'student/my_projects.html', context)
@@ -219,6 +232,51 @@ def my_projects(request):
     except Exception as e:
         messages.error(request, f'An error occurred: {str(e)}')
         return redirect('student_dashboard')
+    
+@login_required
+def project_detail(request, project_id):
+    try:
+        project = get_object_or_404(Project, id=project_id, student=request.user.student_profile)
+        
+        # Get all comments for the project
+        comments = ProjectComment.objects.filter(project=project, parent_comment__isnull=True).order_by('-created_at')
+        
+        # Get both types of meetings related to this project
+        mentor_meetings = ZoomMeeting.objects.filter(
+            student=request.user.student_profile
+        ).order_by('-meeting_time')
+        
+        collab_meetings = CollabZoomMeeting.objects.filter(
+            project=project
+        ).order_by('-scheduled_time')
+        
+        # Get collaborators if any
+        collaborators = CollaborationRequest.objects.filter(
+            project=project, 
+            status='accepted'
+        ).select_related('collaborator')
+        
+        # Get mentors if any
+        mentors = MentorConnection.objects.filter(
+            student=request.user.student_profile,
+            status='accepted'
+        ).select_related('mentor')
+        
+        context = {
+            'project': project,
+            'comments': comments,
+            'mentor_meetings': mentor_meetings,
+            'collab_meetings': collab_meetings,
+            'collaborators': collaborators,
+            'mentors': mentors,
+            'is_owner': True,  # Since this is the student's own project
+        }
+        
+        return render(request, 'student/project_detail.html', context)
+        
+    except Exception as e:
+        messages.error(request, f'An error occurred: {str(e)}')
+        return redirect('my_projects')
 
 @login_required
 def add_project(request):
@@ -258,8 +316,14 @@ def add_project(request):
             # Handle project file
             if 'project_file' in request.FILES:
                 project.project_file = request.FILES['project_file']
-                project.save()
             
+            # Handle project images
+            for i in range(1, 6):
+                image_field = f'project_image{i}'
+                if image_field in request.FILES:
+                    setattr(project, image_field, request.FILES[image_field])
+            
+            project.save()
             messages.success(request, 'Project added successfully!')
             return redirect('my_projects')
             
@@ -309,6 +373,12 @@ def edit_project(request, project_id):
             # Handle project file
             if 'project_file' in request.FILES:
                 project.project_file = request.FILES['project_file']
+            
+            # Handle project images
+            for i in range(1, 6):
+                image_field = f'project_image{i}'
+                if image_field in request.FILES:
+                    setattr(project, image_field, request.FILES[image_field])
             
             project.save()
             messages.success(request, 'Project updated successfully!')
@@ -495,6 +565,51 @@ def group_detail(request, group_id):
     }
     return render(request, 'student/group_detail.html', context)
 
+# students/views.py
+@login_required
+def group_project_detail(request, group_id, project_id):
+    group = get_object_or_404(StudentGroup, id=group_id)
+    project = get_object_or_404(Project, id=project_id, group=group)
+    student = request.user.student_profile
+    
+    # Check if user is member of the group
+    is_member = group.members.filter(id=student.id, groupmembership__status='accepted').exists()
+    if not (is_member or group.leader == student):
+        messages.error(request, 'You do not have permission to view this project.')
+        return redirect('group_detail', group_id=group.id)
+    
+    # Get meetings related to this project
+    meetings = CollabZoomMeeting.objects.filter(project=project).order_by('-scheduled_time')
+    
+    # Get comments and replies
+    comments = ProjectComment.objects.filter(project=project, parent_comment__isnull=True).order_by('-created_at')
+    
+    # Get mentors connected to this student
+    mentors = MentorConnection.objects.filter(
+        student=student,
+        status='accepted'
+    ).select_related('mentor')
+    
+    # Get collaborators if any
+    collaborators = []
+    if project.is_open_for_collaboration:
+        collaborators = CollaborationRequest.objects.filter(
+            project=project,
+            status='accepted'
+        ).select_related('collaborator')
+    
+    context = {
+        'group': group,
+        'project': project,
+        'meetings': meetings,
+        'comments': comments,
+        'mentors': mentors,
+        'collaborators': collaborators,
+        'is_leader': group.leader == student,
+    }
+    return render(request, 'student/group_project_detail.html', context)
+
+
 @login_required
 def invite_member(request, group_id):
     group = get_object_or_404(StudentGroup, id=group_id)
@@ -574,27 +689,44 @@ def add_group_project(request, group_id):
         messages.error(request, 'You must be a group member to add projects.')
         return redirect('my_groups')
     
-    # Get the group leader's mentor (the first accepted connection)
-    leader_mentor = MentorConnection.objects.filter(
+    # Get all mentors connected to the group leader
+    leader_mentors = MentorConnection.objects.filter(
         student=group.leader,
         status='accepted'
-    ).select_related('mentor').first()
+    ).select_related('mentor')
     
     if request.method == 'POST':
         try:
-            # Automatically assign the leader's mentor to the project
-            mentor = leader_mentor.mentor if leader_mentor else None
+            # Get selected mentor if provided
+            mentor_id = request.POST.get('mentor')
+            mentor = None
+            if mentor_id:
+                mentor = get_object_or_404(MentorProfile, id=mentor_id)
             
             # Create project
             project = Project.objects.create(
                 group=group,
-                mentor=mentor,  # This will be the leader's mentor or None
+                mentor=mentor,
                 title=request.POST.get('title'),
                 description=request.POST.get('description'),
                 sdgs=request.POST.get('sdgs'),
                 tech_stack=request.POST.get('tech_stack'),
+                github_link=request.POST.get('github_link', ''),
                 is_open_for_collaboration=request.POST.get('is_open_for_collaboration') == 'on'
             )
+            
+            # Handle image uploads
+            for i in range(1, 6):
+                image_field = f'project_image{i}'
+                if image_field in request.FILES:
+                    setattr(project, image_field, request.FILES[image_field])
+            
+            # Handle project file if uploaded
+            if 'project_file' in request.FILES:
+                project.project_file = request.FILES['project_file']
+            
+            # Save the project after setting all fields
+            project.save()
             
             messages.success(request, 'Group project added successfully!')
             return redirect('group_detail', group_id=group.id)
@@ -605,9 +737,140 @@ def add_group_project(request, group_id):
     
     context = {
         'group': group,
-        'leader_mentor': leader_mentor.mentor if leader_mentor else None
+        'leader_mentors': leader_mentors
     }
     return render(request, 'student/add_group_project.html', context)
+
+@login_required
+def edit_group_project(request, group_id, project_id):
+    # Get the project and verify it belongs to the specified group
+    project = get_object_or_404(Project, id=project_id, group__id=group_id)
+    group = project.group
+    
+    # Verify user is group leader or member
+    student = request.user.student_profile
+    if not group.members.filter(id=student.id, groupmembership__status='accepted').exists():
+        messages.error(request, 'You must be a group member to edit this project.')
+        return redirect('group_detail', group_id=group.id)
+    
+    # Get all mentors connected to the group leader
+    leader_mentors = MentorConnection.objects.filter(
+        student=group.leader,
+        status='accepted'
+    ).select_related('mentor')
+    
+    if request.method == 'POST':
+        try:
+            # Update mentor if provided
+            mentor_id = request.POST.get('mentor')
+            if mentor_id:
+                project.mentor = get_object_or_404(MentorProfile, id=mentor_id)
+            else:
+                project.mentor = None
+            
+            # Update project details
+            project.title = request.POST.get('title')
+            project.description = request.POST.get('description')
+            project.sdgs = request.POST.get('sdgs')
+            project.tech_stack = request.POST.get('tech_stack')
+            project.github_link = request.POST.get('github_link', '')
+            project.is_open_for_collaboration = request.POST.get('is_open_for_collaboration') == 'on'
+            
+            # Handle image uploads
+            for i in range(1, 6):
+                image_field = f'project_image{i}'
+                if image_field in request.FILES:
+                    # Delete old image if exists
+                    old_image = getattr(project, image_field)
+                    if old_image:
+                        old_image.delete(save=False)
+                    # Set new image
+                    setattr(project, image_field, request.FILES[image_field])
+                
+                # Handle image deletion requests
+                delete_image = request.POST.get(f'delete_image{i}')
+                if delete_image == 'on':
+                    old_image = getattr(project, image_field)
+                    if old_image:
+                        old_image.delete(save=False)
+                        setattr(project, image_field, None)
+            
+            # Handle project file if uploaded
+            if 'project_file' in request.FILES:
+                # Delete old file if exists
+                if project.project_file:
+                    project.project_file.delete(save=False)
+                project.project_file = request.FILES['project_file']
+            
+            # Handle project file deletion
+            if request.POST.get('delete_project_file') == 'on' and project.project_file:
+                project.project_file.delete(save=False)
+                project.project_file = None
+            
+            # Save the project after updating all fields
+            project.save()
+            
+            messages.success(request, 'Group project updated successfully!')
+            return redirect('group_detail', group_id=group.id)
+            
+        except Exception as e:
+            messages.error(request, f'An error occurred: {str(e)}')
+            return redirect('edit_group_project', project_id=project.id)
+        
+        
+    project_images = [
+            getattr(project, f'project_image{i}') for i in range(1, 6)
+        ]
+    
+    context = {
+        'project': project,
+        'group': group,
+        'leader_mentors': leader_mentors,
+        'project_images': project_images,
+    }
+    return render(request, 'student/edit_group_project.html', context)
+
+@login_required
+def delete_group_project(request, group_id, project_id):
+    # Get the project and verify it belongs to the specified group
+    project = get_object_or_404(Project, id=project_id, group__id=group_id)
+    group = project.group
+    
+    # Verify user is group leader
+    student = request.user.student_profile
+    if student != group.leader:
+        messages.error(request, 'Only the group leader can delete projects.')
+        return redirect('group_detail', group_id=group.id)
+    
+    if request.method == 'POST':
+        try:
+            # Delete all associated images first
+            for i in range(1, 6):
+                image_field = f'project_image{i}'
+                image = getattr(project, image_field)
+                if image:
+                    image.delete(save=False)
+            
+            # Delete project file if exists
+            if project.project_file:
+                project.project_file.delete(save=False)
+            
+            # Delete the project
+            project.delete()
+            
+            messages.success(request, 'Project deleted successfully!')
+            return redirect('group_detail', group_id=group.id)
+            
+        except Exception as e:
+            messages.error(request, f'An error occurred while deleting the project: {str(e)}')
+            return redirect('group_detail', group_id=group.id)
+    
+    # If not POST, show confirmation page
+    context = {
+        'project': project,
+        'group': group
+    }
+    return render(request, 'student/confirm_delete_project.html', context)
 
 @login_required
 def student_meetings(request):

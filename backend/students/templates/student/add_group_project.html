@@ -42,17 +42,62 @@
                     <input type="text" class="form-control" id="sdgs" name="sdgs" placeholder="e.g., Quality Education, Climate Action" required>
                 </div>
 
-                {% if connected_mentors %}
+                <div class="form-group">
+                    <label for="github_link">GitHub Link (Optional)</label>
+                    <input type="url" class="form-control" id="github_link" name="github_link" placeholder="https://github.com/username/repository">
+                </div>
+
+                {% if leader_mentors %}
                 <div class="form-group">
                     <label for="mentor">Select Mentor (Optional)</label>
                     <select class="form-control" id="mentor" name="mentor">
                         <option value="">No Mentor</option>
-                        {% for connection in connected_mentors %}
+                        {% for connection in leader_mentors %}
                         <option value="{{ connection.mentor.id }}">{{ connection.mentor.full_name }}</option>
                         {% endfor %}
                     </select>
                 </div>
                 {% endif %}
+
+                <!-- Project Images -->
+                <div class="form-group">
+                    <label>Project Images (Optional)</label>
+                    
+                    <div class="custom-file mt-2">
+                        <input type="file" class="custom-file-input" id="project_image1" name="project_image1" accept="image/*">
+                        <label class="custom-file-label" for="project_image1">Project Image 1</label>
+                    </div>
+                    
+                    <div class="custom-file mt-2">
+                        <input type="file" class="custom-file-input" id="project_image2" name="project_image2" accept="image/*">
+                        <label class="custom-file-label" for="project_image2">Project Image 2</label>
+                    </div>
+                    
+                    <div class="custom-file mt-2">
+                        <input type="file" class="custom-file-input" id="project_image3" name="project_image3" accept="image/*">
+                        <label class="custom-file-label" for="project_image3">Project Image 3</label>
+                    </div>
+                    
+                    <div class="custom-file mt-2">
+                        <input type="file" class="custom-file-input" id="project_image4" name="project_image4" accept="image/*">
+                        <label class="custom-file-label" for="project_image4">Project Image 4</label>
+                    </div>
+                    
+                    <div class="custom-file mt-2">
+                        <input type="file" class="custom-file-input" id="project_image5" name="project_image5" accept="image/*">
+                        <label class="custom-file-label" for="project_image5">Project Image 5</label>
+                    </div>
+                </div>
+
+                <!-- Project File -->
+                <div class="form-group">
+                    <label for="project_file">Project Documentation (Optional)</label>
+                    <div class="custom-file">
+                        <input type="file" class="custom-file-input" id="project_file" name="project_file">
+                        <label class="custom-file-label" for="project_file">Choose file</label>
+                    </div>
+                    <small class="form-text text-muted">Upload project documentation or additional files (PDF, DOC, etc.)</small>
+                </div>
 
                 <!-- Collaboration Option -->
                 <div class="form-group">
@@ -69,4 +114,14 @@
         </div>
     </div>
 </div>
-{% endblock %} 
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Display file names when selected
+    $('.custom-file-input').on('change', function() {
+        var fileName = $(this).val().split('\\').pop();
+        $(this).next('.custom-file-label').html(fileName);
+    });
+</script>
+{% endblock %}

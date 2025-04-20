@@ -1,13 +1,13 @@
 {% extends '../base.html' %}
 
-{% block title %}{{ project.title }} | TISD{% endblock %}
+{% block title %}{{ project.title }} | {{ group.name }} | TISD{% endblock %}
 
 {% block content %}
 <div class="container mx-auto px-4 py-8">
     <div class="mb-8">
-        <a href="{% url 'my_projects' %}" class="text-text-secondary hover:text-white flex items-center gap-2">
+        <a href="{% url 'group_detail' group.id %}" class="text-text-secondary hover:text-white flex items-center gap-2">
             <i class="fas fa-arrow-left"></i>
-            Back to My Projects
+            Back to Group
         </a>
     </div>
 
@@ -18,11 +18,13 @@
             <div class="bg-card border border-card-border rounded-xl p-6">
                 <div class="flex justify-between items-start mb-4">
                     <h1 class="text-2xl font-bold text-white">{{ project.title }}</h1>
+                    {% if is_leader %}
                     <div class="flex gap-2">
-                        <a href="{% url 'edit_project' project.id %}" class="text-primary hover:text-primary-hover">
+                        <a href="{% url 'edit_group_project' group.id project.id %}" class="text-primary hover:text-primary-hover">
                             <i class="fas fa-edit"></i>
                         </a>
                     </div>
+                    {% endif %}
                 </div>
                 
                 <div class="flex flex-wrap gap-2 mb-4">
@@ -68,6 +70,64 @@
                 {% endif %}
             </div>
             
+            <!-- Meetings Section -->
+            <div class="bg-card border border-card-border rounded-xl p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-xl font-semibold text-white">Meetings</h2>
+                    {% if project.is_open_for_collaboration and collaborators %}
+                    <a href="{% url 'student_schedule_meeting' project.id collaborators.0.collaborator.id %}" class="bg-primary hover:bg-primary-hover text-white px-4 py-2 rounded-lg flex items-center gap-2">
+                        <i class="fas fa-plus"></i>
+                        Schedule Meeting
+                    </a>
+                    {% endif %}
+                </div>
+                
+                {% if meetings %}
+                <div class="space-y-4">
+                    {% for meeting in meetings %}
+                    <div class="bg-black bg-opacity-30 border border-card-border rounded-lg p-4 hover:border-primary transition-all">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <h3 class="text-lg font-medium text-white mb-1">{{ meeting.meeting_title }}</h3>
+                                <p class="text-text-secondary mb-2">{{ meeting.meeting_description }}</p>
+                                <div class="flex items-center gap-2 text-text-secondary text-sm">
+                                    <i class="fas fa-calendar-alt"></i>
+                                    {{ meeting.scheduled_time|date:"M d, Y H:i" }}
+                                    <i class="fas fa-clock ml-2"></i>
+                                    {{ meeting.duration }} mins
+                                </div>
+                            </div>
+                            <div>
+                                <span class="px-3 py-1 rounded-full text-sm 
+                                    {% if meeting.status == 'scheduled' %}bg-blue-500 text-white
+                                    {% elif meeting.status == 'completed' %}bg-green-500 text-white
+                                    {% else %}bg-red-500 text-white{% endif %}">
+                                    {{ meeting.status|title }}
+                                </span>
+                            </div>
+                        </div>
+                        {% if meeting.zoom_link %}
+                        <div class="mt-3">
+                            <a href="{{ meeting.zoom_link }}" target="_blank" class="text-primary hover:text-primary-hover flex items-center gap-2">
+                                <i class="fas fa-video"></i>
+                                Join Zoom Meeting
+                            </a>
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="text-center py-8">
+                    <div class="text-6xl mb-4 text-text-secondary">
+                        <i class="fas fa-calendar-times"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold text-white mb-2">No Meetings Scheduled</h3>
+                    <p class="text-text-secondary">Schedule a meeting with your collaborators to discuss the project.</p>
+                </div>
+                {% endif %}
+            </div>
+            
             <!-- Comments Section -->
             <div class="bg-card border border-card-border rounded-xl p-6">
                 <h2 class="text-xl font-semibold text-white mb-4">Discussion</h2>
@@ -101,7 +161,7 @@
                                 <img src="{{ comment.author_collaborator.profile_picture.url }}" alt="{{ comment.author_collaborator.full_name }}" class="w-10 h-10 rounded-full">
                                 {% else %}
                                 <div class="w-10 h-10 rounded-full bg-primary-light flex items-center justify-center">
-                                    <i class="fas fa-user-shield text-primary"></i>
+                                    <i class="fas fa-user text-primary"></i>
                                 </div>
                                 {% endif %}
                             {% endif %}
@@ -148,7 +208,7 @@
                                     <img src="{{ reply.author_collaborator.profile_picture.url }}" alt="{{ reply.author_collaborator.full_name }}" class="w-8 h-8 rounded-full">
                                     {% else %}
                                     <div class="w-8 h-8 rounded-full bg-primary-light flex items-center justify-center">
-                                        <i class="fas fa-user-shield text-primary text-sm"></i>
+                                        <i class="fas fa-user text-primary text-sm"></i>
                                     </div>
                                     {% endif %}
                                 {% endif %}
@@ -265,6 +325,7 @@
                         {% if project.is_open_for_collaboration %}Open{% else %}Closed{% endif %}
                     </span>
                 </div>
+                {% if is_leader %}
                 <form method="post" action="{% url 'toggle_project_collaboration' project.id %}">
                     {% csrf_token %}
                     <button type="submit" class="w-full text-center {% if project.is_open_for_collaboration %}bg-yellow-500 hover:bg-yellow-600{% else %}bg-green-500 hover:bg-green-600{% endif %} text-white px-4 py-2 rounded-lg transition-colors">
@@ -275,6 +336,7 @@
                         {% endif %}
                     </button>
                 </form>
+                {% endif %}
             </div>
         </div>
     </div>

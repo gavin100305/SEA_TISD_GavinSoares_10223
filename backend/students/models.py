@@ -5,6 +5,8 @@ from django.dispatch import receiver
 from django.core.validators import MinValueValidator, MaxValueValidator
 from college.models import CollegeProfile
 from collabrators.models import CollaboratorProfile
+from django.core.exceptions import ValidationError
+
 
 class StudentProfile(models.Model):
     SECTION_CHOICES = [
@@ -135,6 +137,14 @@ class Project(models.Model):
     tech_stack = models.CharField(max_length=500, help_text='Technologies used')
     github_link = models.URLField(blank=True, null=True)
     project_file = models.FileField(upload_to='project_files/', blank=True, null=True)
+    
+    # Add project images directly to the model
+    project_image1 = models.ImageField(upload_to='project_images/', blank=True, null=True, verbose_name='Project Image 1')
+    project_image2 = models.ImageField(upload_to='project_images/', blank=True, null=True, verbose_name='Project Image 2')
+    project_image3 = models.ImageField(upload_to='project_images/', blank=True, null=True, verbose_name='Project Image 3')
+    project_image4 = models.ImageField(upload_to='project_images/', blank=True, null=True, verbose_name='Project Image 4')
+    project_image5 = models.ImageField(upload_to='project_images/', blank=True, null=True, verbose_name='Project Image 5')
+    
     status = models.CharField(max_length=20, choices=[
         ('in_progress', 'In Progress'),
         ('completed', 'Completed'),
@@ -147,23 +157,22 @@ class Project(models.Model):
     ])
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-
+    
     def __str__(self):
         if self.group:
             return f"{self.title} by {self.group.name}"
         return f"{self.title} by {self.student.full_name}"
-
+    
     def clean(self):
-        from django.core.exceptions import ValidationError
         if not self.student and not self.group:
             raise ValidationError('A project must have either a student or a group')
         if self.student and self.group:
             raise ValidationError('A project cannot have both a student and a group')
-
+    
     def save(self, *args, **kwargs):
         self.clean()
         super().save(*args, **kwargs)
-
+    
     class Meta:
         ordering = ['-created_at']
 

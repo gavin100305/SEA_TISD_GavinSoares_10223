@@ -76,7 +76,11 @@
             {% endif %}
             
             <div class="project-header">
-                <h3>{{ project.title }}</h3>
+                <h3>
+                    <a href="{% url 'shared_project_details' project.id %}" class="project-title-link">
+                        {{ project.title }}
+                    </a>
+                </h3>
                 <span class="status-badge {{ project.status }}">{{ project.get_status_display }}</span>
             </div>
             
@@ -111,16 +115,15 @@
             {% endif %}
 
             {% if project.request_status == 'accepted' %}
-            <div class="meeting-actions">
-                <a href="{% url 'view_meetings' project.id %}" class="btn btn-primary">
-                    <i class="fas fa-video"></i> View Meetings
-                </a>
-                <a href="{% url 'collab_schedule_meeting' project.id %}" class="btn btn-secondary">
-                    <i class="fas fa-plus"></i> Schedule Meeting
-                </a>
-            </div>
-            {% endif %}
-
+<div class="meeting-actions">
+    <a href="{% url 'view_meetings' project.id %}" class="btn btn-primary">
+        <i class="fas fa-video"></i> View Meetings
+    </a>
+    <a href="{% url 'collab_schedule_meeting' project.id %}" class="btn btn-secondary">
+        <i class="fas fa-plus"></i> Schedule Meeting
+    </a>
+</div>
+{% endif %}
             <!-- Comments Section -->
             <div class="comments-section">
                 <h4 class="comments-title">Comments</h4>
@@ -387,6 +390,18 @@
 
     .project-card:hover {
         transform: translateY(-5px);
+    }
+
+    /* New styles for clickable project title */
+    .project-title-link {
+        color: #c77dff;
+        text-decoration: none;
+        transition: color 0.3s ease;
+    }
+
+    .project-title-link:hover {
+        color: #fff;
+        text-decoration: underline;
     }
 
     .project-header {
