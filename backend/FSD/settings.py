@@ -93,8 +93,8 @@ EMAIL_HOST_PASSWORD = 'gtstbbwobsvzcqsf'  # replace with your email password or 
 DEFAULT_FROM_EMAIL = 'Mentorship Platform crce.secea.10223@gmail.com'
 
 
-GITHUB_API_TOKEN = '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' 
-GEMINI_API_KEY = 'AIzaSyAInCYqREHL3zjYrSHfHgsiyclWITTe_Kk'
+GITHUB_API_TOKEN = '' 
+GEMINI_API_KEY = ''
 
 
 # Database
