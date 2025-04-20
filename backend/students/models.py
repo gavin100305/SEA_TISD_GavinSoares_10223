@@ -138,6 +138,15 @@ class Project(models.Model):
     github_link = models.URLField(blank=True, null=True)
     project_file = models.FileField(upload_to='project_files/', blank=True, null=True)
     
+    # Project images
+    image1 = models.ImageField(upload_to='project_images/', blank=True, null=True, help_text='Project image 1')
+    image2 = models.ImageField(upload_to='project_images/', blank=True, null=True, help_text='Project image 2')
+    image3 = models.ImageField(upload_to='project_images/', blank=True, null=True, help_text='Project image 3')
+    image4 = models.ImageField(upload_to='project_images/', blank=True, null=True, help_text='Project image 4')
+    image5 = models.ImageField(upload_to='project_images/', blank=True, null=True, help_text='Project image 5')
+    image6 = models.ImageField(upload_to='project_images/', blank=True, null=True, help_text='Project image 6')
+    
+    
     # Add project images directly to the model
     project_image1 = models.ImageField(upload_to='project_images/', blank=True, null=True, verbose_name='Project Image 1')
     project_image2 = models.ImageField(upload_to='project_images/', blank=True, null=True, verbose_name='Project Image 2')

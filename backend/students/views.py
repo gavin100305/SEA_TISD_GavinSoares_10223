@@ -10,7 +10,7 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from college.models import CollegeProfile, NGO, ProjectAssessment
 from django.db.models import Q
 from django.utils import timezone
-from collabrators.models import CollaboratorProfile,CollabZoomMeeting
+from collabrators.models import CollaboratorProfile,CollabZoomMeeting,CollabZoomMeeting
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 from datetime import date
@@ -556,12 +556,41 @@ def group_detail(request, group_id):
     pending_members = group.groupmembership_set.filter(status='pending')
     projects = group.group_projects.all()
     
+    # Get all project IDs for this group
+    project_ids = projects.values_list('id', flat=True)
+    
+    # Fetch comments for all projects in this group
+    comments = ProjectComment.objects.filter(project__id__in=project_ids).order_by('-created_at')
+    
+    # Fetch upcoming meetings
+    # 1. Meetings between mentors and individual students in the group
+    mentor_meetings = ZoomMeeting.objects.filter(
+        student__in=group.members.all(),
+        status='scheduled'
+    ).order_by('meeting_time')
+    
+    # 2. Meetings between collaborators and this group
+    collab_group_meetings = CollabZoomMeeting.objects.filter(
+        group=group,
+        status='scheduled'
+    ).order_by('scheduled_time')
+    
+    # 3. Meetings between collaborators and specific projects of this group
+    collab_project_meetings = CollabZoomMeeting.objects.filter(
+        project__in=projects,
+        status='scheduled'
+    ).order_by('scheduled_time')
+    
     context = {
         'group': group,
         'is_leader': is_leader,
         'members': members,
         'pending_members': pending_members,
         'projects': projects,
+        'mentor_meetings': mentor_meetings,
+        'collab_group_meetings': collab_group_meetings,
+        'collab_project_meetings': collab_project_meetings,
+        'comments': comments,
     }
     return render(request, 'student/group_detail.html', context)
 
@@ -704,7 +733,7 @@ def add_group_project(request, group_id):
                 mentor = get_object_or_404(MentorProfile, id=mentor_id)
             
             # Create project
-            project = Project.objects.create(
+            project = Project(
                 group=group,
                 mentor=mentor,
                 title=request.POST.get('title'),
@@ -1098,7 +1127,7 @@ def schedule_meeting(request, project_id, collaborator_id):
             zoom_password = request.POST.get('zoom_password')
             
             # Create the meeting
-            meeting = ZoomMeeting.objects.create(
+            meeting = CollabZoomMeeting.objects.create(
                 collaborator=collaborator,
                 student=student,
                 project=project,
