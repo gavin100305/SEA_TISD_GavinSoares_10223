@@ -4,8 +4,9 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.core.validators import MinValueValidator, MaxValueValidator
 from college.models import CollegeProfile
-from mentor.models import MentorProfile
 from collabrators.models import CollaboratorProfile
+from django.core.exceptions import ValidationError
+
 
 class StudentProfile(models.Model):
     SECTION_CHOICES = [
@@ -115,11 +116,19 @@ class MentorConnection(models.Model):
     def __str__(self):
         return f"{self.student.full_name} -> {self.mentor.full_name} ({self.status})"
 
+
+def get_default_college():
+    # Try to get the admin college, or return None if it doesn't exist
+    try:
+        return CollegeProfile.objects.get(college_name="admin")
+    except CollegeProfile.DoesNotExist:
+        return None
+
 class Project(models.Model):
     student = models.ForeignKey(StudentProfile, on_delete=models.CASCADE, related_name='projects', null=True, blank=True)
     group = models.ForeignKey(StudentGroup, on_delete=models.CASCADE, related_name='group_projects', null=True, blank=True)
     mentor = models.ForeignKey('mentor.MentorProfile', on_delete=models.SET_NULL, null=True, blank=True, related_name='guided_projects')
-    college = models.ForeignKey(CollegeProfile, on_delete=models.SET_NULL, null=True, blank=True, related_name='college_projects')
+    college = models.ForeignKey(CollegeProfile, on_delete=models.SET_NULL, null=True, blank=True,related_name='college_projects', default=get_default_college)
     collaborator = models.BooleanField(default=False)
     is_open_for_collaboration = models.BooleanField(default=False)
     title = models.CharField(max_length=200)
@@ -128,6 +137,23 @@ class Project(models.Model):
     tech_stack = models.CharField(max_length=500, help_text='Technologies used')
     github_link = models.URLField(blank=True, null=True)
     project_file = models.FileField(upload_to='project_files/', blank=True, null=True)
+    
+    # Project images
+    image1 = models.ImageField(upload_to='project_images/', blank=True, null=True, help_text='Project image 1')
+    image2 = models.ImageField(upload_to='project_images/', blank=True, null=True, help_text='Project image 2')
+    image3 = models.ImageField(upload_to='project_images/', blank=True, null=True, help_text='Project image 3')
+    image4 = models.ImageField(upload_to='project_images/', blank=True, null=True, help_text='Project image 4')
+    image5 = models.ImageField(upload_to='project_images/', blank=True, null=True, help_text='Project image 5')
+    image6 = models.ImageField(upload_to='project_images/', blank=True, null=True, help_text='Project image 6')
+    
+    
+    # Add project images directly to the model
+    project_image1 = models.ImageField(upload_to='project_images/', blank=True, null=True, verbose_name='Project Image 1')
+    project_image2 = models.ImageField(upload_to='project_images/', blank=True, null=True, verbose_name='Project Image 2')
+    project_image3 = models.ImageField(upload_to='project_images/', blank=True, null=True, verbose_name='Project Image 3')
+    project_image4 = models.ImageField(upload_to='project_images/', blank=True, null=True, verbose_name='Project Image 4')
+    project_image5 = models.ImageField(upload_to='project_images/', blank=True, null=True, verbose_name='Project Image 5')
+    
     status = models.CharField(max_length=20, choices=[
         ('in_progress', 'In Progress'),
         ('completed', 'Completed'),
@@ -140,23 +166,22 @@ class Project(models.Model):
     ])
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-
+    
     def __str__(self):
         if self.group:
             return f"{self.title} by {self.group.name}"
         return f"{self.title} by {self.student.full_name}"
-
+    
     def clean(self):
-        from django.core.exceptions import ValidationError
         if not self.student and not self.group:
             raise ValidationError('A project must have either a student or a group')
         if self.student and self.group:
             raise ValidationError('A project cannot have both a student and a group')
-
+    
     def save(self, *args, **kwargs):
         self.clean()
         super().save(*args, **kwargs)
-
+    
     class Meta:
         ordering = ['-created_at']
 

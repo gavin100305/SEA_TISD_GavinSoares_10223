@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2>Edit Group Project</h2>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <!-- Project Title -->
+        <div class="form-group">
+            <label for="title">Project Title</label>
+            <input type="text" class="form-control" name="title" id="title" value="{{ project.title }}" required>
+        </div>
+
+        <!-- Description -->
+        <div class="form-group mt-3">
+            <label for="description">Description</label>
+            <textarea class="form-control" name="description" id="description" rows="4" required>{{ project.description }}</textarea>
+        </div>
+
+        <!-- SDGs -->
+        <div class="form-group mt-3">
+            <label for="sdgs">Sustainable Development Goals (SDGs)</label>
+            <input type="text" class="form-control" name="sdgs" id="sdgs" value="{{ project.sdgs }}">
+        </div>
+
+        <!-- Tech Stack -->
+        <div class="form-group mt-3">
+            <label for="tech_stack">Tech Stack</label>
+            <input type="text" class="form-control" name="tech_stack" id="tech_stack" value="{{ project.tech_stack }}">
+        </div>
+
+        <!-- GitHub Link -->
+        <div class="form-group mt-3">
+            <label for="github_link">GitHub Link</label>
+            <input type="url" class="form-control" name="github_link" id="github_link" value="{{ project.github_link }}">
+        </div>
+
+        <!-- Open for Collaboration -->
+        <div class="form-check mt-3">
+            <input type="checkbox" class="form-check-input" name="is_open_for_collaboration" id="is_open_for_collaboration" {% if project.is_open_for_collaboration %}checked{% endif %}>
+            <label class="form-check-label" for="is_open_for_collaboration">Open for Collaboration</label>
+        </div>
+
+        <!-- Mentor Selection -->
+        <div class="form-group mt-3">
+            <label for="mentor">Assign a Mentor</label>
+            <select name="mentor" id="mentor" class="form-control">
+                <option value="">-- None --</option>
+                {% for connection in leader_mentors %}
+                    <option value="{{ connection.mentor.id }}" {% if project.mentor and project.mentor.id == connection.mentor.id %}selected{% endif %}>
+                        {{ connection.mentor.user.get_full_name }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <!-- Image Uploads -->
+       <!-- Image Uploads -->
+<div class="mt-4">
+  <h5>Project Images</h5>
+  {% for image in project_images %}
+      <div class="form-group mt-3">
+          <label for="project_image{{ forloop.counter }}">Image {{ forloop.counter }}</label><br>
+          {% if image %}
+              <img src="{{ image.url }}" alt="Project Image {{ forloop.counter }}" class="img-thumbnail mb-2" width="150"><br>
+              <input type="checkbox" name="delete_image{{ forloop.counter }}"> Delete this image<br>
+          {% endif %}
+          <input type="file" name="project_image{{ forloop.counter }}" class="form-control-file">
+      </div>
+  {% endfor %}
+</div>
+
+
+        <!-- Project File Upload -->
+        <div class="form-group mt-4">
+            <label for="project_file">Project File</label><br>
+            {% if project.project_file %}
+                <a href="{{ project.project_file.url }}" target="_blank">Download current file</a><br>
+                <input type="checkbox" name="delete_project_file"> Delete this file<br>
+            {% endif %}
+            <input type="file" name="project_file" class="form-control-file mt-2">
+        </div>
+
+        <!-- Submit Button -->
+        <button type="submit" class="btn btn-primary mt-4">Update Project</button>
+        <a href="{% url 'group_detail' group.id %}" class="btn btn-secondary mt-4">Cancel</a>
+    </form>
+</div>
+{% endblock %}

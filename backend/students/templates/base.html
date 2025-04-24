@@ -25,7 +25,7 @@
             width: 250px;
             background: rgba(157, 78, 221, 0.1);
             border-right: 2px solid #9d4edd;
-            padding: 2rem 1rem;
+            padding: 2rem 1rem 0;
             display: flex;
             flex-direction: column;
             position: fixed;
@@ -59,8 +59,32 @@
             opacity: 0.8;
         }
 
+        .nav-container {
+            flex: 1;
+            overflow-y: auto;
+            margin-bottom: 10px;
+            /* Scrollbar styling */
+            scrollbar-width: thin;
+            scrollbar-color: #9d4edd rgba(157, 78, 221, 0.2);
+        }
+
+        .nav-container::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .nav-container::-webkit-scrollbar-track {
+            background: rgba(157, 78, 221, 0.2);
+            border-radius: 10px;
+        }
+
+        .nav-container::-webkit-scrollbar-thumb {
+            background-color: #9d4edd;
+            border-radius: 10px;
+        }
+
         .nav-links {
             list-style: none;
+            padding-right: 5px;
         }
 
         .nav-links li {
@@ -89,8 +113,9 @@
         }
 
         .logout-link {
-            margin-top: auto;
+            padding: 1rem 0;
             text-align: center;
+            border-top: 1px solid rgba(157, 78, 221, 0.3);
         }
 
         .logout-link a {
@@ -126,14 +151,21 @@
             <h3>{{ user.student_profile.full_name|default:user.username }}</h3>
             <p>{{ user.student_profile.roll_number|default:"Roll Number Not Set" }}</p>
         </div>
-        <ul class="nav-links">
-            <li><a href="{% url 'student_dashboard' %}" {% if request.resolver_match.url_name == 'student_dashboard' %}class="active"{% endif %}>Dashboard</a></li>
-            <li><a href="{% url 'student_profile' %}" {% if request.resolver_match.url_name == 'student_profile' %}class="active"{% endif %}>Profile</a></li>
-            <li><a href="{% url 'list_mentors' %}" {% if request.resolver_match.url_name == 'list_mentors' %}class="active"{% endif %}>Find Mentors</a></li>
-            <li><a href="{% url 'my_connections' %}" {% if request.resolver_match.url_name == 'my_connections' %}class="active"{% endif %}>My Connections</a></li>
-            <li><a href="{% url 'my_groups' %}" {% if request.resolver_match.url_name == 'my_groups' %}class="active"{% endif %}>My Groups</a></li>
-            <li><a href="{% url 'student_meetings' %}" {% if request.resolver_match.url_name == 'student_meetings' %}class="active"{% endif %}>Meetings</a></li>
-        </ul>
+        <div class="nav-container">
+            <ul class="nav-links">
+                <li><a href="{% url 'student_dashboard' %}" {% if request.resolver_match.url_name == 'student_dashboard' %}class="active"{% endif %}>Dashboard</a></li>
+                <li><a href="{% url 'student_profile' %}" {% if request.resolver_match.url_name == 'student_profile' %}class="active"{% endif %}>Profile</a></li>
+                <li><a href="{% url 'my_projects' %}" {% if request.resolver_match.url_name == 'my_projects' %}class="active"{% endif %}>My Projects</a></li>
+                <li><a href="{% url 'list_mentors' %}" {% if request.resolver_match.url_name == 'list_mentors' %}class="active"{% endif %}>Find Mentors</a></li>
+                <li><a href="{% url 'my_connections' %}" {% if request.resolver_match.url_name == 'my_connections' %}class="active"{% endif %}>My Connections</a></li>
+                <li><a href="{% url 'view_collaborators' %}" {% if request.resolver_match.url_name == 'view_collaborators' %}class="active"{% endif %}>Collaborators</a></li>
+                <li><a href="{% url 'my_groups' %}" {% if request.resolver_match.url_name == 'my_groups' %}class="active"{% endif %}>My Groups</a></li>
+                <li><a href="{% url 'student_meetings' %}" {% if request.resolver_match.url_name == 'student_meetings' %}class="active"{% endif %}>Meetings</a></li>
+                <li><a href="{% url 'view_collaboration_requests' %}" {% if request.resolver_match.url_name == 'view_collaboration_requests' %}class="active"{% endif %}>Collaboration Requests</a></li>
+                <li><a href="{% url 'student_view_assessments' %}" {% if request.resolver_match.url_name == 'student_view_assessments' %}class="active"{% endif %}>Assessments</a></li>
+                <li><a href="{% url 'ngos_list' %}" {% if request.resolver_match.url_name == 'ngo_list' %}class="active"{% endif %}>NGOs</a></li>
+            </ul>
+        </div>
         <div class="logout-link">
             <a href="{% url 'logout' %}">Logout</a>
         </div>
@@ -144,7 +176,6 @@
         {% block content %}{% endblock %}
     </div>
     
-
     {% block extra_js %}{% endblock %}
   </body>
 </html>

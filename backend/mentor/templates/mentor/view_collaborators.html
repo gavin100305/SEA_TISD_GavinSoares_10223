@@ -1,156 +1,679 @@
 {% extends 'mentor/base.html' %}
 {% load static %}
 
+{% block title %}Registered Collaborators{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Core Styles */
+    :root {
+        --primary: #9d4edd;
+        --primary-light: rgba(157, 78, 221, 0.2);
+        --primary-border: rgba(157, 78, 221, 0.3);
+        --primary-hover: #c77dff;
+        --dark-bg: rgba(10, 10, 10, 0.8);
+        --darker-bg: #0a0a0a;
+        --card-bg: rgba(10, 10, 10, 0.8);
+        --card-border: rgba(30, 30, 30, 0.8);
+        --text-primary: #e0e0e0;
+        --text-secondary: #9d9d9d;
+        --success: #4edd98;
+        --warning: #ffce56;
+        --danger: #ff6b6b;
+    }
+
+    body {
+        background-color: var(--darker-bg);
+        color: var(--text-primary);
+    }
+
+    .collaborators-container {
+        padding: 2rem 0;
+        position: relative;
+        z-index: 2;
+    }
+
+    /* Header Section - Updated to match meeting list style */
+    .page-header {
+        background: var(--dark-bg);
+        backdrop-filter: blur(10px);
+        border: 1px solid var(--card-border);
+        border-radius: 16px;
+        padding: 2.5rem;
+        margin-bottom: 3rem;
+        text-align: center;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+        position: relative;
+        overflow: hidden;
+        animation: fadeInDown 0.8s ease-out forwards;
+    }
+
+    .page-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(45deg, rgba(20, 20, 20, 0.3), transparent);
+        z-index: -1;
+    }
+
+    .page-title {
+        font-size: 2.5rem;
+        font-weight: 800;
+        letter-spacing: -0.5px;
+        line-height: 1.2;
+        margin-bottom: 1rem;
+        color: white;
+        opacity: 0;
+        animation: fadeIn 0.6s ease-out 0.4s forwards;
+    }
+
+    .page-title span {
+        color: var(--primary);
+        position: relative;
+        display: inline-block;
+    }
+
+    .page-title span::after {
+        content: "";
+        position: absolute;
+        bottom: 5px;
+        left: 0;
+        width: 0;
+        height: 8px;
+        background-color: rgba(157, 78, 221, 0.15);
+        z-index: -1;
+        border-radius: 4px;
+        animation: lineGrow 0.6s ease-out 1s forwards;
+    }
+
+    .total-count {
+        opacity: 0;
+        animation: fadeIn 0.6s ease-out 0.8s forwards;
+    }
+
+    /* Card Styles - Updated to match meeting list style */
+    .collaborator-card {
+        background: var(--card-bg);
+        backdrop-filter: blur(10px);
+        border: 1px solid var(--card-border);
+        border-radius: 16px;
+        padding: 0;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+        position: relative;
+        overflow: hidden;
+        transition: all 0.3s ease;
+        opacity: 0;
+        transform: translateY(30px);
+    }
+
+    .collaborator-card:hover {
+        transform: translateY(-10px);
+        border-color: var(--primary-border);
+    }
+
+    .collaborator-card:nth-child(1) {
+        animation: fadeInUp 0.6s ease-out 0.7s forwards;
+    }
+    
+    .collaborator-card:nth-child(2) {
+        animation: fadeInUp 0.6s ease-out 0.9s forwards;
+    }
+    
+    .collaborator-card:nth-child(3) {
+        animation: fadeInUp 0.6s ease-out 1.1s forwards;
+    }
+    
+    .collaborator-card:nth-child(n+4) {
+        animation: fadeInUp 0.6s ease-out 1.3s forwards;
+    }
+
+    .card-header {
+        position: relative;
+        padding: 1.5rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+    }
+
+    .card-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(to right, rgba(157, 78, 221, 0.1), transparent);
+        z-index: -1;
+    }
+
+    /* Profile Section - Redesigned */
+    .profile-section {
+        padding: 1.5rem;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1.5rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .profile-image {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 3px solid var(--primary);
+        padding: 3px;
+        background: var(--darker-bg);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+        transition: all 0.3s ease;
+    }
+
+    .profile-image:hover {
+        transform: scale(1.05);
+        border-color: var(--primary-hover);
+        box-shadow: 0 8px 25px rgba(157, 78, 221, 0.3);
+    }
+
+    .profile-info {
+        flex: 1;
+    }
+
+    .profile-name {
+        color: var(--primary);
+        font-size: 1.8rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+    }
+
+    .profile-detail {
+        display: flex;
+        align-items: center;
+        margin-bottom: 0.5rem;
+        color: var(--text-secondary);
+    }
+
+    .profile-detail i {
+        width: 20px;
+        margin-right: 10px;
+        color: var(--primary);
+    }
+
+    .profile-detail strong {
+        color: var(--text-primary);
+        margin-right: 5px;
+    }
+
+    .profile-detail a {
+        color: var(--primary);
+        text-decoration: none;
+        transition: all 0.3s ease;
+    }
+
+    .profile-detail a:hover {
+        color: var(--primary-hover);
+        text-decoration: underline;
+    }
+
+    /* Stats Cards - Redesigned */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        padding: 1.5rem;
+        background: rgba(0, 0, 0, 0.2);
+    }
+
+    .stat-card {
+        background: var(--darker-bg);
+        border-radius: 12px;
+        padding: 1.2rem;
+        text-align: center;
+        transition: all 0.3s ease;
+        border: 1px solid rgba(157, 78, 221, 0.05);
+    }
+
+    .stat-card:hover {
+        transform: translateY(-5px);
+        background: rgba(157, 78, 221, 0.05);
+        border-color: var(--primary-border);
+    }
+
+    .stat-label {
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .stat-label i {
+        margin-right: 8px;
+    }
+
+    .stat-value {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--primary);
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+    }
+
+    /* Section Styles */
+    .section-title {
+        color: var(--primary);
+        font-size: 1.2rem;
+        font-weight: 600;
+        margin: 0;
+        padding: 1.5rem 1.5rem 0.5rem;
+        display: flex;
+        align-items: center;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+    }
+
+    .section-title i {
+        margin-right: 10px;
+    }
+
+    /* Table Container */
+    .table-container {
+        margin: 0 1.5rem 1.5rem;
+        background: var(--darker-bg);
+        border-radius: 12px;
+        padding: 0.5rem;
+        overflow: hidden;
+        border: 1px solid rgba(255, 255, 255, 0.03);
+    }
+
+    .custom-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+    }
+
+    .custom-table thead th {
+        background: var(--dark-bg);
+        color: var(--primary);
+        font-weight: 600;
+        padding: 1rem;
+        text-align: left;
+        border-bottom: 1px solid var(--primary-border);
+    }
+
+    .custom-table tbody tr {
+        transition: all 0.3s ease;
+    }
+
+    .custom-table tbody tr:hover {
+        background: rgba(157, 78, 221, 0.03);
+    }
+
+    .custom-table td {
+        padding: 1rem;
+        color: var(--text-primary);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+    }
+
+    .custom-table tr:last-child td {
+        border-bottom: none;
+    }
+
+    /* Status Badges */
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.25rem 1rem;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 500;
+    }
+
+    .status-active {
+        background: rgba(78, 221, 152, 0.1);
+        color: var(--success);
+        border: 1px solid rgba(78, 221, 152, 0.2);
+    }
+
+    .status-pending {
+        background: rgba(255, 206, 86, 0.1);
+        color: var(--warning);
+        border: 1px solid rgba(255, 206, 86, 0.2);
+    }
+
+    .status-rejected {
+        background: rgba(255, 107, 107, 0.1);
+        color: var(--danger);
+        border: 1px solid rgba(255, 107, 107, 0.2);
+    }
+
+    .status-indicator {
+        display: inline-block;
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        margin-right: 6px;
+    }
+
+    .status-active .status-indicator {
+        background-color: var(--success);
+        box-shadow: 0 0 8px var(--success);
+    }
+
+    .status-pending .status-indicator {
+        background-color: var(--warning);
+        box-shadow: 0 0 8px var(--warning);
+    }
+
+    .status-rejected .status-indicator {
+        background-color: var(--danger);
+        box-shadow: 0 0 8px var(--danger);
+    }
+
+    /* Badge Style */
+    .badge {
+        background-color: var(--primary) !important;
+        font-size: 1rem;
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(157, 78, 221, 0.3);
+    }
+
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: 3rem 0;
+        opacity: 0;
+        animation: fadeIn 1s ease-out 0.5s forwards;
+    }
+
+    .empty-state i {
+        font-size: 3rem;
+        color: var(--primary);
+        margin-bottom: 1rem;
+        opacity: 0.7;
+    }
+
+    .empty-state p {
+        color: var(--text-secondary);
+        font-size: 1.1rem;
+    }
+
+    /* Animations */
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+        to {
+            opacity: 1;
+        }
+    }
+    
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    @keyframes fadeInDown {
+        from {
+            opacity: 0;
+            transform: translateY(-30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    @keyframes lineGrow {
+        from {
+            width: 0;
+        }
+        to {
+            width: 100%;
+        }
+    }
+
+    /* Responsive Adjustments */
+    @media (max-width: 992px) {
+        .stats-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+    
+    @media (max-width: 768px) {
+        .page-header {
+            padding: 2rem;
+        }
+        
+        .page-title {
+            font-size: 2rem;
+        }
+        
+        .profile-section {
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+        
+        .profile-detail {
+            justify-content: center;
+        }
+        
+        .section-title {
+            justify-content: center;
+        }
+        
+        .table-container {
+            overflow-x: auto;
+        }
+    }
+    
+    @media (max-width: 576px) {
+        .stats-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="container-fluid py-4">
-    <div class="row">
-        <div class="col-12">
-            <div class="card mb-4">
-                <div class="card-header pb-0">
-                    <h4>Registered Collaborators ({{ total_collaborators }})</h4>
-                </div>
-                <div class="card-body px-0 pt-0 pb-2">
-                    {% for data in collaborator_data %}
-                    <div class="card mb-4 mx-4">
-                        <div class="card-body">
-                            <!-- Collaborator Profile -->
-                            <div class="row">
-                                <div class="col-md-3">
-                                    {% if data.profile.profile_picture %}
-                                        <img src="{{ data.profile.profile_picture.url }}" alt="Profile Picture" class="rounded-circle" style="width: 100px; height: 100px; object-fit: cover;">
-                                    {% endif %}
-                                </div>
-                                <div class="col-md-9">
-                                    <h5>{{ data.profile.full_name }}</h5>
-                                    <p><strong>Expertise:</strong> {{ data.profile.expertise }}</p>
-                                    <p><strong>Experience:</strong> {{ data.profile.experience_years }} years</p>
-                                    <p><strong>Email:</strong> {{ data.profile.user.email }}</p>
-                                    {% if data.profile.linkedin %}
-                                        <p><strong>LinkedIn:</strong> <a href="{{ data.profile.linkedin }}" target="_blank">Profile</a></p>
-                                    {% endif %}
-                                </div>
-                            </div>
+<!-- Add Font Awesome for professional icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-                            <!-- Collaboration Statistics -->
-                            <div class="row mt-4">
-                                <div class="col-md-4">
-                                    <div class="card bg-light">
-                                        <div class="card-body text-center">
-                                            <h6>Total Requests</h6>
-                                            <h4>{{ data.total_requests }}</h4>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="card bg-light">
-                                        <div class="card-body text-center">
-                                            <h6>Accepted Collaborations</h6>
-                                            <h4>{{ data.accepted_collaborations }}</h4>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Connected Students -->
-                            {% if data.connected_students %}
-                            <div class="mt-4">
-                                <h6>Connected Students:</h6>
-                                <div class="table-responsive">
-                                    <table class="table table-hover">
-                                        <thead>
-                                            <tr>
-                                                <th>Name</th>
-                                                <th>Roll Number</th>
-                                                <th>Branch</th>
-                                                <th>Semester</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {% for student in data.connected_students %}
-                                            <tr>
-                                                <td>{{ student.full_name }}</td>
-                                                <td>{{ student.roll_number }}</td>
-                                                <td>{{ student.branch }}</td>
-                                                <td>{{ student.semester }}</td>
-                                            </tr>
-                                            {% endfor %}
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                            {% endif %}
-
-                            <!-- Connected Groups -->
-                            {% if data.connected_groups %}
-                            <div class="mt-4">
-                                <h6>Connected Groups:</h6>
-                                <div class="table-responsive">
-                                    <table class="table table-hover">
-                                        <thead>
-                                            <tr>
-                                                <th>Group Name</th>
-                                                <th>Leader</th>
-                                                <th>Members</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {% for group in data.connected_groups %}
-                                            <tr>
-                                                <td>{{ group.name }}</td>
-                                                <td>{{ group.leader.full_name }}</td>
-                                                <td>{{ group.members.count }}</td>
-                                            </tr>
-                                            {% endfor %}
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                            {% endif %}
-
-                            <!-- Recent Collaborations -->
-                            {% if data.recent_collaborations %}
-                            <div class="mt-4">
-                                <h6>Recent Project Collaborations:</h6>
-                                <div class="table-responsive">
-                                    <table class="table table-hover">
-                                        <thead>
-                                            <tr>
-                                                <th>Project Title</th>
-                                                <th>Owner</th>
-                                                <th>Status</th>
-                                                <th>Tech Stack</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {% for collab in data.recent_collaborations %}
-                                            <tr>
-                                                <td>{{ collab.project.title }}</td>
-                                                <td>
-                                                    {% if collab.project.student %}
-                                                        {{ collab.project.student.full_name }}
-                                                    {% else %}
-                                                        {{ collab.project.group.name }}
-                                                    {% endif %}
-                                                </td>
-                                                <td>{{ collab.status }}</td>
-                                                <td>{{ collab.project.tech_stack }}</td>
-                                            </tr>
-                                            {% endfor %}
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                            {% endif %}
-                        </div>
-                    </div>
-                    {% empty %}
-                    <div class="text-center py-4">
-                        <p>No collaborators registered yet.</p>
-                    </div>
-                    {% endfor %}
-                </div>
-            </div>
+<div class="container collaborators-container">
+    <!-- Page Header -->
+    <div class="page-header">
+        <h1 class="page-title">Registered <span>Collaborators</span></h1>
+        <div class="total-count">
+            <span class="badge">
+                <i class="fas fa-users me-2"></i> Total: {{ total_collaborators }}
+            </span>
         </div>
     </div>
+
+    {% if collaborator_data %}
+        {% for data in collaborator_data %}
+        <div class="collaborator-card">
+            <!-- Collaborator Profile -->
+            <div class="card-header">
+                <div>
+                    <h3 class="profile-name">{{ data.profile.full_name }}</h3>
+                    <div class="profile-detail">
+                        <i class="fas fa-briefcase"></i>
+                        <strong>Expertise:</strong> {{ data.profile.expertise }}
+                    </div>
+                </div>
+                <div>
+                    <span class="badge">
+                        <i class="fas fa-star me-2"></i> {{ data.profile.experience_years }} Years Exp.
+                    </span>
+                </div>
+            </div>
+            
+            <div class="profile-section">
+                <div class="profile-image-container">
+                    {% if data.profile.profile_picture %}
+                        <img src="{{ data.profile.profile_picture.url }}" alt="Profile Picture" class="profile-image">
+                    {% else %}
+                        <div class="profile-image d-flex align-items-center justify-content-center" style="background-color: var(--darker-bg); color: var(--primary); font-size: 2.5rem; font-weight: bold;">
+                            {{ data.profile.full_name|slice:":1" }}
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="profile-info">
+                    <div class="profile-detail">
+                        <i class="fas fa-envelope"></i>
+                        <strong>Email:</strong> {{ data.profile.user.email }}
+                    </div>
+                    {% if data.profile.linkedin %}
+                    <div class="profile-detail">
+                        <i class="fab fa-linkedin"></i>
+                        <strong>LinkedIn:</strong> <a href="{{ data.profile.linkedin }}" target="_blank">View Profile</a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Collaboration Statistics -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-label">
+                        <i class="fas fa-paper-plane"></i> Total Requests
+                    </div>
+                    <div class="stat-value">{{ data.total_requests }}</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">
+                        <i class="fas fa-check-circle"></i> Accepted
+                    </div>
+                    <div class="stat-value">{{ data.accepted_collaborations }}</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">
+                        <i class="fas fa-user-graduate"></i> Students
+                    </div>
+                    <div class="stat-value">{{ data.connected_students|length }}</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">
+                        <i class="fas fa-users"></i> Groups
+                    </div>
+                    <div class="stat-value">{{ data.connected_groups|length }}</div>
+                </div>
+            </div>
+
+            <!-- Connected Students -->
+            {% if data.connected_students %}
+            <h4 class="section-title">
+                <i class="fas fa-user-graduate"></i> Connected Students
+            </h4>
+            <div class="table-container">
+                <table class="custom-table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Roll Number</th>
+                            <th>Branch</th>
+                            <th>Semester</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for student in data.connected_students %}
+                        <tr>
+                            <td>{{ student.full_name }}</td>
+                            <td>{{ student.roll_number }}</td>
+                            <td>{{ student.branch }}</td>
+                            <td>{{ student.semester }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% endif %}
+
+            <!-- Connected Groups -->
+            {% if data.connected_groups %}
+            <h4 class="section-title">
+                <i class="fas fa-users"></i> Connected Groups
+            </h4>
+            <div class="table-container">
+                <table class="custom-table">
+                    <thead>
+                        <tr>
+                            <th>Group Name</th>
+                            <th>Leader</th>
+                            <th>Members</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for group in data.connected_groups %}
+                        <tr>
+                            <td>{{ group.name }}</td>
+                            <td>{{ group.leader.full_name }}</td>
+                            <td>{{ group.members.count }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% endif %}
+
+            <!-- Recent Collaborations -->
+            {% if data.recent_collaborations %}
+            <h4 class="section-title">
+                <i class="fas fa-project-diagram"></i> Recent Project Collaborations
+            </h4>
+            <div class="table-container">
+                <table class="custom-table">
+                    <thead>
+                        <tr>
+                            <th>Project Title</th>
+                            <th>Owner</th>
+                            <th>Status</th>
+                            <th>Tech Stack</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for collab in data.recent_collaborations %}
+                        <tr>
+                            <td>{{ collab.project.title }}</td>
+                            <td>
+                                {% if collab.project.student %}
+                                    {{ collab.project.student.full_name }}
+                                {% else %}
+                                    {{ collab.project.group.name }}
+                                {% endif %}
+                            </td>
+                            <td>
+                                <span class="status-badge {% if collab.status == 'active' %}status-active{% elif collab.status == 'pending' %}status-pending{% else %}status-rejected{% endif %}">
+                                    <span class="status-indicator"></span>
+                                    {{ collab.status|title }}
+                                </span>
+                            </td>
+                            <td>{{ collab.project.tech_stack }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% endif %}
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="empty-state">
+            <i class="fas fa-user-slash"></i>
+            <p>No collaborators registered yet.</p>
+        </div>
+    {% endif %}
 </div>
-{% endblock %} 
+{% endblock %}

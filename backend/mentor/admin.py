@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import MentorProfile, ZoomMeeting
+from .models import MentorProfile, ZoomMeeting,GitHubStats
 
 @admin.register(MentorProfile)
 class MentorProfileAdmin(admin.ModelAdmin):
@@ -65,3 +65,9 @@ class ZoomMeetingAdmin(admin.ModelAdmin):
             'fields': ('created_at', 'updated_at')
         }),
     )
+
+
+@admin.register(GitHubStats)
+class GitHubStatsAdmin(admin.ModelAdmin):
+    list_display = ('project', 'stars', 'forks', 'watchers', 'last_updated')
+    readonly_fields = ('last_updated',)

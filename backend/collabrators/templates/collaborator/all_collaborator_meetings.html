@@ -1,0 +1,727 @@
+{% extends 'collaborator/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="content-section">
+    <h1 class="section-title">My Meetings Schedule</h1>
+    
+    <!-- Filter Section -->
+    <div class="filter-section">
+        <form method="GET" action="{% url 'all_collaborator_meetings' %}" class="filter-form">
+            <div class="filter-row">
+                <div class="filter-field">
+                    <label for="status">Meeting Status</label>
+                    <select name="status" id="status">
+                        <option value="">All Statuses</option>
+                        <option value="scheduled" {% if status_filter == 'scheduled' %}selected{% endif %}>Scheduled</option>
+                        <option value="completed" {% if status_filter == 'completed' %}selected{% endif %}>Completed</option>
+                        <option value="cancelled" {% if status_filter == 'cancelled' %}selected{% endif %}>Cancelled</option>
+                    </select>
+                </div>
+                <div class="filter-field">
+                    <label for="date_from">From Date</label>
+                    <input type="date" name="date_from" id="date_from" value="{{ date_from }}">
+                </div>
+                <div class="filter-field">
+                    <label for="date_to">To Date</label>
+                    <input type="date" name="date_to" id="date_to" value="{{ date_to }}">
+                </div>
+                <div class="filter-buttons">
+                    <button type="submit" class="btn btn-primary">Apply Filters</button>
+                    <a href="{% url 'all_collaborator_meetings' %}" class="btn btn-secondary">Clear Filters</a>
+                </div>
+            </div>
+        </form>
+    </div>
+    
+    {% if messages %}
+    <div class="messages">
+        {% for message in messages %}
+        <div class="message {{ message.tags }}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    
+    <!-- Calendar View Toggle -->
+    <div class="view-toggle">
+        <button id="listViewBtn" class="btn btn-primary active">List View</button>
+        <button id="calendarViewBtn" class="btn btn-secondary">Calendar View</button>
+    </div>
+    
+    <!-- List View Content -->
+    <div id="listView" class="view-content active">
+        {% if projects_with_meetings %}
+            {% for project_id, project_data in projects_with_meetings.items %}
+                <div class="project-meetings-section">
+                    <h2 class="project-title">
+                        {{ project_data.project.title }}
+                        <a href="/collabrators/project/{{ project_id }}/meetings/" class="btn btn-sm btn-accent">Project Meetings</a>
+                    </h2>
+                    
+                    <div class="meetings-table-wrapper">
+                        <table class="meetings-table">
+                            <thead>
+                                <tr>
+                                    <th>Title</th>
+                                    <th>Date & Time</th>
+                                    <th>Duration</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for meeting in project_data.meetings %}
+                                <tr class="meeting-row {{ meeting.status }}">
+                                    <td class="meeting-title">{{ meeting.meeting_title }}</td>
+                                    <td class="meeting-time">{{ meeting.scheduled_time|date:"M d, Y - h:i A" }}</td>
+                                    <td class="meeting-duration">{{ meeting.duration }} minutes</td>
+                                    <td class="meeting-status">
+                                        <span class="status-badge {{ meeting.status }}">{{ meeting.get_status_display }}</span>
+                                    </td>
+                                    <td class="meeting-actions">
+                                        {% if meeting.status == 'scheduled' %}
+                                            <a href="{{ meeting.zoom_link }}" target="_blank" class="btn btn-sm btn-primary">
+                                                <i class="fas fa-video"></i> Join
+                                            </a>
+                                        {% endif %}
+                                        <a href="/collabrators/meeting/{{ meeting.id }}/update/" class="btn btn-sm btn-secondary">
+                                            <i class="fas fa-edit"></i> Edit
+                                        </a>
+                                        <a href="/collabrators/meeting/{{ meeting.id }}/delete/" class="btn btn-sm btn-danger">
+                                            <i class="fas fa-trash"></i> Delete
+                                        </a>
+                                    </td>
+                                </tr>
+                                <tr class="meeting-details-row">
+                                    <td colspan="5">
+                                        <div class="meeting-description">
+                                            <strong>Description:</strong> {{ meeting.meeting_description|default:"No description provided." }}
+                                        </div>
+                                        {% if meeting.status == 'scheduled' %}
+                                        <div class="meeting-zoom-info">
+                                            <div><strong>Meeting ID:</strong> {{ meeting.zoom_meeting_id }}</div>
+                                            <div><strong>Password:</strong> {{ meeting.zoom_password }}</div>
+                                        </div>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="empty-state">
+                <p>No meetings found{% if status_filter or date_from or date_to %} matching your filter criteria{% endif %}.</p>
+                {% if status_filter or date_from or date_to %}
+                    <a href="{% url 'all_collaborator_meetings' %}" class="btn btn-primary">Clear Filters</a>
+                {% else %}
+                    <p>Schedule a meeting with one of your projects to get started!</p>
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+    
+    <!-- Calendar View Content (Simple Implementation) -->
+    <div id="calendarView" class="view-content">
+        <div class="calendar-container">
+            <div class="calendar-header">
+                <button id="prevMonth" class="btn btn-sm btn-secondary">&lt; Previous</button>
+                <h3 id="currentMonth">April 2025</h3>
+                <button id="nextMonth" class="btn btn-sm btn-secondary">Next &gt;</button>
+            </div>
+            <div class="calendar-grid" id="calendarGrid">
+                <!-- Calendar will be generated by JavaScript -->
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_css %}
+<style>
+    .content-section {
+        padding: 2rem;
+    }
+
+    .section-title {
+        color: #c77dff;
+        font-size: 2rem;
+        margin-bottom: 2rem;
+    }
+
+    /* Filter Section Styles */
+    .filter-section {
+        margin-bottom: 2rem;
+        background: rgba(157, 78, 221, 0.05);
+        border-radius: 10px;
+        padding: 1.5rem;
+        border: 1px solid rgba(157, 78, 221, 0.3);
+    }
+
+    .filter-form {
+        width: 100%;
+    }
+
+    .filter-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+        align-items: flex-end;
+    }
+
+    .filter-field {
+        flex: 1;
+        min-width: 200px;
+    }
+
+    .filter-field label {
+        display: block;
+        color: #c77dff;
+        margin-bottom: 0.5rem;
+    }
+
+    .filter-field input,
+    .filter-field select {
+        width: 100%;
+        padding: 0.5rem;
+        border-radius: 5px;
+        background: rgba(157, 78, 221, 0.1);
+        border: 1px solid #9d4edd;
+        color: #fff;
+    }
+
+    .filter-buttons {
+        display: flex;
+        gap: 0.5rem;
+        margin-top: 1.5rem;
+    }
+
+    /* View Toggle Styles */
+    .view-toggle {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .view-toggle .btn {
+        flex: 1;
+        max-width: 150px;
+    }
+
+    .btn.active {
+        background: #c77dff;
+        color: #fff;
+    }
+
+    .view-content {
+        display: none;
+    }
+
+    .view-content.active {
+        display: block;
+    }
+
+    /* Project Meetings Section */
+    .project-meetings-section {
+        margin-bottom: 3rem;
+    }
+
+    .project-title {
+        color: #c77dff;
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .btn-accent {
+        background: #7209b7;
+        color: #fff;
+        border: 1px solid #7209b7;
+    }
+
+    .btn-accent:hover {
+        background: #9d4edd;
+        border-color: #9d4edd;
+    }
+
+    /* Meetings Table */
+    .meetings-table-wrapper {
+        overflow-x: auto;
+    }
+
+    .meetings-table {
+        width: 100%;
+        border-collapse: collapse;
+        background: rgba(157, 78, 221, 0.05);
+        border-radius: 10px;
+        overflow: hidden;
+    }
+
+    .meetings-table th {
+        background: rgba(157, 78, 221, 0.2);
+        color: #c77dff;
+        padding: 1rem;
+        text-align: left;
+        font-weight: 500;
+    }
+
+    .meetings-table td {
+        padding: 1rem;
+        border-bottom: 1px solid rgba(157, 78, 221, 0.1);
+        color: #fff;
+    }
+
+    .meeting-row {
+        cursor: pointer;
+    }
+
+    .meeting-row.scheduled {
+        background: rgba(40, 167, 69, 0.05);
+    }
+
+    .meeting-row.completed {
+        background: rgba(108, 117, 125, 0.05);
+    }
+
+    .meeting-row.cancelled {
+        background: rgba(220, 53, 69, 0.05);
+    }
+
+    .status-badge {
+        padding: 0.25rem 0.75rem;
+        border-radius: 15px;
+        font-size: 0.875rem;
+        font-weight: 500;
+    }
+
+    .status-badge.scheduled {
+        background: rgba(40, 167, 69, 0.2);
+        color: #28a745;
+    }
+
+    .status-badge.completed {
+        background: rgba(108, 117, 125, 0.2);
+        color: #6c757d;
+    }
+
+    .status-badge.cancelled {
+        background: rgba(220, 53, 69, 0.2);
+        color: #dc3545;
+    }
+
+    .meeting-actions {
+        display: flex;
+        gap: 0.5rem;
+    }
+    
+    .btn-sm {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.75rem;
+    }
+    
+    .btn-danger {
+        background: #dc3545;
+        color: #fff;
+    }
+    
+    .btn-danger:hover {
+        background: #ff4757;
+    }
+
+    .meeting-details-row {
+        background: rgba(157, 78, 221, 0.02);
+        font-size: 0.9rem;
+        color: rgba(255, 255, 255, 0.8);
+    }
+
+    .meeting-description {
+        margin-bottom: 0.5rem;
+    }
+
+    .meeting-zoom-info {
+        display: flex;
+        gap: 2rem;
+    }
+
+    .meeting-zoom-info strong {
+        color: #c77dff;
+    }
+
+    /* Calendar View */
+    .calendar-container {
+        background: rgba(157, 78, 221, 0.05);
+        border: 1px solid rgba(157, 78, 221, 0.3);
+        border-radius: 10px;
+        padding: 1.5rem;
+    }
+
+    .calendar-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+    }
+
+    .calendar-header h3 {
+        color: #c77dff;
+        margin: 0;
+    }
+
+    .calendar-grid {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 0.5rem;
+    }
+
+    .calendar-day-header {
+        text-align: center;
+        color: #c77dff;
+        font-weight: 500;
+        padding: 0.5rem;
+    }
+
+    .calendar-day {
+        min-height: 100px;
+        padding: 0.5rem;
+        border: 1px solid rgba(157, 78, 221, 0.2);
+        border-radius: 5px;
+        position: relative;
+    }
+
+    .calendar-day.other-month {
+        opacity: 0.5;
+    }
+
+    .calendar-day-number {
+        position: absolute;
+        top: 5px;
+        right: 5px;
+        font-size: 0.875rem;
+        color: rgba(255, 255, 255, 0.7);
+    }
+
+    .calendar-events {
+        margin-top: 1.5rem;
+    }
+
+    .calendar-event {
+        font-size: 0.75rem;
+        padding: 0.25rem 0.5rem;
+        border-radius: 3px;
+        margin-bottom: 0.25rem;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        cursor: pointer;
+    }
+
+    .calendar-event.scheduled {
+        background: rgba(40, 167, 69, 0.2);
+        color: #28a745;
+    }
+
+    .calendar-event.completed {
+        background: rgba(108, 117, 125, 0.2);
+        color: #6c757d;
+    }
+
+    .calendar-event.cancelled {
+        background: rgba(220, 53, 69, 0.2);
+        color: #dc3545;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 3rem;
+        color: #fff;
+        opacity: 0.6;
+    }
+
+    @media (max-width: 768px) {
+        .filter-row {
+            flex-direction: column;
+        }
+        
+        .filter-field {
+            width: 100%;
+        }
+        
+        .filter-buttons {
+            width: 100%;
+            margin-top: 1rem;
+        }
+        
+        .meeting-actions {
+            flex-direction: column;
+        }
+        
+        .calendar-grid {
+            display: none;
+        }
+        
+        .calendar-list {
+            display: block;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const listViewBtn = document.getElementById('listViewBtn');
+    const calendarViewBtn = document.getElementById('calendarViewBtn');
+    const listView = document.getElementById('listView');
+    const calendarView = document.getElementById('calendarView');
+    
+    // Current date variables
+    let currentDate = new Date();
+    let currentMonth = currentDate.getMonth();
+    let currentYear = currentDate.getFullYear();
+    
+    // Store meeting data globally after fetching
+    let meetingsData = [];
+    
+    // Toggle between list and calendar view
+    listViewBtn.addEventListener('click', function() {
+        listViewBtn.classList.add('active');
+        calendarViewBtn.classList.remove('active');
+        listView.classList.add('active');
+        calendarView.classList.remove('active');
+    });
+    
+    calendarViewBtn.addEventListener('click', function() {
+        calendarViewBtn.classList.add('active');
+        listViewBtn.classList.remove('active');
+        calendarView.classList.add('active');
+        listView.classList.remove('active');
+        fetchMeetingsAndRenderCalendar();
+    });
+    
+    // Expand/collapse meeting details
+    const meetingRows = document.querySelectorAll('.meeting-row');
+    meetingRows.forEach(row => {
+        row.addEventListener('click', function() {
+            const detailsRow = this.nextElementSibling;
+            if (detailsRow.style.display === 'none' || !detailsRow.style.display) {
+                detailsRow.style.display = 'table-row';
+            } else {
+                detailsRow.style.display = 'none';
+            }
+        });
+    });
+    
+    // Set up previous and next month buttons
+    document.getElementById('prevMonth').addEventListener('click', function() {
+        currentMonth--;
+        if (currentMonth < 0) {
+            currentMonth = 11;
+            currentYear--;
+        }
+        renderCalendar(meetingsData);
+    });
+    
+    document.getElementById('nextMonth').addEventListener('click', function() {
+        currentMonth++;
+        if (currentMonth > 11) {
+            currentMonth = 0;
+            currentYear++;
+        }
+        renderCalendar(meetingsData);
+    });
+    
+    // Fetch meetings data from DOM and prepare for calendar
+    function fetchMeetingsAndRenderCalendar() {
+        meetingsData = [];
+        
+        // Extract meetings data from the DOM
+        const projectSections = document.querySelectorAll('.project-meetings-section');
+        projectSections.forEach(section => {
+            const projectTitle = section.querySelector('.project-title').textContent.trim().split('\n')[0].trim();
+            const meetingRows = section.querySelectorAll('.meeting-row');
+            
+            meetingRows.forEach(meetingRow => {
+                // Extract meeting data
+                const title = meetingRow.querySelector('.meeting-title').textContent.trim();
+                const dateTimeString = meetingRow.querySelector('.meeting-time').textContent.trim();
+                const status = meetingRow.classList.contains('scheduled') ? 'scheduled' : 
+                              meetingRow.classList.contains('completed') ? 'completed' : 'cancelled';
+                
+                // Extract details from the details row
+                const detailsRow = meetingRow.nextElementSibling;
+                const description = detailsRow.querySelector('.meeting-description').textContent.replace('Description:', '').trim();
+                
+                // Parse date
+                const dateMatch = dateTimeString.match(/(\w+)\s+(\d+),\s+(\d+)\s+-\s+(\d+):(\d+)\s+(\w+)/);
+                if (dateMatch) {
+                    const month = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'].indexOf(dateMatch[1]);
+                    const day = parseInt(dateMatch[2]);
+                    const year = parseInt(dateMatch[3]);
+                    let hour = parseInt(dateMatch[4]);
+                    const minute = parseInt(dateMatch[5]);
+                    const ampm = dateMatch[6];
+                    
+                    // Convert to 24-hour format
+                    if (ampm === 'PM' && hour < 12) hour += 12;
+                    if (ampm === 'AM' && hour === 12) hour = 0;
+                    
+                    const meetingDate = new Date(year, month, day, hour, minute);
+                    
+                    // Add meeting to data array
+                    meetingsData.push({
+                        title,
+                        date: meetingDate,
+                        status,
+                        project: projectTitle,
+                        description,
+                        meetingRow, // Reference to the original row for click events
+                        detailsRow // Reference to the details row
+                    });
+                }
+            });
+        });
+        
+        // Render calendar with meeting data
+        renderCalendar(meetingsData);
+    }
+    
+    // Render calendar with meetings
+    function renderCalendar(meetings) {
+        const calendarGrid = document.getElementById('calendarGrid');
+        const currentMonthDisplay = document.getElementById('currentMonth');
+        
+        // Display current month and year
+        const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 
+                           'July', 'August', 'September', 'October', 'November', 'December'];
+        currentMonthDisplay.textContent = `${monthNames[currentMonth]} ${currentYear}`;
+        
+        // Clear previous calendar
+        calendarGrid.innerHTML = '';
+        
+        // Add day headers
+        const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+        dayNames.forEach(day => {
+            const dayHeader = document.createElement('div');
+            dayHeader.className = 'calendar-day-header';
+            dayHeader.textContent = day;
+            calendarGrid.appendChild(dayHeader);
+        });
+        
+        // Get first day of month and total days
+        const firstDay = new Date(currentYear, currentMonth, 1).getDay();
+        const lastDate = new Date(currentYear, currentMonth + 1, 0).getDate();
+        
+        // Get days from previous month to fill first week
+        const prevMonthLastDate = new Date(currentYear, currentMonth, 0).getDate();
+        
+        // Add days from previous month
+        for (let i = 0; i < firstDay; i++) {
+            const prevMonthDay = prevMonthLastDate - firstDay + i + 1;
+            
+            // Calculate previous month and year
+            let prevMonth = currentMonth - 1;
+            let prevYear = currentYear;
+            if (prevMonth < 0) {
+                prevMonth = 11;
+                prevYear--;
+            }
+            
+            addCalendarDay(prevMonthDay, true, prevYear, prevMonth);
+        }
+        
+        // Add all days of current month
+        for (let i = 1; i <= lastDate; i++) {
+            addCalendarDay(i, false, currentYear, currentMonth);
+        }
+        
+        // Fill remaining days from next month
+        const daysAdded = firstDay + lastDate;
+        const remainingDays = Math.ceil(daysAdded / 7) * 7 - daysAdded;
+        
+        // Calculate next month and year
+        let nextMonth = currentMonth + 1;
+        let nextYear = currentYear;
+        if (nextMonth > 11) {
+            nextMonth = 0;
+            nextYear++;
+        }
+        
+        for (let i = 1; i <= remainingDays; i++) {
+            addCalendarDay(i, true, nextYear, nextMonth);
+        }
+        
+        function addCalendarDay(dayNumber, isOtherMonth, year, month) {
+            const dayDiv = document.createElement('div');
+            dayDiv.className = `calendar-day${isOtherMonth ? ' other-month' : ''}`;
+            
+            const dayNumDiv = document.createElement('div');
+            dayNumDiv.className = 'calendar-day-number';
+            dayNumDiv.textContent = dayNumber;
+            dayDiv.appendChild(dayNumDiv);
+            
+            // Check for meetings on this day
+            if (meetings && meetings.length > 0) {
+                const dayMeetings = meetings.filter(meeting => {
+                    const meetingDate = meeting.date;
+                    return meetingDate.getDate() === dayNumber && 
+                           meetingDate.getMonth() === month &&
+                           meetingDate.getFullYear() === year;
+                });
+                
+                if (dayMeetings.length > 0) {
+                    const eventsDiv = document.createElement('div');
+                    eventsDiv.className = 'calendar-events';
+                    
+                    dayMeetings.forEach(meeting => {
+                        const event = document.createElement('div');
+                        event.className = `calendar-event ${meeting.status}`;
+                        
+                        // Format time for display
+                        const hours = meeting.date.getHours();
+                        const minutes = meeting.date.getMinutes().toString().padStart(2, '0');
+                        const ampm = hours >= 12 ? 'PM' : 'AM';
+                        const displayHours = hours % 12 || 12;
+                        
+                        event.textContent = `${displayHours}:${minutes} ${ampm} - ${meeting.title}`;
+                        event.title = `${meeting.project}: ${meeting.title}\n${meeting.description}`;
+                        
+                        // Add click event to show full meeting details
+                        event.addEventListener('click', function() {
+                            // Scroll to the meeting in list view
+                            listViewBtn.click();
+                            
+                            // Make sure row details are displayed
+                            meeting.detailsRow.style.display = 'table-row';
+                            
+                            // Scroll to the meeting row
+                            setTimeout(() => {
+                                meeting.meetingRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                                
+                                // Highlight the row briefly
+                                meeting.meetingRow.style.transition = 'background-color 0.5s';
+                                meeting.meetingRow.style.backgroundColor = 'rgba(199, 125, 255, 0.3)';
+                                setTimeout(() => {
+                                    meeting.meetingRow.style.backgroundColor = '';
+                                }, 2000);
+                            }, 300);
+                        });
+                        
+                        eventsDiv.appendChild(event);
+                    });
+                    
+                    dayDiv.appendChild(eventsDiv);
+                }
+            }
+            
+            calendarGrid.appendChild(dayDiv);
+        }
+    }
+});
+</script>
+{% endblock %}
+{% endblock %}

@@ -5,6 +5,8 @@ from django.core.mail import send_mail
 from django.conf import settings
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
+from students.models import Project
+
 
 
 class MentorProfile(models.Model):
@@ -100,3 +102,17 @@ class ZoomMeeting(models.Model):
         )
         
         return True
+    
+
+# models.py
+class GitHubStats(models.Model):
+    project = models.OneToOneField(Project, on_delete=models.CASCADE, related_name='github_stats')
+    stars = models.IntegerField(default=0)
+    forks = models.IntegerField(default=0)
+    watchers = models.IntegerField(default=0)
+    contributors = models.JSONField(default=dict)  # Stores {'username': commit_count}
+    languages = models.JSONField(default=dict)    # Stores {'language': percentage}
+    last_updated = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"GitHub Stats for {self.project.title}"

@@ -32,10 +32,15 @@
     {% if projects %}
     <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {% for project in projects %}
-        <div class="bg-white rounded-lg shadow-md overflow-hidden">
+        <a href="{% if project.student %}{% url 'project_detail' project.id %}{% else %}{% url 'group_project_detail' project.group.id project.id %}{% endif %}" class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300">
             <div class="p-6">
                 <div class="flex justify-between items-start">
-                    <h3 class="text-xl font-semibold text-gray-900">{{ project.title }}</h3>
+                    <div>
+                        <h3 class="text-xl font-semibold text-gray-900">{{ project.title }}</h3>
+                        <p class="text-xs text-gray-500">
+                            {% if project.student %}Individual Project{% elif project.group %}Group: {{ project.group.name }}{% endif %}
+                        </p>
+                    </div>
                     <span class="px-2 py-1 text-xs font-medium rounded-full {% if project.status == 'completed' %}bg-green-100 text-green-800{% elif project.status == 'under_review' %}bg-yellow-100 text-yellow-800{% else %}bg-blue-100 text-blue-800{% endif %}">
                         {{ project.status|title }}
                     </span>
@@ -54,28 +59,35 @@
                     </span>
                 </div>
 
-                <div class="mt-6 flex flex-wrap gap-2">
-                    <a href="{% url 'edit_project' project.id %}" class="inline-flex items-center px-3 py-1 border border-transparent text-sm font-medium rounded text-blue-700 bg-blue-100 hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                <div class="mt-6 flex flex-wrap gap-2" onclick="event.stopPropagation()">
+                    {% if project.student or project.group and user_is_group_leader %}
+                    <a href="{% if project.student %}{% url 'edit_project' project.id %}{% else %}{% url 'edit_group_project' project.group.id project.id %}{% endif %}" class="inline-flex items-center px-3 py-1 border border-transparent text-sm font-medium rounded text-blue-700 bg-blue-100 hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
                         Edit
                     </a>
+                    {% endif %}
+                    
                     <a href="{% url 'view_project_comments' project.id %}" class="inline-flex items-center px-3 py-1 border border-transparent text-sm font-medium rounded text-purple-700 bg-purple-100 hover:bg-purple-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500">
                         Comments
                     </a>
+                    
+                    {% if project.student or project.group and user_is_group_leader %}
                     <form method="POST" action="{% url 'toggle_project_collaboration' project.id %}" class="inline">
                         {% csrf_token %}
                         <button type="submit" class="inline-flex items-center px-3 py-1 border border-transparent text-sm font-medium rounded {% if project.is_open_for_collaboration %}text-red-700 bg-red-100 hover:bg-red-200{% else %}text-green-700 bg-green-100 hover:bg-green-200{% endif %} focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
                             {% if project.is_open_for_collaboration %}Close{% else %}Open{% endif %} Collaboration
                         </button>
                     </form>
-                    <form method="POST" action="{% url 'delete_project' project.id %}" class="inline" onsubmit="return confirm('Are you sure you want to delete this project?');">
+                    
+                    <form method="POST" action="{% if project.student %}{% url 'delete_project' project.id %}{% else %}{% url 'delete_group_project' project.group.id project.id %}{% endif %}" class="inline" onsubmit="return confirm('Are you sure you want to delete this project?');">
                         {% csrf_token %}
                         <button type="submit" class="inline-flex items-center px-3 py-1 border border-transparent text-sm font-medium rounded text-red-700 bg-red-100 hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
                             Delete
                         </button>
                     </form>
+                    {% endif %}
                 </div>
             </div>
-        </div>
+        </a>
         {% endfor %}
     </div>
     {% else %}
@@ -87,4 +99,13 @@
     </div>
     {% endif %}
 </div>
-{% endblock %} 
+
+<script>
+    // This prevents click events from bubbling up to the parent anchor tag
+    document.querySelectorAll('[onclick="event.stopPropagation()"]').forEach(element => {
+        element.addEventListener('click', function(e) {
+            e.stopPropagation();
+        });
+    });
+</script>
+{% endblock %}

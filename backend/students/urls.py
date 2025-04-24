@@ -23,8 +23,11 @@ urlpatterns = [
     path('collaboration-requests/<int:request_id>/handle/', views.handle_collaboration_request, name='handle_collaboration_request'),
     path('projects/<int:project_id>/comments/', views.view_project_comments, name='view_project_comments'),
 
-    path('ngos/', views.ngo_list, name='ngo_list'),
-    path('ngos/<int:ngo_id>/', views.ngo_detail, name='ngo_detail'),
+    path('projects/<int:project_id>/', views.project_detail, name='project_detail'),
+
+
+    path('ngos/', views.ngo_list, name='ngos_list'),
+    path('ngos/<int:ngo_id>/', views.ngo_detail, name='ngos_detail'),
     
     # Group URLs
     path('groups/', views.my_groups, name='my_groups'),
@@ -34,10 +37,18 @@ urlpatterns = [
     path('groups/invitation/<int:membership_id>/', views.handle_invitation, name='handle_invitation'),
     path('groups/<int:group_id>/remove/<int:member_id>/', views.remove_member, name='remove_member'),
     path('groups/<int:group_id>/add-project/', views.add_group_project, name='add_group_project'),
+
+    path('groups/<int:group_id>/projects/<int:project_id>/edit/', views.edit_group_project, name='edit_group_project'),
+
+    path('groups/<int:group_id>/projects/<int:project_id>/delete/', views.delete_group_project, name='delete_group_project'),
+
+    path('groups/<int:group_id>/projects/<int:project_id>/', views.group_project_detail, name='group_project_detail'),
+
+
     # Add new URL patterns for meetings
     path('my-meetings/', views.student_meetings, name='student_meetings'),
     path('meeting/<int:meeting_id>/', views.meeting_detail, name='student_meeting_detail'),
-    path('meetings/', views.student_meetings, name='student_meetings'),
+    # path('meetings/', views.student_meetings, name='student_meetings'),
     path('view-collaborators/', views.view_collaborators, name='view_collaborators'),
     path('schedule-meeting/<int:project_id>/<int:collaborator_id>/', views.schedule_meeting, name='student_schedule_meeting'),
     path('meetings/', views.view_meetings, name='student_all_meetings'),
@@ -47,4 +58,7 @@ urlpatterns = [
     path('comment/<int:comment_id>/delete/', views.delete_project_comment, name='delete_project_comment'),
     path('assessments/', views.view_assessments, name='student_view_assessments'),
     path('assessments/<int:assessment_id>/', views.assessment_detail, name='student_assessment_detail'),
+
+    path('projects/<int:project_id>/', views.project_detail, name='project_detail'),
+
 ]

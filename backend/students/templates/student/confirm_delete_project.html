@@ -1,0 +1,25 @@
+{% extends '../base.html' %}
+
+{% block title %}Delete Project | TISD{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8 max-w-2xl">
+    <div class="bg-card border border-card-border rounded-xl p-6">
+        <h1 class="text-2xl font-bold text-white mb-6">Delete Project</h1>
+        
+        <p class="text-text-secondary mb-6">Are you sure you want to delete the project "{{ project.title }}"? This action cannot be undone.</p>
+        
+        <div class="flex justify-end gap-4">
+            <a href="{% url 'group_detail' group.id %}" class="px-4 py-2 text-text-secondary hover:text-white border border-card-border rounded-lg">
+                Cancel
+            </a>
+            <form method="post" action="{% url 'delete_group_project' group.id project.id %}">
+                {% csrf_token %}
+                <button type="submit" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg">
+                    Delete Project
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

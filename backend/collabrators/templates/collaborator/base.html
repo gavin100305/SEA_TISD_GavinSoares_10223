@@ -129,8 +129,9 @@
             <li><a href="{% url 'collaborator_dashboard' %}" {% if request.resolver_match.url_name == 'collaborator_dashboard' %}class="active"{% endif %}>Dashboard</a></li>
             <li><a href="{% url 'collaborator_profile' %}" {% if request.resolver_match.url_name == 'collaborator_profile' %}class="active"{% endif %}>Profile</a></li>
             <li><a href="{% url 'view_shared_projects' %}" {% if request.resolver_match.url_name == 'view_shared_projects' %}class="active"{% endif %}>Shared Projects</a></li>
-            <li><a href="#">My Collaborations</a></li>
-            <li><a href="#">Messages</a></li>
+            <li><a href="{% url 'all_collaborator_meetings' %}" class="nav-link">
+                <i class="fas fa-calendar-alt"></i> My Meeting Schedule
+            </a></li>
         </ul>
         <div class="logout-link">
             <a href="{% url 'logout' %}">Logout</a>

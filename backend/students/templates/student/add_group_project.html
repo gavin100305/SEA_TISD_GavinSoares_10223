@@ -42,12 +42,17 @@
                     <input type="text" class="form-control" id="sdgs" name="sdgs" placeholder="e.g., Quality Education, Climate Action" required>
                 </div>
 
-                {% if connected_mentors %}
+                <div class="form-group">
+                    <label for="github_link">GitHub Link (Optional)</label>
+                    <input type="url" class="form-control" id="github_link" name="github_link" placeholder="https://github.com/username/repository">
+                </div>
+
+                {% if leader_mentors %}
                 <div class="form-group">
                     <label for="mentor">Select Mentor (Optional)</label>
                     <select class="form-control" id="mentor" name="mentor">
                         <option value="">No Mentor</option>
-                        {% for connection in connected_mentors %}
+                        {% for connection in leader_mentors %}
                         <option value="{{ connection.mentor.id }}">{{ connection.mentor.full_name }}</option>
                         {% endfor %}
                     </select>
@@ -60,7 +65,56 @@
                         <input type="checkbox" class="custom-control-input" id="is_open_for_collaboration" name="is_open_for_collaboration">
                         <label class="custom-control-label" for="is_open_for_collaboration">Open for Collaboration</label>
                     </div>
-                    <small class="form-text text-muted">Enable this to allow collaborators to view and request to join this project.</small>
+                    <small class="form-text text-muted">Enable this to allow others to view and request to join this project.</small>
+                </div>
+
+
+                <!-- Project Status -->
+                <div class="form-group">
+                    <label for="status">Project Status</label>
+                    <select class="form-control" id="status" name="status">
+                        <option value="planning">Planning</option>
+                        <option value="in_progress">In Progress</option>
+                        <option value="completed">Completed</option>
+                    </select>
+                </div>
+
+                <!-- File Upload -->
+                <div class="form-group">
+                    <label for="project_file">Project File</label>
+                    <input type="file" class="form-control-file" id="project_file" name="project_file">
+                    <small class="form-text text-muted">Upload project documentation or other relevant files.</small>
+                </div>
+
+                <!-- Image Uploads -->
+                <div class="form-group">
+                    <label>Project Images (Optional)</label>
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label for="image1">Image 1</label>
+                            <input type="file" class="form-control-file" id="image1" name="image1" accept="image/*">
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="image2">Image 2</label>
+                            <input type="file" class="form-control-file" id="image2" name="image2" accept="image/*">
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="image3">Image 3</label>
+                            <input type="file" class="form-control-file" id="image3" name="image3" accept="image/*">
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="image4">Image 4</label>
+                            <input type="file" class="form-control-file" id="image4" name="image4" accept="image/*">
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="image5">Image 5</label>
+                            <input type="file" class="form-control-file" id="image5" name="image5" accept="image/*">
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="image6">Image 6</label>
+                            <input type="file" class="form-control-file" id="image6" name="image6" accept="image/*">
+                        </div>
+                    </div>
                 </div>
 
                 <button type="submit" class="btn btn-primary">Create Project</button>
@@ -69,4 +123,14 @@
         </div>
     </div>
 </div>
-{% endblock %} 
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Display file names when selected
+    $('.custom-file-input').on('change', function() {
+        var fileName = $(this).val().split('\\').pop();
+        $(this).next('.custom-file-label').html(fileName);
+    });
+</script>
+{% endblock %}

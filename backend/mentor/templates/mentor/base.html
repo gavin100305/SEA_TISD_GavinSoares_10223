@@ -362,6 +362,7 @@
                 <a class="nav-link {% if request.resolver_match.url_name == 'meeting_list' %}active{% endif %}" href="{% url 'meeting_list' %}">
                     <i class="fas fa-calendar-alt"></i> Meetings
                 </a>
+
                 
                 <a class="nav-link {% if request.resolver_match.url_name == 'mentor_view_collaborators' %}active{% endif %}" href="{% url 'mentor_view_collaborators' %}">
                     <i class="fas fa-handshake"></i> Collaborators

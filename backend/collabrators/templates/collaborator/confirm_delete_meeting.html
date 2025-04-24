@@ -1,0 +1,17 @@
+{% extends 'collaborator/base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Delete Meeting</h2>
+    
+    <div class="alert alert-danger">
+        Are you sure you want to delete the meeting "{{ meeting.meeting_title }}" scheduled for {{ meeting.scheduled_time|date:"M d, Y - H:i" }}?
+    </div>
+    
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger">Confirm Delete</button>
+        <a href="{% url 'view_meetings' meeting.project.id %}" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>
+{% endblock %}
