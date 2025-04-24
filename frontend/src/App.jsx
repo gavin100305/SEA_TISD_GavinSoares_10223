@@ -13,6 +13,9 @@ import TeacherProfileForm from './teacher/TeacherProfileForm'
 import VerificationPending from './teacher/VerificationPending'
 import AdminDashboard from './management/AdminDashboard'
 import TeacherDashboard from './teacher/TeacherDashboard'
+import Projects from './component/Projects'
+import ProjectDetail from './component/ProjectDetail'
+import Mentors from './component/Mentors'
 
 function App() {
   return (
@@ -31,6 +34,9 @@ function App() {
         <Route path="/mentor-verification-pending" element={<VerificationPending />} />
         <Route path="/admin-dashboard" element={<AdminDashboard />} />
         <Route path="/mentor-dashboard" element={<TeacherDashboard />} />
+        <Route path="/projects" element={<Projects />} />
+        <Route path="/projects/:id" element={<ProjectDetail />} />
+        <Route path="/mentors" element={<Mentors />} />
       </Routes>
     </Router>
   )

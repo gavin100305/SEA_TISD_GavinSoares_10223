@@ -1,6 +1,6 @@
 "use client"
 import { useState } from "react"
-import {ArrowRight, GraduationCap, FileText, MessageSquare, Globe, Menu, X } from "lucide-react"
+import { ArrowRight, FileText, MessageSquare, Globe, Menu, X } from "lucide-react"
 import React from "react"
 import { motion, useScroll, useTransform, useSpring } from "framer-motion"
 import Footer from "./component/Footer"
@@ -12,9 +12,7 @@ const sdgProducts = [
   {
     title: "SDG 1: No Poverty",
     thumbnail: "/images/Sustainable_Development_Goal_1.png", 
-  }, 
-
-  
+  },
   {
     title: "SDG 2: Zero Hunger",
     thumbnail: "/images/download.png",
@@ -90,6 +88,7 @@ const HeroParallax = ({ products, title, description }) => {
     target: ref,
     offset: ["start start", "end start"],
   })
+  
   const springConfig = { stiffness: 300, damping: 30, bounce: 100 }
   const translateX = useSpring(useTransform(scrollYProgress, [0, 1], [0, 1000]), springConfig)
   const translateXReverse = useSpring(useTransform(scrollYProgress, [0, 1], [0, -1000]), springConfig)
@@ -148,11 +147,11 @@ const ProductCard = ({ product, translate }) => {
   return (
     <motion.div
       style={{ x: translate }}
-      whileHover={{ y: -20 }}
+      whileHover={{ y: -20, transition: { duration: 0.3 } }}
       key={product.title}
       className="group/product h-80 w-64 relative shrink-0"
     >
-      <div className="h-full w-full overflow-hidden rounded-xl">
+      <div className="h-full w-full overflow-hidden rounded-xl border border-purple-500/20">
         <img
           src={product.thumbnail}
           alt={product.title}
@@ -160,9 +159,9 @@ const ProductCard = ({ product, translate }) => {
         />
       </div>
 
-      <div className="absolute inset-0 h-full w-full opacity-0 group-hover/product:opacity-80 bg-black rounded-xl pointer-events-none"></div>
+      <div className="absolute inset-0 h-full w-full opacity-0 group-hover/product:opacity-80 bg-gradient-to-t from-black via-purple-900/40 to-black rounded-xl pointer-events-none transition-opacity duration-300"></div>
 
-      <h2 className="absolute bottom-4 left-4 opacity-0 group-hover/product:opacity-100 text-white font-medium text-sm">
+      <h2 className="absolute bottom-4 left-4 opacity-0 group-hover/product:opacity-100 text-white font-medium text-sm transition-opacity duration-300">
         {product.title}
       </h2>
     </motion.div>
@@ -182,33 +181,65 @@ function LandingPage() {
       if (splineWatermark) {
         splineWatermark.style.display = 'none';
       }
+      
+      // Apply general brightness adjustments to the canvas
+      if (spline.canvas) {
+        spline.canvas.style.filter = 'brightness(1.5) contrast(1.2)';
+      }
     }
   }
 
   return (
     <div className="min-h-screen bg-black overflow-hidden relative">
-      {/* Add the navbar component */}
+      {/* Navbar */}
       <Navbar />
 
-      {/* Spline 3D Background - Modified positioning for globe on right */}
+      {/* Subtle particles effect */}
+      <div className="absolute inset-0 z-0">
+        <div className="absolute w-full h-full">
+          <svg className="opacity-30" width="100%" height="100%">
+            <defs>
+              <pattern id="smallGrid" width="8" height="8" patternUnits="userSpaceOnUse">
+                <path d="M 8 0 L 0 0 0 8" fill="none" stroke="rgba(128, 90, 213, 0.2)" strokeWidth="0.5" />
+              </pattern>
+              <pattern id="grid" width="80" height="80" patternUnits="userSpaceOnUse">
+                <rect width="80" height="80" fill="url(#smallGrid)" />
+                <path d="M 80 0 L 0 0 0 80" fill="none" stroke="rgba(128, 90, 213, 0.3)" strokeWidth="1" />
+              </pattern>
+            </defs>
+            <rect width="100%" height="100%" fill="url(#grid)" />
+          </svg>
+        </div>
+      </div>
+
+      {/* Spline 3D Background with better visibility */}
       <div className="absolute top-0 left-0 w-full h-screen overflow-hidden z-0">
-        <div className="absolute right-0 md:right-0 top-1/2 transform -translate-y-1/2 w-full md:w-3/5 h-screen">
+        {/* Colorful ambient light to make the globe pop more */}
+        <div className="absolute right-0 top-1/2 transform -translate-y-1/2 w-96 h-96 bg-purple-600/30 rounded-full blur-3xl"></div>
+        <div className="absolute right-1/4 top-1/3 transform -translate-y-1/2 w-64 h-64 bg-blue-500/20 rounded-full blur-3xl"></div>
+        
+        {/* Modified globe position and sizing */}
+        <div className="absolute right-0 md:right-0 top-1/2 transform -translate-y-1/2 w-full md:w-3/5 h-screen z-5 opacity-100">
           <Spline 
             scene="https://prod.spline.design/DHUdPWbhCQ5Iwjv1/scene.splinecode" 
             onLoad={onSplineLoad}
+            style={{ filter: "brightness(1.5) contrast(1.2)" }} // Enhance brightness and contrast
           />
         </div>
         
-        {/* Dark gradient overlay for better text visibility */}
-        <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/50 to-black/20 z-10"></div>
+        {/* Reduced opacity on the dark gradient overlay for better globe visibility */}
+        <div className="absolute inset-0 bg-gradient-to-r from-black via-black/80 to-transparent z-10"></div>
+        
+        {/* Additional highlight on the globe area */}
+        <div className="absolute right-0 top-1/2 transform -translate-y-1/2 w-1/2 h-1/2 bg-purple-500/5 rounded-full blur-3xl animate-pulse z-5"></div>
       </div>
 
       {/* Background Elements - Only visible below the hero section */}
       <div className="absolute top-screen left-0 w-full h-full overflow-hidden z-0">
-        <div className="absolute top-[50%] right-[5%] w-24 h-24 rounded-full bg-purple-600/20 blur-xl"></div>
-        <div className="absolute bottom-[20%] left-[10%] w-32 h-32 rounded-full bg-purple-500/10 blur-xl"></div>
-        <div className="absolute top-[60%] left-[20%] w-64 h-64 rounded-full bg-purple-800/20 blur-3xl"></div>
-        <div className="absolute -bottom-20 -right-20 w-80 h-80 bg-purple-600/5 rounded-full blur-3xl"></div>
+        <div className="absolute top-[50%] right-[5%] w-32 h-32 rounded-full bg-purple-600/20 blur-xl animate-pulse"></div>
+        <div className="absolute bottom-[20%] left-[10%] w-40 h-40 rounded-full bg-purple-500/10 blur-xl animate-pulse" style={{animationDelay: "2s"}}></div>
+        <div className="absolute top-[60%] left-[20%] w-64 h-64 rounded-full bg-purple-800/20 blur-3xl animate-pulse" style={{animationDelay: "1s"}}></div>
+        <div className="absolute -bottom-20 -right-20 w-96 h-96 bg-purple-600/5 rounded-full blur-3xl"></div>
 
         {/* Hexagon Grid Pattern */}
         <div className="absolute bottom-0 left-0 w-full h-1/2 opacity-10">
@@ -226,7 +257,7 @@ function LandingPage() {
         </div>
       </div>
 
-      {/* Hero Section with left-aligned text and right-positioned globe - adjusted for navbar */}
+      {/* Hero Section with left-aligned text and right-positioned globe */}
       <div className="relative z-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-40 md:pt-52 min-h-screen">
         <div className="flex flex-col md:flex-row items-center">
           {/* Left side text content */}
@@ -235,77 +266,89 @@ function LandingPage() {
               Track <span className="text-purple-500 glow-text">Innovation</span>
               <span className="block mt-2">& Sustainable Development</span>
             </h1>
-            <p className="text-lg text-gray-200 mb-8 drop-shadow-md">
+            <p className="text-lg text-gray-300 mb-8 drop-shadow-md leading-relaxed">
               A platform to systematically document and monitor academic projects, map them to Sustainable Development
               Goals, and manage collaborations with NGOs and industry experts.
             </p>
             <div className="flex flex-col sm:flex-row items-start gap-4">
-              <button className="w-full sm:w-auto px-8 py-4 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-lg transition-colors duration-200 flex items-center justify-center shadow-lg shadow-purple-500/30">
-                Start Now <ArrowRight className="ml-2 w-4 h-4" />
+              <button className="w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white font-medium rounded-lg transition-all duration-300 flex items-center justify-center shadow-lg shadow-purple-500/30 group">
+                <span>Start Now</span> 
+                <ArrowRight className="ml-2 w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" />
               </button>
-              <button className="w-full sm:w-auto px-8 py-4 bg-white/10 hover:bg-white/15 text-white font-medium rounded-lg border border-white/20 backdrop-blur-sm transition-all duration-200 flex items-center justify-center">
-                Explore Projects <ArrowRight className="ml-2 w-4 h-4" />
+              <button className="w-full sm:w-auto px-8 py-4 bg-white/5 hover:bg-white/10 text-white font-medium rounded-lg border border-white/10 backdrop-blur-sm transition-all duration-300 flex items-center justify-center group">
+                <span>Explore Projects</span> 
+                <ArrowRight className="ml-2 w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" />
               </button>
             </div>
           </div>
           
-          {/* Right side 3D globe space */}
+          {/* Right side 3D globe space with indicator for visibility */}
           <div className="md:w-1/2 relative h-96 md:h-auto">
-            {/* The actual globe is in the background Spline element */}
           </div>
         </div>
       </div>
         
       {/* Key Features Section - Below the hero section with the 3D globe */}
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-16 md:mt-0">
-        <h2 className="text-3xl font-bold text-center text-white mb-4">
-          Key <span className="text-purple-500">Functional</span> Requirements
-        </h2>
-        <p className="text-gray-300 text-center max-w-2xl mx-auto mb-12">
-          Our platform offers comprehensive tools to track, manage, and collaborate on projects
-        </p>
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-16 md:mt-0 pt-20">
+        <div className="text-center mb-12">
+          <span className="inline-block px-3 py-1 text-xs font-medium bg-purple-600/20 text-purple-300 rounded-full border border-purple-500/30 mb-4">
+            Platform Features
+          </span>
+          <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
+            Key <span className="text-purple-500">Functional</span> Requirements
+          </h2>
+          <p className="text-gray-300 max-w-2xl mx-auto">
+            Our platform offers comprehensive tools to track, manage, and collaborate on projects
+            aligned with sustainable development objectives
+          </p>
+        </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          <div className="bg-gradient-to-br from-purple-900/20 to-black/20 backdrop-blur-sm rounded-xl p-6 border border-purple-900/30 hover:bg-purple-900/30 transition-all duration-300 hover:transform hover:scale-105">
-            <div className="w-12 h-12 bg-purple-600 rounded-xl flex items-center justify-center mb-4">
+          <div className="bg-gradient-to-br from-purple-900/10 to-black/30 backdrop-blur-sm rounded-xl p-8 border border-purple-900/20 hover:border-purple-600/30 transition-all duration-500 hover:transform hover:-translate-y-2 group">
+            <div className="w-14 h-14 bg-gradient-to-br from-purple-600 to-purple-800 rounded-xl flex items-center justify-center mb-6 shadow-lg shadow-purple-500/20 group-hover:shadow-purple-500/40 transition-all duration-500">
               <FileText className="text-white w-6 h-6" />
             </div>
-            <h3 className="text-white text-xl font-medium mb-3">Project Tracking & Management</h3>
-            <p className="text-gray-300 mb-4">
-              Add, edit, and categorize projects by academic year, department, and SDGs.
+            <h3 className="text-white text-xl font-semibold mb-3">Project Tracking & Management</h3>
+            <p className="text-gray-300">
+              Add, edit, and categorize projects by academic year, department, and SDGs with comprehensive analytics and reporting tools.
             </p>
           </div>
 
-          <div className="bg-gradient-to-br from-purple-900/20 to-black/20 backdrop-blur-sm rounded-xl p-6 border border-purple-900/30 hover:bg-purple-900/30 transition-all duration-300 hover:transform hover:scale-105">
-            <div className="w-12 h-12 bg-purple-600 rounded-xl flex items-center justify-center mb-4">
+          <div className="bg-gradient-to-br from-purple-900/10 to-black/30 backdrop-blur-sm rounded-xl p-8 border border-purple-900/20 hover:border-purple-600/30 transition-all duration-500 hover:transform hover:-translate-y-2 group">
+            <div className="w-14 h-14 bg-gradient-to-br from-purple-600 to-purple-800 rounded-xl flex items-center justify-center mb-6 shadow-lg shadow-purple-500/20 group-hover:shadow-purple-500/40 transition-all duration-500">
               <Globe className="text-white w-6 h-6" />
             </div>
-            <h3 className="text-white text-xl font-medium mb-3">SDG Mapping & Impact Analysis</h3>
-            <p className="text-gray-300 mb-4">
-              Select relevant SDGs for each project and generate insights on SDG contributions institution-wide.
+            <h3 className="text-white text-xl font-semibold mb-3">SDG Mapping & Impact Analysis</h3>
+            <p className="text-gray-300">
+              Select relevant SDGs for each project and generate insights on SDG contributions institution-wide with visual dashboards.
             </p>
           </div>
 
-          <div className="bg-gradient-to-br from-purple-900/20 to-black/20 backdrop-blur-sm rounded-xl p-6 border border-purple-900/30 hover:bg-purple-900/30 transition-all duration-300 hover:transform hover:scale-105">
-            <div className="w-12 h-12 bg-purple-600 rounded-xl flex items-center justify-center mb-4">
+          <div className="bg-gradient-to-br from-purple-900/10 to-black/30 backdrop-blur-sm rounded-xl p-8 border border-purple-900/20 hover:border-purple-600/30 transition-all duration-500 hover:transform hover:-translate-y-2 group">
+            <div className="w-14 h-14 bg-gradient-to-br from-purple-600 to-purple-800 rounded-xl flex items-center justify-center mb-6 shadow-lg shadow-purple-500/20 group-hover:shadow-purple-500/40 transition-all duration-500">
               <MessageSquare className="text-white w-6 h-6" />
             </div>
-            <h3 className="text-white text-xl font-medium mb-3">Collaboration & Networking</h3>
-            <p className="text-gray-300 mb-4">
-              Allow NGOs and industry experts to express interest in projects and facilitate mentor-student
-              interactions.
+            <h3 className="text-white text-xl font-semibold mb-3">Collaboration & Networking</h3>
+            <p className="text-gray-300">
+              Allow NGOs and industry experts to express interest in projects and facilitate mentor-student interactions through dedicated communication channels.
             </p>
           </div>
         </div>
 
         {/* SDG Parallax Section */}
         <div className="mt-32 relative z-10">
-          <h2 className="text-3xl font-bold text-center text-white mb-4">
-            Sustainable <span className="text-purple-500">Development</span> Goals
-          </h2>
-          <p className="text-gray-300 text-center max-w-2xl mx-auto mb-12">
-            Explore how our projects contribute to the United Nations' Sustainable Development Goals
-          </p>
+          <div className="text-center">
+            <span className="inline-block px-3 py-1 text-xs font-medium bg-purple-600/20 text-purple-300 rounded-full border border-purple-500/30 mb-4">
+              United Nations Goals
+            </span>
+            <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
+              Sustainable <span className="text-purple-500">Development</span> Goals
+            </h2>
+            <p className="text-gray-300 max-w-2xl mx-auto mb-12">
+              Explore how our projects contribute to the United Nations' Sustainable Development Goals
+              and drive meaningful change across multiple dimensions
+            </p>
+          </div>
         </div>
       </div>
 
@@ -319,38 +362,108 @@ function LandingPage() {
       </div>
 
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* CTA Section */}
-        <div className="mt-32 text-center">
-          <div className="inline-block bg-gradient-to-br from-purple-900/30 to-black/30 backdrop-blur-sm rounded-xl p-8 border border-purple-900/30 hover:border-purple-700/50 transition-all duration-300 transform hover:scale-[1.02]">
-            <h2 className="text-3xl font-bold text-white mb-4">Ready to Start Your Innovation Journey?</h2>
-            <p className="text-gray-300 mb-6 max-w-2xl mx-auto">
-              Join our community of innovators and contribute to sustainable development through your projects.
+        {/* Testimonials section */}
+        <div className="mt-20 mb-20">
+          <div className="text-center mb-12">
+            <span className="inline-block px-3 py-1 text-xs font-medium bg-purple-600/20 text-purple-300 rounded-full border border-purple-500/30 mb-4">
+              Success Stories
+            </span>
+            <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
+              What Our <span className="text-purple-500">Partners</span> Say
+            </h2>
+            <p className="text-gray-300 max-w-2xl mx-auto">
+              Hear from organizations and academic institutions using our platform
             </p>
-            <div className="flex flex-col sm:flex-row justify-center gap-4">
-              <button className="px-8 py-4 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-lg transition-colors duration-200 shadow-lg shadow-purple-500/20">
-                Register Now
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="bg-gradient-to-br from-purple-900/10 to-black/30 backdrop-blur-sm rounded-xl p-8 border border-purple-900/20">
+              <div className="flex items-center mb-6">
+                <div className="w-12 h-12 rounded-full bg-purple-600 flex items-center justify-center">
+                  <span className="text-white font-bold">UN</span>
+                </div>
+                <div className="ml-4">
+                  <p className="text-white font-semibold">Sarah Johnson</p>
+                  <p className="text-gray-400 text-sm">UN Sustainability Lead</p>
+                </div>
+              </div>
+              <p className="text-gray-300">
+                "This platform has revolutionized how we track academic contributions to SDGs. The visualization tools help us identify impact areas and foster meaningful partnerships."
+              </p>
+            </div>
+            
+            <div className="bg-gradient-to-br from-purple-900/10 to-black/30 backdrop-blur-sm rounded-xl p-8 border border-purple-900/20">
+              <div className="flex items-center mb-6">
+                <div className="w-12 h-12 rounded-full bg-purple-600 flex items-center justify-center">
+                  <span className="text-white font-bold">EU</span>
+                </div>
+                <div className="ml-4">
+                  <p className="text-white font-semibold">Marco Benetti</p>
+                  <p className="text-gray-400 text-sm">EU Innovation Director</p>
+                </div>
+              </div>
+              <p className="text-gray-300">
+                "The collaboration features have enabled us to connect with promising academic projects that align with our sustainability initiatives. An invaluable resource."
+              </p>
+            </div>
+          </div>
+        </div>
+      
+        {/* CTA Section */}
+        <div className="mt-32 mb-32 text-center">
+          <div className="bg-gradient-to-br from-purple-900/20 to-black/30 backdrop-blur-sm rounded-2xl p-12 border border-purple-900/30 hover:border-purple-700/50 transition-all duration-500 transform hover:scale-[1.02]">
+            <span className="inline-block px-3 py-1 text-xs font-medium bg-purple-600/20 text-purple-300 rounded-full border border-purple-500/30 mb-4">
+              Join Today
+            </span>
+            <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">Ready to Start Your Innovation Journey?</h2>
+            <p className="text-gray-300 mb-8 max-w-2xl mx-auto">
+              Join our community of innovators and contribute to sustainable development through your projects. Track impact, connect with partners, and make a difference.
+            </p>
+            <div className="flex flex-col sm:flex-row justify-center gap-6">
+              <button className="px-8 py-4 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white font-medium rounded-lg transition-all duration-300 shadow-lg shadow-purple-500/20 flex items-center justify-center group">
+                <span>Register Now</span>
+                <ArrowRight className="ml-2 w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" />
               </button>
-              <button className="px-8 py-4 bg-white/10 hover:bg-white/15 text-white font-medium rounded-lg border border-white/20 transition-all duration-200">
-                Learn More
+              <button className="px-8 py-4 bg-white/5 hover:bg-white/10 text-white font-medium rounded-lg border border-white/10 transition-all duration-300 flex items-center justify-center group">
+                <span>Learn More</span>
+                <ArrowRight className="ml-2 w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" />
               </button>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Custom CSS for text glow effect */}
-      <style jsx global>{`
-        .glow-text {
-          text-shadow: 0 0 15px rgba(168, 85, 247, 0.7);
-        }
-        
-        /* Hide Spline watermark */
-        a[href*="spline.design"] {
-          display: none !important;
-          opacity: 0 !important;
-          visibility: hidden !important;
-        }
-      `}</style>
+      {/* Custom CSS for global styles - Fixed attributes */}
+      <style>
+        {`
+          .glow-text {
+            text-shadow: 0 0 20px rgba(168, 85, 247, 0.7);
+          }
+          
+          /* Hide Spline watermark */
+          a[href*="spline.design"] {
+            display: none !important;
+            opacity: 0 !important;
+            visibility: hidden !important;
+          }
+          
+          /* Animation keyframes */
+          @keyframes pulse {
+            0% { opacity: 0.4; }
+            50% { opacity: 0.7; }
+            100% { opacity: 0.4; }
+          }
+          
+          .animate-pulse {
+            animation: pulse 4s infinite ease-in-out;
+          }
+          
+          /* Enhanced glow for the globe */
+          .spline-canvas {
+            filter: brightness(1.5) contrast(1.2) !important;
+          }
+        `}
+      </style>
 
       {/* Footer */}
       <Footer/>
