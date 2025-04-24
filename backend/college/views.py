@@ -794,3 +794,55 @@ def delete_project_assessment(request, assessment_id):
         messages.error(request, f'Error deleting project assessment: {str(e)}')
     
     return redirect('project_assessment_list')
+
+@login_required
+def remove_mentor(request, mentor_id):
+    if request.method == 'POST':
+        try:
+            college = request.user.collegeprofile
+            mentor = MentorProfile.objects.get(id=mentor_id, college=college)
+            
+            # Delete the mentor's user account and profile
+            user = mentor.user
+            mentor.delete()
+            user.delete()
+            
+            messages.success(request, f'Successfully removed mentor {mentor.full_name}.')
+        except MentorProfile.DoesNotExist:
+            messages.error(request, 'Mentor not found or you do not have permission to remove them.')
+        except Exception as e:
+            messages.error(request, f'An error occurred while removing the mentor: {str(e)}')
+    
+    return redirect('registered_mentors')
+
+@login_required
+def remove_collaborator(request, collaborator_id):
+    if request.method == 'POST':
+        try:
+            college = request.user.collegeprofile
+            collaborator = CollaboratorProfile.objects.get(id=collaborator_id)
+            
+            # Check if the collaborator has any active projects with this college
+            active_projects = Project.objects.filter(
+                collaborator=collaborator,
+                student__college=college,
+                status__in=['in_progress', 'under_review']
+            ).exists()
+            
+            if active_projects:
+                messages.error(request, 'Cannot remove collaborator as they have active projects with students.')
+                return redirect('college_view_collaborators')
+            
+            # Remove collaborator's access to college projects
+            CollaborationRequest.objects.filter(
+                collaborator=collaborator,
+                project__student__college=college
+            ).delete()
+            
+            messages.success(request, f'Successfully removed collaborator {collaborator.full_name} from your college.')
+        except CollaboratorProfile.DoesNotExist:
+            messages.error(request, 'Collaborator not found.')
+        except Exception as e:
+            messages.error(request, f'An error occurred while removing the collaborator: {str(e)}')
+    
+    return redirect('college_view_collaborators')

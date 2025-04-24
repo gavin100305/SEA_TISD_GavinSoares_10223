@@ -35,7 +35,7 @@ def mentor_login(request):
                 messages.error(request, 'Mentor profile not found.')
                 return redirect('mentor_signup')
         else:
-            messages.error(request, 'Invalid username or password.')
+            messages.error(request, 'Invalid username or password.') 
     return render(request, 'mentor_login.html')
 
 def mentor_signup(request):

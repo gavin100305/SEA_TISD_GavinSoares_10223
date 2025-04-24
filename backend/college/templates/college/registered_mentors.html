@@ -243,6 +243,13 @@
         display: flex;
         align-items: center;
         margin-bottom: 1.5rem;
+        justify-content: space-between;
+    }
+
+    .mentor-info-section {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
     }
 
     .mentor-image {
@@ -360,6 +367,69 @@
     .empty-state p {
         font-size: 1.1rem;
         margin-bottom: 0;
+    }
+
+    .remove-btn {
+        background: rgba(220, 53, 69, 0.15);
+        color: #dc3545;
+        border: 1px solid rgba(220, 53, 69, 0.3);
+        border-radius: 8px;
+        padding: 0.5rem 1rem;
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .remove-btn:hover {
+        background: rgba(220, 53, 69, 0.25);
+        transform: translateY(-2px);
+    }
+
+    .modal-content {
+        background: rgba(10, 10, 10, 0.95);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(30, 30, 30, 0.8);
+        border-radius: 16px;
+        color: #e0e0e0;
+    }
+
+    .modal-header {
+        border-bottom: 1px solid rgba(220, 53, 69, 0.3);
+        padding: 1rem 1.5rem;
+    }
+
+    .modal-body {
+        padding: 1.5rem;
+    }
+
+    .modal-footer {
+        border-top: 1px solid rgba(220, 53, 69, 0.3);
+        padding: 1rem 1.5rem;
+    }
+
+    .btn-danger {
+        background: #dc3545;
+        border: none;
+        padding: 0.5rem 1.5rem;
+        font-weight: 500;
+    }
+
+    .btn-danger:hover {
+        background: #c82333;
+    }
+
+    .btn-secondary {
+        background: #6c757d;
+        border: none;
+        padding: 0.5rem 1.5rem;
+        font-weight: 500;
+    }
+
+    .btn-secondary:hover {
+        background: #5a6268;
     }
 
     /* Animation Keyframes */
@@ -488,16 +558,21 @@
         {% for mentor in mentors %}
         <div class="mentor-card" style="--i: {{ forloop.counter }}">
             <div class="mentor-header">
-                <img src="{% if mentor.profile_picture %}{{ mentor.profile_picture.url }}{% else %}https://ui-avatars.com/api/?name={{ mentor.full_name|default:mentor.user.username }}&background=9d4edd&color=fff{% endif %}" 
-                     alt="{{ mentor.full_name }}" 
-                     class="mentor-image">
-                <div class="mentor-info">
-                    <h3>{{ mentor.full_name }}</h3>
-                    <p>{{ mentor.current_role }}</p>
-                    <span class="status-badge status-{{ mentor.verification_status }}">
-                        {{ mentor.verification_status|title }}
-                    </span>
+                <div class="mentor-info-section">
+                    <img src="{% if mentor.profile_picture %}{{ mentor.profile_picture.url }}{% else %}https://ui-avatars.com/api/?name={{ mentor.full_name|default:mentor.user.username }}&background=9d4edd&color=fff{% endif %}" 
+                         alt="{{ mentor.full_name }}" 
+                         class="mentor-image">
+                    <div class="mentor-info">
+                        <h3>{{ mentor.full_name }}</h3>
+                        <p>{{ mentor.current_role }}</p>
+                        <span class="status-badge status-{{ mentor.verification_status }}">
+                            {{ mentor.verification_status|title }}
+                        </span>
+                    </div>
                 </div>
+                <button type="button" class="remove-btn" data-bs-toggle="modal" data-bs-target="#removeMentorModal{{ mentor.id }}">
+                    <i class="fas fa-user-times"></i> Remove
+                </button>
             </div>
 
             <div class="mentor-details">
@@ -551,6 +626,29 @@
                 </div>
             </div>
         </div>
+
+        <!-- Remove Modal -->
+        <div class="modal fade" id="removeMentorModal{{ mentor.id }}" data-bs-backdrop="static" tabindex="-1" aria-labelledby="removeMentorModalLabel{{ mentor.id }}" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="removeMentorModalLabel{{ mentor.id }}">Remove Mentor</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Are you sure you want to remove {{ mentor.full_name }} from your college's mentors?</p>
+                        <p class="text-danger"><small>This action cannot be undone.</small></p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <form method="POST" action="{% url 'remove_mentor' mentor.id %}" style="display: inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger">Remove Mentor</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
         {% empty %}
         <div class="empty-state">
             <i class="fas fa-user-slash"></i>
@@ -559,4 +657,38 @@
         {% endfor %}
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize Bootstrap modals
+    var modals = document.querySelectorAll('.modal');
+    modals.forEach(function(modal) {
+        new bootstrap.Modal(modal);
+    });
+
+    // Add click handlers for remove buttons
+    var removeButtons = document.querySelectorAll('.remove-btn');
+    removeButtons.forEach(function(button) {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            var modalId = this.getAttribute('data-bs-target');
+            var modal = new bootstrap.Modal(document.querySelector(modalId));
+            modal.show();
+        });
+    });
+
+    // Add submit handlers for remove forms
+    var removeForms = document.querySelectorAll('.modal form');
+    removeForms.forEach(function(form) {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            var submitButton = form.querySelector('button[type="submit"]');
+            submitButton.disabled = true;
+            form.submit();
+        });
+    });
+});
+</script>
 {% endblock %}
