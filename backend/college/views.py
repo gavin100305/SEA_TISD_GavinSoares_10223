@@ -802,6 +802,9 @@ def delete_project_assessment(request, assessment_id):
 
 @login_required
 def remove_mentor(request, mentor_id):
+    print("yaha request aa raha hai")
+    print(mentor_id)
+    print(request.method)
     if request.method == 'POST':
         try:
             college = request.user.collegeprofile

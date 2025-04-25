@@ -79,6 +79,59 @@
         animation: lineGrow 0.6s ease-out 0.8s forwards;
     }
 
+    /* Navigation Tabs */
+    .nav-tabs {
+        display: flex;
+        background: var(--dark-bg);
+        backdrop-filter: blur(10px);
+        border: 1px solid var(--card-border);
+        border-radius: 16px;
+        padding: 0.5rem;
+        margin-bottom: 2rem;
+        overflow: hidden;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+    }
+
+    .nav-tab {
+        padding: 1rem 1.5rem;
+        color: var(--text-secondary);
+        text-decoration: none;
+        border-radius: 12px;
+        transition: all 0.3s ease;
+        font-weight: 600;
+        text-align: center;
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+    }
+
+    .nav-tab i {
+        margin-right: 8px;
+    }
+
+    .nav-tab:hover {
+        color: var(--primary);
+        background: rgba(157, 78, 221, 0.05);
+    }
+
+    .nav-tab.active {
+        color: var(--primary);
+        background: rgba(157, 78, 221, 0.1);
+        border: 1px solid var(--primary-border);
+    }
+
+    /* Content Pages */
+    .content-page {
+        display: none;
+    }
+
+    .content-page.active {
+        display: block;
+        animation: fadeIn 0.5s ease-out forwards;
+    }
+
     /* Card Styles */
     .card {
         background: var(--dark-bg);
@@ -92,6 +145,7 @@
         overflow: hidden;
         transition: all 0.3s ease;
         opacity: 0;
+        animation: fadeInUp 0.6s ease-out forwards;
     }
 
     .card::before {
@@ -133,10 +187,6 @@
     }
 
     /* Project Card */
-    .project-card {
-        animation: fadeInUp 0.6s ease-out 0.4s forwards;
-    }
-
     .project-info {
         display: flex;
         flex-direction: column;
@@ -187,10 +237,6 @@
     }
 
     /* GitHub Stats Card */
-    .github-stats-card {
-        animation: fadeInUp 0.6s ease-out 0.6s forwards;
-    }
-
     .stats-grid {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
@@ -362,16 +408,7 @@
         margin-top: 1rem;
     }
 
-    /* Meeting Card */
-    .meeting-card {
-        animation: fadeInUp 0.6s ease-out 0.8s forwards;
-    }
-
-    /* Review Form Card */
-    .review-form-card {
-        animation: fadeInUp 0.6s ease-out 1s forwards;
-    }
-
+    /* Form Styles */
     .form-group {
         margin-bottom: 1.5rem;
     }
@@ -553,11 +590,24 @@
         .contributors-list {
             grid-template-columns: 1fr;
         }
+        
+        .nav-tabs {
+            flex-wrap: wrap;
+        }
+        
+        .nav-tab {
+            flex: 0 0 calc(50% - 0.5rem);
+            margin-bottom: 0.5rem;
+        }
     }
     
     @media (max-width: 576px) {
         .stats-grid {
             grid-template-columns: 1fr;
+        }
+        
+        .nav-tab {
+            flex: 0 0 100%;
         }
     }
 </style>
@@ -587,238 +637,294 @@
     </div>
     {% endif %}
 
-    <!-- Main Content -->
-    <div class="row">
-        <!-- Left Column -->
-        <div class="col-lg-7">
-            <!-- Project Details Card -->
-            <div class="card project-card">
-                <div class="card-header">
-                    <div class="project-info">
-                        <h3 class="card-title">
-                            <i class="fas fa-project-diagram"></i> {{ project.title }}
-                        </h3>
-                        {% if project.student %}
-                            <span class="text-secondary">By: {{ project.student.full_name }}</span>
-                        {% elif project.group %}
-                            <span class="text-secondary">By: {{ project.group.name }} (Group)</span>
-                            <span class="text-secondary">Leader: {{ project.group.leader.full_name }}</span>
-                        {% endif %}
-                    </div>
-                </div>
+    <!-- Navigation Tabs -->
+    <div class="nav-tabs">
+        <div class="nav-tab active" data-page="overview">
+            <i class="fas fa-info-circle"></i> Overview
+        </div>
+        <div class="nav-tab" data-page="github-stats">
+            <i class="fab fa-github"></i> GitHub Stats
+        </div>
+        <div class="nav-tab" data-page="meetings">
+            <i class="fas fa-calendar-alt"></i> Meetings
+        </div>
+        <div class="nav-tab" data-page="review">
+            <i class="fas fa-clipboard-check"></i> Review
+        </div>
+    </div>
 
-                <div class="project-description">
-                    {{ project.description }}
-                </div>
-                
-                <div class="project-meta">
-                    <div class="meta-item">
-                        <i class="fas fa-globe"></i>
-                        <strong>SDGs:</strong> {{ project.sdgs }}
-                    </div>
-                    <div class="meta-item">
-                        <i class="fas fa-code"></i>
-                        <strong>Tech Stack:</strong> {{ project.tech_stack }}
-                    </div>
-                    {% if project.github_link %}
-                    <div class="meta-item">
-                        <i class="fab fa-github"></i>
-                        <strong>GitHub:</strong> 
-                        <a href="{{ project.github_link }}" target="_blank">View Repository</a>
-                    </div>
-                    {% endif %}
-                    {% if project.project_file %}
-                    <div class="meta-item">
-                        <i class="fas fa-file-alt"></i>
-                        <strong>Project File:</strong> 
-                        <a href="{{ project.project_file.url }}">Download</a>
-                    </div>
+    <!-- Overview Page -->
+    <div class="content-page active" id="overview">
+        <div class="card project-card">
+            <div class="card-header">
+                <div class="project-info">
+                    <h3 class="card-title">
+                        <i class="fas fa-project-diagram"></i> {{ project.title }}
+                    </h3>
+                    {% if project.student %}
+                        <span class="text-secondary">By: {{ project.student.full_name }}</span>
+                    {% elif project.group %}
+                        <span class="text-secondary">By: {{ project.group.name }} (Group)</span>
+                        <span class="text-secondary">Leader: {{ project.group.leader.full_name }}</span>
                     {% endif %}
                 </div>
             </div>
 
-            <!-- GitHub Stats Card -->
-            {% if project.github_link %}
-            <div class="card github-stats-card">
-                <div class="card-header">
-                    <h3 class="card-title">
-                        <i class="fab fa-github"></i> GitHub Stats
-                    </h3>
+            <div class="project-description">
+                {{ project.description }}
+            </div>
+            
+            <div class="project-meta">
+                <div class="meta-item">
+                    <i class="fas fa-globe"></i>
+                    <strong>SDGs:</strong> {{ project.sdgs }}
                 </div>
-                
-                {% if github_stats %}
-                <div class="stats-grid">
-                    <div class="stat-item">
-                        <div class="stat-value">{{ github_stats.stars }}</div>
-                        <div class="stat-label"><i class="fas fa-star"></i> Stars</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-value">{{ github_stats.forks }}</div>
-                        <div class="stat-label"><i class="fas fa-code-branch"></i> Forks</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-value">{{ github_stats.watchers }}</div>
-                        <div class="stat-label"><i class="fas fa-eye"></i> Watchers</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-value">{{ github_stats.contributors|length }}</div>
-                        <div class="stat-label"><i class="fas fa-users"></i> Contributors</div>
-                    </div>
+                <div class="meta-item">
+                    <i class="fas fa-code"></i>
+                    <strong>Tech Stack:</strong> {{ project.tech_stack }}
                 </div>
-                
-                <div class="charts-container">
-                    <!-- Languages Chart -->
-                    <div class="chart-card">
-                        <h4 class="chart-title">
-                            <i class="fas fa-code"></i> Languages Used
-                        </h4>
-                        <div class="chart-wrapper">
-                            <canvas id="languagesChart"></canvas>
-                        </div>
-                        <div class="languages-list">
-                            {% for language, percentage in github_stats.languages.items %}
-                            <div class="language-item">
-                                <span class="language-color" id="color-{{ language|slugify }}"></span>
-                                {{ language }}: {{ percentage }}%
-                            </div>
-                            {% endfor %}
-                        </div>
-                    </div>
-                    
-                    <!-- Contributors Chart -->
-                    <div class="chart-card">
-                        <h4 class="chart-title">
-                            <i class="fas fa-chart-pie"></i> Contribution Distribution
-                        </h4>
-                        <div class="chart-wrapper">
-                            <canvas id="contributorsChart"></canvas>
-                        </div>
-                    </div>
+                {% if project.github_link %}
+                <div class="meta-item">
+                    <i class="fab fa-github"></i>
+                    <strong>GitHub:</strong> 
+                    <a href="{{ project.github_link }}" target="_blank">View Repository</a>
                 </div>
-                
-                <!-- Contributors Section -->
-                <div class="contributors-section">
+                {% endif %}
+                {% if project.project_file %}
+                <div class="meta-item">
+                    <i class="fas fa-file-alt"></i>
+                    <strong>Project File:</strong> 
+                    <a href="{{ project.project_file.url }}">Download</a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- GitHub Stats Page -->
+    <div class="content-page" id="github-stats">
+        {% if project.github_link %}
+        <div class="card github-stats-card">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i class="fab fa-github"></i> GitHub Stats
+                </h3>
+            </div>
+            
+            {% if github_stats %}
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-value">{{ github_stats.stars }}</div>
+                    <div class="stat-label"><i class="fas fa-star"></i> Stars</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">{{ github_stats.forks }}</div>
+                    <div class="stat-label"><i class="fas fa-code-branch"></i> Forks</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">{{ github_stats.watchers }}</div>
+                    <div class="stat-label"><i class="fas fa-eye"></i> Watchers</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">{{ github_stats.contributors|length }}</div>
+                    <div class="stat-label"><i class="fas fa-users"></i> Contributors</div>
+                </div>
+            </div>
+            
+            <div class="charts-container">
+                <!-- Languages Chart -->
+                <div class="chart-card">
                     <h4 class="chart-title">
-                        <i class="fas fa-users"></i> Contributors ({{ github_stats.contributors|length }})
+                        <i class="fas fa-code"></i> Languages Used
                     </h4>
-                    <div class="contributors-list">
-                        {% for contributor, commits in github_stats.contributors.items %}
-                        <div class="contributor-item">
-                            <div class="contributor-info">
-                                <div class="contributor-avatar">{{ contributor|slice:":1" }}</div>
-                                <span class="contributor-name">{{ contributor }}</span>
-                            </div>
-                            <span class="contributor-commits">{{ commits }} commits</span>
+                    <div class="chart-wrapper">
+                        <canvas id="languagesChart"></canvas>
+                    </div>
+                    <div class="languages-list">
+                        {% for language, percentage in github_stats.languages.items %}
+                        <div class="language-item">
+                            <span class="language-color" id="color-{{ language|slugify }}"></span>
+                            {{ language }}: {{ percentage }}%
                         </div>
                         {% endfor %}
                     </div>
                 </div>
                 
-                <p class="refresh-stats">
-                    Last updated: {{ github_stats.last_updated|date:"F j, Y H:i" }}
-                </p>
-                {% else %}
-                <div class="text-center py-4">
-                    <i class="fas fa-exclamation-circle" style="font-size: 3rem; color: var(--primary); margin-bottom: 1rem;"></i>
-                    <p>GitHub stats are not available for this project.</p>
+                <!-- Contributors Chart -->
+                <div class="chart-card">
+                    <h4 class="chart-title">
+                        <i class="fas fa-chart-pie"></i> Contribution Distribution
+                    </h4>
+                    <div class="chart-wrapper">
+                        <canvas id="contributorsChart"></canvas>
+                    </div>
                 </div>
-                {% endif %}
+            </div>
+            
+            <!-- Contributors Section -->
+            <div class="contributors-section">
+                <h4 class="chart-title">
+                    <i class="fas fa-users"></i> Contributors ({{ github_stats.contributors|length }})
+                </h4>
+                <div class="contributors-list">
+                    {% for contributor, commits in github_stats.contributors.items %}
+                    <div class="contributor-item">
+                        <div class="contributor-info">
+                            <div class="contributor-avatar">{{ contributor|slice:":1" }}</div>
+                            <span class="contributor-name">{{ contributor }}</span>
+                        </div>
+                        <span class="contributor-commits">{{ commits }} commits</span>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <p class="refresh-stats">
+                Last updated: {{ github_stats.last_updated|date:"F j, Y H:i" }}
+            </p>
+            {% else %}
+            <div class="text-center py-4">
+                <i class="fas fa-exclamation-circle" style="font-size: 3rem; color: var(--primary); margin-bottom: 1rem;"></i>
+                <p>GitHub stats are not available for this project.</p>
             </div>
             {% endif %}
         </div>
-
-        <!-- Right Column -->
-        <div class="col-lg-5">
-            <!-- Review Form Card -->
-            <div class="card review-form-card">
-                <div class="card-header">
-                    <h3 class="card-title">
-                        <i class="fas fa-clipboard-check"></i> Your Review
-                    </h3>
-                </div>
-                
-                <form method="POST">
-                    {% csrf_token %}
-                    <div class="form-group">
-                        <label for="status" class="form-label">Project Status</label>
-                        <select name="status" id="status" class="form-select" required>
-                            <option value="in_progress" {% if project.status == 'in_progress' %}selected{% endif %}>In Progress</option>
-                            <option value="completed" {% if project.status == 'completed' %}selected{% endif %}>Completed</option>
-                            <option value="under_review" {% if project.status == 'under_review' %}selected{% endif %}>Under Review</option>
-                        </select>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="feedback" class="form-label">Feedback</label>
-                        <textarea name="feedback" id="feedback" class="form-control" rows="8" 
-                                  placeholder="Provide your feedback on the project...">{{ project.mentor_feedback }}</textarea>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="grade" class="form-label">Grade (Optional)</label>
-                        <input type="number" name="grade" id="grade" class="form-control" min="0" max="100" 
-                               value="{{ project.mentor_grade }}" placeholder="Enter grade (0-100)">
-                        <small class="form-text">Leave empty if you don't want to grade yet</small>
-                    </div>
-
-                    <div class="text-end">
-                        <button type="submit" class="btn-custom btn-primary">
-                            <i class="fas fa-save"></i> 
-                            {% if project.mentor_feedback %}Update Review{% else %}Submit Review{% endif %}
-                        </button>
-                    </div>
-                </form>
+        {% else %}
+        <div class="card">
+            <div class="text-center py-4">
+                <i class="fas fa-exclamation-circle" style="font-size: 3rem; color: var(--primary); margin-bottom: 1rem;"></i>
+                <p>No GitHub repository linked to this project.</p>
             </div>
+        </div>
+        {% endif %}
+    </div>
 
-            <!-- Meeting Scheduling Card -->
-            <div class="card meeting-card">
-                <div class="card-header">
-                    <h3 class="card-title">
-                        <i class="fas fa-calendar-alt"></i> Schedule a Meeting
-                    </h3>
+    <!-- Meetings Page -->
+    <div class="content-page" id="meetings">
+        <div class="card meeting-card">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i class="fas fa-calendar-alt"></i> Schedule a Meeting
+                </h3>
+            </div>
+            
+            {% if project.student %}
+                <form method="POST" action="{% url 'schedule_meeting' project.student.id %}">
+            {% elif project.group %}
+                <form method="POST" action="{% url 'schedule_meeting' project.group.leader.id %}">
+            {% endif %}
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="title" class="form-label">Meeting Title</label>
+                    <input type="text" class="form-control" id="title" name="title" required 
+                           value="Project Review: {{ project.title }}">
                 </div>
-                
-                {% if project.student %}
-                    <form method="POST" action="{% url 'schedule_meeting' project.student.id %}">
-                {% elif project.group %}
-                    <form method="POST" action="{% url 'schedule_meeting' project.group.leader.id %}">
-                {% endif %}
-                    {% csrf_token %}
-                    <div class="form-group">
-                        <label for="title" class="form-label">Meeting Title</label>
-                        <input type="text" class="form-control" id="title" name="title" required 
-                               value="Project Review: {{ project.title }}">
-                    </div>
-                    <div class="form-group">
-                        <label for="description" class="form-label">Meeting Description</label>
-                        <textarea class="form-control" id="description" name="description" rows="3" 
-                                  placeholder="Discuss project progress, feedback, and next steps..."></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label for="meeting_link" class="form-label">Meeting Link</label>
-                        <input type="url" class="form-control" id="meeting_link" name="meeting_link" required>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-8">
-                            <div class="form-group">
-                                <label for="meeting_time" class="form-label">Meeting Time</label>
-                                <input type="datetime-local" class="form-control" id="meeting_time" name="meeting_time" required>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="form-group">
-                                <label for="duration" class="form-label">Duration (minutes)</label>
-                                <input type="number" class="form-control" id="duration" name="duration" required value="30">
-                            </div>
+                <div class="form-group">
+                    <label for="description" class="form-label">Meeting Description</label>
+                    <textarea class="form-control" id="description" name="description" rows="3" 
+                              placeholder="Discuss project progress, feedback, and next steps..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="meeting_link" class="form-label">Meeting Link</label>
+                    <input type="url" class="form-control" id="meeting_link" name="meeting_link" required>
+                </div>
+                <div class="row">
+                    <div class="col-md-8">
+                        <div class="form-group">
+                            <label for="meeting_time" class="form-label">Meeting Time</label>
+                            <input type="datetime-local" class="form-control" id="meeting_time" name="meeting_time" required>
                         </div>
                     </div>
-                    <div class="text-end">
-                        <button type="submit" class="btn-custom">
-                            <i class="fas fa-calendar-plus"></i> Schedule Meeting
-                        </button>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label for="duration" class="form-label">Duration (minutes)</label>
+                            <input type="number" class="form-control" id="duration" name="duration" required value="30">
+                        </div>
                     </div>
-                </form>
+                </div>
+                <div class="text-end">
+                    <button type="submit" class="btn-custom">
+                        <i class="fas fa-calendar-plus"></i> Schedule Meeting
+                    </button>
+                </div>
+            </form>
+        </div>
+        
+        <!-- Upcoming Meetings Section (Placeholder - you can add actual meetings here) -->
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i class="fas fa-calendar-check"></i> Upcoming Meetings
+                </h3>
             </div>
+            
+            <div id="upcoming-meetings">
+                <!-- This would be populated with actual meetings data -->
+                <div class="text-center py-4">
+                    <i class="fas fa-calendar" style="font-size: 3rem; color: var(--primary); margin-bottom: 1rem;"></i>
+                    <p>No upcoming meetings scheduled.</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Past Meetings Section (Placeholder) -->
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i class="fas fa-history"></i> Past Meetings
+                </h3>
+            </div>
+            
+            <div id="past-meetings">
+                <!-- This would be populated with actual meetings data -->
+                <div class="text-center py-4">
+                    <i class="fas fa-history" style="font-size: 3rem; color: var(--primary); margin-bottom: 1rem;"></i>
+                    <p>No past meetings found.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Review Page -->
+    <div class="content-page" id="review">
+        <div class="card review-form-card">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i class="fas fa-clipboard-check"></i> Your Review
+                </h3>
+            </div>
+            
+            <form method="POST">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="status" class="form-label">Project Status</label>
+                    <select name="status" id="status" class="form-select" required>
+                        <option value="in_progress" {% if project.status == 'in_progress' %}selected{% endif %}>In Progress</option>  {% if project.status == 'in_progress' %}selected{% endif %}>In Progress</option>
+                        <option value="completed" {% if project.status == 'completed' %}selected{% endif %}>Completed</option>
+                        <option value="under_review" {% if project.status == 'under_review' %}selected{% endif %}>Under Review</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="feedback" class="form-label">Feedback</label>
+                    <textarea name="feedback" id="feedback" class="form-control" rows="8" 
+                              placeholder="Provide your feedback on the project...">{{ project.mentor_feedback }}</textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="grade" class="form-label">Grade (Optional)</label>
+                    <input type="number" name="grade" id="grade" class="form-control" min="0" max="100" 
+                           value="{{ project.mentor_grade }}" placeholder="Enter grade (0-100)">
+                    <small class="form-text">Leave empty if you don't want to grade yet</small>
+                </div>
+
+                <div class="text-end">
+                    <button type="submit" class="btn-custom btn-primary">
+                        <i class="fas fa-save"></i> 
+                        {% if project.mentor_feedback %}Update Review{% else %}Submit Review{% endif %}
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
@@ -827,147 +933,166 @@
 {{ github_stats.languages|json_script:"languages-data" }}
 {{ github_stats.contributors|json_script:"contributors-data" }}
 <script>
-document.addEventListener('DOMContentLoaded', function () {
-    // Parse data from Django template
-    const languagesDataRaw = JSON.parse(document.getElementById('languages-data').textContent);
-    const contributorsDataRaw = JSON.parse(document.getElementById('contributors-data').textContent);
+    document.addEventListener('DOMContentLoaded', function () {
+        // Tab Navigation
+        const navTabs = document.querySelectorAll('.nav-tab');
+        const contentPages = document.querySelectorAll('.content-page');
+        
+        navTabs.forEach(tab => {
+            tab.addEventListener('click', function() {
+                // Remove active class from all tabs and pages
+                navTabs.forEach(t => t.classList.remove('active'));
+                contentPages.forEach(p => p.classList.remove('active'));
+                
+                // Add active class to clicked tab
+                this.classList.add('active');
+                
+                // Show corresponding content page
+                const pageId = this.getAttribute('data-page');
+                document.getElementById(pageId).classList.add('active');
+            });
+        });
 
-    // Get chart contexts
-    const languagesCtx = document.getElementById('languagesChart').getContext('2d');
-    const contributorsCtx = document.getElementById('contributorsChart').getContext('2d');
+        // Parse data from Django template
+        const languagesDataRaw = JSON.parse(document.getElementById('languages-data').textContent);
+        const contributorsDataRaw = JSON.parse(document.getElementById('contributors-data').textContent);
 
-    // Generate vibrant colors for language chart
-    const languageColors = [
-        '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF',
-        '#FF9F40', '#8AC24A', '#EA5F89', '#00B4D8', '#FF6B6B',
-        '#48BFE3', '#56CFE1', '#72EFDD', '#80FFDB', '#7400B8',
-        '#6930C3', '#5E60CE', '#5390D9', '#4EA8DE', '#64DFDF'
-    ];
+        // Get chart contexts
+        const languagesCtx = document.getElementById('languagesChart').getContext('2d');
+        const contributorsCtx = document.getElementById('contributorsChart').getContext('2d');
 
-    // Set language color indicators in the language list
-    const languages = Object.keys(languagesDataRaw);
-    languages.forEach((language, index) => {
-        const colorElement = document.getElementById(`color-${language.toLowerCase().replace(/\s+/g, '-')}`);
-        if (colorElement) {
-            colorElement.style.backgroundColor = languageColors[index % languageColors.length];
-        }
-    });
+        // Generate vibrant colors for language chart
+        const languageColors = [
+            '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF',
+            '#FF9F40', '#8AC24A', '#EA5F89', '#00B4D8', '#FF6B6B',
+            '#48BFE3', '#56CFE1', '#72EFDD', '#80FFDB', '#7400B8',
+            '#6930C3', '#5E60CE', '#5390D9', '#4EA8DE', '#64DFDF'
+        ];
 
-    // Languages Chart
-    new Chart(languagesCtx, {
-        type: 'doughnut',
-        data: {
-            labels: Object.keys(languagesDataRaw),
-            datasets: [{
-                data: Object.values(languagesDataRaw),
-                backgroundColor: languageColors.slice(0, Object.keys(languagesDataRaw).length),
-                borderColor: 'rgba(30, 30, 30, 0.8)',
-                borderWidth: 2
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    position: 'right',
-                    labels: {
-                        color: '#e0e0e0',
-                        font: {
-                            size: 12
-                        },
-                        padding: 15
-                    }
-                },
-                tooltip: {
-                    callbacks: {
-                        label: function (context) {
-                            return `${context.label}: ${context.raw}%`;
+        // Set language color indicators in the language list
+        const languages = Object.keys(languagesDataRaw);
+        languages.forEach((language, index) => {
+            const colorElement = document.getElementById(`color-${language.toLowerCase().replace(/\s+/g, '-')}`);
+            if (colorElement) {
+                colorElement.style.backgroundColor = languageColors[index % languageColors.length];
+            }
+        });
+
+        // Languages Chart
+        new Chart(languagesCtx, {
+            type: 'doughnut',
+            data: {
+                labels: Object.keys(languagesDataRaw),
+                datasets: [{
+                    data: Object.values(languagesDataRaw),
+                    backgroundColor: languageColors.slice(0, Object.keys(languagesDataRaw).length),
+                    borderColor: 'rgba(30, 30, 30, 0.8)',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'right',
+                        labels: {
+                            color: '#e0e0e0',
+                            font: {
+                                size: 12
+                            },
+                            padding: 15
                         }
                     },
-                    bodyFont: {
-                        size: 14
-                    },
-                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                    titleColor: '#9d4edd',
-                    bodyColor: '#e0e0e0',
-                    borderColor: '#9d4edd',
-                    borderWidth: 1
-                }
-            },
-            cutout: '65%',
-            animation: {
-                animateScale: true,
-                animateRotate: true,
-                duration: 2000,
-                easing: 'easeOutQuart'
-            }
-        }
-    });
-
-    // Contributors Chart (Pie Chart)
-    const contributorNames = Object.keys(contributorsDataRaw);
-    const contributorCommits = Object.values(contributorsDataRaw);
-    
-    // Generate gradient colors for contributors
-    const contributorColors = [];
-    contributorNames.forEach((_, index) => {
-        const hue = (index * (360 / contributorNames.length)) % 360;
-        contributorColors.push(`hsl(${hue}, 70%, 60%)`);
-    });
-
-    new Chart(contributorsCtx, {
-        type: 'pie',
-        data: {
-            labels: contributorNames,
-            datasets: [{
-                data: contributorCommits,
-                backgroundColor: contributorColors,
-                borderColor: 'rgba(30, 30, 30, 0.8)',
-                borderWidth: 2
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    position: 'right',
-                    labels: {
-                        color: '#e0e0e0',
-                        font: {
-                            size: 12
+                    tooltip: {
+                        callbacks: {
+                            label: function (context) {
+                                return `${context.label}: ${context.raw}%`;
+                            }
                         },
-                        padding: 15
+                        bodyFont: {
+                            size: 14
+                        },
+                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                        titleColor: '#9d4edd',
+                        bodyColor: '#e0e0e0',
+                        borderColor: '#9d4edd',
+                        borderWidth: 1
                     }
                 },
-                tooltip: {
-                    callbacks: {
-                        label: function (context) {
-                            const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                            const percentage = Math.round((context.raw / total) * 100);
-                            return `${context.label}: ${context.raw} commits (${percentage}%)`;
+                cutout: '65%',
+                animation: {
+                    animateScale: true,
+                    animateRotate: true,
+                    duration: 2000,
+                    easing: 'easeOutQuart'
+                }
+            }
+        });
+
+        // Contributors Chart (Pie Chart)
+        const contributorNames = Object.keys(contributorsDataRaw);
+        const contributorCommits = Object.values(contributorsDataRaw);
+        
+        // Generate gradient colors for contributors
+        const contributorColors = [];
+        contributorNames.forEach((_, index) => {
+            const hue = (index * (360 / contributorNames.length)) % 360;
+            contributorColors.push(`hsl(${hue}, 70%, 60%)`);
+        });
+
+        new Chart(contributorsCtx, {
+            type: 'pie',
+            data: {
+                labels: contributorNames,
+                datasets: [{
+                    data: contributorCommits,
+                    backgroundColor: contributorColors,
+                    borderColor: 'rgba(30, 30, 30, 0.8)',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'right',
+                        labels: {
+                            color: '#e0e0e0',
+                            font: {
+                                size: 12
+                            },
+                            padding: 15
                         }
                     },
-                    bodyFont: {
-                        size: 14
-                    },
-                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                    titleColor: '#9d4edd',
-                    bodyColor: '#e0e0e0',
-                    borderColor: '#9d4edd',
-                    borderWidth: 1
+                    tooltip: {
+                        callbacks: {
+                            label: function (context) {
+                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                const percentage = Math.round((context.raw / total) * 100);
+                                return `${context.label}: ${context.raw} commits (${percentage}%)`;
+                            }
+                        },
+                        bodyFont: {
+                            size: 14
+                        },
+                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                        titleColor: '#9d4edd',
+                        bodyColor: '#e0e0e0',
+                        borderColor: '#9d4edd',
+                        borderWidth: 1
+                    }
+                },
+                animation: {
+                    animateScale: true,
+                    animateRotate: true,
+                    duration: 2000,
+                    easing: 'easeOutQuart'
                 }
-            },
-            animation: {
-                animateScale: true,
-                animateRotate: true,
-                duration: 2000,
-                easing: 'easeOutQuart'
             }
-        }
+        });
     });
-});
 </script>
 {% endif %}
 {% endblock %}

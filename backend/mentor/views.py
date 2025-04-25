@@ -11,6 +11,7 @@ from django.utils import timezone
 from .models import GitHubStats
 from datetime import timedelta
 from .utils.github_utils import fetch_github_stats
+from django.db.models import Q
 
 
 def mentor_login(request):
@@ -272,16 +273,64 @@ def connected_students(request):
         connections = MentorConnection.objects.filter(
             mentor=mentor,
             status='accepted'
-        ).order_by('-updated_at')
+        )
+        
+        # Initialize filter parameters
+        name_filter = request.GET.get('name', '')
+        email_filter = request.GET.get('email', '')
+        branch_filter = request.GET.get('branch', '')
+        semester_filter = request.GET.get('semester', '')
+        section_filter = request.GET.get('section', '')
+        
+        # Apply filters if provided
+        if name_filter:
+            connections = connections.filter(student__full_name__icontains=name_filter)
+        
+        if email_filter:
+            connections = connections.filter(student__user__email__icontains=email_filter)
+            
+        if branch_filter:
+            connections = connections.filter(student__branch__icontains=branch_filter)
+            
+        if semester_filter:
+            connections = connections.filter(student__semester__icontains=semester_filter)
+            
+        if section_filter:
+            connections = connections.filter(student__section__icontains=section_filter)
+        
+        # Order the results
+        connections = connections.order_by('-updated_at')
+        
+        # Get unique values for dropdowns
+        all_branches = MentorConnection.objects.filter(
+            mentor=mentor, status='accepted'
+        ).values_list('student__branch', flat=True).distinct()
+        
+        all_semesters = MentorConnection.objects.filter(
+            mentor=mentor, status='accepted'
+        ).values_list('student__semester', flat=True).distinct()
+        
+        all_sections = MentorConnection.objects.filter(
+            mentor=mentor, status='accepted'
+        ).values_list('student__section', flat=True).distinct()
         
         context = {
-            'connections': connections
+            'connections': connections,
+            'name_filter': name_filter,
+            'email_filter': email_filter,
+            'branch_filter': branch_filter,
+            'semester_filter': semester_filter,
+            'section_filter': section_filter,
+            'all_branches': all_branches,
+            'all_semesters': all_semesters,
+            'all_sections': all_sections,
         }
         return render(request, 'mentor/connected_students.html', context)
         
     except Exception as e:
         messages.error(request, f'An error occurred: {str(e)}')
         return redirect('mentor_dashboard')
+
 
 @login_required
 def mentor_projects(request):

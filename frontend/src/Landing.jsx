@@ -6,6 +6,7 @@ import { motion, useScroll, useTransform, useSpring } from "framer-motion"
 import Footer from "./component/Footer"
 import Spline from '@splinetool/react-spline'
 import Navbar from "./component/Navbar"
+import GeminiChatbot from "./component/GeminiChatBot"
 
 // SDG Product data for parallax
 const sdgProducts = [
@@ -256,6 +257,9 @@ function LandingPage() {
           </svg>
         </div>
       </div>
+
+      {/* Add the GeminiChatbot component (no props needed) */}
+      <GeminiChatbot />
 
       {/* Hero Section with left-aligned text and right-positioned globe */}
       <div className="relative z-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-40 md:pt-52 min-h-screen">

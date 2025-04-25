@@ -570,7 +570,7 @@
                         </span>
                     </div>
                 </div>
-                <button type="button" class="remove-btn" data-bs-toggle="modal" data-bs-target="#removeMentorModal{{ mentor.id }}">
+                <button type="button" class="remove-btn" data-id="{{ mentor.id }}">
                     <i class="fas fa-user-times"></i> Remove
                 </button>
             </div>
@@ -626,29 +626,6 @@
                 </div>
             </div>
         </div>
-
-        <!-- Remove Modal -->
-        <div class="modal fade" id="removeMentorModal{{ mentor.id }}" data-bs-backdrop="static" tabindex="-1" aria-labelledby="removeMentorModalLabel{{ mentor.id }}" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="removeMentorModalLabel{{ mentor.id }}">Remove Mentor</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        <p>Are you sure you want to remove {{ mentor.full_name }} from your college's mentors?</p>
-                        <p class="text-danger"><small>This action cannot be undone.</small></p>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                        <form method="POST" action="{% url 'remove_mentor' mentor.id %}" style="display: inline;">
-                            {% csrf_token %}
-                            <button type="submit" class="btn btn-danger">Remove Mentor</button>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
         {% empty %}
         <div class="empty-state">
             <i class="fas fa-user-slash"></i>
@@ -662,31 +639,35 @@
 {% block extra_js %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Initialize Bootstrap modals
-    var modals = document.querySelectorAll('.modal');
-    modals.forEach(function(modal) {
-        new bootstrap.Modal(modal);
-    });
-
     // Add click handlers for remove buttons
     var removeButtons = document.querySelectorAll('.remove-btn');
     removeButtons.forEach(function(button) {
         button.addEventListener('click', function(e) {
             e.preventDefault();
-            var modalId = this.getAttribute('data-bs-target');
-            var modal = new bootstrap.Modal(document.querySelector(modalId));
-            modal.show();
-        });
-    });
-
-    // Add submit handlers for remove forms
-    var removeForms = document.querySelectorAll('.modal form');
-    removeForms.forEach(function(form) {
-        form.addEventListener('submit', function(e) {
-            e.preventDefault();
-            var submitButton = form.querySelector('button[type="submit"]');
-            submitButton.disabled = true;
-            form.submit();
+            
+            // Get mentor ID and action URL
+            var mentorId = this.getAttribute('data-id');
+            var actionUrl = `{% url 'remove_mentor' 0 %}`.replace('0', mentorId);
+            
+            // Use fetch API to delete the mentor
+            fetch(actionUrl, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => {
+                if (response.redirected) {
+                    window.location.href = response.url;
+                } else {
+                    window.location.reload();
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                window.location.reload();
+            });
         });
     });
 });

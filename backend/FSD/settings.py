@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'django_filters',
     'rest_framework',
     'corsheaders',
+
     
 ]
 
@@ -118,8 +119,8 @@ EMAIL_HOST = 'smtp.gmail.com'  # or your SMTP server
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'crce.secea.10223@gmail.com'  # replace with your email
-EMAIL_HOST_PASSWORD = 'gtstbbwobsvzcqsf'  # replace with your email password or app password
-DEFAULT_FROM_EMAIL = 'Mentorship Platform crce.secea.10223@gmail.com'
+EMAIL_HOST_PASSWORD = 'jjemypvijseqiyyp'  # replace with your email password or app password
+DEFAULT_FROM_EMAIL = 'crce.secea.10223@gmail.com'
 
 
 GITHUB_API_TOKEN = '' 
