@@ -7,7 +7,7 @@ urlpatterns = [
     path('login/', views.student_login, name='student_login'),
     path('signup/', views.student_signup, name='student_signup'),
     path('profile/', views.student_profile, name='student_profile'),
-    path('dashboard/', views.student_dashboard, name='student_dashboard'),
+    path('dashboard/', views.student_dashboard, name='dashboard'),
     path('logout/', LogoutView.as_view(next_page='landing_page'), name='logout'),
     path('logout/', views.student_logout, name='student_logout'),
     path('mentors/', views.list_mentors, name='list_mentors'),
@@ -58,7 +58,5 @@ urlpatterns = [
     path('comment/<int:comment_id>/delete/', views.delete_project_comment, name='delete_project_comment'),
     path('assessments/', views.view_assessments, name='student_view_assessments'),
     path('assessments/<int:assessment_id>/', views.assessment_detail, name='student_assessment_detail'),
-
-    path('projects/<int:project_id>/', views.project_detail, name='project_detail'),
 
 ]

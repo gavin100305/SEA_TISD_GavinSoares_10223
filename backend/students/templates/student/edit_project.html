@@ -1,143 +1,298 @@
-{% extends '../base.html' %}
-{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Project | TISD</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
 
-{% block title %}Edit Project{% endblock %}
+        body {
+            background-color: #121212;
+            color: #e0e0e0;
+            min-height: 100vh;
+            padding: 20px;
+        }
 
-{% block extra_css %}
-<style>
-    .form-container {
-        padding: 2rem;
-        max-width: 800px;
-        margin: 0 auto;
-    }
+        .profile-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem 0;
+            position: relative;
+            z-index: 2;
+        }
 
-    .form-card {
-        background: rgba(157, 78, 221, 0.1);
-        border: 1px solid #9d4edd;
-        border-radius: 10px;
-        padding: 2rem;
-    }
+        .profile-header {
+            background: rgba(10, 10, 10, 0.8);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(157, 78, 221, 0.3);
+            border-radius: 16px;
+            padding: 2.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 8px 32px rgba(157, 78, 221, 0.15);
+            position: relative;
+            overflow: hidden;
+        }
 
-    .form-group {
-        margin-bottom: 1.5rem;
-    }
+        .profile-header h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            line-height: 1.2;
+            margin-bottom: 1rem;
+            color: white;
+        }
 
-    .form-label {
-        color: #9d4edd;
-        margin-bottom: 0.5rem;
-        font-weight: 500;
-    }
+        .profile-header h1 span {
+            color: #9d4edd;
+        }
 
-    .form-control {
-        background: rgba(157, 78, 221, 0.05);
-        border: 1px solid #9d4edd;
-        color: #fff;
-        border-radius: 5px;
-        padding: 0.5rem 1rem;
-    }
+        .profile-header p {
+            color: #c77dff;
+            font-size: 1.1rem;
+            margin-bottom: 0;
+        }
 
-    .form-control:focus {
-        background: rgba(157, 78, 221, 0.1);
-        border-color: #c77dff;
-        color: #fff;
-        box-shadow: 0 0 0 0.2rem rgba(157, 78, 221, 0.25);
-    }
+        .form-section {
+            background: rgba(10, 10, 10, 0.8);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(157, 78, 221, 0.2);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+        }
 
-    .form-text {
-        color: #c77dff;
-        font-size: 0.875rem;
-        margin-top: 0.25rem;
-    }
+        .form-section h2 {
+            color: #e0e0e0;
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid rgba(157, 78, 221, 0.2);
+        }
 
-    .btn-custom {
-        background: #9d4edd;
-        color: white;
-        border: none;
-        padding: 0.5rem 1.5rem;
-        border-radius: 25px;
-        transition: all 0.3s ease;
-    }
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
 
-    .btn-custom:hover {
-        background: #c77dff;
-        color: white;
-        transform: scale(1.05);
-    }
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #c77dff;
+            font-size: 0.95rem;
+            font-weight: 500;
+        }
 
-    .btn-secondary {
-        background: #6c757d;
-    }
+        .form-control {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background: rgba(20, 20, 20, 0.8);
+            border: 1px solid rgba(157, 78, 221, 0.2);
+            border-radius: 8px;
+            color: white;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
 
-    .btn-secondary:hover {
-        background: #5a6268;
-    }
+        .form-control:focus {
+            outline: none;
+            border-color: #9d4edd;
+            box-shadow: 0 0 0 2px rgba(157, 78, 221, 0.25);
+            background: rgba(255, 255, 255, 0.05);
+        }
 
-    textarea.form-control {
-        min-height: 120px;
-    }
+        textarea.form-control {
+            min-height: 120px;
+            resize: vertical;
+        }
 
-    .form-select {
-        background-color: rgba(157, 78, 221, 0.05);
-        border: 1px solid #9d4edd;
-        color: #fff;
-    }
+        .grid-2-col {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
 
-    .form-select:focus {
-        background-color: rgba(157, 78, 221, 0.1);
-        border-color: #c77dff;
-        box-shadow: 0 0 0 0.2rem rgba(157, 78, 221, 0.25);
-    }
+        .file-upload-container {
+            margin-top: 1.5rem;
+        }
 
-    .form-select option {
-        background-color: #2b2b2b;
-        color: #fff;
-    }
-    
-    .images-section {
-        border-top: 1px solid rgba(157, 78, 221, 0.5);
-        margin-top: 2rem;
-        padding-top: 1.5rem;
-    }
-    
-    .images-heading {
-        color: #9d4edd;
-        margin-bottom: 1rem;
-    }
-    
-    .current-image {
-        margin-bottom: 0.5rem;
-        border-radius: 5px;
-        max-height: 150px;
-        border: 1px solid #9d4edd;
-    }
-    
-    .current-image-container {
-        margin-bottom: 1rem;
-    }
-</style>
-{% endblock %}
+        .file-upload-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #c77dff;
+            font-size: 0.95rem;
+            font-weight: 500;
+        }
 
-{% block content %}
-<div class="form-container">
-    <h1 class="mb-4" style="color: #9d4edd;">Edit Project</h1>
+        .form-control-file {
+            width: 100%;
+            padding: 0.75rem;
+            background: rgba(20, 20, 20, 0.8);
+            border: 1px solid rgba(157, 78, 221, 0.2);
+            border-radius: 8px;
+            color: white;
+        }
+
+        .form-control-file::file-selector-button {
+            background: rgba(157, 78, 221, 0.1);
+            color: #9d4edd;
+            border: 1px solid #9d4edd;
+            border-radius: 6px;
+            padding: 0.5rem 1rem;
+            margin-right: 1rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .form-control-file::file-selector-button:hover {
+            background: rgba(157, 78, 221, 0.2);
+        }
+
+        .image-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .image-preview-container {
+            position: relative;
+            border: 1px dashed rgba(157, 78, 221, 0.3);
+            border-radius: 8px;
+            padding: 1rem;
+            text-align: center;
+        }
+
+        .image-preview {
+            max-width: 100%;
+            max-height: 150px;
+            display: block;
+            margin: 0 auto 1rem;
+        }
+
+        .image-placeholder {
+            color: #9d9d9d;
+            font-size: 0.9rem;
+        }
+
+        .current-image-label {
+            color: #c77dff;
+            font-size: 0.85rem;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+
+        .form-actions {
+            display: flex;
+            justify-content: center;
+            margin-top: 2rem;
+            gap: 1rem;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+        }
+
+        .btn-primary {
+            background: #9d4edd;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #8a3ec7;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(157, 78, 221, 0.3);
+        }
+
+        .btn-secondary {
+            background: rgba(30, 30, 30, 0.8);
+            color: #e0e0e0;
+            border: 1px solid rgba(157, 78, 221, 0.2);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(50, 50, 50, 0.8);
+        }
+
+        .text-muted {
+            color: #9d9d9d !important;
+            font-size: 0.85rem;
+            opacity: 0.7;
+        }
+
+        .message {
+            margin-bottom: 2rem;
+            padding: 1rem;
+            border-radius: 8px;
+        }
+
+        .message.error {
+            background-color: rgba(220, 53, 69, 0.2);
+            border: 1px solid rgba(220, 53, 69, 0.3);
+            color: #ff6b6b;
+        }
+
+        .message.success {
+            background-color: rgba(40, 167, 69, 0.2);
+            border: 1px solid rgba(40, 167, 69, 0.3);
+            color: #4edd98;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .profile-header h1 {
+                font-size: 2rem;
+            }
+            
+            .grid-2-col {
+                grid-template-columns: 1fr;
+            }
+            
+            .image-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="profile-container">
+    <div class="profile-header">
+        <h1>Edit <span>Project</span></h1>
+        <p>Update your project information and track your progress</p>
+    </div>
 
     {% if messages %}
-    <div class="messages mb-4">
+    <div class="messages">
         {% for message in messages %}
-        <div class="alert {% if message.tags == 'success' %}alert-success{% elif message.tags == 'error' %}alert-danger{% else %}alert-info{% endif %}">
+        <div class="message {% if message.tags == 'error' %}error{% else %}success{% endif %}">
             {{ message }}
         </div>
         {% endfor %}
     </div>
     {% endif %}
 
-    <div class="form-card">
-        <form method="POST" enctype="multipart/form-data">
+    <div class="form-section">
+        <form method="POST" enctype="multipart/form-data" id="project-form">
             {% csrf_token %}
             
+            <h2>Project Information</h2>
             <div class="form-group">
-                <label for="mentor" class="form-label">Share with Mentor</label>
-                <select name="mentor" id="mentor" class="form-select" required>
+                <label for="mentor">Share with Mentor*</label>
+                <select class="form-control" id="mentor" name="mentor" required>
                     <option value="">Select a mentor</option>
                     {% for connection in connected_mentors %}
                     <option value="{{ connection.mentor.id }}" {% if project.mentor.id == connection.mentor.id %}selected{% endif %}>
@@ -148,37 +303,39 @@
             </div>
 
             <div class="form-group">
-                <label for="title" class="form-label">Project Title</label>
+                <label for="title">Project Title*</label>
                 <input type="text" class="form-control" id="title" name="title" value="{{ project.title }}" required>
             </div>
 
             <div class="form-group">
-                <label for="description" class="form-label">Project Description</label>
-                <textarea class="form-control" id="description" name="description" required>{{ project.description }}</textarea>
-                <div class="form-text">Describe your project, its objectives, and what you aim to achieve.</div>
+                <label for="description">Project Description*</label>
+                <textarea class="form-control" id="description" name="description" rows="4" required>{{ project.description }}</textarea>
+                <small class="text-muted">Describe your project, its objectives, and what you aim to achieve.</small>
             </div>
 
-            <div class="form-group">
-                <label for="sdgs" class="form-label">Sustainable Development Goals (SDGs)</label>
-                <input type="text" class="form-control" id="sdgs" name="sdgs" value="{{ project.sdgs }}" required>
-                <div class="form-text">List the SDGs your project addresses (e.g., "Quality Education, Climate Action")</div>
+            <div class="grid-2-col">
+                <div class="form-group">
+                    <label for="tech_stack">Tech Stack*</label>
+                    <input type="text" class="form-control" id="tech_stack" name="tech_stack" value="{{ project.tech_stack }}" required>
+                    <small class="text-muted">List the technologies, frameworks, and tools used in your project</small>
+                </div>
+                <div class="form-group">
+                    <label for="sdgs">Sustainable Development Goals (SDGs)*</label>
+                    <input type="text" class="form-control" id="sdgs" name="sdgs" value="{{ project.sdgs }}" required>
+                    <small class="text-muted">List the SDGs your project addresses</small>
+                </div>
             </div>
 
+            <h2 style="margin-top: 2rem;">Project Details</h2>
             <div class="form-group">
-                <label for="tech_stack" class="form-label">Tech Stack</label>
-                <input type="text" class="form-control" id="tech_stack" name="tech_stack" value="{{ project.tech_stack }}" required>
-                <div class="form-text">List the technologies, frameworks, and tools used in your project</div>
-            </div>
-
-            <div class="form-group">
-                <label for="github_link" class="form-label">GitHub Repository Link</label>
+                <label for="github_link">GitHub Link (Optional)</label>
                 <input type="url" class="form-control" id="github_link" name="github_link" value="{{ project.github_link|default:'' }}">
-                <div class="form-text">Optional: Link to your project's GitHub repository</div>
+                <small class="text-muted">Optional: Link to your project's GitHub repository</small>
             </div>
-            
+
             <div class="form-group">
-                <label for="status" class="form-label">Project Status</label>
-                <select name="status" id="status" class="form-select" required>
+                <label for="status">Project Status*</label>
+                <select class="form-control" id="status" name="status" required>
                     <option value="in_progress" {% if project.status == 'in_progress' %}selected{% endif %}>In Progress</option>
                     <option value="completed" {% if project.status == 'completed' %}selected{% endif %}>Completed</option>
                     <option value="under_review" {% if project.status == 'under_review' %}selected{% endif %}>Under Review</option>
@@ -186,99 +343,130 @@
             </div>
 
             <div class="form-group">
-                <label for="project_file" class="form-label">Project Files</label>
+                <label for="project_file" class="file-upload-label">Project File (Optional)</label>
                 {% if project.project_file %}
                 <div class="mb-2">
-                    <p>Current file: <a href="{{ project.project_file.url }}" target="_blank" style="color: #c77dff;">{{ project.project_file.name|slice:"14:" }}</a></p>
+                    <p class="current-image-label">Current file: <a href="{{ project.project_file.url }}" target="_blank" style="color: #c77dff;">{{ project.project_file.name|slice:"14:" }}</a></p>
                 </div>
                 {% endif %}
-                <input type="file" class="form-control" id="project_file" name="project_file">
-                <div class="form-text">Optional: Upload new project documentation, presentations, or other relevant files</div>
+                <input type="file" class="form-control-file" id="project_file" name="project_file">
+                <small class="text-muted">Upload project documentation or other relevant files. New file will replace the current one.</small>
             </div>
+
+            <h2 style="margin-top: 2rem;">Project Images</h2>
+            <small class="text-muted">Upload up to 5 images showcasing your project. New images will replace current ones.</small>
             
-            <div class="images-section">
-                <h4 class="images-heading">Project Images</h4>
-                <div class="form-text mb-3">Upload up to 5 images to showcase your project</div>
-                
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <div class="form-group">
-                            <label for="project_image1" class="form-label">Image 1</label>
-                            {% if project.project_image1 %}
-                            <div class="current-image-container">
-                                <img src="{{ project.project_image1.url }}" alt="Project Image 1" class="img-fluid current-image">
-                                <p class="form-text">Current image. Upload a new one to replace it.</p>
-                            </div>
-                            {% endif %}
-                            <input type="file" class="form-control" id="project_image1" name="project_image1" accept="image/*">
-                        </div>
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <div class="form-group">
-                            <label for="project_image2" class="form-label">Image 2</label>
-                            {% if project.project_image2 %}
-                            <div class="current-image-container">
-                                <img src="{{ project.project_image2.url }}" alt="Project Image 2" class="img-fluid current-image">
-                                <p class="form-text">Current image. Upload a new one to replace it.</p>
-                            </div>
-                            {% endif %}
-                            <input type="file" class="form-control" id="project_image2" name="project_image2" accept="image/*">
-                        </div>
-                    </div>
+            <div class="image-grid">
+                <div class="image-preview-container">
+                    {% if project.project_image1 %}
+                    <img src="{{ project.project_image1.url }}" alt="Project Image 1" class="image-preview">
+                    <p class="current-image-label">Current Image 1</p>
+                    {% else %}
+                    <div class="image-placeholder">Image 1</div>
+                    {% endif %}
+                    <input type="file" class="form-control-file" id="project_image1" name="project_image1" accept="image/*" onchange="previewImage(this, 'preview-image1')">
+                    <img id="preview-image1" class="image-preview" style="display: none;">
                 </div>
                 
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <div class="form-group">
-                            <label for="project_image3" class="form-label">Image 3</label>
-                            {% if project.project_image3 %}
-                            <div class="current-image-container">
-                                <img src="{{ project.project_image3.url }}" alt="Project Image 3" class="img-fluid current-image">
-                                <p class="form-text">Current image. Upload a new one to replace it.</p>
-                            </div>
-                            {% endif %}
-                            <input type="file" class="form-control" id="project_image3" name="project_image3" accept="image/*">
-                        </div>
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <div class="form-group">
-                            <label for="project_image4" class="form-label">Image 4</label>
-                            {% if project.project_image4 %}
-                            <div class="current-image-container">
-                                <img src="{{ project.project_image4.url }}" alt="Project Image 4" class="img-fluid current-image">
-                                <p class="form-text">Current image. Upload a new one to replace it.</p>
-                            </div>
-                            {% endif %}
-                            <input type="file" class="form-control" id="project_image4" name="project_image4" accept="image/*">
-                        </div>
-                    </div>
+                <div class="image-preview-container">
+                    {% if project.project_image2 %}
+                    <img src="{{ project.project_image2.url }}" alt="Project Image 2" class="image-preview">
+                    <p class="current-image-label">Current Image 2</p>
+                    {% else %}
+                    <div class="image-placeholder">Image 2</div>
+                    {% endif %}
+                    <input type="file" class="form-control-file" id="project_image2" name="project_image2" accept="image/*" onchange="previewImage(this, 'preview-image2')">
+                    <img id="preview-image2" class="image-preview" style="display: none;">
                 </div>
                 
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <div class="form-group">
-                            <label for="project_image5" class="form-label">Image 5</label>
-                            {% if project.project_image5 %}
-                            <div class="current-image-container">
-                                <img src="{{ project.project_image5.url }}" alt="Project Image 5" class="img-fluid current-image">
-                                <p class="form-text">Current image. Upload a new one to replace it.</p>
-                            </div>
-                            {% endif %}
-                            <input type="file" class="form-control" id="project_image5" name="project_image5" accept="image/*">
-                        </div>
-                    </div>
+                <div class="image-preview-container">
+                    {% if project.project_image3 %}
+                    <img src="{{ project.project_image3.url }}" alt="Project Image 3" class="image-preview">
+                    <p class="current-image-label">Current Image 3</p>
+                    {% else %}
+                    <div class="image-placeholder">Image 3</div>
+                    {% endif %}
+                    <input type="file" class="form-control-file" id="project_image3" name="project_image3" accept="image/*" onchange="previewImage(this, 'preview-image3')">
+                    <img id="preview-image3" class="image-preview" style="display: none;">
+                </div>
+                
+                <div class="image-preview-container">
+                    {% if project.project_image4 %}
+                    <img src="{{ project.project_image4.url }}" alt="Project Image 4" class="image-preview">
+                    <p class="current-image-label">Current Image 4</p>
+                    {% else %}
+                    <div class="image-placeholder">Image 4</div>
+                    {% endif %}
+                    <input type="file" class="form-control-file" id="project_image4" name="project_image4" accept="image/*" onchange="previewImage(this, 'preview-image4')">
+                    <img id="preview-image4" class="image-preview" style="display: none;">
+                </div>
+                
+                <div class="image-preview-container">
+                    {% if project.project_image5 %}
+                    <img src="{{ project.project_image5.url }}" alt="Project Image 5" class="image-preview">
+                    <p class="current-image-label">Current Image 5</p>
+                    {% else %}
+                    <div class="image-placeholder">Image 5</div>
+                    {% endif %}
+                    <input type="file" class="form-control-file" id="project_image5" name="project_image5" accept="image/*" onchange="previewImage(this, 'preview-image5')">
+                    <img id="preview-image5" class="image-preview" style="display: none;">
                 </div>
             </div>
 
-            <div class="mt-4">
-                <button type="submit" class="btn btn-custom">
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">
                     <i class="fas fa-save"></i> Update Project
                 </button>
-                <a href="{% url 'my_projects' %}" class="btn btn-custom btn-secondary ms-2">
+                <a href="{% url 'my_projects' %}" class="btn btn-secondary">
                     <i class="fas fa-times"></i> Cancel
                 </a>
             </div>
         </form>
     </div>
 </div>
-{% endblock %}
+
+<script>
+    // Preview images when selected
+    function previewImage(input, previewId) {
+        const preview = document.getElementById(previewId);
+        const placeholder = input.parentElement.querySelector('.image-placeholder');
+        const currentLabel = input.parentElement.querySelector('.current-image-label');
+        const currentImage = input.parentElement.querySelector('.image-preview:not([id])');
+        
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            
+            reader.onload = function(e) {
+                preview.src = e.target.result;
+                preview.style.display = 'block';
+                
+                // Hide current elements
+                if (placeholder) placeholder.style.display = 'none';
+                if (currentLabel) currentLabel.style.display = 'none';
+                if (currentImage) currentImage.style.display = 'none';
+            }
+            
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    // Form validation
+    document.getElementById('project-form').addEventListener('submit', function(e) {
+        const title = document.getElementById('title').value.trim();
+        const description = document.getElementById('description').value.trim();
+        const techStack = document.getElementById('tech_stack').value.trim();
+        const sdgs = document.getElementById('sdgs').value.trim();
+        const mentor = document.getElementById('mentor').value.trim();
+        const status = document.getElementById('status').value.trim();
+        
+        if (!title || !description || !techStack || !sdgs || !mentor || !status) {
+            e.preventDefault();
+            alert('Please fill in all required fields (marked with *)');
+            return false;
+        }
+        
+        return true;
+    });
+</script>
+</body>
+</html>

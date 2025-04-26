@@ -6,81 +6,83 @@
 {% block extra_css %}
 <style>
     /* Core Styles */
+    body {
+        background-color: #0f0f0f;
+        min-height: 100vh;
+        color: #e0e0e0;
+        padding: 2rem 0;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    /* Container */
     .container {
-        padding: 2.5rem 0;
+        padding: 2rem 0;
         position: relative;
         z-index: 2;
         max-width: 1000px;
         margin: 0 auto;
     }
 
-    /* Background Elements */
-    .bg-elements {
-        position: fixed;
+    /* Header Section */
+    .header-section {
+        background: rgba(15, 15, 15, 0.8);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(157, 78, 221, 0.3);
+        border-radius: 16px;
+        padding: 2.5rem;
+        margin-bottom: 3rem;
+        text-align: center;
+        box-shadow: 0 8px 32px rgba(157, 78, 221, 0.15);
+        position: relative;
+        overflow: hidden;
+        animation: fadeInUp 0.8s ease-out forwards;
+    }
+
+    .header-section::before {
+        content: '';
+        position: absolute;
         top: 0;
         left: 0;
         width: 100%;
         height: 100%;
+        background: linear-gradient(135deg, rgba(157, 78, 221, 0.1), transparent);
         z-index: -1;
-        overflow: hidden;
-    }
-
-    .bg-gradient {
-        position: absolute;
-        width: 35rem;
-        height: 35rem;
-        border-radius: 50%;
-        filter: blur(8rem);
-        z-index: -1;
-        opacity: 0.5;
-        animation: pulse 15s infinite alternate ease-in-out;
-    }
-
-    @keyframes pulse {
-        0% { transform: scale(1); opacity: 0.5; }
-        50% { transform: scale(1.05); opacity: 0.6; }
-        100% { transform: scale(1); opacity: 0.5; }
-    }
-
-    .bg-gradient:nth-child(1) {
-        top: -10%;
-        right: 5%;
-        background: rgba(168, 85, 247, 0.3);
-        animation-delay: -5s;
-    }
-
-    .bg-gradient:nth-child(2) {
-        bottom: -5%;
-        left: 10%;
-        background: rgba(124, 58, 237, 0.2);
-        animation-delay: -10s;
-    }
-
-    /* Header Section */
-    .header-section {
-        text-align: center;
-        margin-bottom: 3rem;
-        padding: 2rem;
-        background: rgba(15, 15, 15, 0.8);
-        backdrop-filter: blur(10px);
-        border: 1px solid rgba(157, 78, 221, 0.3);
-        border-radius: 20px;
-        box-shadow: 0 8px 32px rgba(157, 78, 221, 0.15);
     }
 
     .header-section h1 {
         font-size: 2.5rem;
         font-weight: 800;
-        background: linear-gradient(135deg, #a855f7, #8b5cf6);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
+        letter-spacing: -0.5px;
+        color: white;
         margin-bottom: 1rem;
+        opacity: 0;
+        animation: fadeIn 0.6s ease-out 0.4s forwards;
+    }
+
+    .header-section h1 span {
+        color: #9d4edd;
+        position: relative;
+        display: inline-block;
+    }
+
+    .header-section h1 span::after {
+        content: "";
+        position: absolute;
+        bottom: 5px;
+        left: 0;
+        width: 0;
+        height: 8px;
+        background-color: rgba(157, 78, 221, 0.15);
+        z-index: -1;
+        border-radius: 4px;
+        animation: lineGrow 0.6s ease-out 0.8s forwards;
     }
 
     .header-section p {
         color: #c77dff;
         font-size: 1.1rem;
-        opacity: 0.9;
+        opacity: 0;
+        animation: fadeIn 0.6s ease-out 0.6s forwards;
     }
 
     /* Back Link */
@@ -94,6 +96,8 @@
         border-radius: 12px;
         transition: all 0.3s ease;
         margin-bottom: 2rem;
+        opacity: 0;
+        animation: fadeIn 0.6s ease-out 0.2s forwards;
     }
 
     .back-link:hover {
@@ -104,33 +108,35 @@
 
     /* Form Card */
     .form-card {
-        background: rgba(15, 12, 24, 0.7);
-        backdrop-filter: blur(15px);
+        background: rgba(15, 15, 15, 0.8);
+        backdrop-filter: blur(10px);
         border: 1px solid rgba(157, 78, 221, 0.2);
-        border-radius: 20px;
+        border-radius: 16px;
         padding: 2.5rem;
-        box-shadow: 0 10px 40px rgba(31, 38, 135, 0.15);
+        margin-bottom: 2.5rem;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
         position: relative;
         overflow: hidden;
+        transform: translateY(20px);
+        opacity: 0;
+        animation: fadeInUp 0.6s ease-out 0.6s forwards;
     }
 
-    .form-card::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 5px;
-        background: linear-gradient(90deg, #a855f7, #8b5cf6);
+    .form-card:hover {
+        border-color: rgba(157, 78, 221, 0.4);
+        transform: translateY(-5px);
+        transition: all 0.3s ease;
     }
 
     /* Form Elements */
     .form-group {
         margin-bottom: 2rem;
+        opacity: 0;
+        animation: fadeIn 0.6s ease-out 0.8s forwards;
     }
 
     .form-label {
-        color: #9d4edd;
+        color: #c77dff;
         margin-bottom: 0.8rem;
         font-weight: 600;
         font-size: 1rem;
@@ -138,8 +144,8 @@
     }
 
     .form-control {
-        background: rgba(15, 12, 24, 0.7);
-        border: 1px solid rgba(157, 78, 221, 0.3);
+        background: rgba(15, 15, 15, 0.8);
+        border: 1px solid rgba(157, 78, 221, 0.2);
         border-radius: 12px;
         padding: 1rem;
         color: white;
@@ -151,7 +157,7 @@
         outline: none;
         border-color: rgba(157, 78, 221, 0.6);
         box-shadow: 0 0 0 2px rgba(157, 78, 221, 0.1);
-        background: rgba(15, 12, 24, 0.8);
+        background: rgba(15, 15, 15, 0.9);
     }
 
     .form-control::placeholder {
@@ -165,11 +171,14 @@
 
     /* Info Box */
     .info-box {
-        background: rgba(15, 12, 24, 0.7);
+        background: rgba(15, 15, 15, 0.8);
+        backdrop-filter: blur(10px);
         border: 1px solid rgba(157, 78, 221, 0.2);
         border-radius: 16px;
         padding: 1.5rem;
         margin-bottom: 2rem;
+        opacity: 0;
+        animation: fadeIn 0.6s ease-out 1s forwards;
     }
 
     .info-box h3 {
@@ -212,6 +221,8 @@
         display: inline-flex;
         align-items: center;
         gap: 0.5rem;
+        opacity: 0;
+        animation: fadeIn 0.6s ease-out 1.2s forwards;
     }
 
     .btn-primary:hover {
@@ -222,7 +233,7 @@
 
     /* Alert Messages */
     .alert {
-        background: rgba(15, 12, 24, 0.8);
+        background: rgba(15, 15, 15, 0.8);
         backdrop-filter: blur(10px);
         border: 1px solid;
         border-radius: 12px;
@@ -231,6 +242,8 @@
         box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
         display: flex;
         align-items: center;
+        opacity: 0;
+        animation: fadeIn 0.6s ease-out 0.4s forwards;
     }
 
     .alert-error {
@@ -244,6 +257,36 @@
         font-weight: 900;
         margin-right: 15px;
         font-size: 1.3rem;
+    }
+
+    /* Animations */
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+        to {
+            opacity: 1;
+        }
+    }
+    
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    @keyframes lineGrow {
+        from {
+            width: 0;
+        }
+        to {
+            width: 100%;
+        }
     }
 
     /* Responsive Adjustments */
@@ -268,11 +311,6 @@
 {% endblock %}
 
 {% block content %}
-<div class="bg-elements">
-    <div class="bg-gradient"></div>
-    <div class="bg-gradient"></div>
-</div>
-
 <div class="container">
     <a href="{% url 'my_groups' %}" class="back-link">
         <i class="fas fa-arrow-left"></i>
@@ -280,7 +318,7 @@
     </a>
 
     <div class="header-section">
-        <h1>Create a New Group</h1>
+        <h1>Create a New <span>Group</span></h1>
         <p>Form a team and start collaborating on projects together</p>
     </div>
 
@@ -340,4 +378,4 @@
         </form>
     </div>
 </div>
-{% endblock %} 
+{% endblock %}

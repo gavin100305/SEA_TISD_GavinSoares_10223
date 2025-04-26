@@ -5,102 +5,213 @@
 
 {% block extra_css %}
 <style>
-    /* Core Styles */
     .mentors-container {
-        padding: 2.5rem 0;
+        padding: 2rem 0;
         position: relative;
         z-index: 2;
-        max-width: 1400px;
-        margin: 0 auto;
     }
 
-    /* Background Elements */
-    .bg-elements {
-        position: fixed;
+    .mentors-header {
+        background: rgba(10, 10, 10, 0.8);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(30, 30, 30, 0.8);
+        border-radius: 16px;
+        padding: 2.5rem;
+        margin-bottom: 3rem;
+        text-align: center;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+        position: relative;
+        overflow: hidden;
+        animation: fadeInDown 0.8s ease-out forwards;
+    }
+
+    .mentors-header::before {
+        content: '';
+        position: absolute;
         top: 0;
         left: 0;
         width: 100%;
         height: 100%;
+        background: linear-gradient(45deg, rgba(20, 20, 20, 0.3), transparent);
         z-index: -1;
-        overflow: hidden;
     }
 
-    .bg-gradient {
-        position: absolute;
-        width: 35rem;
-        height: 35rem;
-        border-radius: 50%;
-        filter: blur(8rem);
-        z-index: -1;
-        opacity: 0.5;
-        animation: pulse 15s infinite alternate ease-in-out;
-    }
-
-    @keyframes pulse {
-        0% { transform: scale(1); opacity: 0.5; }
-        50% { transform: scale(1.05); opacity: 0.6; }
-        100% { transform: scale(1); opacity: 0.5; }
-    }
-
-    .bg-gradient:nth-child(1) {
-        top: -10%;
-        right: 5%;
-        background: rgba(168, 85, 247, 0.3);
-        animation-delay: -5s;
-    }
-
-    .bg-gradient:nth-child(2) {
-        bottom: -5%;
-        left: 10%;
-        background: rgba(124, 58, 237, 0.2);
-        animation-delay: -10s;
-    }
-
-    /* Header Section */
-    .header-section {
-        text-align: center;
-        margin-bottom: 3.5rem;
-        padding: 2rem;
-        background: rgba(15, 15, 15, 0.8);
-        backdrop-filter: blur(10px);
-        border: 1px solid rgba(157, 78, 221, 0.3);
-        border-radius: 20px;
-        box-shadow: 0 8px 32px rgba(157, 78, 221, 0.15);
-    }
-
-    .header-section h1 {
+    .mentors-header h1 {
         font-size: 2.5rem;
         font-weight: 800;
-        background: linear-gradient(135deg, #a855f7, #8b5cf6);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
+        letter-spacing: -0.5px;
+        line-height: 1.2;
         margin-bottom: 1rem;
+        color: white;
+        animation: fadeIn 0.6s ease-out 0.4s forwards;
     }
 
-    .header-section p {
-        color: #c77dff;
+    .mentors-header h1 span {
+        color: #9d4edd;
+        position: relative;
+        display: inline-block;
+    }
+
+    .mentors-header h1 span::after {
+        content: "";
+        position: absolute;
+        bottom: 5px;
+        left: 0;
+        width: 0;
+        height: 8px;
+        background-color: rgba(157, 78, 221, 0.15);
+        z-index: -1;
+        border-radius: 4px;
+        animation: lineGrow 0.6s ease-out 1s forwards;
+    }
+
+    .mentors-header p {
+        color: #e0e0e0;
         font-size: 1.1rem;
-        opacity: 0.9;
+        margin-top: 1rem;
     }
 
-    /* Mentor Cards */
-    .mentor-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-        gap: 2rem;
-        padding: 0 1rem;
+    /* Filters Styling */
+    .filters-container {
+        max-width: 1200px;
+        margin: 0 auto 2rem;
+        position: relative;
+        animation: fadeInUp 0.8s ease-out 0.4s forwards;
+    }
+
+    .filters-form {
+        background: rgba(15, 15, 15, 0.8);
+        border-radius: 16px;
+        overflow: hidden;
+        border: 1px solid rgba(50, 50, 50, 0.8);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+        padding: 1.5rem;
+    }
+
+    .filter-group {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .filter-group label {
+        color: #9d4edd;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        font-size: 0.9rem;
+    }
+
+    .filter-input, .filter-select {
+        padding: 0.8rem 1rem;
+        background: rgba(20, 20, 20, 0.7);
+        border: 1px solid rgba(70, 70, 70, 0.6);
+        border-radius: 8px;
+        color: #e0e0e0;
+        font-size: 0.95rem;
+        outline: none;
+        transition: all 0.3s ease;
+    }
+
+    .filter-input::placeholder {
+        color: #7a7a7a;
+    }
+
+    .filter-input:focus, .filter-select:focus {
+        border-color: #9d4edd;
+        box-shadow: 0 0 0 2px rgba(157, 78, 221, 0.2);
+    }
+
+    .filter-select {
+        cursor: pointer;
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%239d4edd' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 1rem center;
+        background-size: 16px;
+    }
+
+    .filter-actions {
+        display: flex;
+        gap: 1rem;
+        width: 100%;
+    }
+
+    .filter-btn {
+        flex: 1;
+        background: linear-gradient(45deg, #9d4edd, #c77dff);
+        border: none;
+        color: white;
+        padding: 0.8rem 1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-weight: 600;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .filter-btn i {
+        margin-right: 0.5rem;
+    }
+
+    .filter-btn:hover {
+        background-position: right center;
+        box-shadow: 0 0 15px rgba(157, 78, 221, 0.6);
+    }
+
+    .clear-filters {
+        padding: 0.8rem 1rem;
+        background: rgba(60, 60, 60, 0.5);
+        border: 1px solid rgba(80, 80, 80, 0.6);
+        border-radius: 8px;
+        color: #e0e0e0;
+        text-align: center;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .clear-filters i {
+        margin-right: 0.5rem;
+    }
+
+    .clear-filters:hover {
+        background: rgba(80, 80, 80, 0.7);
+        color: white;
+    }
+
+    .search-results {
+        background: rgba(15, 15, 15, 0.7);
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        color: #e0e0e0;
+        text-align: center;
+        margin-bottom: 2rem;
+        backdrop-filter: blur(5px);
+        border: 1px solid rgba(50, 50, 50, 0.6);
+        animation: fadeIn 0.5s ease-out forwards;
+    }
+
+    .search-results span {
+        color: #9d4edd;
+        font-weight: 600;
     }
 
     .mentor-card {
-        background: rgba(15, 12, 24, 0.7);
-        backdrop-filter: blur(15px);
-        border: 1px solid rgba(157, 78, 221, 0.2);
-        border-radius: 20px;
+        background: rgba(10, 10, 10, 0.8);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(30, 30, 30, 0.8);
+        border-radius: 16px;
         padding: 2rem;
-        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        margin-bottom: 2rem;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
         position: relative;
         overflow: hidden;
-        box-shadow: 0 10px 40px rgba(31, 38, 135, 0.15);
+        animation: fadeInUp 0.8s ease-out 0.6s forwards;
+        transition: all 0.3s ease;
     }
 
     .mentor-card::before {
@@ -108,16 +219,15 @@
         position: absolute;
         top: 0;
         left: 0;
-        width: 100%;
+        width: 3px;
         height: 0;
-        background: linear-gradient(to bottom, rgba(157, 78, 221, 0.1), transparent);
+        background: #9d4edd;
         transition: height 0.4s ease;
     }
 
     .mentor-card:hover {
-        transform: translateY(-10px);
-        border-color: rgba(157, 78, 221, 0.4);
-        box-shadow: 0 15px 50px rgba(157, 78, 221, 0.2);
+        transform: translateY(-5px);
+        box-shadow: 0 12px 30px rgba(157, 78, 221, 0.4);
     }
 
     .mentor-card:hover::before {
@@ -128,71 +238,62 @@
         display: flex;
         align-items: center;
         margin-bottom: 1.5rem;
-        position: relative;
     }
 
     .mentor-image {
-        width: 90px;
-        height: 90px;
-        border-radius: 20px;
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
         margin-right: 1.5rem;
-        border: 2px solid rgba(157, 78, 221, 0.3);
+        border: 2px solid #9d4edd;
         object-fit: cover;
-        transition: all 0.4s ease;
-        box-shadow: 0 5px 15px rgba(157, 78, 221, 0.2);
-    }
-
-    .mentor-card:hover .mentor-image {
-        border-color: rgba(157, 78, 221, 0.6);
-        transform: scale(1.05);
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
     }
 
     .mentor-info h3 {
-        color: white;
-        font-size: 1.4rem;
-        font-weight: 700;
+        color: #9d4edd;
         margin-bottom: 0.5rem;
+        font-size: 1.4rem;
+        font-weight: 600;
     }
 
     .mentor-info p {
-        color: #c77dff;
-        margin-bottom: 0.3rem;
-        font-size: 1rem;
-    }
-
-    .mentor-details {
-        margin: 1.5rem 0;
-        padding: 1.5rem;
-        background: rgba(157, 78, 221, 0.05);
-        border-radius: 15px;
-        border: 1px solid rgba(157, 78, 221, 0.1);
-        position: relative;
-    }
-
-    .mentor-details p {
         color: #e0e0e0;
-        margin-bottom: 0.8rem;
+        margin-bottom: 0.3rem;
         font-size: 0.95rem;
     }
 
-    .mentor-details p:last-child {
-        margin-bottom: 0;
+    .mentor-details, .contact-info {
+        margin: 1.5rem 0;
+        padding: 1.5rem;
+        background: rgba(15, 15, 15, 0.6);
+        border-radius: 12px;
+        color: #e0e0e0;
+        border: 1px solid rgba(50, 50, 50, 0.5);
+        font-size: 1rem;
+        line-height: 1.6;
     }
 
-    .mentor-details p strong {
+    .mentor-details strong, .contact-info strong {
         color: #9d4edd;
-        margin-right: 0.5rem;
+        font-weight: 600;
+        display: block;
+        margin-bottom: 0.5rem;
+        font-size: 0.95rem;
+    }
+
+    .mentor-details p {
+        margin-bottom: 0.5rem;
     }
 
     .status-badge {
         display: inline-flex;
         align-items: center;
-        padding: 0.4rem 1rem;
-        border-radius: 12px;
-        font-size: 0.9rem;
+        padding: 0.4rem 0.8rem;
+        border-radius: 8px;
+        font-size: 0.8rem;
         font-weight: 500;
-        margin-left: 1rem;
-        transition: all 0.3s ease;
+        margin-left: 0.5rem;
     }
 
     .status-pending {
@@ -214,39 +315,33 @@
     }
 
     .connect-btn {
-        background: linear-gradient(90deg, #a855f7 0%, #8b5cf6 100%);
-        color: white;
-        padding: 0.8rem 1.8rem;
-        border-radius: 12px;
+        padding: 0.8rem 1.5rem;
+        border-radius: 30px;
         border: none;
-        font-size: 1rem;
-        font-weight: 600;
         cursor: pointer;
-        transition: all 0.4s ease;
-        box-shadow: 0 4px 15px rgba(168, 85, 247, 0.25);
+        transition: all 0.3s ease;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        font-size: 1rem;
+        background: linear-gradient(45deg, #9d4edd, #c77dff);
+        color: white;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
         width: 100%;
-        position: relative;
-        overflow: hidden;
+        justify-content: center;
     }
 
-    .connect-btn::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: -100%;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-        transition: left 0.7s ease;
+    .connect-btn i {
+        margin-right: 0.5rem;
     }
 
     .connect-btn:hover {
         transform: translateY(-3px);
-        box-shadow: 0 8px 25px rgba(168, 85, 247, 0.4);
-    }
-
-    .connect-btn:hover::before {
-        left: 100%;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        color: white;
+        text-decoration: none;
     }
 
     .connect-btn:disabled {
@@ -283,7 +378,7 @@
         padding: 1rem;
         border: 1px solid rgba(157, 78, 221, 0.3);
         border-radius: 12px;
-        background: rgba(15, 12, 24, 0.7);
+        background: rgba(15, 15, 15, 0.7);
         color: white;
         margin-bottom: 1rem;
         resize: vertical;
@@ -297,85 +392,191 @@
         box-shadow: 0 0 0 2px rgba(157, 78, 221, 0.1);
     }
 
-    /* Alert Messages */
     .alert {
-        background: rgba(15, 12, 24, 0.8);
-        backdrop-filter: blur(10px);
-        border: 1px solid;
-        border-radius: 12px;
-        padding: 1.2rem 1.8rem;
-        margin-bottom: 1rem;
-        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
-        display: flex;
-        align-items: center;
-    }
-
-    .alert::before {
-        font-family: 'Font Awesome 5 Free';
-        font-weight: 900;
-        margin-right: 15px;
-        font-size: 1.3rem;
+        padding: 1rem;
+        border-radius: 8px;
+        margin-bottom: 1.5rem;
+        background: rgba(15, 15, 15, 0.7);
+        animation: fadeIn 0.5s ease-out forwards;
     }
 
     .alert-success {
-        border-color: rgba(25, 135, 84, 0.3);
-        color: #5ae6a8;
-    }
-
-    .alert-success::before {
-        content: '\f058';
+        border-left: 4px solid #4edd98;
+        color: #4edd98;
     }
 
     .alert-danger {
-        border-color: rgba(220, 53, 69, 0.3);
+        border-left: 4px solid #ff6b6b;
         color: #ff6b6b;
     }
 
-    .alert-danger::before {
-        content: '\f057';
-    }
-
     .alert-info {
-        border-color: rgba(13, 202, 240, 0.3);
-        color: #6edff6;
+        border-left: 4px solid #9d4edd;
+        color: #c77dff;
     }
 
-    .alert-info::before {
-        content: '\f05a';
+    .no-mentors {
+        text-align: center;
+        color: #e0e0e0;
+        font-size: 1.1rem;
+        padding: 3rem;
+        background: rgba(10, 10, 10, 0.8);
+        border-radius: 16px;
+        border: 1px solid rgba(30, 30, 30, 0.8);
+        animation: fadeIn 0.8s ease-out 0.6s forwards;
     }
 
-    /* Responsive Adjustments */
-    @media (max-width: 768px) {
-        .mentor-grid {
-            grid-template-columns: 1fr;
+    .browse-btn {
+        margin-top: 1.5rem;
+        padding: 0.8rem 1.5rem;
+        border-radius: 30px;
+        border: none;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        font-size: 1rem;
+        background: linear-gradient(45deg, #9d4edd, #c77dff);
+        color: white;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+    }
+
+    .browse-btn i {
+        margin-right: 0.5rem;
+    }
+
+    .browse-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        color: white;
+        text-decoration: none;
+    }
+
+    /* Animation Keyframes */
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
         }
+        to {
+            opacity: 1;
+        }
+    }
+    
+    @keyframes fadeInDown {
+        from {
+            opacity: 0;
+            transform: translateY(-30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    @keyframes lineGrow {
+        from {
+            width: 0;
+        }
+        to {
+            width: 100%;
+        }
+    }
 
-        .header-section h1 {
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .mentors-header h1 {
             font-size: 2rem;
         }
-
+        
+        .filters-form {
+            padding: 1rem;
+        }
+        
+        .filter-actions {
+            flex-direction: column;
+        }
+        
+        .clear-filters {
+            width: 100%;
+        }
+        
         .mentor-card {
             padding: 1.5rem;
         }
-
+        
+        .mentor-header {
+            flex-direction: column;
+            text-align: center;
+        }
+        
         .mentor-image {
-            width: 70px;
-            height: 70px;
+            margin-right: 0;
+            margin-bottom: 1rem;
+        }
+        
+        .connection-actions {
+            flex-direction: column;
+            gap: 1rem;
         }
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="bg-elements">
-    <div class="bg-gradient"></div>
-    <div class="bg-gradient"></div>
-</div>
-
 <div class="mentors-container">
-    <div class="header-section">
-        <h1>Available Mentors</h1>
+    <div class="mentors-header">
+        <h1>Available <span>Mentors</span></h1>
         <p>Connect with experienced mentors to guide you on your learning journey</p>
+    </div>
+    
+    <!-- Filters Form -->
+    <div class="filters-container">
+        <form action="{% url 'list_mentors' %}" method="GET" class="filters-form">
+            <div class="row">
+                <div class="col-md-6 col-lg-3 mb-3">
+                    <div class="filter-group">
+                        <label for="name">Mentor Name</label>
+                        <input type="text" id="name" name="name" placeholder="Filter by name..." class="filter-input" value="{{ name_filter }}">
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3 mb-3">
+                    <div class="filter-group">
+                        <label for="specialization">Specialization</label>
+                        <input type="text" id="specialization" name="specialization" placeholder="Filter by specialization..." class="filter-input" value="{{ specialization_filter }}">
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3 mb-3">
+                    <div class="filter-group">
+                        <label for="expertise">Expertise Areas</label>
+                        <input type="text" id="expertise" name="expertise" placeholder="Filter by expertise..." class="filter-input" value="{{ expertise_filter }}">
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3 mb-3 d-flex align-items-end">
+                    <div class="filter-actions">
+                        <button type="submit" class="filter-btn">
+                            <i class="fas fa-filter"></i> Apply Filters
+                        </button>
+                        <a href="{% url 'list_mentors' %}" class="clear-filters">
+                            <i class="fas fa-times"></i> Clear Filters
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </form>
     </div>
     
     {% if messages %}
@@ -387,51 +588,77 @@
         {% endfor %}
     </div>
     {% endif %}
+    
+    {% if name_filter or specialization_filter or expertise_filter %}
+    <div class="search-results">
+        <p>
+            Showing filtered results
+            {% if mentors %}({{ mentors|length }} found){% else %}(0 found){% endif %}
+        </p>
+    </div>
+    {% endif %}
 
-    <div class="mentor-grid">
-        {% for item in mentors %}
-        <div class="mentor-card">
-            <div class="mentor-header">
-                <img src="{% if item.mentor.profile_picture %}{{ item.mentor.profile_picture.url }}{% else %}https://ui-avatars.com/api/?name={{ item.mentor.full_name|default:item.mentor.user.username }}&background=9d4edd&color=fff{% endif %}" 
-                     alt="{{ item.mentor.full_name }}" 
-                     class="mentor-image">
-                <div class="mentor-info">
-                    <h3>{{ item.mentor.full_name }}</h3>
-                    <p>{{ item.mentor.current_role }}</p>
-                    <p>{{ item.mentor.college.college_name }}</p>
-                    {% if item.connection_status %}
-                        <span class="status-badge status-{{ item.connection_status }}">
-                            {{ item.connection_status|title }}
-                        </span>
+    <div class="row">
+        {% if mentors %}
+            {% for item in mentors %}
+            <div class="col-md-6 mb-4">
+                <div class="mentor-card">
+                    <div class="mentor-header">
+                        <img src="{% if item.mentor.profile_picture %}{{ item.mentor.profile_picture.url }}{% else %}https://ui-avatars.com/api/?name={{ item.mentor.full_name|default:item.mentor.user.username }}&background=9d4edd&color=fff{% endif %}" 
+                             alt="{{ item.mentor.full_name }}" 
+                             class="mentor-image">
+                        <div class="mentor-info">
+                            <h3>{{ item.mentor.full_name }}</h3>
+                            <p>{{ item.mentor.current_role }}</p>
+                            <p>{{ item.mentor.college.college_name }}
+                            {% if item.connection_status %}
+                                <span class="status-badge status-{{ item.connection_status }}">
+                                    {{ item.connection_status|title }}
+                                </span>
+                            {% endif %}
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="mentor-details">
+                        <strong>Academic Details:</strong>
+                        <p>Qualification: {{ item.mentor.highest_qualification }}</p>
+                        <p>Specialization: {{ item.mentor.specialization }}</p>
+                        <p>Experience: {{ item.mentor.experience_years }} years</p>
+                        {% if item.mentor.expertise_areas %}
+                        <p>Expertise Areas: {{ item.mentor.expertise_areas }}</p>
+                        {% endif %}
+                    </div>
+
+                    {% if not item.connection_status %}
+                    <button class="connect-btn" onclick="toggleConnectionForm('{{ item.mentor.id }}')">
+                        <i class="fas fa-handshake"></i> Connect with Mentor
+                    </button>
+                    <form action="{% url 'send_connection_request' item.mentor.id %}" method="POST" class="connection-form" id="form-{{ item.mentor.id }}">
+                        {% csrf_token %}
+                        <textarea name="message" rows="3" placeholder="Write a message to the mentor..." required></textarea>
+                        <button type="submit" class="connect-btn">
+                            <i class="fas fa-paper-plane"></i> Send Request
+                        </button>
+                    </form>
                     {% endif %}
                 </div>
             </div>
-
-            <div class="mentor-details">
-                <p><strong>Qualification:</strong> {{ item.mentor.highest_qualification }}</p>
-                <p><strong>Specialization:</strong> {{ item.mentor.specialization }}</p>
-                <p><strong>Experience:</strong> {{ item.mentor.experience_years }} years</p>
-                {% if item.mentor.expertise_areas %}
-                <p><strong>Expertise:</strong> {{ item.mentor.expertise_areas }}</p>
-                {% endif %}
+            {% endfor %}
+        {% else %}
+            <div class="col-12">
+                <div class="no-mentors">
+                    {% if name_filter or specialization_filter or expertise_filter %}
+                        <p>No mentors found matching your filter criteria.</p>
+                        <a href="{% url 'list_mentors' %}" class="browse-btn">
+                            <i class="fas fa-arrow-left"></i> Clear Filters
+                        </a>
+                    {% else %}
+                        <p>No mentors available at the moment.</p>
+                    {% endif %}
+                </div>
             </div>
-
-            {% if not item.connection_status %}
-            <button class="connect-btn" onclick="toggleConnectionForm('{{ item.mentor.id }}')">
-                Connect with Mentor
-            </button>
-            <form action="{% url 'send_connection_request' item.mentor.id %}" method="POST" class="connection-form" id="form-{{ item.mentor.id }}">
-                {% csrf_token %}
-                <textarea name="message" rows="3" placeholder="Write a message to the mentor..." required></textarea>
-                <button type="submit" class="connect-btn">Send Request</button>
-            </form>
-            {% endif %}
-        </div>
-        {% empty %}
-        <div class="text-center" style="grid-column: 1/-1;">
-            <p style="color: #9d9d9d; font-size: 1.1rem;">No mentors available at the moment.</p>
-        </div>
-        {% endfor %}
+        {% endif %}
     </div>
 </div>
 
@@ -443,4 +670,4 @@ function toggleConnectionForm(mentorId) {
 }
 </script>
 {% endblock %}
-{% endblock %} 
+{% endblock %}

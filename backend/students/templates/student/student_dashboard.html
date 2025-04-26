@@ -12,14 +12,16 @@
     --primary-hover: #7C3AED;
     --primary-light: rgba(139, 92, 246, 0.2);
     --text-light: #F3F4F6;
-    --text-secondary: #D1D5DB;
-    --card-bg: rgba(30, 30, 30, 0.5);
-    --card-border: rgba(139, 92, 246, 0.3);
-    --card-shadow: rgba(0, 0, 0, 0.4);
+    --text-secondary: #9CA3AF;
+    --card-bg: rgba(17, 17, 17, 0.8);
+    --card-border: rgba(139, 92, 246, 0.2);
+    --card-shadow: rgba(0, 0, 0, 0.5);
+    --bg-dark: #000000;
+    --bg-darker: #000000;
 }
 
 body {
-    background-color: #000000;
+    background-color: var(--bg-darker);
     color: var(--text-light);
     font-family: 'Inter', sans-serif;
     min-height: 100vh;
@@ -27,7 +29,7 @@ body {
     overflow-x: hidden;
 }
 
-/* Background Elements */
+/* Background Elements - Simplified to just black */
 .bg-elements {
     position: fixed;
     top: 0;
@@ -36,38 +38,10 @@ body {
     height: 100%;
     z-index: -1;
     overflow: hidden;
+    background: black;
 }
 
-.bg-gradient {
-    position: absolute;
-    width: 35rem;
-    height: 35rem;
-    border-radius: 50%;
-    filter: blur(8rem);
-    z-index: -1;
-    opacity: 0.5;
-    animation: pulse 15s infinite alternate ease-in-out;
-}
-
-@keyframes pulse {
-    0% { transform: scale(1); opacity: 0.5; }
-    50% { transform: scale(1.05); opacity: 0.6; }
-    100% { transform: scale(1); opacity: 0.5; }
-}
-
-.bg-gradient:nth-child(1) {
-    top: -10%;
-    right: 5%;
-    background: rgba(168, 85, 247, 0.3);
-    animation-delay: -5s;
-}
-
-.bg-gradient:nth-child(2) {
-    bottom: -5%;
-    left: 10%;
-    background: rgba(124, 58, 237, 0.2);
-    animation-delay: -10s;
-}
+/* Removed all gradient elements */
 
 .static-pattern {
     position: absolute;
@@ -75,7 +49,7 @@ body {
     left: 0;
     width: 100%;
     height: 100%;
-    opacity: 0.1;
+    opacity: 0.03;
     z-index: -1;
     background-image: radial-gradient(#a855f7 1px, transparent 1px);
     background-size: 40px 40px;
@@ -146,17 +120,17 @@ body {
     margin: 0 auto;
 }
 
-/* Cards Grid */
+/* Cards Grid - Updated to 3 in a row */
 .cards-grid {
     display: grid;
-    grid-template-columns: repeat(12, 1fr);
+    grid-template-columns: repeat(3, 1fr);
     gap: 1.5rem;
     margin-bottom: 3rem;
 }
 
-/* Card size variations */
+/* Card styling similar to profile section */
 .dashboard-card {
-    background: rgba(15, 12, 24, 0.7);
+    background: var(--card-bg);
     backdrop-filter: blur(15px);
     border: 1px solid var(--card-border);
     border-radius: 20px;
@@ -164,50 +138,11 @@ body {
     transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     position: relative;
     overflow: hidden;
-    box-shadow: 0 10px 40px rgba(31, 38, 135, 0.15);
+    box-shadow: 0 10px 40px var(--card-shadow);
     min-height: 250px;
     display: flex;
     flex-direction: column;
     text-decoration: none;
-    grid-column: span 3; /* Changed from span 4 to make cards smaller */
-}
-
-/* Large cards spanning 6 columns */
-.dashboard-card.card-large {
-    grid-column: span 6;
-}
-
-/* Full-width cards spanning all 12 columns */
-.dashboard-card.card-full {
-    grid-column: span 12;
-}
-
-/* Responsive adjustments for smaller cards */
-@media (max-width: 1400px) {
-    .dashboard-card {
-        grid-column: span 4;
-    }
-}
-
-@media (max-width: 1200px) {
-    .dashboard-card {
-        grid-column: span 6;
-        min-height: 230px;
-        padding: 1.6rem;
-    }
-    .dashboard-card.card-large {
-        grid-column: span 6;
-    }
-}
-
-@media (max-width: 768px) {
-    .dashboard-card,
-    .dashboard-card.card-large,
-    .dashboard-card.card-full {
-        grid-column: span 12;
-        min-height: 210px;
-        padding: 1.5rem;
-    }
 }
 
 .dashboard-card::before {
@@ -215,21 +150,22 @@ body {
     position: absolute;
     top: 0;
     left: 0;
-    right: 0;
-    height: 0;
-    background: linear-gradient(to bottom, rgba(139, 92, 246, 0.1), transparent);
-    transition: height 0.4s ease;
-    z-index: 0;
+    width: 100%;
+    height: 5px;
+    background: linear-gradient(90deg, #a855f7, #8b5cf6);
+    opacity: 0;
+    transition: opacity 0.4s ease;
+}
+
+.dashboard-card:hover::before {
+    opacity: 1;
 }
 
 .dashboard-card:hover {
     transform: translateY(-12px);
     border-color: var(--primary);
     box-shadow: 0 15px 50px rgba(139, 92, 246, 0.3);
-}
-
-.dashboard-card:hover::before {
-    height: 100%;
+    background: rgba(20, 20, 20, 0.9);
 }
 
 .card-icon-wrapper {
@@ -296,7 +232,7 @@ body {
 }
 
 .dashboard-card small {
-    color: rgba(209, 213, 219, 0.7);
+    color: rgba(156, 163, 175, 0.7);
     display: block;
     margin-bottom: 0.3rem;
     position: relative;
@@ -359,13 +295,13 @@ body {
 
 /* Profile Section */
 .profile-section {
-    background: rgba(15, 12, 24, 0.8);
+    background: var(--card-bg);
     backdrop-filter: blur(15px);
     border: 1px solid var(--card-border);
     border-radius: 24px;
     padding: 2.5rem;
     margin-bottom: 3rem;
-    box-shadow: 0 15px 35px rgba(31, 38, 135, 0.15);
+    box-shadow: 0 15px 35px var(--card-shadow);
     position: relative;
     overflow: hidden;
 }
@@ -413,6 +349,7 @@ body {
     padding: 0.8rem;
     border-radius: 12px;
     border: 1px solid transparent;
+    background: rgba(20, 20, 20, 0.5);
 }
 
 .profile-item:hover {
@@ -441,7 +378,7 @@ body {
 }
 
 .alert {
-    background-color: rgba(15, 12, 24, 0.8);
+    background-color: var(--card-bg);
     border: 1px solid;
     border-radius: 12px;
     padding: 1.2rem 1.8rem;
@@ -465,7 +402,7 @@ body {
 }
 
 .alert-success::before {
-    content: '\f058'; /* check-circle */
+    content: '\f058';
     color: #5ae6a8;
 }
 
@@ -475,7 +412,7 @@ body {
 }
 
 .alert-danger::before {
-    content: '\f057'; /* times-circle */
+    content: '\f057';
     color: #ff6b6b;
 }
 
@@ -485,17 +422,17 @@ body {
 }
 
 .alert-info::before {
-    content: '\f05a'; /* info-circle */
+    content: '\f05a';
     color: #6edff6;
 }
 
 /* Project Assessments Card */
 .card {
-    background: rgba(15, 12, 24, 0.8);
+    background: var(--card-bg);
     backdrop-filter: blur(15px);
     border: 1px solid var(--card-border);
     border-radius: 20px;
-    box-shadow: 0 10px 30px rgba(31, 38, 135, 0.15);
+    box-shadow: 0 10px 30px var(--card-shadow);
     transition: all 0.4s ease;
     height: 100%;
     color: var(--text-light);
@@ -506,6 +443,7 @@ body {
     transform: translateY(-8px);
     border-color: var(--primary);
     box-shadow: 0 15px 40px rgba(139, 92, 246, 0.25);
+    background: rgba(20, 20, 20, 0.9);
 }
 
 .card-body {
@@ -603,6 +541,10 @@ body {
         width: 65px;
         height: 65px;
     }
+    
+    .cards-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
 }
 
 @media (max-width: 768px) {
@@ -632,26 +574,69 @@ body {
 html {
     scroll-behavior: smooth;
 }
+
+/* Entry Animations */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideUp {
+    from { 
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to { 
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-fade-in {
+    animation: fadeIn 0.8s ease-out forwards;
+}
+
+.animate-slide-up {
+    animation: slideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Staggered card animations */
+.cards-grid .dashboard-card {
+    opacity: 0;
+    animation: slideUp 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    animation-delay: calc(var(--index) * 0.1s);
+}
+
+/* Dark overlay for better contrast */
+.dark-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(5, 5, 5, 0.7);
+    z-index: 1;
+    display: none;
+}
 </style>
 {% endblock %}
 
 {% block content %}
 <div class="bg-elements">
-    <div class="bg-gradient"></div>
-    <div class="bg-gradient"></div>
+    <!-- Removed gradient elements, keeping only the black background -->
     <div class="static-pattern"></div>
 </div>
 
 <div class="container dashboard-container">
     <!-- Welcome Section -->
-    <div class="welcome-section">
-        <h1>Welcome back, <span>{{ profile.full_name }}</span></h1>
+    <div class="welcome-section animate-fade-in">
+        <h1>Welcome back, <span>{{ student.full_name }}</span></h1>
         <p>Access your learning resources, connect with mentors, and track your project progress</p>
     </div>
 
     <!-- Messages -->
     {% if messages %}
-    <div class="alert-messages">
+    <div class="alert-messages animate-slide-up">
         {% for message in messages %}
         <div class="alert {% if message.tags == 'success' %}alert-success{% elif message.tags == 'error' %}alert-danger{% else %}alert-info{% endif %}">
             {{ message }}
@@ -660,9 +645,9 @@ html {
     </div>
     {% endif %}
 
-    <!-- Main Actions Grid -->
+    <!-- Main Actions Grid - Updated to 3 columns -->
     <div class="cards-grid">
-        <a href="{% url 'list_mentors' %}" class="dashboard-card">
+        <a href="{% url 'list_mentors' %}" class="dashboard-card" style="--index: 0;">
             <div class="card-icon-wrapper">
                 <i class="fas fa-search"></i>
             </div>
@@ -671,7 +656,7 @@ html {
             <span class="card-action">Explore <i class="fas fa-arrow-right"></i></span>
         </a>
 
-        <a href="{% url 'my_connections' %}" class="dashboard-card">
+        <a href="{% url 'my_connections' %}" class="dashboard-card" style="--index: 1;">
             <div class="card-icon-wrapper">
                 <i class="fas fa-user-friends"></i>
             </div>
@@ -680,7 +665,7 @@ html {
             <span class="card-action">View <i class="fas fa-arrow-right"></i></span>
         </a>
 
-        <a href="{% url 'my_projects' %}" class="dashboard-card">
+        <a href="{% url 'my_projects' %}" class="dashboard-card" style="--index: 2;">
             <div class="card-icon-wrapper">
                 <i class="fas fa-project-diagram"></i>
             </div>
@@ -689,7 +674,7 @@ html {
             <span class="card-action">Manage <i class="fas fa-arrow-right"></i></span>
         </a>
 
-        <a href="{% url 'view_collaborators' %}" class="dashboard-card">
+        <a href="{% url 'view_collaborators' %}" class="dashboard-card" style="--index: 3;">
             <div class="card-icon-wrapper">
                 <i class="fas fa-users"></i>
             </div>
@@ -698,7 +683,7 @@ html {
             <span class="card-action">Browse <i class="fas fa-arrow-right"></i></span>
         </a>
 
-        <a href="{% url 'view_collaboration_requests' %}" class="dashboard-card">
+        <a href="{% url 'view_collaboration_requests' %}" class="dashboard-card" style="--index: 4;">
             <div class="card-icon-wrapper">
                 <i class="fas fa-handshake"></i>
             </div>
@@ -711,7 +696,7 @@ html {
             <span class="card-action">View Requests <i class="fas fa-arrow-right"></i></span>
         </a>
 
-        <a href="{% url 'student_view_assessments' %}" class="dashboard-card">
+        <a href="{% url 'student_view_assessments' %}" class="dashboard-card" style="--index: 5;">
             <div class="card-icon-wrapper">
                 <i class="fas fa-tasks"></i>
             </div>
@@ -722,89 +707,48 @@ html {
     </div>
 
     <!-- Profile Section -->
-    <div class="profile-section">
+    <div class="profile-section animate-slide-up">
         <h2>Your Profile</h2>
         <div class="profile-grid">
             <div class="profile-item">
                 <div class="profile-label">Full Name</div>
-                <div class="profile-value">{{ profile.full_name }}</div>
+                <div class="profile-value">{{ student.full_name }}</div>
             </div>
             <div class="profile-item">
                 <div class="profile-label">Roll Number</div>
-                <div class="profile-value">{{ profile.roll_number }}</div>
+                <div class="profile-value">{{ student.roll_number }}</div>
             </div>
             <div class="profile-item">
                 <div class="profile-label">Branch</div>
-                <div class="profile-value">{{ profile.branch }}</div>
+                <div class="profile-value">{{ student.branch }}</div>
             </div>
             <div class="profile-item">
                 <div class="profile-label">Semester</div>
-                <div class="profile-value">{{ profile.semester }}</div>
+                <div class="profile-value">{{ student.semester }}</div>
             </div>
             <div class="profile-item">
                 <div class="profile-label">Section</div>
-                <div class="profile-value">{{ profile.section }}</div>
+                <div class="profile-value">{{ student.section }}</div>
             </div>
             <div class="profile-item">
                 <div class="profile-label">Admission Year</div>
-                <div class="profile-value">{{ profile.admission_year }}</div>
+                <div class="profile-value">{{ student.admission_year }}</div>
             </div>
             <div class="profile-item">
                 <div class="profile-label">Email</div>
-                <div class="profile-value">{{ profile.user.email }}</div>
+                <div class="profile-value">{{ student.user.email }}</div>
             </div>
             <div class="profile-item">
                 <div class="profile-label">Phone</div>
-                <div class="profile-value">{{ profile.phone }}</div>
-            </div>
-            <div class="profile-item">
-                <div class="profile-label">Parent Name</div>
-                <div class="profile-value">{{ profile.parent_name }}</div>
-            </div>
-            <div class="profile-item">
-                <div class="profile-label">Parent Phone</div>
-                <div class="profile-value">{{ profile.parent_phone }}</div>
-            </div>
-            <div class="profile-item">
-                <div class="profile-label">Address</div>
-                <div class="profile-value">{{ profile.address }}</div>
+                <div class="profile-value">{{ student.phone }}</div>
             </div>
             <div class="profile-item">
                 <div class="profile-label">Date of Birth</div>
-                <div class="profile-value">{{ profile.dob }}</div>
+                <div class="profile-value">{{ student.dob }}</div>
             </div>
         </div>
     </div>
 
-    <!-- Additional Actions Grid -->
-    <div class="cards-grid">
-        <a href="{% url 'student_profile' %}?mode=update" class="dashboard-card">
-            <div class="card-icon-wrapper">
-                <i class="fas fa-user-edit"></i>
-            </div>
-            <h3>Update Profile</h3>
-            <p>Keep your profile information current to get the most relevant mentor matches</p>
-            <span class="card-action">Update <i class="fas fa-arrow-right"></i></span>
-        </a>
-
-        <a href="#" class="dashboard-card">
-            <div class="card-icon-wrapper">
-                <i class="fas fa-book"></i>
-            </div>
-            <h3>Learning Resources</h3>
-            <p>Access recommended learning materials and courses tailored for you</p>
-            <span class="card-action">Explore <i class="fas fa-arrow-right"></i></span>
-        </a>
-
-        <a href="#" class="dashboard-card">
-            <div class="card-icon-wrapper">
-                <i class="fas fa-calendar-alt"></i>
-            </div>
-            <h3>Upcoming Events</h3>
-            <p>View workshops, seminars and other events that might interest you</p>
-            <span class="card-action">View <i class="fas fa-arrow-right"></i></span>
-        </a>
-    </div>
 </div>
 
 {% block extra_js %}
@@ -834,26 +778,14 @@ html {
         });
     });
 
-    // Ripple effect styles
-    const style = document.createElement('style');
-    style.textContent = `
-        @keyframes ripple {
-            to {
-                transform: translate(-50%, -50%) scale(15);
-                opacity: 0;
-            }
-        }
-        .ripple {
-            position: absolute;
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 50%;
-            transform: translate(-50%, -50%) scale(0);
-            animation: ripple 0.6s linear forwards;
-            pointer-events: none;
-            width: 20px;
-            height: 20px;
-        }
-    `;
-    document.head.appendChild(style);
+    // Initialize animations
+    document.addEventListener('DOMContentLoaded', function() {
+        // Set animation delays for cards
+        const cards = document.querySelectorAll('.cards-grid .dashboard-card');
+        cards.forEach((card, index) => {
+            card.style.setProperty('--index', index);
+        });
+    });
 </script>
-{% endblock %}{% endblock %}
+{% endblock %}
+{% endblock %}

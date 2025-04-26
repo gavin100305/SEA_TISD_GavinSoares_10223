@@ -732,7 +732,7 @@ def add_group_project(request, group_id):
             if mentor_id:
                 mentor = get_object_or_404(MentorProfile, id=mentor_id)
             
-            # Create project
+            # Create project with basic info
             project = Project(
                 group=group,
                 mentor=mentor,
@@ -741,20 +741,26 @@ def add_group_project(request, group_id):
                 sdgs=request.POST.get('sdgs'),
                 tech_stack=request.POST.get('tech_stack'),
                 github_link=request.POST.get('github_link', ''),
+                status=request.POST.get('status', 'in_progress'),  # Add status from form
                 is_open_for_collaboration=request.POST.get('is_open_for_collaboration') == 'on'
             )
-            
-            # Handle image uploads
-            for i in range(1, 6):
-                image_field = f'project_image{i}'
-                if image_field in request.FILES:
-                    setattr(project, image_field, request.FILES[image_field])
             
             # Handle project file if uploaded
             if 'project_file' in request.FILES:
                 project.project_file = request.FILES['project_file']
             
-            # Save the project after setting all fields
+            # Save the project first to get an ID
+            project.save()
+            
+            # Handle image uploads - now matching the model field names
+            for i in range(1, 7):  # Since your form has up to image6
+                image_field_name = f'image{i}'
+                model_field_name = f'project_image{i}' if i <= 5 else None
+                
+                if image_field_name in request.FILES and model_field_name:
+                    setattr(project, model_field_name, request.FILES[image_field_name])
+            
+            # Save again to update with images
             project.save()
             
             messages.success(request, 'Group project added successfully!')
@@ -762,11 +768,12 @@ def add_group_project(request, group_id):
             
         except Exception as e:
             messages.error(request, f'An error occurred: {str(e)}')
-            return redirect('group_detail', group_id=group.id)
+            return redirect('add_group_project', group_id=group.id)
     
     context = {
         'group': group,
-        'leader_mentors': leader_mentors
+        'leader_mentors': leader_mentors,
+        'status_choices': [choice[0] for choice in Project._meta.get_field('status').choices]
     }
     return render(request, 'student/add_group_project.html', context)
 
@@ -803,26 +810,30 @@ def edit_group_project(request, group_id, project_id):
             project.sdgs = request.POST.get('sdgs')
             project.tech_stack = request.POST.get('tech_stack')
             project.github_link = request.POST.get('github_link', '')
+            project.status = request.POST.get('status', 'in_progress')  # Added status update
             project.is_open_for_collaboration = request.POST.get('is_open_for_collaboration') == 'on'
             
-            # Handle image uploads
-            for i in range(1, 6):
-                image_field = f'project_image{i}'
-                if image_field in request.FILES:
+            # Handle image uploads - updated to match add_group_project
+            for i in range(1, 7):  # Now supports up to 6 images like add_group_project
+                image_field_name = f'image{i}'
+                model_field_name = f'project_image{i}' if i <= 5 else None
+                
+                # Handle new image upload
+                if image_field_name in request.FILES and model_field_name:
                     # Delete old image if exists
-                    old_image = getattr(project, image_field)
+                    old_image = getattr(project, model_field_name)
                     if old_image:
                         old_image.delete(save=False)
                     # Set new image
-                    setattr(project, image_field, request.FILES[image_field])
+                    setattr(project, model_field_name, request.FILES[image_field_name])
                 
                 # Handle image deletion requests
                 delete_image = request.POST.get(f'delete_image{i}')
-                if delete_image == 'on':
-                    old_image = getattr(project, image_field)
+                if delete_image == 'on' and model_field_name:
+                    old_image = getattr(project, model_field_name)
                     if old_image:
                         old_image.delete(save=False)
-                        setattr(project, image_field, None)
+                        setattr(project, model_field_name, None)
             
             # Handle project file if uploaded
             if 'project_file' in request.FILES:
@@ -844,18 +855,18 @@ def edit_group_project(request, group_id, project_id):
             
         except Exception as e:
             messages.error(request, f'An error occurred: {str(e)}')
-            return redirect('edit_group_project', project_id=project.id)
-        
+            return redirect('edit_group_project', group_id=group.id, project_id=project.id)
         
     project_images = [
-            getattr(project, f'project_image{i}') for i in range(1, 6)
-        ]
+        getattr(project, f'project_image{i}') for i in range(1, 6)
+    ]
     
     context = {
         'project': project,
         'group': group,
         'leader_mentors': leader_mentors,
         'project_images': project_images,
+        'status_choices': [choice[0] for choice in Project._meta.get_field('status').choices]  # Added status choices
     }
     return render(request, 'student/edit_group_project.html', context)
 

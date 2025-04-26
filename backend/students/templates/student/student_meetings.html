@@ -10,8 +10,18 @@
         padding: 2.5rem 0;
         position: relative;
         z-index: 2;
-        max-width: 1400px;
+        max-width: 1200px;
         margin: 0 auto;
+    }
+
+    /* Background Elements */
+    body {
+        background-color: #000000;
+        color: white;
+        font-family: 'Inter', sans-serif;
+        min-height: 100vh;
+        position: relative;
+        overflow-x: hidden;
     }
 
     /* Background Elements */
@@ -25,39 +35,21 @@
         overflow: hidden;
     }
 
-    .bg-gradient {
+    .static-pattern {
         position: absolute;
-        width: 35rem;
-        height: 35rem;
-        border-radius: 50%;
-        filter: blur(8rem);
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        opacity: 0.05;
         z-index: -1;
-        opacity: 0.5;
-        animation: pulse 15s infinite alternate ease-in-out;
-    }
-
-    @keyframes pulse {
-        0% { transform: scale(1); opacity: 0.5; }
-        50% { transform: scale(1.05); opacity: 0.6; }
-        100% { transform: scale(1); opacity: 0.5; }
-    }
-
-    .bg-gradient:nth-child(1) {
-        top: -10%;
-        right: 5%;
-        background: rgba(168, 85, 247, 0.3);
-        animation-delay: -5s;
-    }
-
-    .bg-gradient:nth-child(2) {
-        bottom: -5%;
-        left: 10%;
-        background: rgba(124, 58, 237, 0.2);
-        animation-delay: -10s;
+        background-image: radial-gradient(#666666 1px, transparent 1px);
+        background-size: 40px 40px;
     }
 
     /* Header Section */
     .header-section {
+        text-align: center;
         margin-bottom: 3rem;
         padding: 2rem;
         background: rgba(15, 15, 15, 0.8);
@@ -65,51 +57,43 @@
         border: 1px solid rgba(157, 78, 221, 0.3);
         border-radius: 20px;
         box-shadow: 0 8px 32px rgba(157, 78, 221, 0.15);
+        animation: fadeIn 0.8s ease-out;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
     }
 
-    .header-section h2 {
+    .header-section h1 {
         font-size: 2.5rem;
         font-weight: 800;
         background: linear-gradient(135deg, #a855f7, #8b5cf6);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
-        margin-bottom: 1rem;
+        margin-bottom: 0;
     }
 
-    /* Schedule Meeting Card */
-    .schedule-card {
-        background: rgba(15, 12, 24, 0.7);
+    /* Card Section */
+    .card-section {
+        background: rgba(15, 15, 15, 0.8);
         backdrop-filter: blur(15px);
-        border: 1px solid rgba(157, 78, 221, 0.2);
+        border: 1px solid rgba(157, 78, 221, 0.3);
         border-radius: 20px;
-        overflow: hidden;
-        transition: all 0.3s ease;
-        box-shadow: 0 15px 35px rgba(31, 38, 135, 0.15);
+        padding: 2rem;
         margin-bottom: 2rem;
+        box-shadow: 0 8px 32px rgba(157, 78, 221, 0.15);
+        animation: fadeIn 0.8s ease-out;
     }
 
-    .schedule-card:hover {
-        border-color: rgba(157, 78, 221, 0.4);
-        box-shadow: 0 20px 45px rgba(31, 38, 135, 0.2);
-    }
-
-    .card-header {
-        background: rgba(15, 12, 24, 0.8);
-        border-bottom: 1px solid rgba(157, 78, 221, 0.2);
-        padding: 1.5rem 2rem;
-    }
-
-    .card-header h4 {
-        font-size: 1.8rem;
+    .section-title {
+        font-size: 1.5rem;
         font-weight: 700;
-        background: linear-gradient(135deg, #a855f7, #8b5cf6);
+        color: white;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid rgba(157, 78, 221, 0.2);
+        background: linear-gradient(90deg, #a855f7 0%, #8b5cf6 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
-        margin: 0;
-    }
-
-    .card-body {
-        padding: 2rem;
     }
 
     /* Form Elements */
@@ -163,6 +147,7 @@
         font-weight: 500;
         transition: all 0.3s ease;
         cursor: pointer;
+        text-decoration: none;
     }
 
     .filter-btn:hover {
@@ -177,7 +162,7 @@
         color: white;
     }
 
-    /* Meeting Cards */
+    /* Meeting Grid */
     .meeting-grid {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -191,17 +176,19 @@
         border-radius: 20px;
         padding: 1.5rem;
         transition: all 0.3s ease;
+        animation: fadeInUp 0.6s ease-out;
+        animation-fill-mode: both;
     }
 
     .meeting-card:hover {
-        transform: translateY(-5px);
         border-color: rgba(157, 78, 221, 0.4);
-        box-shadow: 0 15px 35px rgba(31, 38, 135, 0.15);
+        transform: translateY(-5px);
+        box-shadow: 0 15px 50px rgba(157, 78, 221, 0.2);
     }
 
     .meeting-title {
         color: white;
-        font-size: 1.2rem;
+        font-size: 1.25rem;
         font-weight: 600;
         margin-bottom: 0.5rem;
     }
@@ -210,12 +197,6 @@
         color: rgba(255, 255, 255, 0.7);
         font-size: 0.95rem;
         margin-bottom: 1rem;
-    }
-
-    .meeting-info {
-        color: rgba(255, 255, 255, 0.6);
-        font-size: 0.9rem;
-        margin-bottom: 0.3rem;
     }
 
     .meeting-status {
@@ -245,28 +226,36 @@
         border: 1px solid rgba(239, 68, 68, 0.2);
     }
 
+    .meeting-info {
+        color: rgba(255, 255, 255, 0.6);
+        font-size: 0.9rem;
+        margin-bottom: 0.3rem;
+    }
+
     /* Buttons */
     .btn {
-        padding: 0.8rem 1.5rem;
+        padding: 0.75rem 1.5rem;
         border-radius: 12px;
-        font-weight: 500;
+        font-weight: 600;
         transition: all 0.3s ease;
         display: inline-flex;
         align-items: center;
         gap: 0.5rem;
         text-decoration: none;
+        cursor: pointer;
+        border: none;
     }
 
     .btn-primary {
         background: linear-gradient(90deg, #a855f7 0%, #8b5cf6 100%);
         color: white;
-        border: none;
         box-shadow: 0 4px 15px rgba(168, 85, 247, 0.25);
     }
 
     .btn-primary:hover {
         transform: translateY(-2px);
         box-shadow: 0 8px 25px rgba(168, 85, 247, 0.4);
+        color: white;
     }
 
     .btn-join {
@@ -285,23 +274,59 @@
     /* Empty State */
     .empty-state {
         text-align: center;
-        padding: 3rem 2rem;
+        padding: 4rem 0;
         background: rgba(15, 12, 24, 0.7);
         backdrop-filter: blur(15px);
         border: 1px solid rgba(157, 78, 221, 0.2);
         border-radius: 20px;
+        animation: fadeIn 0.8s ease-out;
     }
 
-    .empty-state i {
-        font-size: 3rem;
-        color: rgba(255, 255, 255, 0.3);
+    .empty-state .icon {
+        font-size: 4rem;
+        color: rgba(255, 255, 255, 0.6);
+        margin-bottom: 1.5rem;
+    }
+
+    .empty-state h2 {
+        color: white;
+        font-size: 1.5rem;
         margin-bottom: 1rem;
     }
 
     .empty-state p {
         color: rgba(255, 255, 255, 0.6);
-        font-size: 1.1rem;
+        margin-bottom: 2rem;
     }
+
+    /* Animations */
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+        to {
+            opacity: 1;
+        }
+    }
+
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Staggered Animation for Cards */
+    .meeting-card:nth-child(1) { animation-delay: 0.1s; }
+    .meeting-card:nth-child(2) { animation-delay: 0.2s; }
+    .meeting-card:nth-child(3) { animation-delay: 0.3s; }
+    .meeting-card:nth-child(4) { animation-delay: 0.4s; }
+    .meeting-card:nth-child(5) { animation-delay: 0.5s; }
+    .meeting-card:nth-child(6) { animation-delay: 0.6s; }
 
     /* Responsive Adjustments */
     @media (max-width: 768px) {
@@ -310,11 +335,9 @@
         }
 
         .header-section {
-            padding: 1.5rem;
-        }
-
-        .header-section h2 {
-            font-size: 2rem;
+            flex-direction: column;
+            gap: 1.5rem;
+            text-align: center;
         }
 
         .filter-group {
@@ -325,67 +348,62 @@
             width: 100%;
             text-align: center;
         }
-
-        .meeting-grid {
-            grid-template-columns: 1fr;
-        }
     }
 </style>
 {% endblock %}
 
 {% block content %}
 <div class="bg-elements">
-    <div class="bg-gradient"></div>
-    <div class="bg-gradient"></div>
+    <div class="static-pattern"></div>
 </div>
 
 <div class="container">
     <div class="header-section">
-        <h2>My Meetings</h2>
+        <h1>My Meetings</h1>
+        <button type="button" class="btn btn-primary" id="showScheduleFormBtn">
+            <i class="fas fa-calendar-plus"></i>
+            Schedule Meeting
+        </button>
     </div>
     
     <!-- Schedule Meeting Form -->
-    <div class="schedule-card">
-        <div class="card-header">
-            <h4>Schedule a New Meeting</h4>
-        </div>
-        <div class="card-body">
-            <form method="POST">
-                {% csrf_token %}
-                <div class="form-group">
-                    <label class="form-label" for="mentor">Select Mentor</label>
-                    <select class="form-control" id="mentor" name="mentor" required>
-                        <option value="">Choose a mentor...</option>
-                        {% for connection in connected_mentors %}
-                            <option value="{{ connection.mentor.id }}">{{ connection.mentor.user.get_full_name }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label class="form-label" for="title">Meeting Title</label>
-                    <input type="text" class="form-control" id="title" name="title" required>
-                </div>
-                <div class="form-group">
-                    <label class="form-label" for="description">Description</label>
-                    <textarea class="form-control" id="description" name="description" rows="3"></textarea>
-                </div>
-                <div class="form-group">
-                    <label class="form-label" for="meeting_link">Meeting Link</label>
-                    <input type="url" class="form-control" id="meeting_link" name="meeting_link" required>
-                </div>
-                <div class="form-group">
-                    <label class="form-label" for="meeting_time">Meeting Time</label>
-                    <input type="datetime-local" class="form-control" id="meeting_time" name="meeting_time" required>
-                </div>
-                <div class="form-group">
-                    <label class="form-label" for="duration">Duration (minutes)</label>
-                    <input type="number" class="form-control" id="duration" name="duration" required>
-                </div>
-                <button type="submit" class="btn btn-primary">
-                    <i class="fas fa-calendar-plus"></i> Schedule Meeting
-                </button>
-            </form>
-        </div>
+    <div class="card-section" id="scheduleFormSection" style="display: none;">
+        <h2 class="section-title">Schedule a New Meeting</h2>
+        <form method="POST">
+            {% csrf_token %}
+            <div class="form-group">
+                <label class="form-label" for="mentor">Select Mentor</label>
+                <select class="form-control" id="mentor" name="mentor" required>
+                    <option value="">Choose a mentor...</option>
+                    {% for connection in connected_mentors %}
+                        <option value="{{ connection.mentor.id }}">{{ connection.mentor.user.get_full_name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="title">Meeting Title</label>
+                <input type="text" class="form-control" id="title" name="title" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="description">Description</label>
+                <textarea class="form-control" id="description" name="description" rows="3"></textarea>
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="meeting_link">Meeting Link</label>
+                <input type="url" class="form-control" id="meeting_link" name="meeting_link" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="meeting_time">Meeting Time</label>
+                <input type="datetime-local" class="form-control" id="meeting_time" name="meeting_time" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="duration">Duration (minutes)</label>
+                <input type="number" class="form-control" id="duration" name="duration" required>
+            </div>
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-calendar-plus"></i> Schedule Meeting
+            </button>
+        </form>
     </div>
 
     <!-- Filter Meetings -->
@@ -398,36 +416,96 @@
 
     <!-- Meetings List -->
     {% if meetings %}
-    <div class="meeting-grid">
-        {% for meeting in meetings %}
-        <div class="meeting-card">
-            <div class="meeting-title">{{ meeting.title }}</div>
-            <div class="meeting-subtitle">With {{ meeting.mentor.user.get_full_name }}</div>
-            <div class="meeting-status status-{{ meeting.status }}">{{ meeting.status|title }}</div>
-            <div class="meeting-info">
-                <i class="fas fa-clock"></i> {{ meeting.meeting_time|date:"F j, Y, g:i a" }}
-            </div>
-            <div class="meeting-info">
-                <i class="fas fa-hourglass-half"></i> {{ meeting.duration }} minutes
-            </div>
-            {% if meeting.description %}
-            <div class="meeting-info">{{ meeting.description }}</div>
+    <div class="card-section">
+        <h2 class="section-title">
+            {% if request.GET.status %}
+                {{ request.GET.status|title }} Meetings
+            {% else %}
+                All Meetings
             {% endif %}
-            {% if meeting.status == 'scheduled' and meeting.meeting_link %}
-            <div style="margin-top: 1rem;">
-                <a href="{{ meeting.meeting_link }}" target="_blank" class="btn btn-join">
-                    <i class="fas fa-video"></i> Join Meeting
-                </a>
+        </h2>
+        <div class="meeting-grid">
+            {% for meeting in meetings %}
+            <div class="meeting-card">
+                <h3 class="meeting-title">{{ meeting.title }}</h3>
+                <div class="meeting-subtitle">With {{ meeting.mentor.user.get_full_name }}</div>
+                <div class="meeting-status status-{{ meeting.status }}">{{ meeting.status|title }}</div>
+                <div class="meeting-info">
+                    <i class="fas fa-clock"></i> {{ meeting.meeting_time|date:"F j, Y, g:i a" }}
+                </div>
+                <div class="meeting-info">
+                    <i class="fas fa-hourglass-half"></i> {{ meeting.duration }} minutes
+                </div>
+                {% if meeting.description %}
+                <div class="meeting-info" style="margin-top: 0.5rem;">{{ meeting.description }}</div>
+                {% endif %}
+                {% if meeting.status == 'scheduled' and meeting.meeting_link %}
+                <div style="margin-top: 1rem;">
+                    <a href="{{ meeting.meeting_link }}" target="_blank" class="btn btn-join">
+                        <i class="fas fa-video"></i> Join Meeting
+                    </a>
+                </div>
+                {% endif %}
             </div>
-            {% endif %}
+            {% endfor %}
         </div>
-        {% endfor %}
     </div>
     {% else %}
     <div class="empty-state">
-        <i class="fas fa-calendar-alt"></i>
-        <p>No meetings found.</p>
+        <div class="icon">
+            <i class="fas fa-calendar-alt"></i>
+        </div>
+        <h2>No Meetings Found</h2>
+        <p>You don't have any meetings scheduled yet.</p>
+        <button type="button" class="btn btn-primary" id="noMeetingsScheduleBtn">
+            <i class="fas fa-calendar-plus"></i>
+            Schedule Your First Meeting
+        </button>
     </div>
     {% endif %}
 </div>
+
+<script>
+    // Toggle schedule form visibility
+    document.addEventListener('DOMContentLoaded', function() {
+        const showScheduleFormBtn = document.getElementById('showScheduleFormBtn');
+        const noMeetingsScheduleBtn = document.getElementById('noMeetingsScheduleBtn');
+        const scheduleFormSection = document.getElementById('scheduleFormSection');
+
+        function toggleScheduleForm() {
+            if (scheduleFormSection.style.display === 'none' || scheduleFormSection.style.display === '') {
+                scheduleFormSection.style.display = 'block';
+                scheduleFormSection.scrollIntoView({ behavior: 'smooth' });
+            } else {
+                scheduleFormSection.style.display = 'none';
+            }
+        }
+
+        if (showScheduleFormBtn) {
+            showScheduleFormBtn.addEventListener('click', toggleScheduleForm);
+        }
+
+        if (noMeetingsScheduleBtn) {
+            noMeetingsScheduleBtn.addEventListener('click', function() {
+                scheduleFormSection.style.display = 'block';
+                scheduleFormSection.scrollIntoView({ behavior: 'smooth' });
+            });
+        }
+
+        // Add hover effect animations for buttons
+        document.querySelectorAll('.btn, .filter-btn').forEach(btn => {
+            btn.addEventListener('mouseover', function() {
+                this.style.transition = 'all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+            });
+        });
+
+        // Add subtle entrance animation for page load
+        setTimeout(() => {
+            document.querySelectorAll('.meeting-card').forEach((card, index) => {
+                card.style.opacity = '1';
+                card.style.transform = 'translateY(0)';
+            });
+        }, 100);
+    });
+</script>
 {% endblock %}

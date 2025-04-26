@@ -5,20 +5,19 @@
 
 {% block extra_css %}
 <style>
-    :root {
-        --primary: #8B5CF6;
-        --primary-hover: #7C3AED;
-        --primary-light: rgba(139, 92, 246, 0.2);
-        --text-light: #F3F4F6;
-        --text-secondary: #D1D5DB;
-        --card-bg: rgba(15, 12, 24, 0.7);
-        --card-border: rgba(157, 78, 221, 0.3);
-        --card-shadow: rgba(0, 0, 0, 0.4);
+    /* Core Styles */
+    .container {
+        padding: 2.5rem 0;
+        position: relative;
+        z-index: 2;
+        max-width: 1200px;
+        margin: 0 auto;
     }
 
+    /* Background Elements */
     body {
         background-color: #000000;
-        color: var(--text-light);
+        color: white;
         font-family: 'Inter', sans-serif;
         min-height: 100vh;
         position: relative;
@@ -36,78 +35,41 @@
         overflow: hidden;
     }
 
-    .bg-gradient {
-        position: absolute;
-        width: 35rem;
-        height: 35rem;
-        border-radius: 50%;
-        filter: blur(8rem);
-        z-index: -1;
-        opacity: 0.5;
-        animation: pulse 15s infinite alternate ease-in-out;
-    }
-
-    @keyframes pulse {
-        0% { transform: scale(1); opacity: 0.5; }
-        50% { transform: scale(1.05); opacity: 0.6; }
-        100% { transform: scale(1); opacity: 0.5; }
-    }
-
-    .bg-gradient:nth-child(1) {
-        top: -10%;
-        right: 5%;
-        background: rgba(168, 85, 247, 0.3);
-        animation-delay: -5s;
-    }
-
-    .bg-gradient:nth-child(2) {
-        bottom: -5%;
-        left: 10%;
-        background: rgba(124, 58, 237, 0.2);
-        animation-delay: -10s;
-    }
-
     .static-pattern {
         position: absolute;
         top: 0;
         left: 0;
         width: 100%;
         height: 100%;
-        opacity: 0.1;
+        opacity: 0.05;
         z-index: -1;
-        background-image: radial-gradient(#a855f7 1px, transparent 1px);
+        background-image: radial-gradient(#666666 1px, transparent 1px);
         background-size: 40px 40px;
-    }
-
-    .container {
-        max-width: 1400px;
-        margin: 0 auto;
-        padding: 2rem;
-        position: relative;
-        z-index: 2;
     }
 
     /* Header Section */
     .header-section {
+        text-align: center;
+        margin-bottom: 3rem;
+        padding: 2rem;
+        background: rgba(15, 15, 15, 0.8);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(157, 78, 221, 0.3);
+        border-radius: 20px;
+        box-shadow: 0 8px 32px rgba(157, 78, 221, 0.15);
+        animation: fadeIn 0.8s ease-out;
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 2rem;
-        background: var(--card-bg);
-        backdrop-filter: blur(10px);
-        border: 1px solid var(--card-border);
-        border-radius: 16px;
-        padding: 1.5rem 2rem;
     }
 
     .header-section h1 {
-        font-size: 2rem;
-        font-weight: 700;
-        color: white;
-        margin: 0;
+        font-size: 2.5rem;
+        font-weight: 800;
         background: linear-gradient(135deg, #a855f7, #8b5cf6);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
+        margin-bottom: 0;
     }
 
     .create-btn {
@@ -121,17 +83,18 @@
         align-items: center;
         gap: 0.5rem;
         transition: all 0.3s ease;
+        box-shadow: 0 4px 12px rgba(139, 92, 246, 0.25);
     }
 
     .create-btn:hover {
         transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+        box-shadow: 0 8px 20px rgba(139, 92, 246, 0.4);
         color: white;
     }
 
     /* Alert Messages */
     .alert {
-        background: var(--card-bg);
+        background: rgba(15, 12, 24, 0.8);
         backdrop-filter: blur(10px);
         border: 1px solid;
         border-radius: 12px;
@@ -140,6 +103,7 @@
         display: flex;
         align-items: center;
         gap: 1rem;
+        animation: slideIn 0.5s ease-out;
     }
 
     .alert::before {
@@ -150,6 +114,7 @@
 
     .alert-success {
         border-color: rgba(34, 197, 94, 0.3);
+        background: rgba(34, 197, 94, 0.1);
         color: #5ae6a8;
     }
 
@@ -160,6 +125,7 @@
 
     .alert-danger {
         border-color: rgba(239, 68, 68, 0.3);
+        background: rgba(239, 68, 68, 0.1);
         color: #ff6b6b;
     }
 
@@ -168,39 +134,58 @@
         color: #ff6b6b;
     }
 
-    /* Group Cards */
+    /* Invitation Section */
     .card-section {
-        background: var(--card-bg);
+        background: rgba(15, 15, 15, 0.8);
         backdrop-filter: blur(15px);
-        border: 1px solid var(--card-border);
+        border: 1px solid rgba(157, 78, 221, 0.3);
         border-radius: 20px;
         padding: 2rem;
         margin-bottom: 2rem;
+        box-shadow: 0 8px 32px rgba(157, 78, 221, 0.15);
+        animation: fadeIn 0.8s ease-out;
     }
 
-    .card-section h2 {
+    .section-title {
         font-size: 1.5rem;
         font-weight: 700;
         color: white;
         margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid rgba(157, 78, 221, 0.2);
+        background: linear-gradient(90deg, #a855f7 0%, #8b5cf6 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
     }
 
+    /* Group Grid */
     .group-grid {
         display: grid;
         gap: 1.5rem;
     }
 
+    /* Group Card */
     .group-card {
-        background: rgba(0, 0, 0, 0.2);
-        border: 1px solid transparent;
-        border-radius: 16px;
+        background: rgba(15, 12, 24, 0.7);
+        backdrop-filter: blur(15px);
+        border: 1px solid rgba(157, 78, 221, 0.2);
+        border-radius: 20px;
         padding: 1.5rem;
         transition: all 0.3s ease;
+        animation: fadeInUp 0.6s ease-out;
+        animation-fill-mode: both;
     }
 
     .group-card:hover {
-        border-color: var(--primary);
+        border-color: rgba(157, 78, 221, 0.4);
         transform: translateY(-5px);
+        box-shadow: 0 15px 50px rgba(157, 78, 221, 0.2);
+    }
+
+    .group-card a {
+        color: inherit;
+        text-decoration: none;
+        display: block;
     }
 
     .group-name {
@@ -211,38 +196,48 @@
     }
 
     .group-info {
-        color: var(--text-secondary);
+        color: rgba(255, 255, 255, 0.6);
         font-size: 0.875rem;
         margin-bottom: 1rem;
     }
 
     .group-description {
-        color: var(--text-secondary);
-        margin-bottom: 1rem;
+        color: rgba(255, 255, 255, 0.7);
         line-height: 1.5;
+        margin-bottom: 1rem;
     }
 
     /* Invitation Cards */
     .invitation-card {
-        background: rgba(0, 0, 0, 0.3);
-        border: 1px solid var(--card-border);
-        border-radius: 16px;
+        background: rgba(15, 12, 24, 0.7);
+        backdrop-filter: blur(15px);
+        border: 1px solid rgba(157, 78, 221, 0.2);
+        border-radius: 20px;
         padding: 1.5rem;
         margin-bottom: 1rem;
         display: flex;
         justify-content: space-between;
         align-items: center;
+        animation: fadeInUp 0.6s ease-out;
+        animation-fill-mode: both;
+        transition: all 0.3s ease;
+    }
+
+    .invitation-card:hover {
+        border-color: rgba(157, 78, 221, 0.4);
+        transform: translateY(-3px);
+        box-shadow: 0 15px 50px rgba(157, 78, 221, 0.2);
     }
 
     .invitation-info h3 {
         color: white;
-        font-size: 1.1rem;
+        font-size: 1.25rem;
         font-weight: 600;
         margin-bottom: 0.5rem;
     }
 
     .invitation-info p {
-        color: var(--text-secondary);
+        color: rgba(255, 255, 255, 0.6);
         font-size: 0.875rem;
     }
 
@@ -251,23 +246,28 @@
         gap: 0.75rem;
     }
 
+    /* Button Styles */
     .btn {
-        padding: 0.5rem 1rem;
-        border-radius: 8px;
-        font-weight: 500;
-        border: none;
-        cursor: pointer;
+        padding: 0.75rem 1.5rem;
+        border-radius: 12px;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
         transition: all 0.3s ease;
+        cursor: pointer;
+        border: none;
     }
 
     .btn-accept {
-        background: linear-gradient(90deg, #a855f7, #8b5cf6);
+        background: linear-gradient(90deg, #22c55e 0%, #16a34a 100%);
         color: white;
+        box-shadow: 0 4px 12px rgba(34, 197, 94, 0.25);
     }
 
     .btn-accept:hover {
         transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+        box-shadow: 0 8px 20px rgba(34, 197, 94, 0.4);
     }
 
     .btn-reject {
@@ -279,17 +279,23 @@
     .btn-reject:hover {
         background: rgba(239, 68, 68, 0.2);
         transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(239, 68, 68, 0.15);
     }
 
     /* Empty State */
     .empty-state {
         text-align: center;
         padding: 4rem 0;
+        background: rgba(15, 12, 24, 0.7);
+        backdrop-filter: blur(15px);
+        border: 1px solid rgba(157, 78, 221, 0.2);
+        border-radius: 20px;
+        animation: fadeIn 0.8s ease-out;
     }
 
-    .empty-state i {
+    .empty-state .icon {
         font-size: 4rem;
-        color: var(--text-secondary);
+        color: rgba(255, 255, 255, 0.6);
         margin-bottom: 1.5rem;
     }
 
@@ -300,9 +306,49 @@
     }
 
     .empty-state p {
-        color: var(--text-secondary);
+        color: rgba(255, 255, 255, 0.6);
         margin-bottom: 2rem;
     }
+
+    /* Animations */
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+        to {
+            opacity: 1;
+        }
+    }
+
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateX(-20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+    /* Staggered Animation for Cards */
+    .group-card:nth-child(1), .invitation-card:nth-child(1) { animation-delay: 0.1s; }
+    .group-card:nth-child(2), .invitation-card:nth-child(2) { animation-delay: 0.2s; }
+    .group-card:nth-child(3), .invitation-card:nth-child(3) { animation-delay: 0.3s; }
+    .group-card:nth-child(4), .invitation-card:nth-child(4) { animation-delay: 0.4s; }
+    .group-card:nth-child(5), .invitation-card:nth-child(5) { animation-delay: 0.5s; }
+    .group-card:nth-child(6), .invitation-card:nth-child(6) { animation-delay: 0.6s; }
 
     /* Responsive Design */
     @media (min-width: 768px) {
@@ -318,9 +364,13 @@
     }
 
     @media (max-width: 768px) {
+        .container {
+            padding: 1.5rem;
+        }
+
         .header-section {
             flex-direction: column;
-            gap: 1rem;
+            gap: 1.5rem;
             text-align: center;
         }
 
@@ -340,8 +390,6 @@
 
 {% block content %}
 <div class="bg-elements">
-    <div class="bg-gradient"></div>
-    <div class="bg-gradient"></div>
     <div class="static-pattern"></div>
 </div>
 
@@ -355,16 +403,18 @@
     </div>
 
     {% if messages %}
+    <div class="messages">
         {% for message in messages %}
-            <div class="alert {% if message.tags == 'success' %}alert-success{% elif message.tags == 'error' %}alert-danger{% endif %}">
-                {{ message }}
-            </div>
+        <div class="alert {% if message.tags == 'success' %}alert-success{% elif message.tags == 'error' %}alert-danger{% endif %}">
+            {{ message }}
+        </div>
         {% endfor %}
+    </div>
     {% endif %}
 
     {% if pending_invites %}
     <div class="card-section">
-        <h2>Pending Invitations</h2>
+        <h2 class="section-title">Pending Invitations</h2>
         {% for invite in pending_invites %}
         <div class="invitation-card">
             <div class="invitation-info">
@@ -375,12 +425,16 @@
                 <form method="post" action="{% url 'handle_invitation' invite.id %}" class="inline">
                     {% csrf_token %}
                     <input type="hidden" name="action" value="accept">
-                    <button type="submit" class="btn btn-accept">Accept</button>
+                    <button type="submit" class="btn btn-accept">
+                        <i class="fas fa-check"></i> Accept
+                    </button>
                 </form>
                 <form method="post" action="{% url 'handle_invitation' invite.id %}" class="inline">
                     {% csrf_token %}
                     <input type="hidden" name="action" value="reject">
-                    <button type="submit" class="btn btn-reject">Reject</button>
+                    <button type="submit" class="btn btn-reject">
+                        <i class="fas fa-times"></i> Reject
+                    </button>
                 </form>
             </div>
         </div>
@@ -390,7 +444,7 @@
 
     {% if led_groups %}
     <div class="card-section">
-        <h2>Groups I Lead</h2>
+        <h2 class="section-title">Groups I Lead</h2>
         <div class="group-grid">
             {% for group in led_groups %}
             <div class="group-card">
@@ -409,7 +463,7 @@
 
     {% if member_groups %}
     <div class="card-section">
-        <h2>Groups I'm In</h2>
+        <h2 class="section-title">Groups I'm In</h2>
         <div class="group-grid">
             {% for group in member_groups %}
             <div class="group-card">
@@ -440,4 +494,23 @@
     </div>
     {% endif %}
 </div>
-{% endblock %} 
+
+<script>
+    // Add hover effect animations for button interactions
+    document.querySelectorAll('.btn, .create-btn').forEach(btn => {
+        btn.addEventListener('mouseover', function() {
+            this.style.transition = 'all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+        });
+    });
+
+    // Add subtle entrance animation for page load
+    document.addEventListener('DOMContentLoaded', function() {
+        setTimeout(() => {
+            document.querySelectorAll('.group-card, .invitation-card').forEach((card, index) => {
+                card.style.opacity = '1';
+                card.style.transform = 'translateY(0)';
+            });
+        }, 100);
+    });
+</script>
+{% endblock %}

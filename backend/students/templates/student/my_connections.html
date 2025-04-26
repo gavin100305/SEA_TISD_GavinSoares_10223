@@ -5,120 +5,69 @@
 
 {% block extra_css %}
 <style>
-    :root {
-        --primary: #8B5CF6;
-        --primary-hover: #7C3AED;
-        --primary-light: rgba(139, 92, 246, 0.2);
-        --text-light: #F3F4F6;
-        --text-secondary: #D1D5DB;
-        --card-bg: rgba(15, 12, 24, 0.7);
-        --card-border: rgba(157, 78, 221, 0.3);
-        --card-shadow: rgba(0, 0, 0, 0.4);
+    /* Core Styles */
+    .container {
+        padding: 2.5rem 0;
+        position: relative;
+        z-index: 2;
+        max-width: 1200px;
+        margin: 0 auto;
     }
 
+    /* Background */
     body {
         background-color: #000000;
-        color: var(--text-light);
+        color: #F3F4F6;
         font-family: 'Inter', sans-serif;
         min-height: 100vh;
         position: relative;
         overflow-x: hidden;
     }
 
-    /* Background Elements */
+    /* Remove background elements for consistency with project page */
     .bg-elements {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        z-index: -1;
-        overflow: hidden;
-    }
-
-    .bg-gradient {
-        position: absolute;
-        width: 35rem;
-        height: 35rem;
-        border-radius: 50%;
-        filter: blur(8rem);
-        z-index: -1;
-        opacity: 0.5;
-        animation: pulse 15s infinite alternate ease-in-out;
-    }
-
-    @keyframes pulse {
-        0% { transform: scale(1); opacity: 0.5; }
-        50% { transform: scale(1.05); opacity: 0.6; }
-        100% { transform: scale(1); opacity: 0.5; }
-    }
-
-    .bg-gradient:nth-child(1) {
-        top: -10%;
-        right: 5%;
-        background: rgba(168, 85, 247, 0.3);
-        animation-delay: -5s;
-    }
-
-    .bg-gradient:nth-child(2) {
-        bottom: -5%;
-        left: 10%;
-        background: rgba(124, 58, 237, 0.2);
-        animation-delay: -10s;
-    }
-
-    .static-pattern {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        opacity: 0.1;
-        z-index: -1;
-        background-image: radial-gradient(#a855f7 1px, transparent 1px);
-        background-size: 40px 40px;
-    }
-
-    .container {
-        max-width: 1400px;
-        margin: 0 auto;
-        padding: 2rem;
-        position: relative;
-        z-index: 2;
+        display: none;
     }
 
     /* Header Section */
     .header-section {
         text-align: center;
         margin-bottom: 3rem;
-        background: var(--card-bg);
-        backdrop-filter: blur(10px);
-        border: 1px solid var(--card-border);
-        border-radius: 16px;
         padding: 2rem;
+        background: rgba(15, 15, 15, 0.8);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(157, 78, 221, 0.3);
+        border-radius: 20px;
+        box-shadow: 0 8px 32px rgba(157, 78, 221, 0.15);
     }
 
     .header-section h1 {
         font-size: 2.5rem;
-        font-weight: 700;
-        color: white;
-        margin-bottom: 1rem;
+        font-weight: 800;
         background: linear-gradient(135deg, #a855f7, #8b5cf6);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
+        margin-bottom: 1rem;
     }
 
     /* Alert Messages */
     .alert {
-        background: var(--card-bg);
+        background: rgba(15, 12, 24, 0.8);
         backdrop-filter: blur(10px);
         border: 1px solid;
         border-radius: 12px;
         padding: 1.2rem 1.8rem;
         margin-bottom: 1rem;
+        color: white;
         display: flex;
         align-items: center;
         gap: 1rem;
+        animation: fadeIn 0.5s ease-out;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(-10px); }
+        to { opacity: 1; transform: translateY(0); }
     }
 
     .alert::before {
@@ -129,7 +78,7 @@
 
     .alert-success {
         border-color: rgba(34, 197, 94, 0.3);
-        color: #5ae6a8;
+        background: rgba(34, 197, 94, 0.1);
     }
 
     .alert-success::before {
@@ -139,7 +88,7 @@
 
     .alert-danger {
         border-color: rgba(239, 68, 68, 0.3);
-        color: #ff6b6b;
+        background: rgba(239, 68, 68, 0.1);
     }
 
     .alert-danger::before {
@@ -149,7 +98,7 @@
 
     .alert-info {
         border-color: rgba(59, 130, 246, 0.3);
-        color: #60a5fa;
+        background: rgba(59, 130, 246, 0.1);
     }
 
     .alert-info::before {
@@ -161,27 +110,28 @@
     .mentor-grid {
         display: grid;
         gap: 1.5rem;
-        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
     }
 
     .mentor-card {
-        background: var(--card-bg);
+        background: rgba(15, 12, 24, 0.7);
         backdrop-filter: blur(15px);
-        border: 1px solid var(--card-border);
+        border: 1px solid rgba(157, 78, 221, 0.2);
         border-radius: 20px;
-        padding: 1.25rem;
-        transition: all 0.4s ease;
+        padding: 2rem;
+        transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+        height: 100%;
         position: relative;
         overflow: hidden;
     }
 
-    .mentor-card::before {
+    .mentor-card::after {
         content: '';
         position: absolute;
         top: 0;
         left: 0;
         width: 100%;
-        height: 5px;
+        height: 3px;
         background: linear-gradient(90deg, #a855f7, #8b5cf6);
         transform: scaleX(0);
         transform-origin: left;
@@ -189,91 +139,110 @@
     }
 
     .mentor-card:hover {
-        transform: translateY(-10px);
-        border-color: var(--primary);
-        box-shadow: 0 15px 40px rgba(139, 92, 246, 0.25);
+        transform: translateY(-5px);
+        border-color: rgba(157, 78, 221, 0.4);
+        box-shadow: 0 15px 50px rgba(31, 38, 135, 0.2);
     }
 
-    .mentor-card:hover::before {
+    .mentor-card:hover::after {
         transform: scaleX(1);
     }
 
     .mentor-header {
         display: flex;
-        align-items: center;
-        gap: 1rem;
-        margin-bottom: 1rem;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 1.5rem;
     }
 
-    .mentor-image {
+    .mentor-image-wrapper {
         width: 60px;
         height: 60px;
         border-radius: 12px;
-        object-fit: cover;
-        border: 2px solid var(--primary);
+        overflow: hidden;
+        border: 2px solid rgba(157, 78, 221, 0.5);
         transition: all 0.4s ease;
     }
 
-    .mentor-card:hover .mentor-image {
+    .mentor-card:hover .mentor-image-wrapper {
         transform: scale(1.05);
         border-color: #a855f7;
     }
 
+    .mentor-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.4s ease;
+    }
+
+    .mentor-card:hover .mentor-image {
+        transform: scale(1.1);
+    }
+
+    .mentor-info {
+        flex: 1;
+        padding-left: 1rem;
+    }
+
     .mentor-info h3 {
         color: white;
-        font-size: 1.1rem;
+        font-size: 1.5rem;
         font-weight: 600;
         margin-bottom: 0.5rem;
     }
 
     .mentor-info p {
-        color: var(--text-secondary);
-        font-size: 0.85rem;
-        margin-bottom: 0.2rem;
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 0.9rem;
+        margin-bottom: 0.25rem;
     }
 
     .status-badge {
-        display: inline-block;
-        padding: 0.25rem 1rem;
+        padding: 0.5rem 1rem;
         border-radius: 20px;
         font-size: 0.8rem;
         font-weight: 500;
-        margin-top: 0.25rem;
+        display: inline-block;
+        margin-top: 0.5rem;
     }
 
     .status-pending {
         background: rgba(234, 179, 8, 0.1);
-        color: #fbbf24;
+        color: #eab308;
         border: 1px solid rgba(234, 179, 8, 0.2);
     }
 
     .status-accepted {
         background: rgba(34, 197, 94, 0.1);
-        color: #4ade80;
+        color: #22c55e;
         border: 1px solid rgba(34, 197, 94, 0.2);
     }
 
     .status-rejected {
         background: rgba(239, 68, 68, 0.1);
-        color: #f87171;
+        color: #ef4444;
         border: 1px solid rgba(239, 68, 68, 0.2);
     }
 
     .mentor-details {
         background: rgba(0, 0, 0, 0.2);
         border-radius: 12px;
-        padding: 1rem;
-        margin: 1rem 0;
-        font-size: 0.85rem;
+        padding: 1.2rem;
+        margin: 1.5rem 0;
+        line-height: 1.6;
+        animation: slideDown 0.4s ease-out;
+    }
+
+    @keyframes slideDown {
+        from { opacity: 0; transform: translateY(-20px); }
+        to { opacity: 1; transform: translateY(0); }
     }
 
     .mentor-details p {
-        color: var(--text-secondary);
-        font-size: 0.5rem;
-        margin-bottom: 0.5rem;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 0.9rem;
+        margin-bottom: 0.75rem;
     }
 
     .mentor-details p:last-child {
@@ -281,20 +250,27 @@
     }
 
     .mentor-details p strong {
-        color: var(--primary);
+        color: #9d4edd;
         font-weight: 500;
+        margin-right: 0.5rem;
     }
 
     .contact-info {
         background: rgba(0, 0, 0, 0.2);
         border-radius: 12px;
-        padding: 1rem;
+        padding: 1.2rem;
+        animation: slideUp 0.4s ease-out;
+    }
+
+    @keyframes slideUp {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
     }
 
     .contact-info p {
-        color: var(--text-secondary);
-        font-size: 0.85rem;
-        margin-bottom: 0.5rem;
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 0.9rem;
+        margin-bottom: 0.75rem;
         display: flex;
         align-items: center;
         gap: 0.5rem;
@@ -305,7 +281,7 @@
     }
 
     .contact-info a {
-        color: var(--primary);
+        color: #9d4edd;
         text-decoration: none;
         transition: color 0.3s ease;
     }
@@ -316,22 +292,83 @@
     }
 
     .connection-date {
-        color: var(--text-secondary);
+        color: rgba(255, 255, 255, 0.5);
         font-size: 0.8rem;
         text-align: right;
-        margin-top: 1rem;
+        margin-top: 1.5rem;
         font-style: italic;
+    }
+
+    /* Action Buttons */
+    .action-buttons {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        margin-top: 1.5rem;
+    }
+
+    .btn {
+        padding: 0.6rem 1.2rem;
+        border-radius: 10px;
+        font-size: 0.9rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        border: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .btn-message {
+        background: rgba(59, 130, 246, 0.1);
+        color: #3b82f6;
+        border: 1px solid rgba(59, 130, 246, 0.2);
+    }
+
+    .btn-message:hover {
+        background: rgba(59, 130, 246, 0.2);
+        transform: translateY(-2px);
+    }
+
+    .btn-schedule {
+        background: rgba(168, 85, 247, 0.1);
+        color: #a855f7;
+        border: 1px solid rgba(168, 85, 247, 0.2);
+    }
+
+    .btn-schedule:hover {
+        background: rgba(168, 85, 247, 0.2);
+        transform: translateY(-2px);
+    }
+
+    .btn-cancel {
+        background: rgba(239, 68, 68, 0.1);
+        color: #ef4444;
+        border: 1px solid rgba(239, 68, 68, 0.2);
+    }
+
+    .btn-cancel:hover {
+        background: rgba(239, 68, 68, 0.2);
+        transform: translateY(-2px);
     }
 
     /* Empty State */
     .empty-state {
         text-align: center;
-        padding: 4rem 0;
+        padding: 4rem 2rem;
+        background: rgba(15, 12, 24, 0.7);
+        backdrop-filter: blur(15px);
+        border: 1px solid rgba(157, 78, 221, 0.2);
+        border-radius: 20px;
+        margin-top: 2rem;
+        animation: fadeIn 0.6s ease-out;
     }
 
     .empty-state i {
         font-size: 4rem;
-        color: var(--text-secondary);
+        color: rgba(255, 255, 255, 0.3);
         margin-bottom: 1.5rem;
     }
 
@@ -342,96 +379,53 @@
     }
 
     .empty-state p {
-        color: var(--text-secondary);
+        color: rgba(255, 255, 255, 0.6);
+        font-size: 1.2rem;
         margin-bottom: 2rem;
     }
 
-    .btn-custom {
-        background: linear-gradient(90deg, #a855f7, #8b5cf6);
+    /* Find Mentors Button */
+    .btn-find {
+        background: linear-gradient(90deg, #a855f7 0%, #8b5cf6 100%);
         color: white;
-        padding: 0.75rem 1.5rem;
+        padding: 1rem 2rem;
         border-radius: 12px;
+        border: none;
+        font-size: 1rem;
         font-weight: 600;
-        text-decoration: none;
+        cursor: pointer;
+        transition: all 0.4s ease;
+        box-shadow: 0 4px 15px rgba(168, 85, 247, 0.25);
         display: inline-flex;
         align-items: center;
         gap: 0.5rem;
-        transition: all 0.3s ease;
+        text-decoration: none;
     }
 
-    .btn-custom:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+    .btn-find:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(168, 85, 247, 0.4);
+        background: linear-gradient(90deg, #9d4edd 0%, #7c3aed 100%);
         color: white;
     }
 
-    /* Responsive Design */
-    @media (max-width: 768px) {
-        .header-section h1 {
-            font-size: 2rem;
-        }
-
-        .mentor-header {
-            flex-direction: column;
-            text-align: center;
-        }
-
-        .mentor-info {
-            text-align: center;
-        }
-
-        .status-badge {
-            margin-top: 1rem;
-        }
-    }
-
-    /* Added Compact View for Many Cards */
-    @media (min-width: 1400px) {
-        .container {
-            max-width: 1800px;
-        }
-        
-        .mentor-grid {
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-        }
-    }
-
-    /* Added Scrollable Sections for Long Content */
-    .mentor-details, .contact-info {
-        max-height: 200px;
-        overflow-y: auto;
-        scrollbar-width: thin;
-        scrollbar-color: var(--primary) transparent;
-    }
-
-    .mentor-details::-webkit-scrollbar,
-    .contact-info::-webkit-scrollbar {
-        width: 4px;
-    }
-
-    .mentor-details::-webkit-scrollbar-track,
-    .contact-info::-webkit-scrollbar-track {
-        background: transparent;
-    }
-
-    .mentor-details::-webkit-scrollbar-thumb,
-    .contact-info::-webkit-scrollbar-thumb {
-        background-color: var(--primary);
-        border-radius: 20px;
-    }
-
-    /* Collapsible Sections */
+    /* Section Toggle Animation */
     .section-toggle {
         cursor: pointer;
         display: flex;
         align-items: center;
         justify-content: space-between;
-        padding: 0.5rem;
-        color: var(--primary);
-        font-size: 0.9rem;
+        padding: 0.75rem 1rem;
+        color: #9d4edd;
+        font-size: 0.95rem;
         font-weight: 500;
-        border-bottom: 1px solid var(--card-border);
-        margin-bottom: 0.5rem;
+        border-bottom: 1px solid rgba(157, 78, 221, 0.2);
+        margin-bottom: 0.75rem;
+        transition: all 0.3s ease;
+    }
+
+    .section-toggle:hover {
+        background: rgba(157, 78, 221, 0.05);
     }
 
     .section-toggle i {
@@ -443,30 +437,102 @@
     }
 
     .collapsible-content {
-        transition: max-height 0.3s ease;
+        transition: all 0.4s ease;
+        max-height: 500px;
         overflow: hidden;
     }
 
     .collapsible-content.collapsed {
         max-height: 0;
+        padding: 0;
+        margin: 0;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .container {
+            padding: 1.5rem;
+        }
+
+        .header-section {
+            padding: 1.5rem;
+        }
+
+        .header-section h1 {
+            font-size: 2rem;
+        }
+
+        .mentor-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .mentor-header {
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        .mentor-info {
+            padding-left: 0;
+            padding-top: 1rem;
+            text-align: center;
+        }
+
+        .action-buttons {
+            flex-direction: column;
+        }
+
+        .btn {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+
+    /* Animation for cards */
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .animated-item {
+        animation: fadeInUp 0.6s ease-out forwards;
+        opacity: 0;
+    }
+
+    /* Button animation */
+    .btn-find {
+        background-size: 200% 100%;
+        animation: shimmer 3s infinite linear;
+        background-image: linear-gradient(90deg, #a855f7 0%, #8b5cf6 50%, #a855f7 100%);
+    }
+
+    @keyframes shimmer {
+        0% { background-position: -200% 0; }
+        100% { background-position: 200% 0; }
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="bg-elements">
-    <div class="bg-gradient"></div>
-    <div class="bg-gradient"></div>
-    <div class="static-pattern"></div>
-</div>
-
 <div class="container">
     <div class="header-section">
-        <h1>My Mentor Connections</h1>
+        <div class="header-content" style="display: flex; justify-content: space-between; align-items: center;">
+            <h1>My Mentor Connections</h1>
+            <a href="{% url 'list_mentors' %}" class="btn-find">
+                <i class="fas fa-search"></i>
+                Find New Mentors
+            </a>
+        </div>
     </div>
-    
+
     {% if messages %}
-    <div class="messages mb-4">
+    <div class="messages" style="margin-bottom: 1.5rem;">
         {% for message in messages %}
         <div class="alert {% if message.tags == 'success' %}alert-success{% elif message.tags == 'error' %}alert-danger{% else %}alert-info{% endif %}">
             {{ message }}
@@ -477,11 +543,13 @@
 
     <div class="mentor-grid">
         {% for connection in connections %}
-        <div class="mentor-card">
+        <div class="mentor-card animated-item" data-index="{{ forloop.counter0 }}">
             <div class="mentor-header">
-                <img src="{% if connection.mentor.profile_picture %}{{ connection.mentor.profile_picture.url }}{% else %}https://ui-avatars.com/api/?name={{ connection.mentor.full_name|default:connection.mentor.user.username }}&background=9d4edd&color=fff{% endif %}" 
-                     alt="{{ connection.mentor.full_name }}" 
-                     class="mentor-image">
+                <div class="mentor-image-wrapper">
+                    <img src="{% if connection.mentor.profile_picture %}{{ connection.mentor.profile_picture.url }}{% else %}https://ui-avatars.com/api/?name={{ connection.mentor.full_name|default:connection.mentor.user.username }}&background=9d4edd&color=fff{% endif %}" 
+                        alt="{{ connection.mentor.full_name }}" 
+                        class="mentor-image">
+                </div>
                 <div class="mentor-info">
                     <h3>{{ connection.mentor.full_name }}</h3>
                     <p>{{ connection.mentor.current_role }}</p>
@@ -493,7 +561,11 @@
             </div>
 
             {% if connection.status == 'accepted' %}
-            <div class="mentor-details">
+            <div class="section-toggle" onclick="toggleSection(this)">
+                <span>Mentor Details</span>
+                <i class="fas fa-chevron-down"></i>
+            </div>
+            <div class="mentor-details collapsible-content">
                 <p><strong>Experience:</strong> {{ connection.mentor.experience_years }} years</p>
                 <p><strong>Teaching Branch:</strong> {{ connection.mentor.teaching_branch }}</p>
                 <p><strong>Qualification:</strong> {{ connection.mentor.highest_qualification }}</p>
@@ -506,7 +578,11 @@
                 {% endif %}
             </div>
 
-            <div class="contact-info">
+            <div class="section-toggle" onclick="toggleSection(this)">
+                <span>Contact Information</span>
+                <i class="fas fa-chevron-down"></i>
+            </div>
+            <div class="contact-info collapsible-content">
                 <p><i class="fas fa-envelope"></i> <a href="mailto:{{ connection.mentor.user.email }}">{{ connection.mentor.user.email }}</a></p>
                 {% if connection.mentor.phone %}
                 <p><i class="fas fa-phone"></i> {{ connection.mentor.phone }}</p>
@@ -519,6 +595,21 @@
                 {% endif %}
             </div>
 
+            <div class="action-buttons">
+                <a href="{% url 'send_message' connection.mentor.user.id %}" class="btn btn-message">
+                    <i class="fas fa-comment"></i> Message
+                </a>
+                <a href="{% url 'schedule_meeting' connection.mentor.id %}" class="btn btn-schedule">
+                    <i class="fas fa-calendar-alt"></i> Schedule Meeting
+                </a>
+                <form method="POST" action="{% url 'cancel_connection' connection.id %}" class="inline" onsubmit="return confirm('Are you sure you want to cancel this mentor connection?');">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-cancel">
+                        <i class="fas fa-times"></i> Cancel Connection
+                    </button>
+                </form>
+            </div>
+
             <div class="connection-date">
                 Connected since: {{ connection.updated_at|date:"F j, Y" }}
             </div>
@@ -527,6 +618,17 @@
                 <p><strong>Message:</strong> {{ connection.message }}</p>
                 <p class="connection-date">Requested on: {{ connection.created_at|date:"F j, Y" }}</p>
             </div>
+            
+            {% if connection.status == 'pending' %}
+            <div class="action-buttons">
+                <form method="POST" action="{% url 'cancel_request' connection.id %}" class="inline" onsubmit="return confirm('Are you sure you want to cancel this request?');">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-cancel">
+                        <i class="fas fa-times"></i> Cancel Request
+                    </button>
+                </form>
+            </div>
+            {% endif %}
             {% endif %}
         </div>
         {% empty %}
@@ -534,11 +636,28 @@
             <i class="fas fa-user-friends"></i>
             <h2>No Mentor Connections Yet</h2>
             <p>Start by finding and connecting with mentors who can guide you in your learning journey.</p>
-            <a href="{% url 'list_mentors' %}" class="btn-custom">
+            <a href="{% url 'list_mentors' %}" class="btn-find">
                 <i class="fas fa-search"></i> Find Mentors
             </a>
         </div>
         {% endfor %}
     </div>
 </div>
-{% endblock %} 
+
+<script>
+    function toggleSection(element) {
+        element.classList.toggle('collapsed');
+        var content = element.nextElementSibling;
+        content.classList.toggle('collapsed');
+    }
+
+    // Add animation delays to cards
+    document.addEventListener('DOMContentLoaded', function() {
+        const cards = document.querySelectorAll('.animated-item');
+        cards.forEach((card) => {
+            const index = card.getAttribute('data-index');
+            card.style.animationDelay = `${index * 100}ms`;
+        });
+    });
+</script>
+{% endblock %}

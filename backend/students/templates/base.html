@@ -1,85 +1,218 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
-  <head>
+<head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>{% block title %}Student Portal{% endblock %}</title>
+    <link rel="icon" type="image/svg+xml" href="/media/react/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vite + React</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
+        :root {
+            --primary: #9d4edd;
+            --primary-hover: #8b5cf6;
+            --primary-light: rgba(157, 78, 221, 0.2);
+            --text-light: #F3F4F6;
+            --text-secondary: #D1D5DB;
+            --sidebar-width: 280px;
+            --sidebar-bg: rgba(10, 10, 10, 0.9);
+            --card-bg: rgba(30, 30, 30, 0.5);
+            --card-border: rgba(157, 78, 221, 0.3);
+        }
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
         body {
-            background-color: #1a1a2e;
+            background-color: #000000;
             min-height: 100vh;
             display: flex;
-            color: #fff;
+            color: var(--text-light);
+            margin: 0;
+            overflow-x: hidden;
+            position: relative;
         }
 
-        .sidebar {
-            width: 250px;
-            background: rgba(157, 78, 221, 0.1);
-            border-right: 2px solid #9d4edd;
-            padding: 2rem 1rem 0;
+        /* Custom Scrollbar Styling */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(10, 10, 10, 0.8);
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(45deg, var(--primary), var(--primary-hover));
+            border-radius: 10px;
+            border: 1px solid rgba(10, 10, 10, 0.8);
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(45deg, var(--primary-hover), var(--primary));
+        }
+
+        /* Background Elements */
+        .bg-elements {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .bg-gradient {
+            position: absolute;
+            width: 30rem;
+            height: 30rem;
+            border-radius: 50%;
+            filter: blur(10rem);
+            z-index: -1;
+            opacity: 0.4;
+        }
+
+        .bg-gradient:nth-child(1) {
+            top: -15%;
+            right: 5%;
+            background: rgba(157, 78, 221, 0.15);
+        }
+
+        .bg-gradient:nth-child(2) {
+            bottom: -15%;
+            left: 10%;
+            background: rgba(139, 92, 246, 0.15);
+        }
+
+        .static-pattern {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0.1;
+            z-index: -1;
+            background-image: radial-gradient(#555555 1px, transparent 1px);
+            background-size: 30px 30px;
+        }
+
+        #sidebar {
+            width: var(--sidebar-width);
+            background: var(--sidebar-bg);
+            backdrop-filter: blur(15px);
+            border-right: 1px solid var(--card-border);
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 100;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+            overflow-y: auto;
             display: flex;
             flex-direction: column;
-            position: fixed;
-            height: 100vh;
+            scrollbar-width: thin;
+            scrollbar-color: var(--primary) rgba(10, 10, 10, 0.8);
         }
 
-        .sidebar .profile-brief {
+        /* Hide scrollbar for Chrome, Safari and Opera */
+        #sidebar::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        #sidebar::-webkit-scrollbar-track {
+            background: rgba(10, 10, 10, 0.8);
+        }
+
+        #sidebar::-webkit-scrollbar-thumb {
+            background: linear-gradient(45deg, var(--primary), var(--primary-hover));
+            border-radius: 10px;
+        }
+
+        .sidebar-content {
+            display: flex;
+            flex-direction: column;
+            min-height: 100%;
+        }
+
+        .profile-section {
             text-align: center;
-            margin-bottom: 2rem;
-            padding-bottom: 1rem;
-            border-bottom: 1px solid #9d4edd;
+            padding: 30px 20px;
+            border-bottom: 1px solid rgba(157, 78, 221, 0.3);
+            margin-bottom: 20px;
+            position: relative;
+            background: rgba(10, 10, 10, 0.6);
+            backdrop-filter: blur(5px);
         }
 
-        .sidebar .profile-brief img {
-            width: 80px;
-            height: 80px;
+        .profile-section::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 50%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--primary), transparent);
+        }
+
+        .profile-section img {
+            width: 100px;
+            height: 100px;
             border-radius: 50%;
-            margin-bottom: 1rem;
-            border: 2px solid #9d4edd;
+            margin-bottom: 15px;
+            border: 2px solid var(--primary);
+            padding: 3px;
+            background: rgba(30, 30, 30, 0.5);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
             object-fit: cover;
         }
 
-        .sidebar .profile-brief h3 {
-            color: #c77dff;
-            margin-bottom: 0.5rem;
+        .profile-section img:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(157, 78, 221, 0.6);
         }
 
-        .sidebar .profile-brief p {
-            color: #fff;
+        .student-name {
+            color: white;
+            font-weight: bold;
+            margin-bottom: 5px;
+            font-size: 1.2rem;
+        }
+
+        .roll-number {
+            color: var(--primary);
             font-size: 0.9rem;
-            opacity: 0.8;
+            opacity: 0.9;
         }
 
         .nav-container {
             flex: 1;
-            overflow-y: auto;
-            margin-bottom: 10px;
-            /* Scrollbar styling */
-            scrollbar-width: thin;
-            scrollbar-color: #9d4edd rgba(157, 78, 221, 0.2);
+            padding-bottom: 10px;
         }
 
-        .nav-container::-webkit-scrollbar {
-            width: 6px;
+        .nav-section {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid rgba(157, 78, 221, 0.2);
         }
-
-        .nav-container::-webkit-scrollbar-track {
-            background: rgba(157, 78, 221, 0.2);
-            border-radius: 10px;
-        }
-
-        .nav-container::-webkit-scrollbar-thumb {
-            background-color: #9d4edd;
-            border-radius: 10px;
+        
+        .nav-section-title {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #9d4edd;
+            padding: 0 20px;
+            margin-bottom: 8px;
+            font-weight: 600;
+            opacity: 0.8;
         }
 
         .nav-links {
@@ -89,93 +222,290 @@
 
         .nav-links li {
             margin-bottom: 0.5rem;
+            position: relative;
         }
 
         .nav-links a {
-            color: #fff;
+            color: var(--text-light);
             text-decoration: none;
-            padding: 0.8rem 1rem;
-            display: block;
-            border-radius: 5px;
-            transition: all 0.3s ease;
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            border-radius: 8px;
+            margin: 5px 15px;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
         }
 
-        .nav-links a:hover, .nav-links a.active {
-            background: rgba(157, 78, 221, 0.2);
-            color: #c77dff;
+        .nav-links a::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 0;
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary-light), transparent);
+            transition: width 0.3s ease;
+            z-index: -1;
         }
 
-        .main-content {
-            flex: 1;
-            margin-left: 250px;
-            padding: 2rem;
-            width: calc(100% - 250px);
+        .nav-links a:hover {
+            color: white;
+            transform: translateX(5px);
+        }
+
+        .nav-links a:hover::before {
+            width: 100%;
+        }
+
+        .nav-links a.active {
+            background: linear-gradient(90deg, var(--primary), var(--primary-hover));
+            color: white;
+            box-shadow: 0 4px 12px rgba(157, 78, 221, 0.3);
+            transform: translateX(5px);
+        }
+
+        .nav-links a i {
+            margin-right: 12px;
+            font-size: 1.1rem;
+            width: 24px;
+            text-align: center;
         }
 
         .logout-link {
-            padding: 1rem 0;
+            padding: 1rem 20px;
             text-align: center;
             border-top: 1px solid rgba(157, 78, 221, 0.3);
+            margin-top: auto;
         }
 
         .logout-link a {
             color: #ff6b6b;
             text-decoration: none;
-            padding: 0.8rem 1rem;
+            padding: 12px 20px;
             display: block;
-            border-radius: 5px;
+            border-radius: 8px;
             transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .logout-link a:hover {
             background: rgba(255, 107, 107, 0.1);
+            transform: translateY(-3px);
         }
 
+        .logout-link a i {
+            margin-right: 10px;
+        }
+
+        #content {
+            margin-left: var(--sidebar-width);
+            padding: 20px;
+            position: relative;
+            z-index: 1;
+            min-height: 100vh;
+            width: calc(100% - var(--sidebar-width));
+        }
+
+        .success-message {
+            background: rgba(78, 221, 152, 0.1);
+            border: 1px solid #4edd98;
+            color: #4edd98;
+            padding: 1rem;
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .notification-badge {
+            background: linear-gradient(45deg, #ff6b6b, #ff8e8e);
+            color: white;
+            border-radius: 50%;
+            padding: 0.2rem 0.5rem;
+            font-size: 0.8rem;
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            box-shadow: 0 2px 5px rgba(255, 107, 107, 0.3);
+        }
+
+        .sidebar-toggle {
+            display: none;
+        }
+
+        /* Mobile Responsiveness */
         @media (max-width: 768px) {
-            .sidebar {
-                width: 200px;
+            #sidebar {
+                transform: translateX(-100%);
+                width: 250px;
             }
-            .main-content {
-                margin-left: 200px;
-                width: calc(100% - 200px);
+            
+            #content {
+                margin-left: 0;
+                width: 100%;
+            }
+            
+            #sidebar.active {
+                transform: translateX(0);
+            }
+            
+            .sidebar-toggle {
+                display: block;
+                position: fixed;
+                top: 15px;
+                left: 15px;
+                z-index: 101;
+                background: linear-gradient(45deg, var(--primary), var(--primary-hover));
+                color: white;
+                border: none;
+                border-radius: 8px;
+                padding: 10px 15px;
+                cursor: pointer;
+                box-shadow: 0 4px 12px rgba(157, 78, 221, 0.3);
+                transition: all 0.3s ease;
+            }
+            
+            .sidebar-toggle:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 6px 15px rgba(157, 78, 221, 0.4);
             }
         }
     </style>
     {% block extra_css %}{% endblock %}
-  </head>
-  <body>
+</head>
+<body>
+    <div class="bg-elements">
+        <div class="bg-gradient"></div>
+        <div class="bg-gradient"></div>
+        <div class="static-pattern"></div>
+    </div>
+
+    <button class="sidebar-toggle d-md-none" id="sidebarToggle">
+        <i class="fas fa-bars"></i>
+    </button>
+
     {% if user.is_authenticated %}
-    <div class="sidebar">
-        <div class="profile-brief">
-            <img src="{% if user.student_profile.profile_picture %}{{ user.student_profile.profile_picture.url }}{% else %}https://ui-avatars.com/api/?name={{ user.student_profile.full_name|default:user.username }}&background=9d4edd&color=fff{% endif %}" alt="Profile">
-            <h3>{{ user.student_profile.full_name|default:user.username }}</h3>
-            <p>{{ user.student_profile.roll_number|default:"Roll Number Not Set" }}</p>
-        </div>
-        <div class="nav-container">
-            <ul class="nav-links">
-                <li><a href="{% url 'student_dashboard' %}" {% if request.resolver_match.url_name == 'student_dashboard' %}class="active"{% endif %}>Dashboard</a></li>
-                <li><a href="{% url 'student_profile' %}" {% if request.resolver_match.url_name == 'student_profile' %}class="active"{% endif %}>Profile</a></li>
-                <li><a href="{% url 'my_projects' %}" {% if request.resolver_match.url_name == 'my_projects' %}class="active"{% endif %}>My Projects</a></li>
-                <li><a href="{% url 'list_mentors' %}" {% if request.resolver_match.url_name == 'list_mentors' %}class="active"{% endif %}>Find Mentors</a></li>
-                <li><a href="{% url 'my_connections' %}" {% if request.resolver_match.url_name == 'my_connections' %}class="active"{% endif %}>My Connections</a></li>
-                <li><a href="{% url 'view_collaborators' %}" {% if request.resolver_match.url_name == 'view_collaborators' %}class="active"{% endif %}>Collaborators</a></li>
-                <li><a href="{% url 'my_groups' %}" {% if request.resolver_match.url_name == 'my_groups' %}class="active"{% endif %}>My Groups</a></li>
-                <li><a href="{% url 'student_meetings' %}" {% if request.resolver_match.url_name == 'student_meetings' %}class="active"{% endif %}>Meetings</a></li>
-                <li><a href="{% url 'view_collaboration_requests' %}" {% if request.resolver_match.url_name == 'view_collaboration_requests' %}class="active"{% endif %}>Collaboration Requests</a></li>
-                <li><a href="{% url 'student_view_assessments' %}" {% if request.resolver_match.url_name == 'student_view_assessments' %}class="active"{% endif %}>Assessments</a></li>
-                <li><a href="{% url 'ngos_list' %}" {% if request.resolver_match.url_name == 'ngo_list' %}class="active"{% endif %}>NGOs</a></li>
-            </ul>
-        </div>
-        <div class="logout-link">
-            <a href="{% url 'logout' %}">Logout</a>
+    <div id="sidebar">
+        <div class="sidebar-content">
+            <div class="profile-section">
+                <img src="{% if user.student_profile.profile_picture %}{{ user.student_profile.profile_picture.url }}{% else %}https://ui-avatars.com/api/?name={{ user.student_profile.full_name|default:user.username }}&background=9d4edd&color=fff{% endif %}" alt="Profile">
+                <div class="student-name">{{ user.student_profile.full_name|default:user.username }}</div>
+                <div class="roll-number">{{ user.student_profile.roll_number|default:"Roll Number Not Set" }}</div>
+            </div>
+
+            <div class="nav-container">
+                <!-- Main Navigation -->
+                <ul class="nav-links">
+                    <li><a href="{% url 'dashboard' %}" {% if request.resolver_match.url_name == 'dashboard' %}class="active"{% endif %}>
+                        <i class="fas fa-home"></i> Dashboard
+                    </a></li>
+                    <li><a href="{% url 'student_profile' %}" {% if request.resolver_match.url_name == 'student_profile' %}class="active"{% endif %}>
+                        <i class="fas fa-user"></i> Profile
+                    </a></li>
+                </ul>
+
+                <!-- Projects Section -->
+                <div class="nav-section">
+                    <div class="nav-section-title">Projects</div>
+                    <ul class="nav-links">
+                        <li><a href="{% url 'my_projects' %}" {% if request.resolver_match.url_name == 'my_projects' %}class="active"{% endif %}>
+                            <i class="fas fa-project-diagram"></i> My Projects
+                        </a></li>
+                        <li><a href="{% url 'view_collaboration_requests' %}" {% if request.resolver_match.url_name == 'view_collaboration_requests' %}class="active"{% endif %}>
+                            <i class="fas fa-clipboard-list"></i> Collaboration Requests
+                        </a></li>
+                        <li><a href="{% url 'student_view_assessments' %}" {% if request.resolver_match.url_name == 'student_view_assessments' %}class="active"{% endif %}>
+                            <i class="fas fa-tasks"></i> Assessments
+                        </a></li>
+                    </ul>
+                </div>
+
+                <!-- Connections Section -->
+                <div class="nav-section">
+                    <div class="nav-section-title">Network</div>
+                    <ul class="nav-links">
+                        <li><a href="{% url 'list_mentors' %}" {% if request.resolver_match.url_name == 'list_mentors' %}class="active"{% endif %}>
+                            <i class="fas fa-chalkboard-teacher"></i> Find Mentors
+                        </a></li>
+                        <li><a href="{% url 'my_connections' %}" {% if request.resolver_match.url_name == 'my_connections' %}class="active"{% endif %}>
+                            <i class="fas fa-network-wired"></i> My Connections
+                        </a></li>
+                        <li><a href="{% url 'view_collaborators' %}" {% if request.resolver_match.url_name == 'view_collaborators' %}class="active"{% endif %}>
+                            <i class="fas fa-users"></i> Collaborators
+                        </a></li>
+                        <li><a href="{% url 'my_groups' %}" {% if request.resolver_match.url_name == 'my_groups' %}class="active"{% endif %}>
+                            <i class="fas fa-user-friends"></i> My Groups
+                        </a></li>
+                    </ul>
+                </div>
+
+                <!-- Other Resources Section -->
+                <div class="nav-section">
+                    <div class="nav-section-title">Resources</div>
+                    <ul class="nav-links">
+                        <li><a href="{% url 'student_meetings' %}" {% if request.resolver_match.url_name == 'student_meetings' %}class="active"{% endif %}>
+                            <i class="fas fa-calendar-alt"></i> Meetings
+                        </a></li>
+                        <li><a href="{% url 'ngos_list' %}" {% if request.resolver_match.url_name == 'ngo_list' %}class="active"{% endif %}>
+                            <i class="fas fa-handshake"></i> NGOs
+                        </a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="logout-link">
+                <a href="{% url 'logout' %}">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </a>
+            </div>
         </div>
     </div>
     {% endif %}
 
-    <div class="main-content">
+    <div id="content">
+        {% if messages %}
+        <div class="success-message">
+            {% for message in messages %}
+                {{ message }}
+            {% endfor %}
+        </div>
+        {% endif %}
+        
         {% block content %}{% endblock %}
     </div>
-    
+
+    <script>
+        // Mobile sidebar toggle
+        document.getElementById('sidebarToggle')?.addEventListener('click', function() {
+            document.getElementById('sidebar').classList.toggle('active');
+        });
+
+        // Close sidebar when clicking outside on mobile
+        document.addEventListener('click', function(event) {
+            const sidebar = document.getElementById('sidebar');
+            const sidebarToggle = document.getElementById('sidebarToggle');
+            
+            if (window.innerWidth <= 768 && 
+                sidebar && sidebarToggle &&
+                !sidebar.contains(event.target) && 
+                !sidebarToggle.contains(event.target) &&
+                sidebar.classList.contains('active')) {
+                sidebar.classList.remove('active');
+            }
+        });
+    </script>
     {% block extra_js %}{% endblock %}
-  </body>
+</body>
 </html>

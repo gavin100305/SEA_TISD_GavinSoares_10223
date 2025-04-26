@@ -1,466 +1,471 @@
-{% extends '../base.html' %}
-{% load static %}
-
-{% block title %}Add Group Project | TISD{% endblock %}
-
-{% block extra_css %}
-<style>
-    /* Core Styles */
-    .container {
-        padding: 2.5rem 0;
-        position: relative;
-        z-index: 2;
-        max-width: 1000px;
-    }
-
-    /* Background Elements */
-    .bg-elements {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        z-index: -1;
-        overflow: hidden;
-    }
-
-    .bg-gradient {
-        position: absolute;
-        width: 35rem;
-        height: 35rem;
-        border-radius: 50%;
-        filter: blur(8rem);
-        z-index: -1;
-        opacity: 0.5;
-        animation: pulse 15s infinite alternate ease-in-out;
-    }
-
-    @keyframes pulse {
-        0% { transform: scale(1); opacity: 0.5; }
-        50% { transform: scale(1.05); opacity: 0.6; }
-        100% { transform: scale(1); opacity: 0.5; }
-    }
-
-    .bg-gradient:nth-child(1) {
-        top: -10%;
-        right: 5%;
-        background: rgba(168, 85, 247, 0.3);
-        animation-delay: -5s;
-    }
-
-    .bg-gradient:nth-child(2) {
-        bottom: -5%;
-        left: 10%;
-        background: rgba(124, 58, 237, 0.2);
-        animation-delay: -10s;
-    }
-
-    /* Header Section */
-    .header-section {
-        text-align: center;
-        margin-bottom: 3rem;
-        padding: 2rem;
-        background: rgba(15, 15, 15, 0.8);
-        backdrop-filter: blur(10px);
-        border: 1px solid rgba(157, 78, 221, 0.3);
-        border-radius: 20px;
-        box-shadow: 0 8px 32px rgba(157, 78, 221, 0.15);
-    }
-
-    .header-section h2 {
-        font-size: 2.5rem;
-        font-weight: 800;
-        background: linear-gradient(135deg, #a855f7, #8b5cf6);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        margin-bottom: 1rem;
-    }
-
-    .header-section p {
-        color: #c77dff;
-        font-size: 1.1rem;
-        opacity: 0.9;
-    }
-
-    /* Card Styles */
-    .card {
-        background: rgba(15, 12, 24, 0.7);
-        backdrop-filter: blur(15px);
-        border: 1px solid rgba(157, 78, 221, 0.2);
-        border-radius: 20px;
-        box-shadow: 0 10px 40px rgba(31, 38, 135, 0.15);
-        position: relative;
-        overflow: hidden;
-    }
-
-    .card::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 5px;
-        background: linear-gradient(90deg, #a855f7, #8b5cf6);
-    }
-
-    .card-body {
-        padding: 2.5rem;
-    }
-
-    /* Form Elements */
-    .form-group {
-        margin-bottom: 2rem;
-        position: relative;
-    }
-
-    .form-group label {
-        color: #9d4edd;
-        margin-bottom: 0.8rem;
-        font-weight: 600;
-        font-size: 1rem;
-        display: block;
-    }
-
-    .form-control {
-        background: rgba(15, 12, 24, 0.7);
-        border: 1px solid rgba(157, 78, 221, 0.3);
-        border-radius: 12px;
-        padding: 1rem;
-        color: white;
-        width: 100%;
-        transition: all 0.3s ease;
-    }
-
-    .form-control:focus {
-        outline: none;
-        border-color: rgba(157, 78, 221, 0.6);
-        box-shadow: 0 0 0 2px rgba(157, 78, 221, 0.1);
-        background: rgba(15, 12, 24, 0.8);
-    }
-
-    .form-control::placeholder {
-        color: rgba(255, 255, 255, 0.5);
-    }
-
-    textarea.form-control {
-        min-height: 150px;
-        resize: vertical;
-    }
-
-    .form-text {
-        color: rgba(199, 125, 255, 0.8);
-        font-size: 0.9rem;
-        margin-top: 0.5rem;
-    }
-
-    /* Custom Switch */
-    .custom-control {
-        position: relative;
-        padding-left: 3rem;
-        cursor: pointer;
-        user-select: none;
-    }
-
-    .custom-control-input {
-        position: absolute;
-        left: -9999px;
-    }
-
-    .custom-control-label {
-        position: relative;
-        margin-bottom: 0;
-        vertical-align: top;
-        color: white;
-    }
-
-    .custom-control-label::before {
-        content: '';
-        position: absolute;
-        left: -3rem;
-        top: 0.25rem;
-        display: block;
-        width: 2rem;
-        height: 1rem;
-        background: rgba(157, 78, 221, 0.2);
-        border-radius: 1rem;
-        transition: all 0.3s ease;
-    }
-
-    .custom-control-label::after {
-        content: '';
-        position: absolute;
-        left: -2.85rem;
-        top: 0.35rem;
-        width: 0.8rem;
-        height: 0.8rem;
-        background: white;
-        border-radius: 50%;
-        transition: all 0.3s ease;
-    }
-
-    .custom-control-input:checked ~ .custom-control-label::before {
-        background: linear-gradient(90deg, #a855f7, #8b5cf6);
-    }
-
-    .custom-control-input:checked ~ .custom-control-label::after {
-        transform: translateX(1rem);
-        background: white;
-    }
-
-    /* File Upload */
-    .form-control-file {
-        background: rgba(15, 12, 24, 0.7);
-        border: 1px solid rgba(157, 78, 221, 0.3);
-        border-radius: 12px;
-        padding: 0.8rem;
-        color: white;
-        width: 100%;
-        cursor: pointer;
-    }
-
-    .form-control-file::file-selector-button {
-        background: linear-gradient(90deg, #a855f7 0%, #8b5cf6 100%);
-        color: white;
-        padding: 0.6rem 1.2rem;
-        border: none;
-        border-radius: 8px;
-        margin-right: 1rem;
-        cursor: pointer;
-        transition: all 0.3s ease;
-    }
-
-    .form-control-file::file-selector-button:hover {
-        background: linear-gradient(90deg, #9d4edd 0%, #7c3aed 100%);
-        transform: translateY(-1px);
-    }
-
-    /* Buttons */
-    .btn {
-        padding: 1rem 2rem;
-        border-radius: 12px;
-        font-size: 1rem;
-        font-weight: 600;
-        transition: all 0.4s ease;
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-    }
-
-    .btn-primary {
-        background: linear-gradient(90deg, #a855f7 0%, #8b5cf6 100%);
-        border: none;
-        color: white;
-        box-shadow: 0 4px 15px rgba(168, 85, 247, 0.25);
-    }
-
-    .btn-primary:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 8px 25px rgba(168, 85, 247, 0.4);
-        background: linear-gradient(90deg, #9d4edd 0%, #7c3aed 100%);
-    }
-
-    .btn-secondary {
-        background: linear-gradient(90deg, #4b5563 0%, #374151 100%);
-        border: none;
-        color: white;
-    }
-
-    .btn-secondary:hover {
-        background: linear-gradient(90deg, #374151 0%, #1f2937 100%);
-        transform: translateY(-3px);
-    }
-
-    /* Alert Messages */
-    .alert {
-        background: rgba(15, 12, 24, 0.8);
-        backdrop-filter: blur(10px);
-        border: 1px solid;
-        border-radius: 12px;
-        padding: 1.2rem 1.8rem;
-        margin-bottom: 1rem;
-        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
-        display: flex;
-        align-items: center;
-    }
-
-    .alert::before {
-        font-family: 'Font Awesome 5 Free';
-        font-weight: 900;
-        margin-right: 15px;
-        font-size: 1.3rem;
-    }
-
-    .alert-success {
-        border-color: rgba(25, 135, 84, 0.3);
-        color: #5ae6a8;
-    }
-
-    .alert-success::before {
-        content: '\f058';
-    }
-
-    .alert-danger {
-        border-color: rgba(220, 53, 69, 0.3);
-        color: #ff6b6b;
-    }
-
-    .alert-danger::before {
-        content: '\f057';
-    }
-
-    /* Responsive Adjustments */
-    @media (max-width: 768px) {
-        .container {
-            padding: 1.5rem;
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Group Project | TISD</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
-        .card-body {
-            padding: 1.5rem;
+        body {
+            background-color: #121212;
+            color: #e0e0e0;
+            min-height: 100vh;
+            padding: 20px;
         }
 
-        .header-section h2 {
-            font-size: 2rem;
+        .profile-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem 0;
+            position: relative;
+            z-index: 2;
+        }
+
+        .profile-header {
+            background: rgba(10, 10, 10, 0.8);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(157, 78, 221, 0.3);
+            border-radius: 16px;
+            padding: 2.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 8px 32px rgba(157, 78, 221, 0.15);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .profile-header h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            line-height: 1.2;
+            margin-bottom: 1rem;
+            color: white;
+        }
+
+        .profile-header h1 span {
+            color: #9d4edd;
+        }
+
+        .profile-header p {
+            color: #c77dff;
+            font-size: 1.1rem;
+            margin-bottom: 0;
+        }
+
+        .form-section {
+            background: rgba(10, 10, 10, 0.8);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(157, 78, 221, 0.2);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+        }
+
+        .form-section h2 {
+            color: #e0e0e0;
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid rgba(157, 78, 221, 0.2);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #c77dff;
+            font-size: 0.95rem;
+            font-weight: 500;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background: rgba(20, 20, 20, 0.8);
+            border: 1px solid rgba(157, 78, 221, 0.2);
+            border-radius: 8px;
+            color: white;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #9d4edd;
+            box-shadow: 0 0 0 2px rgba(157, 78, 221, 0.25);
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        textarea.form-control {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .grid-2-col {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .file-upload-container {
+            margin-top: 1.5rem;
+        }
+
+        .file-upload-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #c77dff;
+            font-size: 0.95rem;
+            font-weight: 500;
+        }
+
+        .form-control-file {
+            width: 100%;
+            padding: 0.75rem;
+            background: rgba(20, 20, 20, 0.8);
+            border: 1px solid rgba(157, 78, 221, 0.2);
+            border-radius: 8px;
+            color: white;
+        }
+
+        .form-control-file::file-selector-button {
+            background: rgba(157, 78, 221, 0.1);
+            color: #9d4edd;
+            border: 1px solid #9d4edd;
+            border-radius: 6px;
+            padding: 0.5rem 1rem;
+            margin-right: 1rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .form-control-file::file-selector-button:hover {
+            background: rgba(157, 78, 221, 0.2);
+        }
+
+        .image-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .image-preview-container {
+            position: relative;
+            border: 1px dashed rgba(157, 78, 221, 0.3);
+            border-radius: 8px;
+            padding: 1rem;
+            text-align: center;
+        }
+
+        .image-preview {
+            max-width: 100%;
+            max-height: 150px;
+            display: none;
+        }
+
+        .image-placeholder {
+            color: #9d9d9d;
+            font-size: 0.9rem;
+        }
+
+        .custom-switch {
+            position: relative;
+            display: inline-block;
+            margin-top: 0.5rem;
+        }
+
+        .custom-switch .custom-control-label {
+            padding-left: 2.5rem;
+            cursor: pointer;
+        }
+
+        .custom-switch .custom-control-label::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0.25rem;
+            width: 2rem;
+            height: 1rem;
+            background-color: rgba(157, 78, 221, 0.2);
+            border-radius: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .custom-switch .custom-control-label::after {
+            content: '';
+            position: absolute;
+            left: 0.15rem;
+            top: 0.35rem;
+            width: 0.8rem;
+            height: 0.8rem;
+            background-color: white;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+
+        .custom-switch .custom-control-input:checked ~ .custom-control-label::before {
+            background-color: #9d4edd;
+        }
+
+        .custom-switch .custom-control-input:checked ~ .custom-control-label::after {
+            transform: translateX(1rem);
+        }
+
+        .form-actions {
+            display: flex;
+            justify-content: center;
+            margin-top: 2rem;
+            gap: 1rem;
         }
 
         .btn {
-            width: 100%;
-            margin-bottom: 1rem;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
         }
-    }
-</style>
-{% endblock %}
 
-{% block content %}
-<div class="bg-elements">
-    <div class="bg-gradient"></div>
-    <div class="bg-gradient"></div>
-</div>
+        .btn-primary {
+            background: #9d4edd;
+            color: white;
+        }
 
-<div class="container">
-    <div class="header-section">
-        <h2>Add Group Project</h2>
+        .btn-primary:hover {
+            background: #8a3ec7;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(157, 78, 221, 0.3);
+        }
+
+        .btn-secondary {
+            background: rgba(30, 30, 30, 0.8);
+            color: #e0e0e0;
+            border: 1px solid rgba(157, 78, 221, 0.2);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(50, 50, 50, 0.8);
+        }
+
+        .text-muted {
+            color: #9d9d9d !important;
+            font-size: 0.85rem;
+            opacity: 0.7;
+        }
+
+        .message {
+            margin-bottom: 2rem;
+            padding: 1rem;
+            border-radius: 8px;
+        }
+
+        .message.error {
+            background-color: rgba(220, 53, 69, 0.2);
+            border: 1px solid rgba(220, 53, 69, 0.3);
+            color: #ff6b6b;
+        }
+
+        .message.success {
+            background-color: rgba(40, 167, 69, 0.2);
+            border: 1px solid rgba(40, 167, 69, 0.3);
+            color: #4edd98;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .profile-header h1 {
+                font-size: 2rem;
+            }
+            
+            .grid-2-col {
+                grid-template-columns: 1fr;
+            }
+            
+            .image-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="profile-container">
+    <div class="profile-header">
+        <h1>Add <span>Group Project</span></h1>
         <p>Create a new project for your group and start collaborating</p>
     </div>
-    
+
     {% if messages %}
     <div class="messages">
         {% for message in messages %}
-        <div class="alert alert-{{ message.tags }}">
+        <div class="message {% if message.tags == 'error' %}error{% else %}success{% endif %}">
             {{ message }}
         </div>
         {% endfor %}
     </div>
     {% endif %}
 
-    <div class="card">
-        <div class="card-body">
-            <form method="post" enctype="multipart/form-data">
-                {% csrf_token %}
-                
-                <div class="form-group">
-                    <label for="title">Project Title</label>
-                    <input type="text" class="form-control" id="title" name="title" required>
-                </div>
+    <div class="form-section">
+        <form method="post" enctype="multipart/form-data" id="project-form">
+            {% csrf_token %}
+            
+            <h2>Project Information</h2>
+            <div class="form-group">
+                <label for="title">Project Title*</label>
+                <input type="text" class="form-control" id="title" name="title" required>
+            </div>
 
-                <div class="form-group">
-                    <label for="description">Project Description</label>
-                    <textarea class="form-control" id="description" name="description" rows="4" required></textarea>
-                </div>
+            <div class="form-group">
+                <label for="description">Project Description*</label>
+                <textarea class="form-control" id="description" name="description" rows="4" required></textarea>
+            </div>
 
+            <div class="grid-2-col">
                 <div class="form-group">
-                    <label for="tech_stack">Tech Stack</label>
+                    <label for="tech_stack">Tech Stack*</label>
                     <input type="text" class="form-control" id="tech_stack" name="tech_stack" placeholder="e.g., Python, Django, React" required>
                 </div>
-
                 <div class="form-group">
-                    <label for="sdgs">Sustainable Development Goals (SDGs)</label>
+                    <label for="sdgs">Sustainable Development Goals (SDGs)*</label>
                     <input type="text" class="form-control" id="sdgs" name="sdgs" placeholder="e.g., Quality Education, Climate Action" required>
                 </div>
+            </div>
 
+            <h2 style="margin-top: 2rem;">Project Details</h2>
+            <div class="grid-2-col">
                 <div class="form-group">
                     <label for="github_link">GitHub Link (Optional)</label>
                     <input type="url" class="form-control" id="github_link" name="github_link" placeholder="https://github.com/username/repository">
                 </div>
-
-                {% if leader_mentors %}
                 <div class="form-group">
-                    <label for="mentor">Select Mentor (Optional)</label>
-                    <select class="form-control" id="mentor" name="mentor">
-                        <option value="">No Mentor</option>
-                        {% for connection in leader_mentors %}
-                        <option value="{{ connection.mentor.id }}">{{ connection.mentor.full_name }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-                {% endif %}
-
-                <div class="form-group">
-                    <div class="custom-control custom-switch">
-                        <input type="checkbox" class="custom-control-input" id="is_open_for_collaboration" name="is_open_for_collaboration">
-                        <label class="custom-control-label" for="is_open_for_collaboration">Open for Collaboration</label>
-                    </div>
-                    <small class="form-text">Enable this to allow others to view and request to join this project.</small>
-                </div>
-
-                <div class="form-group">
-                    <label for="status">Project Status</label>
-                    <select class="form-control" id="status" name="status">
+                    <label for="status">Project Status*</label>
+                    <select class="form-control" id="status" name="status" required>
                         <option value="planning">Planning</option>
                         <option value="in_progress">In Progress</option>
                         <option value="completed">Completed</option>
                     </select>
                 </div>
+            </div>
 
-                <div class="form-group">
-                    <label for="project_file">Project File</label>
-                    <input type="file" class="form-control-file" id="project_file" name="project_file">
-                    <small class="form-text">Upload project documentation or other relevant files.</small>
+            {% if leader_mentors %}
+            <div class="form-group">
+                <label for="mentor">Select Mentor (Optional)</label>
+                <select class="form-control" id="mentor" name="mentor">
+                    <option value="">No Mentor</option>
+                    {% for connection in leader_mentors %}
+                    <option value="{{ connection.mentor.id }}">{{ connection.mentor.full_name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            {% endif %}
+
+            <div class="form-group">
+                <div class="custom-switch">
+                    <input type="checkbox" class="custom-control-input" id="is_open_for_collaboration" name="is_open_for_collaboration">
+                    <label class="custom-control-label" for="is_open_for_collaboration">Open for Collaboration</label>
                 </div>
+                <small class="text-muted">Enable this to allow others to view and request to join this project.</small>
+            </div>
 
-                <div class="form-group">
-                    <label>Project Images (Optional)</label>
-                    <div class="row">
-                        <div class="col-md-4 mb-3">
-                            <input type="file" class="form-control-file" id="image1" name="image1" accept="image/*">
-                        </div>
-                        <div class="col-md-4 mb-3">
-                            <input type="file" class="form-control-file" id="image2" name="image2" accept="image/*">
-                        </div>
-                        <div class="col-md-4 mb-3">
-                            <input type="file" class="form-control-file" id="image3" name="image3" accept="image/*">
-                        </div>
-                        <div class="col-md-4 mb-3">
-                            <input type="file" class="form-control-file" id="image4" name="image4" accept="image/*">
-                        </div>
-                        <div class="col-md-4 mb-3">
-                            <input type="file" class="form-control-file" id="image5" name="image5" accept="image/*">
-                        </div>
-                        <div class="col-md-4 mb-3">
-                            <input type="file" class="form-control-file" id="image6" name="image6" accept="image/*">
-                        </div>
+            <h2 style="margin-top: 2rem;">Project Files</h2>
+            <div class="form-group">
+                <label for="project_file" class="file-upload-label">Project File (Optional)</label>
+                <input type="file" class="form-control-file" id="project_file" name="project_file">
+                <small class="text-muted">Upload project documentation or other relevant files.</small>
+            </div>
+
+            <div class="form-group">
+                <label class="file-upload-label">Project Images (Optional)</label>
+                <small class="text-muted">Upload up to 6 images showcasing your project.</small>
+                
+                <div class="image-grid">
+                    {% for i in "123456" %}
+                    <div class="image-preview-container">
+                        <div class="image-placeholder">Image {{ i }}</div>
+                        <img id="preview-image{{ i }}" class="image-preview">
+                        <input type="file" class="form-control-file" id="image{{ i }}" name="image{{ i }}" accept="image/*" onchange="previewImage(this, 'preview-image{{ i }}')">
                     </div>
+                    {% endfor %}
                 </div>
+            </div>
 
-                <div class="mt-4">
-                    <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-plus"></i> Create Project
-                    </button>
-                    <a href="{% url 'group_detail' group.id %}" class="btn btn-secondary ms-2">
-                        <i class="fas fa-times"></i> Cancel
-                    </a>
-                </div>
-            </form>
-        </div>
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> Create Project
+                </button>
+                <a href="{% url 'group_detail' group.id %}" class="btn btn-secondary">
+                    <i class="fas fa-times"></i> Cancel
+                </a>
+            </div>
+        </form>
     </div>
 </div>
-{% endblock %}
 
-{% block extra_js %}
 <script>
-    // Display file names when selected
-    $('.custom-file-input').on('change', function() {
-        var fileName = $(this).val().split('\\').pop();
-        $(this).next('.custom-file-label').html(fileName);
+    // Preview images when selected
+    function previewImage(input, previewId) {
+        const preview = document.getElementById(previewId);
+        const placeholder = input.parentElement.querySelector('.image-placeholder');
+        
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            
+            reader.onload = function(e) {
+                preview.src = e.target.result;
+                preview.style.display = 'block';
+                placeholder.style.display = 'none';
+            }
+            
+            reader.readAsDataURL(input.files[0]);
+        } else {
+            preview.style.display = 'none';
+            placeholder.style.display = 'block';
+        }
+    }
+
+    // Form validation
+    document.getElementById('project-form').addEventListener('submit', function(e) {
+        const title = document.getElementById('title').value.trim();
+        const description = document.getElementById('description').value.trim();
+        const techStack = document.getElementById('tech_stack').value.trim();
+        const sdgs = document.getElementById('sdgs').value.trim();
+        
+        if (!title || !description || !techStack || !sdgs) {
+            e.preventDefault();
+            alert('Please fill in all required fields (marked with *)');
+            return false;
+        }
+        
+        return true;
     });
+
+    // Toggle switch styling
+    const toggleSwitch = document.getElementById('is_open_for_collaboration');
+    if (toggleSwitch) {
+        toggleSwitch.addEventListener('change', function() {
+            const label = document.querySelector('.custom-control-label');
+            if (this.checked) {
+                label.style.color = '#9d4edd';
+            } else {
+                label.style.color = '#e0e0e0';
+            }
+        });
+    }
 </script>
-{% endblock %}
+</body>
+</html>

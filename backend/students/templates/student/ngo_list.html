@@ -2,72 +2,434 @@
 
 {% block title %}NGO Listings{% endblock %}
 
-{% block content %}
-<div class="container mt-4">
-    <h1>Non-Governmental Organizations</h1>
+{% block extra_css %}
+<style>
+    .ngo-container {
+        padding: 2rem 0;
+        position: relative;
+        z-index: 2;
+    }
+
+    .header-section {
+        background: rgba(10, 10, 10, 0.8);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(30, 30, 30, 0.8);
+        border-radius: 16px;
+        padding: 2.5rem;
+        margin-bottom: 3rem;
+        text-align: center;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+        position: relative;
+        overflow: hidden;
+        animation: fadeInDown 0.8s ease-out forwards;
+    }
+
+    .header-section::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(45deg, rgba(20, 20, 20, 0.3), transparent);
+        z-index: -1;
+    }
+
+    .header-section h1 {
+        font-size: 2.5rem;
+        font-weight: 800;
+        letter-spacing: -0.5px;
+        line-height: 1.2;
+        margin-bottom: 1rem;
+        color: white;
+        opacity: 0;
+        animation: fadeIn 0.6s ease-out 0.4s forwards;
+    }
+
+    .header-section h1 span {
+        color: #9d4edd;
+        position: relative;
+        display: inline-block;
+    }
+
+    .header-section h1 span::after {
+        content: "";
+        position: absolute;
+        bottom: 5px;
+        left: 0;
+        width: 0;
+        height: 8px;
+        background-color: rgba(157, 78, 221, 0.15);
+        z-index: -1;
+        border-radius: 4px;
+        animation: lineGrow 0.6s ease-out 1s forwards;
+    }
+
+    .header-section p {
+        color: #9d9d9d;
+        font-size: 1.1rem;
+        margin-bottom: 0;
+        opacity: 0;
+        animation: fadeIn 0.6s ease-out 0.6s forwards;
+    }
+
+    .ngo-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .ngo-card {
+        background: rgba(10, 10, 10, 0.8);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(30, 30, 30, 0.8);
+        border-radius: 16px;
+        padding: 1.5rem;
+        transition: all 0.3s ease;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+        position: relative;
+        overflow: hidden;
+        opacity: 0;
+        transform: translateY(30px);
+        cursor: pointer;
+    }
+
+    .ngo-card:nth-child(3n+1) {
+        animation: fadeInUp 0.6s ease-out 0.7s forwards;
+    }
     
-    <!-- NGO list -->
+    .ngo-card:nth-child(3n+2) {
+        animation: fadeInUp 0.6s ease-out 0.9s forwards;
+    }
+    
+    .ngo-card:nth-child(3n+3) {
+        animation: fadeInUp 0.6s ease-out 1.1s forwards;
+    }
+
+    .ngo-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 3px;
+        height: 0;
+        background: #9d4edd;
+        transition: height 0.3s ease;
+    }
+
+    .ngo-card:hover::before {
+        height: 100%;
+    }
+
+    .ngo-card:hover {
+        transform: translateY(-10px);
+        border-color: rgba(157, 78, 221, 0.3);
+    }
+
+    .ngo-card-content {
+        display: flex;
+        flex-direction: column;
+        flex-grow: 1;
+    }
+
+    .ngo-image-container {
+        height: 180px;
+        overflow: hidden;
+        border-radius: 12px;
+        margin-bottom: 1.25rem;
+        position: relative;
+    }
+
+    .ngo-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.5s ease;
+    }
+
+    .ngo-card:hover .ngo-image {
+        transform: scale(1.05);
+    }
+
+    .ngo-image-placeholder {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(20, 20, 20, 0.5);
+        color: #9d4edd;
+        font-size: 2.5rem;
+        transition: all 0.3s ease;
+    }
+
+    .ngo-card:hover .ngo-image-placeholder {
+        background: rgba(157, 78, 221, 0.1);
+    }
+
+    .ngo-card h3 {
+        color: #e0e0e0;
+        font-size: 1.4rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 1px solid rgba(30, 30, 30, 0.8);
+    }
+
+    .ngo-info {
+        margin-bottom: 1.5rem;
+        flex-grow: 1;
+    }
+
+    .info-item {
+        margin-bottom: 0.8rem;
+    }
+
+    .info-label {
+        color: #9d4edd;
+        font-size: 0.9rem;
+        margin-bottom: 0.3rem;
+        font-weight: 500;
+        opacity: 0.8;
+    }
+
+    .info-value {
+        color: #e0e0e0;
+        font-size: 1rem;
+        line-height: 1.5;
+    }
+
+    .view-details {
+        color: #9d4edd;
+        font-size: 0.9rem;
+        font-weight: 600;
+        margin-top: 0.5rem;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.3s ease;
+    }
+
+    .view-details i {
+        transition: transform 0.3s ease;
+    }
+
+    .ngo-card:hover .view-details i {
+        transform: translateX(5px);
+    }
+
+    .empty-state {
+        background: rgba(10, 10, 10, 0.8);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(30, 30, 30, 0.8);
+        border-radius: 16px;
+        padding: 3rem;
+        text-align: center;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+        animation: fadeIn 0.8s ease-out forwards;
+    }
+
+    .empty-state i {
+        font-size: 3rem;
+        color: #9d4edd;
+        margin-bottom: 1.5rem;
+        opacity: 0.7;
+        animation: pulse 2s infinite;
+    }
+
+    .empty-state p {
+        color: #9d9d9d;
+        font-size: 1.1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .pagination-container {
+        display: flex;
+        justify-content: center;
+        margin-top: 2rem;
+        opacity: 0;
+        animation: fadeIn 0.8s ease-out 1.3s forwards;
+    }
+
+    .pagination-dots {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .pagination-dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background-color: rgba(157, 78, 221, 0.3);
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .pagination-dot.active {
+        background-color: #9d4edd;
+        transform: scale(1.2);
+    }
+
+    .pagination-dot:hover:not(.active) {
+        background-color: rgba(157, 78, 221, 0.5);
+        transform: scale(1.1);
+    }
+
+    /* Animation Keyframes */
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+        to {
+            opacity: 1;
+        }
+    }
+    
+    @keyframes fadeInDown {
+        from {
+            opacity: 0;
+            transform: translateY(-30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    @keyframes pulse {
+        0% {
+            transform: scale(1);
+            opacity: 0.7;
+        }
+        50% {
+            transform: scale(1.05);
+            opacity: 1;
+        }
+        100% {
+            transform: scale(1);
+            opacity: 0.7;
+        }
+    }
+    
+    @keyframes lineGrow {
+        from {
+            width: 0;
+        }
+        to {
+            width: 100%;
+        }
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .header-section h1 {
+            font-size: 2rem;
+        }
+        
+        .ngo-image-container {
+            height: 160px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="ngo-container">
+    <div class="header-section">
+        <h1>NGO <span>Listings</span></h1>
+        <p>Browse and connect with active NGOs</p>
+    </div>
+
     {% if ngo_list %}
-        <div class="row row-cols-1 row-cols-md-2 g-4">
+        <div class="ngo-grid">
             {% for ngo in ngo_list %}
-                <div class="col">
-                    <div class="card h-100">
-                        {% if ngo.logo %}
-                            <img src="{{ ngo.logo.url }}" class="card-img-top" alt="{{ ngo.name }} logo" style="max-height: 120px; object-fit: contain; padding: 10px;">
+            <div class="ngo-card" onclick="window.location.href='{% url 'ngos_detail' ngo.id %}'">
+                <div class="ngo-card-content">
+                    <div class="ngo-image-container">
+                        {% if ngo.image %}
+                            <img src="{{ ngo.image.url }}" alt="{{ ngo.name }}" class="ngo-image">
+                        {% else %}
+                            <div class="ngo-image-placeholder">
+                                <i class="fas fa-building"></i>
+                            </div>
                         {% endif %}
-                        <div class="card-body">
-                            <h5 class="card-title">{{ ngo.name }}</h5>
-                            <p class="card-text">{{ ngo.description|truncatewords:20 }}</p>
+                    </div>
+                    <h3>{{ ngo.name }}</h3>
+                    <div class="ngo-info">
+                        <div class="info-item">
+                            <div class="info-label">Description</div>
+                            <div class="info-value">{{ ngo.description|truncatechars:150 }}</div>
                         </div>
-                        <div class="card-footer">
-                            <a href="{% url 'ngos_detail' ngo.id %}" class="btn btn-primary">View Details</a>
+                        <div class="info-item">
+                            <div class="info-label">Contact</div>
+                            <div class="info-value">
+                                {% if ngo.contact_email %}
+                                    {{ ngo.contact_email }}
+                                {% else %}
+                                    Not provided
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Location</div>
+                            <div class="info-value">
+                                {% if ngo.address %}
+                                    {{ ngo.address|truncatechars:50 }}
+                                {% else %}
+                                    Not provided
+                                {% endif %}
+                            </div>
                         </div>
                     </div>
+                    <div class="view-details">
+                        <span>View Details</span>
+                        <i class="fas fa-arrow-right"></i>
+                    </div>
                 </div>
+            </div>
             {% endfor %}
         </div>
         
         <!-- Pagination -->
-        <div class="mt-4">
-            {% if ngo_list.has_other_pages %}
-                <nav aria-label="NGO pagination">
-                    <ul class="pagination justify-content-center">
-                        {% if ngo_list.has_previous %}
-                            <li class="page-item">
-                                <a class="page-link" href="?page={{ ngo_list.previous_page_number }}">Previous</a>
-                            </li>
-                        {% else %}
-                            <li class="page-item disabled">
-                                <span class="page-link">Previous</span>
-                            </li>
-                        {% endif %}
-                        
-                        {% for i in ngo_list.paginator.page_range %}
-                            {% if ngo_list.number == i %}
-                                <li class="page-item active"><span class="page-link">{{ i }}</span></li>
-                            {% else %}
-                                <li class="page-item">
-                                    <a class="page-link" href="?page={{ i }}">{{ i }}</a>
-                                </li>
-                            {% endif %}
-                        {% endfor %}
-                        
-                        {% if ngo_list.has_next %}
-                            <li class="page-item">
-                                <a class="page-link" href="?page={{ ngo_list.next_page_number }}">Next</a>
-                            </li>
-                        {% else %}
-                            <li class="page-item disabled">
-                                <span class="page-link">Next</span>
-                            </li>
-                        {% endif %}
-                    </ul>
-                </nav>
-            {% endif %}
+        <div class="pagination-container">
+            <div class="pagination-dots">
+                {% if ngo_list.has_previous %}
+                    <div class="pagination-dot" onclick="window.location.href='?page={{ ngo_list.previous_page_number }}'"></div>
+                {% endif %}
+                
+                {% for i in ngo_list.paginator.page_range %}
+                    {% if ngo_list.number == i %}
+                        <div class="pagination-dot active"></div>
+                    {% else %}
+                        <div class="pagination-dot" onclick="window.location.href='?page={{ i }}'"></div>
+                    {% endif %}
+                {% endfor %}
+                
+                {% if ngo_list.has_next %}
+                    <div class="pagination-dot" onclick="window.location.href='?page={{ ngo_list.next_page_number }}'"></div>
+                {% endif %}
+            </div>
         </div>
     {% else %}
-        <div class="alert alert-info">
-            No NGOs found at the moment.
+        <div class="empty-state">
+            <i class="fas fa-handshake"></i>
+            <p>No NGOs found at the moment. Please check back later.</p>
         </div>
     {% endif %}
 </div>
