@@ -1,105 +1,375 @@
 {% extends '../base.html' %}
 
+{% block extra_css %}
+<style>
+    :root {
+        --primary: #8B5CF6;
+        --primary-hover: #7C3AED;
+        --primary-light: rgba(139, 92, 246, 0.2);
+        --text-light: #F3F4F6;
+        --text-secondary: #D1D5DB;
+        --card-bg: rgba(15, 12, 24, 0.7);
+        --card-border: rgba(157, 78, 221, 0.3);
+        --card-shadow: rgba(0, 0, 0, 0.4);
+    }
+
+    .container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 2rem;
+        position: relative;
+        z-index: 2;
+    }
+
+    .back-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.75rem;
+        color: var(--text-secondary);
+        text-decoration: none;
+        padding: 0.75rem 1.5rem;
+        border-radius: 12px;
+        background: linear-gradient(135deg, rgba(15, 12, 24, 0.8), rgba(30, 24, 48, 0.8));
+        border: 1px solid var(--card-border);
+        transition: all 0.3s ease;
+        margin-bottom: 1.5rem;
+        font-weight: 500;
+    }
+
+    .back-btn i {
+        color: var(--primary);
+        transition: transform 0.3s ease;
+    }
+
+    .back-btn:hover {
+        color: white;
+        border-color: var(--primary);
+        transform: translateX(-5px);
+        box-shadow: 0 4px 15px rgba(139, 92, 246, 0.15);
+    }
+
+    .back-btn:hover i {
+        transform: translateX(-5px);
+    }
+
+    .assessment-card {
+        background: linear-gradient(135deg, rgba(15, 12, 24, 0.8), rgba(30, 24, 48, 0.8));
+        backdrop-filter: blur(15px);
+        border: 1px solid var(--card-border);
+        border-radius: 20px;
+        overflow: hidden;
+        transition: all 0.3s ease;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+    }
+
+    .card-header {
+        background: linear-gradient(135deg, var(--primary), #a855f7);
+        padding: 2rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .card-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1));
+        z-index: 1;
+    }
+
+    .card-title {
+        color: white;
+        font-size: 1.75rem;
+        font-weight: 700;
+        margin: 0;
+        position: relative;
+        z-index: 2;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    .status-badge {
+        padding: 0.5rem 1.25rem;
+        border-radius: 9999px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        background: rgba(255, 255, 255, 0.15);
+        color: white;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        position: relative;
+        z-index: 2;
+    }
+
+    .card-body {
+        padding: 2rem;
+    }
+
+    .info-section {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 2rem;
+        margin: 2rem;
+    }
+
+    .info-block {
+        background: rgba(139, 92, 246, 0.05);
+        border: 1px solid rgba(139, 92, 246, 0.1);
+        border-radius: 16px;
+        padding: 1.75rem;
+        transition: all 0.3s ease;
+    }
+
+    .info-block:hover {
+        border-color: var(--primary);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 20px rgba(139, 92, 246, 0.15);
+    }
+
+    .info-title {
+        color: white;
+        font-size: 1.25rem;
+        font-weight: 600;
+        margin-bottom: 1.25rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid rgba(139, 92, 246, 0.2);
+    }
+
+    .info-title i {
+        color: var(--primary);
+        background: rgba(139, 92, 246, 0.1);
+        padding: 0.75rem;
+        border-radius: 12px;
+    }
+
+    .info-item {
+        display: flex;
+        margin-bottom: 1rem;
+        color: var(--text-secondary);
+        padding: 0.5rem;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+    }
+
+    .info-item:hover {
+        background: rgba(139, 92, 246, 0.05);
+    }
+
+    .info-item strong {
+        min-width: 160px;
+        color: white;
+        font-weight: 500;
+    }
+
+    .content-section {
+        background: rgba(139, 92, 246, 0.05);
+        border: 1px solid rgba(139, 92, 246, 0.1);
+        border-radius: 16px;
+        padding: 1.75rem;
+        margin: 0 2rem 2rem 2rem;
+        transition: all 0.3s ease;
+    }
+
+    .content-section:hover {
+        border-color: var(--primary);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 20px rgba(139, 92, 246, 0.15);
+    }
+
+    .content-title {
+        color: white;
+        font-size: 1.25rem;
+        font-weight: 600;
+        margin-bottom: 1.25rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid rgba(139, 92, 246, 0.2);
+    }
+
+    .content-title i {
+        color: var(--primary);
+        background: rgba(139, 92, 246, 0.1);
+        padding: 0.75rem;
+        border-radius: 12px;
+    }
+
+    .content-body {
+        color: var(--text-secondary);
+        line-height: 1.8;
+        padding: 1rem;
+        background: rgba(0, 0, 0, 0.2);
+        border-radius: 12px;
+    }
+
+    .download-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.75rem;
+        background: linear-gradient(135deg, var(--primary), #a855f7);
+        color: white;
+        padding: 1rem 2rem;
+        border-radius: 12px;
+        text-decoration: none;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-size: 0.9rem;
+    }
+
+    .download-btn i {
+        font-size: 1.2rem;
+    }
+
+    .download-btn:hover {
+        background: linear-gradient(135deg, #7C3AED, #9333EA);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
+    }
+
+    @media (max-width: 768px) {
+        .container {
+            padding: 1rem;
+        }
+
+        .info-section {
+            grid-template-columns: 1fr;
+        }
+
+        .card-header {
+            flex-direction: column;
+            gap: 1rem;
+            text-align: center;
+        }
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="container mt-4">
-    <div class="row mb-4">
-        <div class="col">
-            <a href="{% url 'student_view_assessments' %}" class="btn btn-outline-primary mb-3">
-                <i class="fas fa-arrow-left"></i> Back to Assessments
-            </a>
-            
-            <div class="card">
-                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-                    <h4 class="mb-0">{{ assessment.title }}</h4>
-                    <span class="badge {% if assessment.status == 'upcoming' %}bg-info{% elif assessment.status == 'ongoing' %}bg-success{% else %}bg-secondary{% endif %}">
-                        {{ assessment.status|title }}
-                    </span>
+<div class="container">
+    <a href="{% url 'student_view_assessments' %}" class="back-btn">
+        <i class="fas fa-arrow-left"></i>
+        Back to Assessments
+    </a>
+    
+    <div class="assessment-card">
+        <div class="card-header">
+            <h4 class="card-title">{{ assessment.title }}</h4>
+            <span class="status-badge">
+                {{ assessment.status|title }}
+            </span>
+        </div>
+        
+        <div class="card-body">
+            <!-- Basic Information -->
+            <div class="info-section">
+                <div class="info-block">
+                    <h5 class="info-title">
+                        <i class="fas fa-info-circle"></i>
+                        Basic Information
+                    </h5>
+                    <ul class="info-list">
+                        <li class="info-item">
+                            <strong>Start Date:</strong>
+                            {{ assessment.start_date|date:"F d, Y" }}
+                        </li>
+                        <li class="info-item">
+                            <strong>End Date:</strong>
+                            {{ assessment.end_date|date:"F d, Y" }}
+                        </li>
+                        <li class="info-item">
+                            <strong>Maximum Marks:</strong>
+                            {{ assessment.max_marks }}
+                        </li>
+                        <li class="info-item">
+                            <strong>Target Semester:</strong>
+                            {{ assessment.target_semester }}
+                        </li>
+                        <li class="info-item">
+                            <strong>Target Branch:</strong>
+                            {{ assessment.target_branch }}
+                        </li>
+                    </ul>
                 </div>
-                <div class="card-body">
-                    <!-- Basic Information -->
-                    <div class="row mb-4">
-                        <div class="col-md-6">
-                            <h5><i class="fas fa-info-circle"></i> Basic Information</h5>
-                            <ul class="list-unstyled">
-                                <li class="mb-2">
-                                    <strong>Start Date:</strong> {{ assessment.start_date|date:"F d, Y" }}
-                                </li>
-                                <li class="mb-2">
-                                    <strong>End Date:</strong> {{ assessment.end_date|date:"F d, Y" }}
-                                </li>
-                                <li class="mb-2">
-                                    <strong>Maximum Marks:</strong> {{ assessment.max_marks }}
-                                </li>
-                                <li class="mb-2">
-                                    <strong>Target Semester:</strong> {{ assessment.target_semester }}
-                                </li>
-                                <li class="mb-2">
-                                    <strong>Target Branch:</strong> {{ assessment.target_branch }}
-                                </li>
-                            </ul>
-                        </div>
-                        <div class="col-md-6">
-                            <h5><i class="fas fa-clipboard-check"></i> Submission Details</h5>
-                            <ul class="list-unstyled">
-                                <li class="mb-2">
-                                    <strong>Submission Required:</strong>
-                                    {% if assessment.submission_required %}
-                                        <span class="text-success"><i class="fas fa-check"></i> Yes</span>
-                                    {% else %}
-                                        <span class="text-danger"><i class="fas fa-times"></i> No</span>
-                                    {% endif %}
-                                </li>
-                                {% if assessment.submission_required %}
-                                    <li class="mb-2">
-                                        <strong>Time Remaining:</strong>
-                                        {% if assessment.status == 'upcoming' %}
-                                            <span class="text-info">Not started yet</span>
-                                        {% elif assessment.status == 'ongoing' %}
-                                            <span class="text-success">Due in {{ assessment.end_date|timeuntil }}</span>
-                                        {% else %}
-                                            <span class="text-danger">Deadline passed</span>
-                                        {% endif %}
-                                    </li>
+
+                <div class="info-block">
+                    <h5 class="info-title">
+                        <i class="fas fa-clipboard-check"></i>
+                        Submission Details
+                    </h5>
+                    <ul class="info-list">
+                        <li class="info-item">
+                            <strong>Submission Required:</strong>
+                            {% if assessment.submission_required %}
+                                <span style="color: #4ADE80"><i class="fas fa-check"></i> Yes</span>
+                            {% else %}
+                                <span style="color: #F87171"><i class="fas fa-times"></i> No</span>
+                            {% endif %}
+                        </li>
+                        {% if assessment.submission_required %}
+                            <li class="info-item">
+                                <strong>Time Remaining:</strong>
+                                {% if assessment.status == 'upcoming' %}
+                                    <span style="color: #60A5FA">Not started yet</span>
+                                {% elif assessment.status == 'ongoing' %}
+                                    <span style="color: #4ADE80">Due in {{ assessment.end_date|timeuntil }}</span>
+                                {% else %}
+                                    <span style="color: #F87171">Deadline passed</span>
                                 {% endif %}
-                            </ul>
-                        </div>
-                    </div>
-
-                    <!-- Description -->
-                    <div class="mb-4">
-                        <h5><i class="fas fa-align-left"></i> Description</h5>
-                        <div class="card bg-light">
-                            <div class="card-body">
-                                {{ assessment.description|linebreaks }}
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Assessment Criteria -->
-                    <div class="mb-4">
-                        <h5><i class="fas fa-list-ul"></i> Assessment Criteria</h5>
-                        <div class="card bg-light">
-                            <div class="card-body">
-                                {{ assessment.assessment_criteria|linebreaks }}
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Resources -->
-                    {% if assessment.resources %}
-                    <div>
-                        <h5><i class="fas fa-file-alt"></i> Resources</h5>
-                        <div class="card bg-light">
-                            <div class="card-body">
-                                <a href="{{ assessment.resources.url }}" class="btn btn-outline-primary" target="_blank">
-                                    <i class="fas fa-download"></i> Download Resources
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                    {% endif %}
+                            </li>
+                        {% endif %}
+                    </ul>
                 </div>
             </div>
+
+            <!-- Description -->
+            <div class="content-section">
+                <h5 class="content-title">
+                    <i class="fas fa-align-left"></i>
+                    Description
+                </h5>
+                <div class="content-body">
+                    {{ assessment.description|linebreaks }}
+                </div>
+            </div>
+
+            <!-- Assessment Criteria -->
+            <div class="content-section">
+                <h5 class="content-title">
+                    <i class="fas fa-list-ul"></i>
+                    Assessment Criteria
+                </h5>
+                <div class="content-body">
+                    {{ assessment.assessment_criteria|linebreaks }}
+                </div>
+            </div>
+
+            <!-- Resources -->
+            {% if assessment.resources %}
+            <div class="content-section">
+                <h5 class="content-title">
+                    <i class="fas fa-file-alt"></i>
+                    Resources
+                </h5>
+                <div class="content-body">
+                    <a href="{{ assessment.resources.url }}" class="download-btn" target="_blank">
+                        <i class="fas fa-download"></i>
+                        Download Resources
+                    </a>
+                </div>
+            </div>
+            {% endif %}
         </div>
     </div>
 </div>

@@ -1,91 +1,393 @@
 {% extends 'base.html' %}
 {% load static %}
 
+{% block title %}Edit Group Project{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --primary: #8B5CF6;
+        --primary-hover: #7C3AED;
+        --primary-light: rgba(139, 92, 246, 0.2);
+        --text-light: #F3F4F6;
+        --text-secondary: #D1D5DB;
+        --card-bg: rgba(30, 30, 30, 0.5);
+        --card-border: rgba(139, 92, 246, 0.3);
+        --card-shadow: rgba(0, 0, 0, 0.4);
+    }
+
+    /* Background Elements */
+    .bg-elements {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -1;
+        overflow: hidden;
+    }
+
+    .bg-gradient {
+        position: absolute;
+        width: 35rem;
+        height: 35rem;
+        border-radius: 50%;
+        filter: blur(8rem);
+        z-index: -1;
+        opacity: 0.5;
+        animation: pulse 15s infinite alternate ease-in-out;
+    }
+
+    @keyframes pulse {
+        0% { transform: scale(1); opacity: 0.5; }
+        50% { transform: scale(1.05); opacity: 0.6; }
+        100% { transform: scale(1); opacity: 0.5; }
+    }
+
+    .bg-gradient:nth-child(1) {
+        top: -10%;
+        right: 5%;
+        background: rgba(168, 85, 247, 0.3);
+        animation-delay: -5s;
+    }
+
+    .bg-gradient:nth-child(2) {
+        bottom: -5%;
+        left: 10%;
+        background: rgba(124, 58, 237, 0.2);
+        animation-delay: -10s;
+    }
+
+    .static-pattern {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        opacity: 0.1;
+        z-index: -1;
+        background-image: radial-gradient(#a855f7 1px, transparent 1px);
+        background-size: 40px 40px;
+    }
+
+    .form-container {
+        max-width: 800px;
+        margin: 2rem auto;
+        padding: 0 1rem;
+    }
+
+    .form-header {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    .form-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: white;
+        margin-bottom: 1rem;
+        background: linear-gradient(135deg, #a855f7, #8b5cf6);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .form-card {
+        background: rgba(15, 12, 24, 0.8);
+        backdrop-filter: blur(15px);
+        border: 1px solid var(--card-border);
+        border-radius: 20px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 8px 32px rgba(31, 38, 135, 0.15);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .form-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 5px;
+        background: linear-gradient(90deg, #a855f7, #8b5cf6);
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-label {
+        display: block;
+        color: var(--primary);
+        font-size: 0.95rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+
+    .form-control {
+        width: 100%;
+        background: rgba(15, 12, 24, 0.6);
+        border: 1px solid var(--card-border);
+        border-radius: 10px;
+        padding: 0.75rem 1rem;
+        color: var(--text-light);
+        transition: all 0.3s ease;
+    }
+
+    .form-control:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 2px var(--primary-light);
+    }
+
+    textarea.form-control {
+        min-height: 120px;
+        resize: vertical;
+    }
+
+    .form-select {
+        width: 100%;
+        background: rgba(15, 12, 24, 0.6);
+        border: 1px solid var(--card-border);
+        border-radius: 10px;
+        padding: 0.75rem 1rem;
+        color: var(--text-light);
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .form-select:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 2px var(--primary-light);
+    }
+
+    .form-check {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin: 1rem 0;
+    }
+
+    .form-check-input {
+        width: 1.2rem;
+        height: 1.2rem;
+        border-radius: 4px;
+        border: 1px solid var(--card-border);
+        background: rgba(15, 12, 24, 0.6);
+        cursor: pointer;
+    }
+
+    .form-check-label {
+        color: var(--text-light);
+        cursor: pointer;
+    }
+
+    .image-preview {
+        margin: 1rem 0;
+    }
+
+    .preview-image {
+        max-width: 150px;
+        border-radius: 10px;
+        border: 2px solid var(--card-border);
+    }
+
+    .delete-checkbox {
+        margin-top: 0.5rem;
+    }
+
+    .file-input {
+        margin-top: 0.5rem;
+    }
+
+    .current-file {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1rem;
+        padding: 0.75rem;
+        background: rgba(139, 92, 246, 0.1);
+        border-radius: 10px;
+    }
+
+    .current-file a {
+        color: var(--primary);
+        text-decoration: none;
+        transition: color 0.3s ease;
+    }
+
+    .current-file a:hover {
+        color: var(--primary-hover);
+    }
+
+    .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.75rem 1.5rem;
+        border-radius: 10px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        border: none;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #a855f7, #8b5cf6);
+        color: white;
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+    }
+
+    .btn-secondary {
+        background: rgba(156, 163, 175, 0.2);
+        color: var(--text-light);
+    }
+
+    .btn-secondary:hover {
+        background: rgba(156, 163, 175, 0.3);
+        transform: translateY(-2px);
+    }
+
+    .btn-group {
+        display: flex;
+        gap: 1rem;
+        margin-top: 2rem;
+    }
+
+    @media (max-width: 768px) {
+        .form-container {
+            margin: 1rem auto;
+        }
+
+        .form-title {
+            font-size: 2rem;
+        }
+
+        .form-card {
+            padding: 1.5rem;
+        }
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="container mt-5">
-    <h2>Edit Group Project</h2>
-    <form method="post" enctype="multipart/form-data">
-        {% csrf_token %}
-
-        <!-- Project Title -->
-        <div class="form-group">
-            <label for="title">Project Title</label>
-            <input type="text" class="form-control" name="title" id="title" value="{{ project.title }}" required>
-        </div>
-
-        <!-- Description -->
-        <div class="form-group mt-3">
-            <label for="description">Description</label>
-            <textarea class="form-control" name="description" id="description" rows="4" required>{{ project.description }}</textarea>
-        </div>
-
-        <!-- SDGs -->
-        <div class="form-group mt-3">
-            <label for="sdgs">Sustainable Development Goals (SDGs)</label>
-            <input type="text" class="form-control" name="sdgs" id="sdgs" value="{{ project.sdgs }}">
-        </div>
-
-        <!-- Tech Stack -->
-        <div class="form-group mt-3">
-            <label for="tech_stack">Tech Stack</label>
-            <input type="text" class="form-control" name="tech_stack" id="tech_stack" value="{{ project.tech_stack }}">
-        </div>
-
-        <!-- GitHub Link -->
-        <div class="form-group mt-3">
-            <label for="github_link">GitHub Link</label>
-            <input type="url" class="form-control" name="github_link" id="github_link" value="{{ project.github_link }}">
-        </div>
-
-        <!-- Open for Collaboration -->
-        <div class="form-check mt-3">
-            <input type="checkbox" class="form-check-input" name="is_open_for_collaboration" id="is_open_for_collaboration" {% if project.is_open_for_collaboration %}checked{% endif %}>
-            <label class="form-check-label" for="is_open_for_collaboration">Open for Collaboration</label>
-        </div>
-
-        <!-- Mentor Selection -->
-        <div class="form-group mt-3">
-            <label for="mentor">Assign a Mentor</label>
-            <select name="mentor" id="mentor" class="form-control">
-                <option value="">-- None --</option>
-                {% for connection in leader_mentors %}
-                    <option value="{{ connection.mentor.id }}" {% if project.mentor and project.mentor.id == connection.mentor.id %}selected{% endif %}>
-                        {{ connection.mentor.user.get_full_name }}
-                    </option>
-                {% endfor %}
-            </select>
-        </div>
-
-        <!-- Image Uploads -->
-       <!-- Image Uploads -->
-<div class="mt-4">
-  <h5>Project Images</h5>
-  {% for image in project_images %}
-      <div class="form-group mt-3">
-          <label for="project_image{{ forloop.counter }}">Image {{ forloop.counter }}</label><br>
-          {% if image %}
-              <img src="{{ image.url }}" alt="Project Image {{ forloop.counter }}" class="img-thumbnail mb-2" width="150"><br>
-              <input type="checkbox" name="delete_image{{ forloop.counter }}"> Delete this image<br>
-          {% endif %}
-          <input type="file" name="project_image{{ forloop.counter }}" class="form-control-file">
-      </div>
-  {% endfor %}
+<div class="bg-elements">
+    <div class="bg-gradient"></div>
+    <div class="bg-gradient"></div>
+    <div class="static-pattern"></div>
 </div>
 
+<div class="form-container">
+    <div class="form-header">
+        <h1 class="form-title">Edit Group Project</h1>
+    </div>
 
-        <!-- Project File Upload -->
-        <div class="form-group mt-4">
-            <label for="project_file">Project File</label><br>
-            {% if project.project_file %}
-                <a href="{{ project.project_file.url }}" target="_blank">Download current file</a><br>
-                <input type="checkbox" name="delete_project_file"> Delete this file<br>
-            {% endif %}
-            <input type="file" name="project_file" class="form-control-file mt-2">
-        </div>
+    <div class="form-card">
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
 
-        <!-- Submit Button -->
-        <button type="submit" class="btn btn-primary mt-4">Update Project</button>
-        <a href="{% url 'group_detail' group.id %}" class="btn btn-secondary mt-4">Cancel</a>
-    </form>
+            <!-- Project Title -->
+            <div class="form-group">
+                <label for="title" class="form-label">Project Title</label>
+                <input type="text" class="form-control" name="title" id="title" value="{{ project.title }}" required>
+            </div>
+
+            <!-- Description -->
+            <div class="form-group">
+                <label for="description" class="form-label">Description</label>
+                <textarea class="form-control" name="description" id="description" rows="4" required>{{ project.description }}</textarea>
+            </div>
+
+            <!-- SDGs -->
+            <div class="form-group">
+                <label for="sdgs" class="form-label">Sustainable Development Goals (SDGs)</label>
+                <input type="text" class="form-control" name="sdgs" id="sdgs" value="{{ project.sdgs }}">
+            </div>
+
+            <!-- Tech Stack -->
+            <div class="form-group">
+                <label for="tech_stack" class="form-label">Tech Stack</label>
+                <input type="text" class="form-control" name="tech_stack" id="tech_stack" value="{{ project.tech_stack }}">
+            </div>
+
+            <!-- GitHub Link -->
+            <div class="form-group">
+                <label for="github_link" class="form-label">GitHub Link</label>
+                <input type="url" class="form-control" name="github_link" id="github_link" value="{{ project.github_link }}">
+            </div>
+
+            <!-- Open for Collaboration -->
+            <div class="form-check">
+                <input type="checkbox" class="form-check-input" name="is_open_for_collaboration" id="is_open_for_collaboration" {% if project.is_open_for_collaboration %}checked{% endif %}>
+                <label class="form-check-label" for="is_open_for_collaboration">Open for Collaboration</label>
+            </div>
+
+            <!-- Mentor Selection -->
+            <div class="form-group">
+                <label for="mentor" class="form-label">Assign a Mentor</label>
+                <select name="mentor" id="mentor" class="form-select">
+                    <option value="">-- None --</option>
+                    {% for connection in leader_mentors %}
+                        <option value="{{ connection.mentor.id }}" {% if project.mentor and project.mentor.id == connection.mentor.id %}selected{% endif %}>
+                            {{ connection.mentor.user.get_full_name }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Image Uploads -->
+            <div class="form-group">
+                <label class="form-label">Project Images</label>
+                {% for image in project_images %}
+                    <div class="image-preview">
+                        {% if image %}
+                            <img src="{{ image.url }}" alt="Project Image {{ forloop.counter }}" class="preview-image">
+                            <div class="delete-checkbox">
+                                <input type="checkbox" name="delete_image{{ forloop.counter }}" id="delete_image{{ forloop.counter }}" class="form-check-input">
+                                <label for="delete_image{{ forloop.counter }}" class="form-check-label">Delete this image</label>
+                            </div>
+                        {% endif %}
+                        <div class="file-input">
+                            <input type="file" name="project_image{{ forloop.counter }}" class="form-control" accept="image/*">
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+
+            <!-- Project File Upload -->
+            <div class="form-group">
+                <label for="project_file" class="form-label">Project File</label>
+                {% if project.project_file %}
+                    <div class="current-file">
+                        <i class="fas fa-file-alt"></i>
+                        <a href="{{ project.project_file.url }}" target="_blank">Download current file</a>
+                        <div class="delete-checkbox">
+                            <input type="checkbox" name="delete_project_file" id="delete_project_file" class="form-check-input">
+                            <label for="delete_project_file" class="form-check-label">Delete this file</label>
+                        </div>
+                    </div>
+                {% endif %}
+                <input type="file" name="project_file" id="project_file" class="form-control">
+            </div>
+
+            <!-- Submit Buttons -->
+            <div class="btn-group">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i>
+                    Update Project
+                </button>
+                <a href="{% url 'group_detail' group.id %}" class="btn btn-secondary">
+                    <i class="fas fa-times"></i>
+                    Cancel
+                </a>
+            </div>
+        </form>
+    </div>
 </div>
 {% endblock %}

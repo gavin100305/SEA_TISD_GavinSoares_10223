@@ -1,74 +1,343 @@
 {% extends '../base.html' %}
+{% load static %}
 
 {% block title %}Create Group | TISD{% endblock %}
 
+{% block extra_css %}
+<style>
+    /* Core Styles */
+    .container {
+        padding: 2.5rem 0;
+        position: relative;
+        z-index: 2;
+        max-width: 1000px;
+        margin: 0 auto;
+    }
+
+    /* Background Elements */
+    .bg-elements {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -1;
+        overflow: hidden;
+    }
+
+    .bg-gradient {
+        position: absolute;
+        width: 35rem;
+        height: 35rem;
+        border-radius: 50%;
+        filter: blur(8rem);
+        z-index: -1;
+        opacity: 0.5;
+        animation: pulse 15s infinite alternate ease-in-out;
+    }
+
+    @keyframes pulse {
+        0% { transform: scale(1); opacity: 0.5; }
+        50% { transform: scale(1.05); opacity: 0.6; }
+        100% { transform: scale(1); opacity: 0.5; }
+    }
+
+    .bg-gradient:nth-child(1) {
+        top: -10%;
+        right: 5%;
+        background: rgba(168, 85, 247, 0.3);
+        animation-delay: -5s;
+    }
+
+    .bg-gradient:nth-child(2) {
+        bottom: -5%;
+        left: 10%;
+        background: rgba(124, 58, 237, 0.2);
+        animation-delay: -10s;
+    }
+
+    /* Header Section */
+    .header-section {
+        text-align: center;
+        margin-bottom: 3rem;
+        padding: 2rem;
+        background: rgba(15, 15, 15, 0.8);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(157, 78, 221, 0.3);
+        border-radius: 20px;
+        box-shadow: 0 8px 32px rgba(157, 78, 221, 0.15);
+    }
+
+    .header-section h1 {
+        font-size: 2.5rem;
+        font-weight: 800;
+        background: linear-gradient(135deg, #a855f7, #8b5cf6);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 1rem;
+    }
+
+    .header-section p {
+        color: #c77dff;
+        font-size: 1.1rem;
+        opacity: 0.9;
+    }
+
+    /* Back Link */
+    .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: rgba(255, 255, 255, 0.7);
+        text-decoration: none;
+        padding: 0.5rem 1rem;
+        border-radius: 12px;
+        transition: all 0.3s ease;
+        margin-bottom: 2rem;
+    }
+
+    .back-link:hover {
+        color: white;
+        background: rgba(157, 78, 221, 0.1);
+        transform: translateX(-5px);
+    }
+
+    /* Form Card */
+    .form-card {
+        background: rgba(15, 12, 24, 0.7);
+        backdrop-filter: blur(15px);
+        border: 1px solid rgba(157, 78, 221, 0.2);
+        border-radius: 20px;
+        padding: 2.5rem;
+        box-shadow: 0 10px 40px rgba(31, 38, 135, 0.15);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .form-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 5px;
+        background: linear-gradient(90deg, #a855f7, #8b5cf6);
+    }
+
+    /* Form Elements */
+    .form-group {
+        margin-bottom: 2rem;
+    }
+
+    .form-label {
+        color: #9d4edd;
+        margin-bottom: 0.8rem;
+        font-weight: 600;
+        font-size: 1rem;
+        display: block;
+    }
+
+    .form-control {
+        background: rgba(15, 12, 24, 0.7);
+        border: 1px solid rgba(157, 78, 221, 0.3);
+        border-radius: 12px;
+        padding: 1rem;
+        color: white;
+        width: 100%;
+        transition: all 0.3s ease;
+    }
+
+    .form-control:focus {
+        outline: none;
+        border-color: rgba(157, 78, 221, 0.6);
+        box-shadow: 0 0 0 2px rgba(157, 78, 221, 0.1);
+        background: rgba(15, 12, 24, 0.8);
+    }
+
+    .form-control::placeholder {
+        color: rgba(255, 255, 255, 0.5);
+    }
+
+    textarea.form-control {
+        min-height: 150px;
+        resize: vertical;
+    }
+
+    /* Info Box */
+    .info-box {
+        background: rgba(15, 12, 24, 0.7);
+        border: 1px solid rgba(157, 78, 221, 0.2);
+        border-radius: 16px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .info-box h3 {
+        color: white;
+        font-size: 1.2rem;
+        margin-bottom: 1rem;
+    }
+
+    .info-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .info-list li {
+        display: flex;
+        align-items: center;
+        gap: 0.8rem;
+        color: rgba(255, 255, 255, 0.8);
+        margin-bottom: 0.8rem;
+    }
+
+    .info-list li i {
+        color: #9d4edd;
+        font-size: 1.1rem;
+    }
+
+    /* Button */
+    .btn-primary {
+        background: linear-gradient(90deg, #a855f7 0%, #8b5cf6 100%);
+        color: white;
+        padding: 1rem 2rem;
+        border-radius: 12px;
+        border: none;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.4s ease;
+        box-shadow: 0 4px 15px rgba(168, 85, 247, 0.25);
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(168, 85, 247, 0.4);
+        background: linear-gradient(90deg, #9d4edd 0%, #7c3aed 100%);
+    }
+
+    /* Alert Messages */
+    .alert {
+        background: rgba(15, 12, 24, 0.8);
+        backdrop-filter: blur(10px);
+        border: 1px solid;
+        border-radius: 12px;
+        padding: 1.2rem 1.8rem;
+        margin-bottom: 1rem;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        display: flex;
+        align-items: center;
+    }
+
+    .alert-error {
+        border-color: rgba(220, 53, 69, 0.3);
+        color: #ff6b6b;
+    }
+
+    .alert-error::before {
+        content: '\f057';
+        font-family: 'Font Awesome 5 Free';
+        font-weight: 900;
+        margin-right: 15px;
+        font-size: 1.3rem;
+    }
+
+    /* Responsive Adjustments */
+    @media (max-width: 768px) {
+        .container {
+            padding: 1.5rem;
+        }
+
+        .form-card {
+            padding: 1.5rem;
+        }
+
+        .header-section h1 {
+            font-size: 2rem;
+        }
+
+        .btn-primary {
+            width: 100%;
+        }
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="container mx-auto px-4 py-8">
-    <div class="max-w-2xl mx-auto">
-        <div class="mb-8">
-            <a href="{% url 'my_groups' %}" class="text-text-secondary hover:text-white flex items-center gap-2">
-                <i class="fas fa-arrow-left"></i>
-                Back to Groups
-            </a>
-        </div>
+<div class="bg-elements">
+    <div class="bg-gradient"></div>
+    <div class="bg-gradient"></div>
+</div>
 
-        <div class="bg-card border border-card-border rounded-xl p-8">
-            <h1 class="text-2xl font-bold text-white mb-6">Create a New Group</h1>
+<div class="container">
+    <a href="{% url 'my_groups' %}" class="back-link">
+        <i class="fas fa-arrow-left"></i>
+        Back to Groups
+    </a>
 
-            {% if messages %}
-                {% for message in messages %}
-                    <div class="mb-4 p-4 rounded-lg {% if message.tags == 'error' %}bg-red-100 text-red-700 border border-red-200{% endif %}">
-                        {{ message }}
-                    </div>
-                {% endfor %}
-            {% endif %}
+    <div class="header-section">
+        <h1>Create a New Group</h1>
+        <p>Form a team and start collaborating on projects together</p>
+    </div>
 
-            <form method="post" class="space-y-6">
-                {% csrf_token %}
-                <div>
-                    <label for="name" class="block text-text-secondary text-sm font-medium mb-2">Group Name</label>
-                    <input type="text" id="name" name="name" required
-                        class="w-full bg-black bg-opacity-30 border border-card-border text-white rounded-lg px-4 py-3 focus:outline-none focus:border-primary"
-                        placeholder="Enter group name">
-                </div>
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
 
-                <div>
-                    <label for="description" class="block text-text-secondary text-sm font-medium mb-2">Description</label>
-                    <textarea id="description" name="description" rows="4"
-                        class="w-full bg-black bg-opacity-30 border border-card-border text-white rounded-lg px-4 py-3 focus:outline-none focus:border-primary"
-                        placeholder="Describe your group's purpose"></textarea>
-                </div>
+    <div class="form-card">
+        <form method="post" class="space-y-6">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="name" class="form-label">Group Name</label>
+                <input type="text" id="name" name="name" required
+                    class="form-control"
+                    placeholder="Enter group name">
+            </div>
 
-                <div class="bg-black bg-opacity-30 border border-card-border rounded-lg p-4 mb-6">
-                    <h3 class="text-white font-medium mb-2">As Group Leader, you can:</h3>
-                    <ul class="text-text-secondary space-y-2">
-                        <li class="flex items-center gap-2">
-                            <i class="fas fa-user-plus text-primary"></i>
-                            Invite other students to join
-                        </li>
-                        <li class="flex items-center gap-2">
-                            <i class="fas fa-project-diagram text-primary"></i>
-                            Create and manage group projects
-                        </li>
-                        <li class="flex items-center gap-2">
-                            <i class="fas fa-handshake text-primary"></i>
-                            Share projects with connected mentors
-                        </li>
-                        <li class="flex items-center gap-2">
-                            <i class="fas fa-users-cog text-primary"></i>
-                            Manage group members
-                        </li>
-                    </ul>
-                </div>
+            <div class="form-group">
+                <label for="description" class="form-label">Description</label>
+                <textarea id="description" name="description" rows="4"
+                    class="form-control"
+                    placeholder="Describe your group's purpose"></textarea>
+            </div>
 
-                <div class="flex justify-end">
-                    <button type="submit" class="bg-primary hover:bg-primary-hover text-white px-6 py-3 rounded-lg flex items-center gap-2">
-                        <i class="fas fa-plus"></i>
-                        Create Group
-                    </button>
-                </div>
-            </form>
-        </div>
+            <div class="info-box">
+                <h3>As Group Leader, you can:</h3>
+                <ul class="info-list">
+                    <li>
+                        <i class="fas fa-user-plus"></i>
+                        Invite other students to join
+                    </li>
+                    <li>
+                        <i class="fas fa-project-diagram"></i>
+                        Create and manage group projects
+                    </li>
+                    <li>
+                        <i class="fas fa-handshake"></i>
+                        Share projects with connected mentors
+                    </li>
+                    <li>
+                        <i class="fas fa-users-cog"></i>
+                        Manage group members
+                    </li>
+                </ul>
+            </div>
+
+            <div class="text-right">
+                <button type="submit" class="btn-primary">
+                    <i class="fas fa-plus"></i>
+                    Create Group
+                </button>
+            </div>
+        </form>
     </div>
 </div>
 {% endblock %} 

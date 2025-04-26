@@ -1,12 +1,354 @@
 {% extends '../base.html' %}
+{% load static %}
 
 {% block title %}My Groups | TISD{% endblock %}
 
+{% block extra_css %}
+<style>
+    :root {
+        --primary: #8B5CF6;
+        --primary-hover: #7C3AED;
+        --primary-light: rgba(139, 92, 246, 0.2);
+        --text-light: #F3F4F6;
+        --text-secondary: #D1D5DB;
+        --card-bg: rgba(15, 12, 24, 0.7);
+        --card-border: rgba(157, 78, 221, 0.3);
+        --card-shadow: rgba(0, 0, 0, 0.4);
+    }
+
+    body {
+        background-color: #000000;
+        color: var(--text-light);
+        font-family: 'Inter', sans-serif;
+        min-height: 100vh;
+        position: relative;
+        overflow-x: hidden;
+    }
+
+    /* Background Elements */
+    .bg-elements {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -1;
+        overflow: hidden;
+    }
+
+    .bg-gradient {
+        position: absolute;
+        width: 35rem;
+        height: 35rem;
+        border-radius: 50%;
+        filter: blur(8rem);
+        z-index: -1;
+        opacity: 0.5;
+        animation: pulse 15s infinite alternate ease-in-out;
+    }
+
+    @keyframes pulse {
+        0% { transform: scale(1); opacity: 0.5; }
+        50% { transform: scale(1.05); opacity: 0.6; }
+        100% { transform: scale(1); opacity: 0.5; }
+    }
+
+    .bg-gradient:nth-child(1) {
+        top: -10%;
+        right: 5%;
+        background: rgba(168, 85, 247, 0.3);
+        animation-delay: -5s;
+    }
+
+    .bg-gradient:nth-child(2) {
+        bottom: -5%;
+        left: 10%;
+        background: rgba(124, 58, 237, 0.2);
+        animation-delay: -10s;
+    }
+
+    .static-pattern {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        opacity: 0.1;
+        z-index: -1;
+        background-image: radial-gradient(#a855f7 1px, transparent 1px);
+        background-size: 40px 40px;
+    }
+
+    .container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 2rem;
+        position: relative;
+        z-index: 2;
+    }
+
+    /* Header Section */
+    .header-section {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        background: var(--card-bg);
+        backdrop-filter: blur(10px);
+        border: 1px solid var(--card-border);
+        border-radius: 16px;
+        padding: 1.5rem 2rem;
+    }
+
+    .header-section h1 {
+        font-size: 2rem;
+        font-weight: 700;
+        color: white;
+        margin: 0;
+        background: linear-gradient(135deg, #a855f7, #8b5cf6);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .create-btn {
+        background: linear-gradient(90deg, #a855f7, #8b5cf6);
+        color: white;
+        padding: 0.75rem 1.5rem;
+        border-radius: 12px;
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.3s ease;
+    }
+
+    .create-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+        color: white;
+    }
+
+    /* Alert Messages */
+    .alert {
+        background: var(--card-bg);
+        backdrop-filter: blur(10px);
+        border: 1px solid;
+        border-radius: 12px;
+        padding: 1.2rem 1.8rem;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .alert::before {
+        font-family: 'Font Awesome 5 Free';
+        font-weight: 900;
+        font-size: 1.3rem;
+    }
+
+    .alert-success {
+        border-color: rgba(34, 197, 94, 0.3);
+        color: #5ae6a8;
+    }
+
+    .alert-success::before {
+        content: '\f058';
+        color: #5ae6a8;
+    }
+
+    .alert-danger {
+        border-color: rgba(239, 68, 68, 0.3);
+        color: #ff6b6b;
+    }
+
+    .alert-danger::before {
+        content: '\f057';
+        color: #ff6b6b;
+    }
+
+    /* Group Cards */
+    .card-section {
+        background: var(--card-bg);
+        backdrop-filter: blur(15px);
+        border: 1px solid var(--card-border);
+        border-radius: 20px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+    }
+
+    .card-section h2 {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: white;
+        margin-bottom: 1.5rem;
+    }
+
+    .group-grid {
+        display: grid;
+        gap: 1.5rem;
+    }
+
+    .group-card {
+        background: rgba(0, 0, 0, 0.2);
+        border: 1px solid transparent;
+        border-radius: 16px;
+        padding: 1.5rem;
+        transition: all 0.3s ease;
+    }
+
+    .group-card:hover {
+        border-color: var(--primary);
+        transform: translateY(-5px);
+    }
+
+    .group-name {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: white;
+        margin-bottom: 0.5rem;
+    }
+
+    .group-info {
+        color: var(--text-secondary);
+        font-size: 0.875rem;
+        margin-bottom: 1rem;
+    }
+
+    .group-description {
+        color: var(--text-secondary);
+        margin-bottom: 1rem;
+        line-height: 1.5;
+    }
+
+    /* Invitation Cards */
+    .invitation-card {
+        background: rgba(0, 0, 0, 0.3);
+        border: 1px solid var(--card-border);
+        border-radius: 16px;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .invitation-info h3 {
+        color: white;
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+
+    .invitation-info p {
+        color: var(--text-secondary);
+        font-size: 0.875rem;
+    }
+
+    .invitation-actions {
+        display: flex;
+        gap: 0.75rem;
+    }
+
+    .btn {
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        font-weight: 500;
+        border: none;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .btn-accept {
+        background: linear-gradient(90deg, #a855f7, #8b5cf6);
+        color: white;
+    }
+
+    .btn-accept:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+    }
+
+    .btn-reject {
+        background: rgba(239, 68, 68, 0.1);
+        color: #ef4444;
+        border: 1px solid rgba(239, 68, 68, 0.2);
+    }
+
+    .btn-reject:hover {
+        background: rgba(239, 68, 68, 0.2);
+        transform: translateY(-2px);
+    }
+
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: 4rem 0;
+    }
+
+    .empty-state i {
+        font-size: 4rem;
+        color: var(--text-secondary);
+        margin-bottom: 1.5rem;
+    }
+
+    .empty-state h2 {
+        color: white;
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .empty-state p {
+        color: var(--text-secondary);
+        margin-bottom: 2rem;
+    }
+
+    /* Responsive Design */
+    @media (min-width: 768px) {
+        .group-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @media (min-width: 1024px) {
+        .group-grid {
+            grid-template-columns: repeat(3, 1fr);
+        }
+    }
+
+    @media (max-width: 768px) {
+        .header-section {
+            flex-direction: column;
+            gap: 1rem;
+            text-align: center;
+        }
+
+        .invitation-card {
+            flex-direction: column;
+            text-align: center;
+            gap: 1rem;
+        }
+
+        .invitation-actions {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="container mx-auto px-4 py-8">
-    <div class="flex justify-between items-center mb-8">
-        <h1 class="text-3xl font-bold text-white">My Groups</h1>
-        <a href="{% url 'create_group' %}" class="bg-primary hover:bg-primary-hover text-white px-6 py-2 rounded-lg flex items-center gap-2">
+<div class="bg-elements">
+    <div class="bg-gradient"></div>
+    <div class="bg-gradient"></div>
+    <div class="static-pattern"></div>
+</div>
+
+<div class="container">
+    <div class="header-section">
+        <h1>My Groups</h1>
+        <a href="{% url 'create_group' %}" class="create-btn">
             <i class="fas fa-plus"></i>
             Create Group
         </a>
@@ -14,53 +356,49 @@
 
     {% if messages %}
         {% for message in messages %}
-            <div class="mb-4 p-4 rounded-lg {% if message.tags == 'success' %}bg-green-100 text-green-700 border border-green-200{% elif message.tags == 'error' %}bg-red-100 text-red-700 border border-red-200{% endif %}">
+            <div class="alert {% if message.tags == 'success' %}alert-success{% elif message.tags == 'error' %}alert-danger{% endif %}">
                 {{ message }}
             </div>
         {% endfor %}
     {% endif %}
 
     {% if pending_invites %}
-    <div class="bg-card border border-card-border rounded-xl p-6 mb-8">
-        <h2 class="text-xl font-semibold text-white mb-4">Pending Invitations</h2>
-        <div class="grid gap-4">
-            {% for invite in pending_invites %}
-            <div class="bg-black bg-opacity-30 border border-card-border rounded-lg p-4">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <h3 class="text-lg font-medium text-white">{{ invite.group.name }}</h3>
-                        <p class="text-text-secondary text-sm">Led by {{ invite.group.leader.full_name }}</p>
-                    </div>
-                    <div class="flex gap-2">
-                        <form method="post" action="{% url 'handle_invitation' invite.id %}" class="inline">
-                            {% csrf_token %}
-                            <input type="hidden" name="action" value="accept">
-                            <button type="submit" class="bg-primary hover:bg-primary-hover text-white px-4 py-2 rounded-lg">Accept</button>
-                        </form>
-                        <form method="post" action="{% url 'handle_invitation' invite.id %}" class="inline">
-                            {% csrf_token %}
-                            <input type="hidden" name="action" value="reject">
-                            <button type="submit" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg">Reject</button>
-                        </form>
-                    </div>
-                </div>
+    <div class="card-section">
+        <h2>Pending Invitations</h2>
+        {% for invite in pending_invites %}
+        <div class="invitation-card">
+            <div class="invitation-info">
+                <h3>{{ invite.group.name }}</h3>
+                <p>Led by {{ invite.group.leader.full_name }}</p>
             </div>
-            {% endfor %}
+            <div class="invitation-actions">
+                <form method="post" action="{% url 'handle_invitation' invite.id %}" class="inline">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="accept">
+                    <button type="submit" class="btn btn-accept">Accept</button>
+                </form>
+                <form method="post" action="{% url 'handle_invitation' invite.id %}" class="inline">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="reject">
+                    <button type="submit" class="btn btn-reject">Reject</button>
+                </form>
+            </div>
         </div>
+        {% endfor %}
     </div>
     {% endif %}
 
     {% if led_groups %}
-    <div class="bg-card border border-card-border rounded-xl p-6 mb-8">
-        <h2 class="text-xl font-semibold text-white mb-4">Groups I Lead</h2>
-        <div class="grid gap-4">
+    <div class="card-section">
+        <h2>Groups I Lead</h2>
+        <div class="group-grid">
             {% for group in led_groups %}
-            <div class="bg-black bg-opacity-30 border border-card-border rounded-lg p-4 hover:border-primary transition-all">
+            <div class="group-card">
                 <a href="{% url 'group_detail' group.id %}" class="block">
-                    <h3 class="text-lg font-medium text-white mb-2">{{ group.name }}</h3>
-                    <p class="text-text-secondary">{{ group.members.count }} member{{ group.members.count|pluralize }}</p>
+                    <h3 class="group-name">{{ group.name }}</h3>
+                    <p class="group-info">{{ group.members.count }} member{{ group.members.count|pluralize }}</p>
                     {% if group.description %}
-                    <p class="text-text-secondary mt-2">{{ group.description|truncatewords:30 }}</p>
+                    <p class="group-description">{{ group.description|truncatewords:30 }}</p>
                     {% endif %}
                 </a>
             </div>
@@ -70,16 +408,16 @@
     {% endif %}
 
     {% if member_groups %}
-    <div class="bg-card border border-card-border rounded-xl p-6">
-        <h2 class="text-xl font-semibold text-white mb-4">Groups I'm In</h2>
-        <div class="grid gap-4">
+    <div class="card-section">
+        <h2>Groups I'm In</h2>
+        <div class="group-grid">
             {% for group in member_groups %}
-            <div class="bg-black bg-opacity-30 border border-card-border rounded-lg p-4 hover:border-primary transition-all">
+            <div class="group-card">
                 <a href="{% url 'group_detail' group.id %}" class="block">
-                    <h3 class="text-lg font-medium text-white mb-2">{{ group.name }}</h3>
-                    <p class="text-text-secondary">Led by {{ group.leader.full_name }}</p>
+                    <h3 class="group-name">{{ group.name }}</h3>
+                    <p class="group-info">Led by {{ group.leader.full_name }}</p>
                     {% if group.description %}
-                    <p class="text-text-secondary mt-2">{{ group.description|truncatewords:30 }}</p>
+                    <p class="group-description">{{ group.description|truncatewords:30 }}</p>
                     {% endif %}
                 </a>
             </div>
@@ -89,13 +427,13 @@
     {% endif %}
 
     {% if not led_groups and not member_groups and not pending_invites %}
-    <div class="text-center py-12">
-        <div class="text-6xl mb-4 text-text-secondary">
+    <div class="empty-state">
+        <div class="icon">
             <i class="fas fa-users"></i>
         </div>
-        <h2 class="text-2xl font-semibold text-white mb-2">No Groups Yet</h2>
-        <p class="text-text-secondary mb-6">Create a group or wait for invitations from other students.</p>
-        <a href="{% url 'create_group' %}" class="bg-primary hover:bg-primary-hover text-white px-6 py-3 rounded-lg inline-flex items-center gap-2">
+        <h2>No Groups Yet</h2>
+        <p>Create a group or wait for invitations from other students.</p>
+        <a href="{% url 'create_group' %}" class="create-btn">
             <i class="fas fa-plus"></i>
             Create Your First Group
         </a>
