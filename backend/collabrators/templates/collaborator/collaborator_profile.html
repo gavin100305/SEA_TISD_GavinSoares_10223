@@ -1,136 +1,722 @@
-{% extends 'collaborator/base.html' %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/svg+xml" href="/media/react/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vite + React</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
 
-{% block title %}Profile | Collaborator{% endblock %}
+        body {
+            background-color: #121212;
+            color: #e0e0e0;
+            min-height: 100vh;
+            padding: 20px;
+        }
 
-{% block content %}
-<div class="container mx-auto px-4 py-8">
-    <div class="max-w-3xl mx-auto">
-        <div class="bg-gray-800 rounded-lg shadow-lg p-6">
-            <h1 class="text-2xl font-bold text-white mb-6">
-                {% if profile.is_profile_complete %}Update{% else %}Complete{% endif %} Your Profile
-            </h1>
+        .profile-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem 0;
+            position: relative;
+            z-index: 2;
+        }
 
-            {% if messages %}
-                {% for message in messages %}
-                    <div class="mb-4 p-4 rounded-lg {% if message.tags == 'error' %}bg-red-600{% else %}bg-green-600{% endif %} text-white">
-                        {{ message }}
-                    </div>
-                {% endfor %}
-            {% endif %}
+        .profile-header {
+            background: rgba(10, 10, 10, 0.8);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(30, 30, 30, 0.8);
+            border-radius: 16px;
+            padding: 2.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+            position: relative;
+            overflow: hidden;
+        }
 
-            <form method="post" enctype="multipart/form-data" class="space-y-6">
-                {% csrf_token %}
-                
-                <!-- Basic Information -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                        <label for="full_name" class="block text-sm font-medium text-gray-300 mb-2">Full Name *</label>
-                        <input type="text" id="full_name" name="full_name" required
-                               value="{{ profile.full_name }}"
-                               class="w-full bg-gray-700 text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500">
-                    </div>
-                    
-                    <div>
-                        <label for="phone" class="block text-sm font-medium text-gray-300 mb-2">Phone Number</label>
-                        <input type="tel" id="phone" name="phone"
-                               value="{{ profile.phone }}"
-                               class="w-full bg-gray-700 text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500">
-                    </div>
-                </div>
+        .profile-header h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            line-height: 1.2;
+            margin-bottom: 1rem;
+            color: white;
+        }
 
-                <!-- Professional Information -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                        <label for="expertise" class="block text-sm font-medium text-gray-300 mb-2">Areas of Expertise *</label>
-                        <input type="text" id="expertise" name="expertise" required
-                               value="{{ profile.expertise }}"
-                               class="w-full bg-gray-700 text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                               placeholder="e.g., Web Development, Machine Learning">
-                    </div>
-                    
-                    <div>
-                        <label for="experience_years" class="block text-sm font-medium text-gray-300 mb-2">Years of Experience *</label>
-                        <input type="number" id="experience_years" name="experience_years" required
-                               value="{{ profile.experience_years }}"
-                               class="w-full bg-gray-700 text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500">
-                    </div>
-                </div>
+        .profile-header h1 span {
+            color: #9d4edd;
+        }
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                        <label for="company" class="block text-sm font-medium text-gray-300 mb-2">Company</label>
-                        <input type="text" id="company" name="company"
-                               value="{{ profile.company }}"
-                               class="w-full bg-gray-700 text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500">
-                    </div>
-                    
-                    <div>
-                        <label for="position" class="block text-sm font-medium text-gray-300 mb-2">Position *</label>
-                        <input type="text" id="position" name="position" required
-                               value="{{ profile.position }}"
-                               class="w-full bg-gray-700 text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500">
-                    </div>
-                </div>
+        .profile-header p {
+            color: #9d9d9d;
+            font-size: 1.1rem;
+            margin-bottom: 0;
+        }
 
-                <!-- Social Links -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                        <label for="linkedin_url" class="block text-sm font-medium text-gray-300 mb-2">LinkedIn Profile</label>
-                        <input type="url" id="linkedin_url" name="linkedin_url"
-                               value="{{ profile.linkedin_url }}"
-                               class="w-full bg-gray-700 text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                               placeholder="https://linkedin.com/in/username">
-                    </div>
-                    
-                    <div>
-                        <label for="github_url" class="block text-sm font-medium text-gray-300 mb-2">GitHub Profile</label>
-                        <input type="url" id="github_url" name="github_url"
-                               value="{{ profile.github_url }}"
-                               class="w-full bg-gray-700 text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                               placeholder="https://github.com/username">
-                    </div>
-                </div>
+        .progress-steps {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 3rem;
+            position: relative;
+        }
 
-                <div>
-                    <label for="portfolio_url" class="block text-sm font-medium text-gray-300 mb-2">Portfolio Website</label>
-                    <input type="url" id="portfolio_url" name="portfolio_url"
-                           value="{{ profile.portfolio_url }}"
-                           class="w-full bg-gray-700 text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                           placeholder="https://yourportfolio.com">
-                </div>
+        .progress-steps::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: rgba(30, 30, 30, 0.8);
+            z-index: 1;
+        }
 
-                <!-- Bio -->
-                <div>
-                    <label for="bio" class="block text-sm font-medium text-gray-300 mb-2">Professional Bio *</label>
-                    <textarea id="bio" name="bio" rows="4" required
-                              class="w-full bg-gray-700 text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                              placeholder="Tell us about your professional background and what you can offer to students...">{{ profile.bio }}</textarea>
-                </div>
+        .step {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            width: 100%;
+        }
 
-                <!-- Profile Picture -->
-                <div>
-                    <label for="profile_picture" class="block text-sm font-medium text-gray-300 mb-2">Profile Picture</label>
-                    {% if profile.profile_picture %}
-                        <div class="mb-2">
-                            <img src="{{ profile.profile_picture.url }}" alt="Current profile picture" class="w-24 h-24 rounded-full object-cover">
-                        </div>
-                    {% endif %}
-                    <input type="file" id="profile_picture" name="profile_picture" accept="image/*"
-                           class="w-full bg-gray-700 text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500">
-                </div>
+        .step-number {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(30, 30, 30, 0.8);
+            color: #9d9d9d;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 0.5rem;
+            border: 2px solid rgba(30, 30, 30, 0.8);
+            transition: all 0.3s ease;
+        }
 
-                <div class="flex justify-end space-x-4">
-                    <a href="{% url 'collaborator_dashboard' %}" 
-                       class="px-6 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700">
-                        Cancel
-                    </a>
-                    <button type="submit" 
-                            class="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700">
-                        {% if profile.is_profile_complete %}Update{% else %}Complete{% endif %} Profile
-                    </button>
-                </div>
-            </form>
+        .step.active .step-number {
+            background: #9d4edd;
+            color: white;
+            border-color: #9d4edd;
+        }
+
+        .step.completed .step-number {
+            background: #4edd98;
+            color: white;
+            border-color: #4edd98;
+        }
+
+        .step-label {
+            color: #9d9d9d;
+            font-size: 0.9rem;
+        }
+
+        .step.active .step-label {
+            color: white;
+        }
+
+        .step.completed .step-label {
+            color: #4edd98;
+        }
+
+        .form-section {
+            background: rgba(10, 10, 10, 0.8);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(30, 30, 30, 0.8);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+            display: none;
+        }
+
+        .form-section.active {
+            display: block;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .form-section h2 {
+            color: #e0e0e0;
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid rgba(30, 30, 30, 0.8);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #e0e0e0;
+            font-size: 0.95rem;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background: rgba(20, 20, 20, 0.8);
+            border: 1px solid rgba(30, 30, 30, 0.8);
+            border-radius: 8px;
+            color: white;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #9d4edd;
+            box-shadow: 0 0 0 2px rgba(157, 78, 221, 0.2);
+        }
+
+        .form-actions {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 2rem;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+        }
+
+        .btn-prev {
+            background: rgba(30, 30, 30, 0.8);
+            color: #e0e0e0;
+        }
+
+        .btn-prev:hover {
+            background: rgba(50, 50, 50, 0.8);
+        }
+
+        .btn-next {
+            background: #9d4edd;
+            color: white;
+        }
+
+        .btn-next:hover {
+            background: #8a3ec7;
+        }
+
+        .btn-submit {
+            background: #4edd98;
+            color: white;
+        }
+
+        .btn-submit:hover {
+            background: #3ec789;
+        }
+
+        .grid-2-col {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .profile-picture-container {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .profile-picture {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid #9d4edd;
+            margin-bottom: 1rem;
+        }
+
+        .file-upload {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .file-upload-label {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            background: rgba(30, 30, 30, 0.8);
+            color: #e0e0e0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .file-upload-label:hover {
+            background: rgba(50, 50, 50, 0.8);
+        }
+
+        .file-upload-input {
+            display: none;
+        }
+
+        .message {
+            margin-bottom: 2rem;
+            padding: 1rem;
+            border-radius: 8px;
+            color: white;
+        }
+
+        .message.error {
+            background-color: #dc3545;
+        }
+
+        .message.success {
+            background-color: #28a745;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .profile-header h1 {
+                font-size: 2rem;
+            }
+            
+            .step-label {
+                font-size: 0.8rem;
+            }
+            
+            .grid-2-col {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="profile-container">
+    <div class="profile-header">
+        <h1>{% if profile.is_profile_complete %}Update{% else %}Complete{% endif %} Your <span>Profile</span></h1>
+        <p>Please provide your information to get started with the platform</p>
+    </div>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="mb-4 p-4 rounded-lg {% if message.tags == 'error' %}bg-red-600{% else %}bg-green-600{% endif %} text-white">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <div class="progress-steps">
+        <div class="step active" id="step1-indicator">
+            <div class="step-number">1</div>
+            <div class="step-label">Basic Info</div>
+        </div>
+        <div class="step" id="step2-indicator">
+            <div class="step-number">2</div>
+            <div class="step-label">Professional</div>
+        </div>
+        <div class="step" id="step3-indicator">
+            <div class="step-number">3</div>
+            <div class="step-label">Social & Bio</div>
+        </div>
+        <div class="step" id="step4-indicator">
+            <div class="step-number">4</div>
+            <div class="step-label">Review</div>
         </div>
     </div>
+
+    <form method="post" enctype="multipart/form-data" id="profile-form">
+        {% csrf_token %}
+        
+        <!-- Step 1: Basic Information -->
+        <div class="form-section active" id="step1">
+            <h2>Basic Information</h2>
+            <div class="grid-2-col">
+                <div class="form-group">
+                    <label for="full_name">Full Name *</label>
+                    <input type="text" id="full_name" name="full_name" class="form-control" 
+                           value="{{ profile.full_name }}" required>
+                </div>
+                <div class="form-group">
+                    <label for="phone">Phone Number</label>
+                    <input type="tel" id="phone" name="phone" class="form-control" 
+                           value="{{ profile.phone }}">
+                </div>
+            </div>
+            
+            <div class="profile-picture-container">
+                {% if profile_picture_url %}
+                    <img src="{{ profile_picture_url }}" alt="Profile Picture" class="profile-picture" id="profile-preview">
+                {% else %}
+                    <div class="profile-picture" id="profile-preview" style="background: #333; display: flex; align-items: center; justify-content: center;">
+                        <i class="fas fa-user" style="font-size: 3rem; color: #555;"></i>
+                    </div>
+                {% endif %}
+                <div class="file-upload">
+                    <label for="profile_picture" class="file-upload-label">
+                        <i class="fas fa-upload"></i> Upload Profile Picture
+                    </label>
+                    <input type="file" id="profile_picture" name="profile_picture" class="file-upload-input" 
+                           accept="image/*" onchange="previewImage(this)">
+                    {% if profile_picture_url %}
+                    <div style="margin-top: 10px;">
+                        <input type="checkbox" name="profile_picture-clear" id="profile_picture-clear">
+                        <label for="profile_picture-clear" style="color: #e0e0e0; margin-left: 5px;">Remove current picture</label>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="form-actions">
+                <button type="button" class="btn btn-prev" disabled>Previous</button>
+                <button type="button" class="btn btn-next" onclick="nextStep(1)">Next</button>
+            </div>
+        </div>
+        
+        <!-- Step 2: Professional Information -->
+        <div class="form-section" id="step2">
+            <h2>Professional Information</h2>
+            <div class="grid-2-col">
+                <div class="form-group">
+                    <label for="expertise">Areas of Expertise *</label>
+                    <input type="text" id="expertise" name="expertise" class="form-control" 
+                           value="{{ profile.expertise }}" required placeholder="e.g., Web Development, Machine Learning">
+                </div>
+                <div class="form-group">
+                    <label for="experience_years">Years of Experience *</label>
+                    <input type="number" id="experience_years" name="experience_years" class="form-control" 
+                           value="{{ profile.experience_years }}" required>
+                </div>
+            </div>
+            
+            <div class="grid-2-col">
+                <div class="form-group">
+                    <label for="company">Company</label>
+                    <input type="text" id="company" name="company" class="form-control" 
+                           value="{{ profile.company }}">
+                </div>
+                <div class="form-group">
+                    <label for="position">Position *</label>
+                    <input type="text" id="position" name="position" class="form-control" 
+                           value="{{ profile.position }}" required>
+                </div>
+            </div>
+            
+            <div class="form-actions">
+                <button type="button" class="btn btn-prev" onclick="prevStep(2)">Previous</button>
+                <button type="button" class="btn btn-next" onclick="nextStep(2)">Next</button>
+            </div>
+        </div>
+        
+        <!-- Step 3: Social & Bio -->
+        <div class="form-section" id="step3">
+            <h2>Social Links & Bio</h2>
+            <div class="grid-2-col">
+                <div class="form-group">
+                    <label for="linkedin_url">LinkedIn Profile</label>
+                    <input type="url" id="linkedin_url" name="linkedin_url" class="form-control" 
+                           value="{{ profile.linkedin_url }}" placeholder="https://linkedin.com/in/username">
+                </div>
+                <div class="form-group">
+                    <label for="github_url">GitHub Profile</label>
+                    <input type="url" id="github_url" name="github_url" class="form-control" 
+                           value="{{ profile.github_url }}" placeholder="https://github.com/username">
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="portfolio_url">Portfolio Website</label>
+                <input type="url" id="portfolio_url" name="portfolio_url" class="form-control" 
+                       value="{{ profile.portfolio_url }}" placeholder="https://yourportfolio.com">
+            </div>
+            
+            <div class="form-group">
+                <label for="bio">Professional Bio *</label>
+                <textarea id="bio" name="bio" rows="5" class="form-control" required
+                          placeholder="Tell us about your professional background and what you can offer to students...">{{ profile.bio }}</textarea>
+            </div>
+            
+            <div class="form-actions">
+                <button type="button" class="btn btn-prev" onclick="prevStep(3)">Previous</button>
+                <button type="button" class="btn btn-next" onclick="nextStep(3)">Next</button>
+            </div>
+        </div>
+        
+        <!-- Step 4: Review & Submit -->
+        <div class="form-section" id="step4">
+            <h2>Review Your Information</h2>
+            
+            <div class="grid-2-col">
+                <div>
+                    <h3 style="color: #e0e0e0; margin-bottom: 1rem; font-size: 1.2rem;">Basic Information</h3>
+                    <div style="background: rgba(20, 20, 20, 0.8); padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem;">
+                        <p style="color: #9d9d9d; margin-bottom: 0.5rem;"><strong>Full Name:</strong> <span id="review-full_name"></span></p>
+                        <p style="color: #9d9d9d; margin-bottom: 0.5rem;"><strong>Phone:</strong> <span id="review-phone"></span></p>
+                    </div>
+                    
+                    <h3 style="color: #e0e0e0; margin-bottom: 1rem; font-size: 1.2rem;">Professional Information</h3>
+                    <div style="background: rgba(20, 20, 20, 0.8); padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem;">
+                        <p style="color: #9d9d9d; margin-bottom: 0.5rem;"><strong>Expertise:</strong> <span id="review-expertise"></span></p>
+                        <p style="color: #9d9d9d; margin-bottom: 0.5rem;"><strong>Experience:</strong> <span id="review-experience_years"></span> years</p>
+                        <p style="color: #9d9d9d; margin-bottom: 0.5rem;"><strong>Company:</strong> <span id="review-company"></span></p>
+                        <p style="color: #9d9d9d; margin-bottom: 0.5rem;"><strong>Position:</strong> <span id="review-position"></span></p>
+                    </div>
+                </div>
+                
+                <div>
+                    <h3 style="color: #e0e0e0; margin-bottom: 1rem; font-size: 1.2rem;">Social & Bio</h3>
+                    <div style="background: rgba(20, 20, 20, 0.8); padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem;">
+                        <p style="color: #9d9d9d; margin-bottom: 0.5rem;"><strong>LinkedIn:</strong> <span id="review-linkedin_url"></span></p>
+                        <p style="color: #9d9d9d; margin-bottom: 0.5rem;"><strong>GitHub:</strong> <span id="review-github_url"></span></p>
+                        <p style="color: #9d9d9d; margin-bottom: 0.5rem;"><strong>Portfolio:</strong> <span id="review-portfolio_url"></span></p>
+                    </div>
+                    
+                    <h3 style="color: #e0e0e0; margin-bottom: 1rem; font-size: 1.2rem;">Professional Bio</h3>
+                    <div style="background: rgba(20, 20, 20, 0.8); padding: 1rem; border-radius: 8px;">
+                        <p style="color: #9d9d9d; white-space: pre-line;" id="review-bio"></p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-actions">
+                <button type="button" class="btn btn-prev" onclick="prevStep(4)">Previous</button>
+                <button type="submit" class="btn btn-submit">Complete Profile</button>
+            </div>
+        </div>
+    </form>
 </div>
-{% endblock %} 
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+    initializeProfilePicture();
+    setupFormValidation();
+});
+
+// Initialize profile picture preview
+function initializeProfilePicture() {
+    const preview = document.getElementById('profile-preview');
+    // If there's already an image (from template), no need to do anything
+    if (preview.tagName === 'IMG') return;
+    
+    // Check if we should show an uploaded image
+    const profilePicInput = document.getElementById('profile_picture');
+    if (profilePicInput.files && profilePicInput.files[0]) {
+        previewImage(profilePicInput);
+    }
+}
+
+// Setup form validation and submission handling
+function setupFormValidation() {
+    const form = document.getElementById('profile-form');
+    
+    form.addEventListener('submit', function(e) {
+        if (!validateAllSteps()) {
+            e.preventDefault();
+            goToFirstInvalidStep();
+        }
+    });
+}
+
+// Navigation between steps
+function nextStep(currentStep) {
+    if (validateStep(currentStep)) {
+        // Hide current step
+        document.getElementById(`step${currentStep}`).classList.remove('active');
+        document.getElementById(`step${currentStep}-indicator`).classList.remove('active');
+        document.getElementById(`step${currentStep}-indicator`).classList.add('completed');
+        
+        // Show next step
+        const nextStep = currentStep + 1;
+        document.getElementById(`step${nextStep}`).classList.add('active');
+        document.getElementById(`step${nextStep}-indicator`).classList.add('active');
+        
+        // Update review section with current values
+        if (nextStep === 4) {
+            updateReviewSection();
+        }
+    }
+}
+
+function prevStep(currentStep) {
+    // Hide current step
+    document.getElementById(`step${currentStep}`).classList.remove('active');
+    document.getElementById(`step${currentStep}-indicator`).classList.remove('active');
+    
+    // Show previous step
+    const prevStep = currentStep - 1;
+    document.getElementById(`step${prevStep}`).classList.add('active');
+    document.getElementById(`step${prevStep}-indicator`).classList.add('active');
+}
+
+// Validation functions
+function validateStep(step) {
+    let isValid = true;
+    
+    if (step === 1) {
+        const fullName = document.getElementById('full_name').value.trim();
+        if (!fullName) {
+            alert('Please enter your full name');
+            isValid = false;
+        }
+    } else if (step === 2) {
+        const expertise = document.getElementById('expertise').value.trim();
+        const experience = document.getElementById('experience_years').value.trim();
+        const position = document.getElementById('position').value.trim();
+        
+        if (!expertise) {
+            alert('Please enter your areas of expertise');
+            isValid = false;
+        } else if (!experience) {
+            alert('Please enter your years of experience');
+            isValid = false;
+        } else if (!position) {
+            alert('Please enter your current position');
+            isValid = false;
+        }
+    } else if (step === 3) {
+        const bio = document.getElementById('bio').value.trim();
+        if (!bio) {
+            alert('Please enter your professional bio');
+            isValid = false;
+        }
+    }
+    
+    return isValid;
+}
+
+function validateAllSteps() {
+    let isValid = true;
+    
+    // Validate step 1
+    const fullName = document.getElementById('full_name').value.trim();
+    if (!fullName) {
+        isValid = false;
+    }
+    
+    // Validate step 2
+    const expertise = document.getElementById('expertise').value.trim();
+    const experience = document.getElementById('experience_years').value.trim();
+    const position = document.getElementById('position').value.trim();
+    if (!expertise || !experience || !position) {
+        isValid = false;
+    }
+    
+    // Validate step 3
+    const bio = document.getElementById('bio').value.trim();
+    if (!bio) {
+        isValid = false;
+    }
+    
+    return isValid;
+}
+
+function goToFirstInvalidStep() {
+    // Check each step in order and go to the first invalid one
+    if (!document.getElementById('full_name').value.trim()) {
+        showStep(1);
+        alert('Please enter your full name');
+        return;
+    }
+    
+    if (!document.getElementById('expertise').value.trim()) {
+        showStep(2);
+        alert('Please enter your areas of expertise');
+        return;
+    }
+    
+    if (!document.getElementById('experience_years').value.trim()) {
+        showStep(2);
+        alert('Please enter your years of experience');
+        return;
+    }
+    
+    if (!document.getElementById('position').value.trim()) {
+        showStep(2);
+        alert('Please enter your current position');
+        return;
+    }
+    
+    if (!document.getElementById('bio').value.trim()) {
+        showStep(3);
+        alert('Please enter your professional bio');
+        return;
+    }
+}
+
+function showStep(stepNumber) {
+    // Hide all steps
+    document.querySelectorAll('.form-section').forEach(section => {
+        section.classList.remove('active');
+    });
+    document.querySelectorAll('.step').forEach(step => {
+        step.classList.remove('active');
+    });
+    
+    // Show the requested step
+    document.getElementById(`step${stepNumber}`).classList.add('active');
+    document.getElementById(`step${stepNumber}-indicator`).classList.add('active');
+    
+    // Scroll to the form
+    document.getElementById('profile-form').scrollIntoView({
+        behavior: 'smooth'
+    });
+}
+
+// Update review section with current values
+function updateReviewSection() {
+    document.getElementById('review-full_name').textContent = document.getElementById('full_name').value;
+    document.getElementById('review-phone').textContent = document.getElementById('phone').value || 'Not provided';
+    document.getElementById('review-expertise').textContent = document.getElementById('expertise').value;
+    document.getElementById('review-experience_years').textContent = document.getElementById('experience_years').value;
+    document.getElementById('review-company').textContent = document.getElementById('company').value || 'Not provided';
+    document.getElementById('review-position').textContent = document.getElementById('position').value;
+    document.getElementById('review-linkedin_url').textContent = document.getElementById('linkedin_url').value || 'Not provided';
+    document.getElementById('review-github_url').textContent = document.getElementById('github_url').value || 'Not provided';
+    document.getElementById('review-portfolio_url').textContent = document.getElementById('portfolio_url').value || 'Not provided';
+    document.getElementById('review-bio').textContent = document.getElementById('bio').value;
+}
+
+// Handle profile picture preview
+function previewImage(input) {
+    const preview = document.getElementById('profile-preview');
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            // If preview is not an image element, create one
+            if (preview.tagName !== 'IMG') {
+                const img = document.createElement('img');
+                img.id = 'profile-preview';
+                img.className = 'profile-picture';
+                img.alt = 'Profile Preview';
+                preview.parentNode.replaceChild(img, preview);
+                document.getElementById('profile-preview').src = e.target.result;
+            } else {
+                preview.src = e.target.result;
+            }
+            // Hide the remove checkbox when uploading new image
+            const clearCheckbox = document.getElementById('profile_picture-clear');
+            if (clearCheckbox) {
+                clearCheckbox.checked = false;
+            }
+        }
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+</script>
+</body>
+</html>

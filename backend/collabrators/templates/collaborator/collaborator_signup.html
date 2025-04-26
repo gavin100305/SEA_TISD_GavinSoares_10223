@@ -1,91 +1,320 @@
-{% extends 'base.html' %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/svg+xml" href="/media/react/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vite + React</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
 
-{% block title %}Sign Up | Collaborator{% endblock %}
+        body {
+            background-color: #000000;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            position: relative;
+            overflow: hidden;
+            padding: 2rem;
+        }
 
-{% block content %}
-<div class="min-h-screen bg-gray-100 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-    <div class="sm:mx-auto sm:w-full sm:max-w-md">
-        <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            Create your account
-        </h2>
-        <p class="mt-2 text-center text-sm text-gray-600">
-            Join as a collaborator and start contributing
-        </p>
+        /* Background elements */
+        .bg-elements {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .bg-gradient {
+            position: absolute;
+            width: 24rem;
+            height: 24rem;
+            border-radius: 50%;
+            filter: blur(7rem);
+            z-index: -1;
+        }
+
+        .bg-gradient:nth-child(1) {
+            top: -10%;
+            right: 5%;
+            background: rgba(157, 78, 221, 0.2);
+        }
+
+        .bg-gradient:nth-child(2) {
+            bottom: -5%;
+            left: 10%;
+            background: rgba(157, 78, 221, 0.1);
+        }
+
+        /* Static pattern background */
+        .static-pattern {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0.15;
+            z-index: -1;
+            background-image: radial-gradient(#9d4edd 1px, transparent 1px);
+            background-size: 30px 30px;
+        }
+
+        /* Signup container */
+        .container {
+            background: rgba(12, 10, 20, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(157, 78, 221, 0.3);
+            border-radius: 16px;
+            padding: 2.5rem;
+            width: 100%;
+            max-width: 500px;
+            box-shadow: 0 8px 32px rgba(31, 38, 135, 0.15);
+        }
+
+        h2 {
+            color: #ffffff;
+            margin-bottom: 0.5rem;
+            font-size: 1.75rem;
+            font-weight: 700;
+            text-align: center;
+        }
+
+        .subtitle {
+            color: #a1a1aa;
+            margin-bottom: 2rem;
+            font-size: 0.95rem;
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+            text-align: left;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #d1d1d6;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        input {
+            width: 100%;
+            padding: 0.875rem 1rem;
+            border: 1px solid rgba(157, 78, 221, 0.3);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            color: white;
+            font-size: 1rem;
+            transition: all 0.2s ease;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #9d4edd;
+            box-shadow: 0 0 0 3px rgba(157, 78, 221, 0.25);
+        }
+
+        button {
+            background: linear-gradient(90deg, #9d4edd 0%, #c77dff 100%);
+            color: white;
+            border: none;
+            padding: 1rem;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            width: 100%;
+            margin-bottom: 1rem;
+            box-shadow: 0 4px 12px rgba(157, 78, 221, 0.25);
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .links {
+            margin-top: 1.5rem;
+            text-align: center;
+        }
+
+        .links a {
+            color: #9d4edd;
+            text-decoration: none;
+            font-size: 0.95rem;
+            font-weight: 500;
+        }
+
+        .links a:hover {
+            text-decoration: underline;
+        }
+
+        .message {
+            background: rgba(244, 63, 94, 0.1);
+            border: 1px solid rgba(244, 63, 94, 0.3);
+            color: #f43f5e;
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            font-size: 0.875rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .message.success {
+            background: rgba(34, 197, 94, 0.1);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            color: #22c55e;
+        }
+
+        .message svg {
+            margin-right: 0.5rem;
+            flex-shrink: 0;
+        }
+    </style>
+</head>
+<body>
+    <!-- Background elements -->
+    <div class="bg-elements">
+        <div class="bg-gradient"></div>
+        <div class="bg-gradient"></div>
+        <!-- Static pattern -->
+        <div class="static-pattern"></div>
     </div>
 
-    <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div class="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
-            {% if messages %}
-                {% for message in messages %}
-                    <div class="mb-4 p-4 rounded-md {% if message.tags == 'error' %}bg-red-100 text-red-700{% else %}bg-green-100 text-green-700{% endif %}">
-                        {{ message }}
-                    </div>
-                {% endfor %}
-            {% endif %}
-
-            <form class="space-y-6" method="POST">
-                {% csrf_token %}
-                <div>
-                    <label for="username" class="block text-sm font-medium text-gray-700">
-                        Username
-                    </label>
-                    <div class="mt-1">
-                        <input id="username" name="username" type="text" required
-                            class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
-                    </div>
+    <div class="container">
+        <h2>Create your account</h2>
+        <p class="subtitle">Join as a collaborator and start contributing</p>
+        
+        {% if messages %}
+            {% for message in messages %}
+                <div class="message {% if message.tags == 'error' %}error{% else %}success{% endif %}">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        {% if message.tags == 'error' %}
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="12" y1="8" x2="12" y2="12"></line>
+                        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                        {% else %}
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                        <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                        {% endif %}
+                    </svg>
+                    {{ message }}
                 </div>
-
-                <div>
-                    <label for="email" class="block text-sm font-medium text-gray-700">
-                        Email address
-                    </label>
-                    <div class="mt-1">
-                        <input id="email" name="email" type="email" required
-                            class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
-                    </div>
-                </div>
-
-                <div>
-                    <label for="password1" class="block text-sm font-medium text-gray-700">
-                        Password
-                    </label>
-                    <div class="mt-1">
-                        <input id="password1" name="password1" type="password" required
-                            class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
-                    </div>
-                </div>
-
-                <div>
-                    <label for="password2" class="block text-sm font-medium text-gray-700">
-                        Confirm Password
-                    </label>
-                    <div class="mt-1">
-                        <input id="password2" name="password2" type="password" required
-                            class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
-                    </div>
-                </div>
-
-                <div>
-                    <button type="submit"
-                        class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                        Sign up
-                    </button>
-                </div>
-            </form>
-
-            <div class="mt-6">
-                <div class="relative">
-                    <div class="relative flex justify-center text-sm">
-                        <span class="px-2 bg-white text-gray-500">
-                            Already have an account? <a href="{% url 'collaborator_login' %}"
-                                class="font-medium text-indigo-600 hover:text-indigo-500">
-                                Sign in
-                            </a>
-                        </span>
-                    </div>
-                </div>
+            {% endfor %}
+        {% endif %}
+        
+        <form class="space-y-6" method="POST">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input id="username" name="username" type="text" required autocomplete="username">
             </div>
+            
+            <div class="form-group">
+                <label for="email">Email address</label>
+                <input id="email" name="email" type="email" required autocomplete="email">
+            </div>
+
+            <div class="form-group">
+                <label for="password1">Password</label>
+                <input id="password1" name="password1" type="password" required autocomplete="new-password">
+            </div>
+
+            <div class="form-group">
+                <label for="password2">Confirm Password</label>
+                <input id="password2" name="password2" type="password" required autocomplete="new-password">
+            </div>
+
+            <button type="submit">Sign up</button>
+        </form>
+
+        <div class="links">
+            <span>Already have an account? <a href="{% url 'collaborator_login' %}">Sign in</a></span>
         </div>
     </div>
-</div>
-{% endblock %} 
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Focus first input on page load
+            document.getElementById('username').focus();
+            
+            // Form validation
+            const form = document.querySelector('form');
+            form.addEventListener('submit', function(e) {
+                const username = document.getElementById('username').value.trim();
+                const email = document.getElementById('email').value.trim();
+                const password1 = document.getElementById('password1').value.trim();
+                const password2 = document.getElementById('password2').value.trim();
+                
+                if (!username || !email || !password1 || !password2) {
+                    e.preventDefault();
+                    
+                    // Create error message if not exists
+                    if (!document.querySelector('.message.error')) {
+                        const errorMsg = document.createElement('div');
+                        errorMsg.className = 'message error';
+                        errorMsg.innerHTML = `
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <line x1="12" y1="8" x2="12" y2="12"></line>
+                                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                            </svg>
+                            Please fill in all fields
+                        `;
+                        form.parentNode.insertBefore(errorMsg, form);
+                    }
+                    return;
+                }
+                
+                if (password1 !== password2) {
+                    e.preventDefault();
+                    
+                    // Create error message if not exists
+                    if (!document.querySelector('.message.error')) {
+                        const errorMsg = document.createElement('div');
+                        errorMsg.className = 'message error';
+                        errorMsg.innerHTML = `
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <line x1="12" y1="8" x2="12" y2="12"></line>
+                                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                            </svg>
+                            Passwords do not match
+                        `;
+                        form.parentNode.insertBefore(errorMsg, form);
+                    } else {
+                        // Update existing error message
+                        document.querySelector('.message.error').innerHTML = `
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <line x1="12" y1="8" x2="12" y2="12"></line>
+                                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                            </svg>
+                            Passwords do not match
+                        `;
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>

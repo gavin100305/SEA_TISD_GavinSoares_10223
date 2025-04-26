@@ -1,67 +1,328 @@
 {% extends 'collaborator/base.html' %}
 
+{% block extra_css %}
+<style>
+    .meeting-form-container {
+        padding: 2rem 0;
+        position: relative;
+        z-index: 2;
+        max-width: 900px;
+        margin: 0 auto;
+    }
+
+    .meeting-card {
+        background: rgba(10, 10, 10, 0.8);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(30, 30, 30, 0.8);
+        border-radius: 16px;
+        padding: 0;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+        position: relative;
+        overflow: hidden;
+        animation: fadeInDown 0.8s ease-out forwards;
+    }
+
+    .meeting-header {
+        background: var(--primary);
+        padding: 1.5rem 2rem;
+        border-radius: 16px 16px 0 0;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .meeting-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(45deg, rgba(0, 0, 0, 0.2), transparent);
+        z-index: 1;
+    }
+
+    .meeting-header h3 {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: white;
+        margin-bottom: 0;
+        position: relative;
+        z-index: 2;
+    }
+
+    .meeting-body {
+        padding: 2rem;
+    }
+
+    .project-info {
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 12px;
+        padding: 1.25rem;
+        margin-bottom: 2rem;
+        border-left: 3px solid var(--primary);
+    }
+
+    .project-info h5 {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: white;
+        margin-bottom: 0.5rem;
+    }
+
+    .form-label {
+        color: var(--text-secondary);
+        font-weight: 500;
+        margin-bottom: 0.5rem;
+        font-size: 0.95rem;
+    }
+
+    .form-control, .form-select {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+        color: white;
+        padding: 0.75rem 1rem;
+        transition: all 0.3s ease;
+    }
+
+    .form-control:focus, .form-select:focus {
+        background: rgba(255, 255, 255, 0.1);
+        border-color: var(--primary);
+        box-shadow: 0 0 0 0.25rem rgba(var(--primary-rgb), 0.25);
+    }
+
+    .form-control::placeholder, .form-select::placeholder {
+        color: rgba(255, 255, 255, 0.3);
+    }
+
+    .form-row {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-button-group {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 2rem;
+    }
+
+    .btn {
+        padding: 0.75rem 1.5rem;
+        font-weight: 600;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+    }
+
+    .btn-secondary {
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: var(--text-secondary);
+    }
+
+    .btn-secondary:hover {
+        background: rgba(255, 255, 255, 0.15);
+        transform: translateY(-3px);
+    }
+
+    .btn-primary {
+        background: var(--primary);
+        border: 1px solid var(--primary);
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background: var(--primary-hover);
+        transform: translateY(-3px);
+        box-shadow: 0 4px 12px rgba(var(--primary-rgb), 0.25);
+    }
+
+    .alert {
+        border-radius: 8px;
+        margin-bottom: 1.5rem;
+        padding: 1rem 1.25rem;
+        border: none;
+        animation: fadeIn 0.5s ease-out forwards;
+    }
+
+    .alert-success {
+        background: rgba(0, 200, 83, 0.1);
+        border-left: 3px solid #00c853;
+        color: #00c853;
+    }
+
+    .alert-danger {
+        background: rgba(255, 70, 70, 0.1);
+        border-left: 3px solid #ff4646;
+        color: #ff4646;
+    }
+
+    .alert-warning {
+        background: rgba(255, 190, 0, 0.1);
+        border-left: 3px solid #ffbe00;
+        color: #ffbe00;
+    }
+
+    .alert-info {
+        background: rgba(33, 150, 243, 0.1);
+        border-left: 3px solid #2196f3;
+        color: #2196f3;
+    }
+
+    .status-indicator {
+        display: inline-block;
+        height: 10px;
+        width: 10px;
+        border-radius: 50%;
+        margin-right: 8px;
+    }
+
+    .status-scheduled {
+        background-color: #2196f3;
+    }
+
+    .status-completed {
+        background-color: #00c853;
+    }
+
+    .status-cancelled {
+        background-color: #ff4646;
+    }
+
+    /* Animation Keyframes */
+    @keyframes fadeInDown {
+        from {
+            opacity: 0;
+            transform: translateY(-30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+        to {
+            opacity: 1;
+        }
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .meeting-header h3 {
+            font-size: 1.5rem;
+        }
+        
+        .meeting-body {
+            padding: 1.5rem;
+        }
+        
+        .form-button-group {
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .btn {
+            width: 100%;
+        }
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="container mt-4">
-    <h2>Update Meeting</h2>
-    
-    {% if messages %}
-    <div class="messages">
-        {% for message in messages %}
-        <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}">
-            {{ message }}
+<div class="meeting-form-container">
+    <div class="meeting-card">
+        <div class="meeting-header">
+            <h3>Update Meeting</h3>
         </div>
-        {% endfor %}
+        <div class="meeting-body">
+            {% if messages %}
+            <div class="messages">
+                {% for message in messages %}
+                <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}">
+                    {{ message }}
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+            
+            <div class="project-info">
+                <h5>Project: {{ project.title }}</h5>
+                <p>
+                    <span class="status-indicator status-{{ meeting.status }}"></span>
+                    Current Status: <strong>{{ meeting.status|title }}</strong>
+                </p>
+            </div>
+
+            <form method="post">
+                {% csrf_token %}
+                <div class="form-row">
+                    <label for="meeting_title" class="form-label">Meeting Title</label>
+                    <input type="text" class="form-control" id="meeting_title" name="meeting_title" value="{{ meeting.meeting_title }}" required>
+                </div>
+                
+                <div class="form-row">
+                    <label for="meeting_description" class="form-label">Description</label>
+                    <textarea class="form-control" id="meeting_description" name="meeting_description" rows="3">{{ meeting.meeting_description }}</textarea>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-row">
+                            <label for="scheduled_time" class="form-label">Scheduled Time</label>
+                            <input type="datetime-local" class="form-control" id="scheduled_time" name="scheduled_time" value="{{ meeting.scheduled_time|date:'Y-m-d\TH:i' }}" required>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="form-row">
+                            <label for="duration" class="form-label">Duration (minutes)</label>
+                            <input type="number" class="form-control" id="duration" name="duration" value="{{ meeting.duration }}" required>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <label for="zoom_link" class="form-label">Zoom Link</label>
+                    <input type="url" class="form-control" id="zoom_link" name="zoom_link" value="{{ meeting.zoom_link }}" required>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-row">
+                            <label for="zoom_meeting_id" class="form-label">Zoom Meeting ID</label>
+                            <input type="text" class="form-control" id="zoom_meeting_id" name="zoom_meeting_id" value="{{ meeting.zoom_meeting_id }}" required>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="form-row">
+                            <label for="zoom_password" class="form-label">Zoom Password</label>
+                            <input type="text" class="form-control" id="zoom_password" name="zoom_password" value="{{ meeting.zoom_password }}" required>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <label for="status" class="form-label">Status</label>
+                    <select class="form-select" id="status" name="status">
+                        <option value="scheduled" {% if meeting.status == 'scheduled' %}selected{% endif %}>Scheduled</option>
+                        <option value="completed" {% if meeting.status == 'completed' %}selected{% endif %}>Completed</option>
+                        <option value="cancelled" {% if meeting.status == 'cancelled' %}selected{% endif %}>Cancelled</option>
+                    </select>
+                </div>
+                
+                <div class="form-button-group">
+                    <a href="{% url 'view_meetings' project.id %}" class="btn btn-secondary">
+                        <i class="fas fa-times"></i> Cancel
+                    </a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Update Meeting
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
-    {% endif %}
-    
-    <form method="post">
-        {% csrf_token %}
-        <div class="mb-3">
-            <label for="meeting_title" class="form-label">Meeting Title</label>
-            <input type="text" class="form-control" id="meeting_title" name="meeting_title" value="{{ meeting.meeting_title }}" required>
-        </div>
-        
-        <div class="mb-3">
-            <label for="meeting_description" class="form-label">Description</label>
-            <textarea class="form-control" id="meeting_description" name="meeting_description" rows="3">{{ meeting.meeting_description }}</textarea>
-        </div>
-        
-        <div class="mb-3">
-            <label for="scheduled_time" class="form-label">Scheduled Time</label>
-            <input type="datetime-local" class="form-control" id="scheduled_time" name="scheduled_time" value="{{ meeting.scheduled_time|date:'Y-m-d\TH:i' }}" required>
-        </div>
-        
-        <div class="mb-3">
-            <label for="duration" class="form-label">Duration (minutes)</label>
-            <input type="number" class="form-control" id="duration" name="duration" value="{{ meeting.duration }}" required>
-        </div>
-        
-        <div class="mb-3">
-            <label for="zoom_link" class="form-label">Zoom Link</label>
-            <input type="url" class="form-control" id="zoom_link" name="zoom_link" value="{{ meeting.zoom_link }}" required>
-        </div>
-        
-        <div class="mb-3">
-            <label for="zoom_meeting_id" class="form-label">Zoom Meeting ID</label>
-            <input type="text" class="form-control" id="zoom_meeting_id" name="zoom_meeting_id" value="{{ meeting.zoom_meeting_id }}" required>
-        </div>
-        
-        <div class="mb-3">
-            <label for="zoom_password" class="form-label">Zoom Password</label>
-            <input type="text" class="form-control" id="zoom_password" name="zoom_password" value="{{ meeting.zoom_password }}" required>
-        </div>
-        
-        <div class="mb-3">
-            <label for="status" class="form-label">Status</label>
-            <select class="form-select" id="status" name="status">
-                <option value="scheduled" {% if meeting.status == 'scheduled' %}selected{% endif %}>Scheduled</option>
-                <option value="completed" {% if meeting.status == 'completed' %}selected{% endif %}>Completed</option>
-                <option value="cancelled" {% if meeting.status == 'cancelled' %}selected{% endif %}>Cancelled</option>
-            </select>
-        </div>
-        
-        <button type="submit" class="btn btn-primary">Update Meeting</button>
-        <a href="{% url 'view_meetings' project.id %}" class="btn btn-secondary">Cancel</a>
-    </form>
 </div>
 {% endblock %}
