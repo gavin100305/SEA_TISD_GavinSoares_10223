@@ -5,112 +5,465 @@
 
 {% block extra_css %}
 <style>
-    .connections-container {
+    :root {
+        --primary: #8B5CF6;
+        --primary-hover: #7C3AED;
+        --primary-light: rgba(139, 92, 246, 0.2);
+        --text-light: #F3F4F6;
+        --text-secondary: #D1D5DB;
+        --card-bg: rgba(15, 12, 24, 0.7);
+        --card-border: rgba(157, 78, 221, 0.3);
+        --card-shadow: rgba(0, 0, 0, 0.4);
+    }
+
+    body {
+        background-color: #000000;
+        color: var(--text-light);
+        font-family: 'Inter', sans-serif;
+        min-height: 100vh;
+        position: relative;
+        overflow-x: hidden;
+    }
+
+    /* Background Elements */
+    .bg-elements {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -1;
+        overflow: hidden;
+    }
+
+    .bg-gradient {
+        position: absolute;
+        width: 35rem;
+        height: 35rem;
+        border-radius: 50%;
+        filter: blur(8rem);
+        z-index: -1;
+        opacity: 0.5;
+        animation: pulse 15s infinite alternate ease-in-out;
+    }
+
+    @keyframes pulse {
+        0% { transform: scale(1); opacity: 0.5; }
+        50% { transform: scale(1.05); opacity: 0.6; }
+        100% { transform: scale(1); opacity: 0.5; }
+    }
+
+    .bg-gradient:nth-child(1) {
+        top: -10%;
+        right: 5%;
+        background: rgba(168, 85, 247, 0.3);
+        animation-delay: -5s;
+    }
+
+    .bg-gradient:nth-child(2) {
+        bottom: -5%;
+        left: 10%;
+        background: rgba(124, 58, 237, 0.2);
+        animation-delay: -10s;
+    }
+
+    .static-pattern {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        opacity: 0.1;
+        z-index: -1;
+        background-image: radial-gradient(#a855f7 1px, transparent 1px);
+        background-size: 40px 40px;
+    }
+
+    .container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 2rem;
+        position: relative;
+        z-index: 2;
+    }
+
+    /* Header Section */
+    .header-section {
+        text-align: center;
+        margin-bottom: 3rem;
+        background: var(--card-bg);
+        backdrop-filter: blur(10px);
+        border: 1px solid var(--card-border);
+        border-radius: 16px;
         padding: 2rem;
     }
 
+    .header-section h1 {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: white;
+        margin-bottom: 1rem;
+        background: linear-gradient(135deg, #a855f7, #8b5cf6);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    /* Alert Messages */
+    .alert {
+        background: var(--card-bg);
+        backdrop-filter: blur(10px);
+        border: 1px solid;
+        border-radius: 12px;
+        padding: 1.2rem 1.8rem;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .alert::before {
+        font-family: 'Font Awesome 5 Free';
+        font-weight: 900;
+        font-size: 1.3rem;
+    }
+
+    .alert-success {
+        border-color: rgba(34, 197, 94, 0.3);
+        color: #5ae6a8;
+    }
+
+    .alert-success::before {
+        content: '\f058';
+        color: #5ae6a8;
+    }
+
+    .alert-danger {
+        border-color: rgba(239, 68, 68, 0.3);
+        color: #ff6b6b;
+    }
+
+    .alert-danger::before {
+        content: '\f057';
+        color: #ff6b6b;
+    }
+
+    .alert-info {
+        border-color: rgba(59, 130, 246, 0.3);
+        color: #60a5fa;
+    }
+
+    .alert-info::before {
+        content: '\f05a';
+        color: #60a5fa;
+    }
+
+    /* Mentor Cards */
+    .mentor-grid {
+        display: grid;
+        gap: 1.5rem;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    }
+
     .mentor-card {
-        background: rgba(157, 78, 221, 0.1);
-        border: 1px solid #9d4edd;
-        border-radius: 10px;
-        padding: 1.5rem;
-        margin-bottom: 1.5rem;
-        transition: all 0.3s ease;
+        background: var(--card-bg);
+        backdrop-filter: blur(15px);
+        border: 1px solid var(--card-border);
+        border-radius: 20px;
+        padding: 1.25rem;
+        transition: all 0.4s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .mentor-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 5px;
+        background: linear-gradient(90deg, #a855f7, #8b5cf6);
+        transform: scaleX(0);
+        transform-origin: left;
+        transition: transform 0.4s ease;
     }
 
     .mentor-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 5px 15px rgba(157, 78, 221, 0.2);
+        transform: translateY(-10px);
+        border-color: var(--primary);
+        box-shadow: 0 15px 40px rgba(139, 92, 246, 0.25);
+    }
+
+    .mentor-card:hover::before {
+        transform: scaleX(1);
     }
 
     .mentor-header {
         display: flex;
         align-items: center;
+        gap: 1rem;
         margin-bottom: 1rem;
     }
 
     .mentor-image {
-        width: 80px;
-        height: 80px;
-        border-radius: 50%;
-        margin-right: 1rem;
-        border: 2px solid #9d4edd;
+        width: 60px;
+        height: 60px;
+        border-radius: 12px;
         object-fit: cover;
+        border: 2px solid var(--primary);
+        transition: all 0.4s ease;
+    }
+
+    .mentor-card:hover .mentor-image {
+        transform: scale(1.05);
+        border-color: #a855f7;
     }
 
     .mentor-info h3 {
-        color: #9d4edd;
+        color: white;
+        font-size: 1.1rem;
+        font-weight: 600;
         margin-bottom: 0.5rem;
     }
 
     .mentor-info p {
-        color: #c77dff;
+        color: var(--text-secondary);
+        font-size: 0.85rem;
         margin-bottom: 0.2rem;
-    }
-
-    .mentor-details {
-        margin: 1rem 0;
-        padding: 1rem;
-        background: rgba(157, 78, 221, 0.05);
-        border-radius: 5px;
-        color: #fff;
-    }
-
-    .connection-date {
-        color: #c77dff;
-        font-size: 0.9rem;
-        margin-top: 1rem;
-        text-align: right;
-    }
-
-    .contact-info {
-        margin-top: 1rem;
-        padding: 1rem;
-        background: rgba(157, 78, 221, 0.05);
-        border-radius: 5px;
-        color: #fff;
-    }
-
-    .contact-info a {
-        color: #9d4edd;
-        text-decoration: none;
-    }
-
-    .contact-info a:hover {
-        text-decoration: underline;
     }
 
     .status-badge {
         display: inline-block;
         padding: 0.25rem 1rem;
-        border-radius: 15px;
-        font-size: 0.9rem;
-        margin-left: 1rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 500;
+        margin-top: 0.25rem;
     }
 
     .status-pending {
-        background: rgba(255, 193, 7, 0.2);
-        color: #ffc107;
-        border: 1px solid #ffc107;
+        background: rgba(234, 179, 8, 0.1);
+        color: #fbbf24;
+        border: 1px solid rgba(234, 179, 8, 0.2);
     }
 
     .status-accepted {
-        background: rgba(40, 167, 69, 0.2);
-        color: #28a745;
-        border: 1px solid #28a745;
+        background: rgba(34, 197, 94, 0.1);
+        color: #4ade80;
+        border: 1px solid rgba(34, 197, 94, 0.2);
     }
 
     .status-rejected {
-        background: rgba(220, 53, 69, 0.2);
-        color: #dc3545;
-        border: 1px solid #dc3545;
+        background: rgba(239, 68, 68, 0.1);
+        color: #f87171;
+        border: 1px solid rgba(239, 68, 68, 0.2);
+    }
+
+    .mentor-details {
+        background: rgba(0, 0, 0, 0.2);
+        border-radius: 12px;
+        padding: 1rem;
+        margin: 1rem 0;
+        font-size: 0.85rem;
+    }
+
+    .mentor-details p {
+        color: var(--text-secondary);
+        font-size: 0.5rem;
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .mentor-details p:last-child {
+        margin-bottom: 0;
+    }
+
+    .mentor-details p strong {
+        color: var(--primary);
+        font-weight: 500;
+    }
+
+    .contact-info {
+        background: rgba(0, 0, 0, 0.2);
+        border-radius: 12px;
+        padding: 1rem;
+    }
+
+    .contact-info p {
+        color: var(--text-secondary);
+        font-size: 0.85rem;
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .contact-info p:last-child {
+        margin-bottom: 0;
+    }
+
+    .contact-info a {
+        color: var(--primary);
+        text-decoration: none;
+        transition: color 0.3s ease;
+    }
+
+    .contact-info a:hover {
+        color: #a855f7;
+        text-decoration: underline;
+    }
+
+    .connection-date {
+        color: var(--text-secondary);
+        font-size: 0.8rem;
+        text-align: right;
+        margin-top: 1rem;
+        font-style: italic;
+    }
+
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: 4rem 0;
+    }
+
+    .empty-state i {
+        font-size: 4rem;
+        color: var(--text-secondary);
+        margin-bottom: 1.5rem;
+    }
+
+    .empty-state h2 {
+        color: white;
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .empty-state p {
+        color: var(--text-secondary);
+        margin-bottom: 2rem;
+    }
+
+    .btn-custom {
+        background: linear-gradient(90deg, #a855f7, #8b5cf6);
+        color: white;
+        padding: 0.75rem 1.5rem;
+        border-radius: 12px;
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.3s ease;
+    }
+
+    .btn-custom:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+        color: white;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .header-section h1 {
+            font-size: 2rem;
+        }
+
+        .mentor-header {
+            flex-direction: column;
+            text-align: center;
+        }
+
+        .mentor-info {
+            text-align: center;
+        }
+
+        .status-badge {
+            margin-top: 1rem;
+        }
+    }
+
+    /* Added Compact View for Many Cards */
+    @media (min-width: 1400px) {
+        .container {
+            max-width: 1800px;
+        }
+        
+        .mentor-grid {
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        }
+    }
+
+    /* Added Scrollable Sections for Long Content */
+    .mentor-details, .contact-info {
+        max-height: 200px;
+        overflow-y: auto;
+        scrollbar-width: thin;
+        scrollbar-color: var(--primary) transparent;
+    }
+
+    .mentor-details::-webkit-scrollbar,
+    .contact-info::-webkit-scrollbar {
+        width: 4px;
+    }
+
+    .mentor-details::-webkit-scrollbar-track,
+    .contact-info::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    .mentor-details::-webkit-scrollbar-thumb,
+    .contact-info::-webkit-scrollbar-thumb {
+        background-color: var(--primary);
+        border-radius: 20px;
+    }
+
+    /* Collapsible Sections */
+    .section-toggle {
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.5rem;
+        color: var(--primary);
+        font-size: 0.9rem;
+        font-weight: 500;
+        border-bottom: 1px solid var(--card-border);
+        margin-bottom: 0.5rem;
+    }
+
+    .section-toggle i {
+        transition: transform 0.3s ease;
+    }
+
+    .section-toggle.collapsed i {
+        transform: rotate(-90deg);
+    }
+
+    .collapsible-content {
+        transition: max-height 0.3s ease;
+        overflow: hidden;
+    }
+
+    .collapsible-content.collapsed {
+        max-height: 0;
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="connections-container">
-    <h1 class="mb-4" style="color: #9d4edd;">My Mentor Connections</h1>
+<div class="bg-elements">
+    <div class="bg-gradient"></div>
+    <div class="bg-gradient"></div>
+    <div class="static-pattern"></div>
+</div>
+
+<div class="container">
+    <div class="header-section">
+        <h1>My Mentor Connections</h1>
+    </div>
     
     {% if messages %}
     <div class="messages mb-4">
@@ -122,70 +475,68 @@
     </div>
     {% endif %}
 
-    <div class="row">
+    <div class="mentor-grid">
         {% for connection in connections %}
-        <div class="col-md-6 mb-4">
-            <div class="mentor-card">
-                <div class="mentor-header">
-                    <img src="{% if connection.mentor.profile_picture %}{{ connection.mentor.profile_picture.url }}{% else %}https://ui-avatars.com/api/?name={{ connection.mentor.full_name|default:connection.mentor.user.username }}&background=9d4edd&color=fff{% endif %}" 
-                         alt="{{ connection.mentor.full_name }}" 
-                         class="mentor-image">
-                    <div class="mentor-info">
-                        <h3>{{ connection.mentor.full_name }}</h3>
-                        <p>{{ connection.mentor.current_role }}</p>
-                        <p>{{ connection.mentor.specialization }}</p>
-                        <span class="status-badge status-{{ connection.status }}">
-                            {{ connection.status|title }}
-                        </span>
-                    </div>
+        <div class="mentor-card">
+            <div class="mentor-header">
+                <img src="{% if connection.mentor.profile_picture %}{{ connection.mentor.profile_picture.url }}{% else %}https://ui-avatars.com/api/?name={{ connection.mentor.full_name|default:connection.mentor.user.username }}&background=9d4edd&color=fff{% endif %}" 
+                     alt="{{ connection.mentor.full_name }}" 
+                     class="mentor-image">
+                <div class="mentor-info">
+                    <h3>{{ connection.mentor.full_name }}</h3>
+                    <p>{{ connection.mentor.current_role }}</p>
+                    <p>{{ connection.mentor.specialization }}</p>
+                    <span class="status-badge status-{{ connection.status }}">
+                        {{ connection.status|title }}
+                    </span>
                 </div>
+            </div>
 
-                {% if connection.status == 'accepted' %}
-                <div class="mentor-details">
-                    <p><strong>Experience:</strong> {{ connection.mentor.experience_years }} years</p>
-                    <p><strong>Teaching Branch:</strong> {{ connection.mentor.teaching_branch }}</p>
-                    <p><strong>Qualification:</strong> {{ connection.mentor.highest_qualification }}</p>
-                    <p><strong>University:</strong> {{ connection.mentor.university }}</p>
-                    {% if connection.mentor.expertise_areas %}
-                    <p><strong>Areas of Expertise:</strong> {{ connection.mentor.expertise_areas }}</p>
-                    {% endif %}
-                    {% if connection.mentor.bio %}
-                    <p><strong>Bio:</strong> {{ connection.mentor.bio }}</p>
-                    {% endif %}
-                </div>
-
-                <div class="contact-info">
-                    <p><strong>Email:</strong> <a href="mailto:{{ connection.mentor.user.email }}">{{ connection.mentor.user.email }}</a></p>
-                    {% if connection.mentor.phone %}
-                    <p><strong>Phone:</strong> {{ connection.mentor.phone }}</p>
-                    {% endif %}
-                    {% if connection.mentor.linkedin %}
-                    <p><strong>LinkedIn:</strong> <a href="{{ connection.mentor.linkedin }}" target="_blank">View Profile</a></p>
-                    {% endif %}
-                    {% if connection.mentor.website %}
-                    <p><strong>Website:</strong> <a href="{{ connection.mentor.website }}" target="_blank">Visit Website</a></p>
-                    {% endif %}
-                </div>
-
-                <div class="connection-date">
-                    Connected since: {{ connection.updated_at|date:"F j, Y" }}
-                </div>
-                {% else %}
-                <div class="mentor-details">
-                    <p><strong>Message:</strong> {{ connection.message }}</p>
-                    <p class="connection-date">Requested on: {{ connection.created_at|date:"F j, Y" }}</p>
-                </div>
+            {% if connection.status == 'accepted' %}
+            <div class="mentor-details">
+                <p><strong>Experience:</strong> {{ connection.mentor.experience_years }} years</p>
+                <p><strong>Teaching Branch:</strong> {{ connection.mentor.teaching_branch }}</p>
+                <p><strong>Qualification:</strong> {{ connection.mentor.highest_qualification }}</p>
+                <p><strong>University:</strong> {{ connection.mentor.university }}</p>
+                {% if connection.mentor.expertise_areas %}
+                <p><strong>Areas of Expertise:</strong> {{ connection.mentor.expertise_areas }}</p>
+                {% endif %}
+                {% if connection.mentor.bio %}
+                <p><strong>Bio:</strong> {{ connection.mentor.bio }}</p>
                 {% endif %}
             </div>
+
+            <div class="contact-info">
+                <p><i class="fas fa-envelope"></i> <a href="mailto:{{ connection.mentor.user.email }}">{{ connection.mentor.user.email }}</a></p>
+                {% if connection.mentor.phone %}
+                <p><i class="fas fa-phone"></i> {{ connection.mentor.phone }}</p>
+                {% endif %}
+                {% if connection.mentor.linkedin %}
+                <p><i class="fab fa-linkedin"></i> <a href="{{ connection.mentor.linkedin }}" target="_blank">View Profile</a></p>
+                {% endif %}
+                {% if connection.mentor.website %}
+                <p><i class="fas fa-globe"></i> <a href="{{ connection.mentor.website }}" target="_blank">Visit Website</a></p>
+                {% endif %}
+            </div>
+
+            <div class="connection-date">
+                Connected since: {{ connection.updated_at|date:"F j, Y" }}
+            </div>
+            {% else %}
+            <div class="mentor-details">
+                <p><strong>Message:</strong> {{ connection.message }}</p>
+                <p class="connection-date">Requested on: {{ connection.created_at|date:"F j, Y" }}</p>
+            </div>
+            {% endif %}
         </div>
         {% empty %}
-        <div class="col-12">
-            <p class="text-center" style="color: #fff;">You don't have any mentor connections yet.</p>
-            <div class="text-center mt-4">
-                <a href="{% url 'list_mentors' %}" class="btn btn-custom">
-                    <i class="fas fa-search"></i> Find Mentors
-                </a>
-            </div>
+        <div class="empty-state">
+            <i class="fas fa-user-friends"></i>
+            <h2>No Mentor Connections Yet</h2>
+            <p>Start by finding and connecting with mentors who can guide you in your learning journey.</p>
+            <a href="{% url 'list_mentors' %}" class="btn-custom">
+                <i class="fas fa-search"></i> Find Mentors
+            </a>
         </div>
         {% endfor %}
     </div>

@@ -8,312 +8,630 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
     :root {
-        --primary: #8B5CF6;
-        --primary-hover: #7C3AED;
-        --primary-light: rgba(139, 92, 246, 0.2);
-        --text-light: #F3F4F6;
-        --text-secondary: #D1D5DB;
-        --card-bg: rgba(30, 30, 30, 0.5);
-        --card-border: rgba(139, 92, 246, 0.3);
-        --card-shadow: rgba(0, 0, 0, 0.4);
-    }
+    --primary: #8B5CF6;
+    --primary-hover: #7C3AED;
+    --primary-light: rgba(139, 92, 246, 0.2);
+    --text-light: #F3F4F6;
+    --text-secondary: #D1D5DB;
+    --card-bg: rgba(30, 30, 30, 0.5);
+    --card-border: rgba(139, 92, 246, 0.3);
+    --card-shadow: rgba(0, 0, 0, 0.4);
+}
 
-    body {
-        background-color: #000000;
-        color: var(--text-light);
-        font-family: 'Inter', sans-serif;
-        min-height: 100vh;
-        position: relative;
-        overflow-x: hidden;
-    }
+body {
+    background-color: #000000;
+    color: var(--text-light);
+    font-family: 'Inter', sans-serif;
+    min-height: 100vh;
+    position: relative;
+    overflow-x: hidden;
+}
 
-    /* Background Elements */
-    .bg-elements {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        z-index: -1;
-        overflow: hidden;
-    }
+/* Background Elements */
+.bg-elements {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    overflow: hidden;
+}
 
-    .bg-gradient {
-        position: absolute;
-        width: 24rem;
-        height: 24rem;
-        border-radius: 50%;
-        filter: blur(7rem);
-        z-index: -1;
-    }
+.bg-gradient {
+    position: absolute;
+    width: 35rem;
+    height: 35rem;
+    border-radius: 50%;
+    filter: blur(8rem);
+    z-index: -1;
+    opacity: 0.5;
+    animation: pulse 15s infinite alternate ease-in-out;
+}
 
-    .bg-gradient:nth-child(1) {
-        top: -10%;
-        right: 5%;
-        background: rgba(168, 85, 247, 0.2);
-    }
+@keyframes pulse {
+    0% { transform: scale(1); opacity: 0.5; }
+    50% { transform: scale(1.05); opacity: 0.6; }
+    100% { transform: scale(1); opacity: 0.5; }
+}
 
-    .bg-gradient:nth-child(2) {
-        bottom: -5%;
-        left: 10%;
-        background: rgba(168, 85, 247, 0.1);
-    }
+.bg-gradient:nth-child(1) {
+    top: -10%;
+    right: 5%;
+    background: rgba(168, 85, 247, 0.3);
+    animation-delay: -5s;
+}
 
-    .static-pattern {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        opacity: 0.15;
-        z-index: -1;
-        background-image: radial-gradient(#a855f7 1px, transparent 1px);
-        background-size: 30px 30px;
-    }
+.bg-gradient:nth-child(2) {
+    bottom: -5%;
+    left: 10%;
+    background: rgba(124, 58, 237, 0.2);
+    animation-delay: -10s;
+}
 
-    .dashboard-container {
-        padding: 2rem 0;
-        position: relative;
-        z-index: 2;
-    }
+.static-pattern {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0.1;
+    z-index: -1;
+    background-image: radial-gradient(#a855f7 1px, transparent 1px);
+    background-size: 40px 40px;
+}
 
-    .welcome-section {
-        text-align: center;
-        margin-bottom: 3rem;
-    }
+.dashboard-container {
+    padding: 2.5rem 0;
+    position: relative;
+    z-index: 2;
+    max-width: 1400px;
+}
 
+.welcome-section {
+    text-align: center;
+    margin-bottom: 3rem;
+    padding: 1.8rem 0;
+    position: relative;
+}
+
+.welcome-section::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 150px;
+    height: 4px;
+    background: linear-gradient(90deg, transparent, var(--primary), transparent);
+    border-radius: 2px;
+}
+
+.welcome-section h1 {
+    font-size: 3rem;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    line-height: 1.2;
+    margin-bottom: 1.2rem;
+    color: white;
+    text-shadow: 0 0 20px rgba(139, 92, 246, 0.3);
+}
+
+.welcome-section h1 span {
+    color: var(--primary);
+    position: relative;
+    display: inline-block;
+    background: linear-gradient(135deg, #a855f7, #8b5cf6);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.welcome-section h1 span::after {
+    content: "";
+    position: absolute;
+    bottom: 5px;
+    left: 0;
+    width: 100%;
+    height: 8px;
+    background-color: var(--primary-light);
+    z-index: -1;
+    border-radius: 4px;
+}
+
+.welcome-section p {
+    color: var(--text-secondary);
+    font-size: 1.25rem;
+    line-height: 1.6;
+    max-width: 700px;
+    margin: 0 auto;
+}
+
+/* Cards Grid */
+.cards-grid {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    gap: 1.5rem;
+    margin-bottom: 3rem;
+}
+
+/* Card size variations */
+.dashboard-card {
+    background: rgba(15, 12, 24, 0.7);
+    backdrop-filter: blur(15px);
+    border: 1px solid var(--card-border);
+    border-radius: 20px;
+    padding: 1.8rem;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 10px 40px rgba(31, 38, 135, 0.15);
+    min-height: 250px;
+    display: flex;
+    flex-direction: column;
+    text-decoration: none;
+    grid-column: span 3; /* Changed from span 4 to make cards smaller */
+}
+
+/* Large cards spanning 6 columns */
+.dashboard-card.card-large {
+    grid-column: span 6;
+}
+
+/* Full-width cards spanning all 12 columns */
+.dashboard-card.card-full {
+    grid-column: span 12;
+}
+
+/* Responsive adjustments for smaller cards */
+@media (max-width: 1400px) {
+    .dashboard-card {
+        grid-column: span 4;
+    }
+}
+
+@media (max-width: 1200px) {
+    .dashboard-card {
+        grid-column: span 6;
+        min-height: 230px;
+        padding: 1.6rem;
+    }
+    .dashboard-card.card-large {
+        grid-column: span 6;
+    }
+}
+
+@media (max-width: 768px) {
+    .dashboard-card,
+    .dashboard-card.card-large,
+    .dashboard-card.card-full {
+        grid-column: span 12;
+        min-height: 210px;
+        padding: 1.5rem;
+    }
+}
+
+.dashboard-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 0;
+    background: linear-gradient(to bottom, rgba(139, 92, 246, 0.1), transparent);
+    transition: height 0.4s ease;
+    z-index: 0;
+}
+
+.dashboard-card:hover {
+    transform: translateY(-12px);
+    border-color: var(--primary);
+    box-shadow: 0 15px 50px rgba(139, 92, 246, 0.3);
+}
+
+.dashboard-card:hover::before {
+    height: 100%;
+}
+
+.card-icon-wrapper {
+    width: 70px;
+    height: 70px;
+    background: linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(139, 92, 246, 0.4));
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1.5rem;
+    position: relative;
+    z-index: 2;
+    transition: all 0.4s ease;
+    box-shadow: 0 5px 15px rgba(139, 92, 246, 0.2);
+}
+
+.dashboard-card:hover .card-icon-wrapper {
+    transform: scale(1.1) rotate(5deg);
+    background: linear-gradient(135deg, var(--primary), #a855f7);
+}
+
+.card-icon-wrapper i {
+    font-size: 2rem;
+    color: var(--primary);
+    transition: color 0.4s ease;
+}
+
+.dashboard-card:hover .card-icon-wrapper i {
+    color: white;
+}
+
+.dashboard-card h3 {
+    color: white;
+    margin-bottom: 0.8rem;
+    font-size: 1.4rem;
+    font-weight: 700;
+    transition: color 0.3s ease;
+    position: relative;
+    z-index: 2;
+}
+
+.dashboard-card:hover h3 {
+    color: var(--primary);
+}
+
+.dashboard-card .badge {
+    background-color: #dc3545;
+    margin-left: 0.5rem;
+    vertical-align: middle;
+    padding: 0.35em 0.65em;
+    font-size: 0.75em;
+    border-radius: 50rem;
+}
+
+.dashboard-card p {
+    color: var(--text-secondary);
+    margin-bottom: 1.5rem;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    flex-grow: 1;
+    position: relative;
+    z-index: 2;
+}
+
+.dashboard-card small {
+    color: rgba(209, 213, 219, 0.7);
+    display: block;
+    margin-bottom: 0.3rem;
+    position: relative;
+    z-index: 2;
+}
+
+.card-action {
+    background: linear-gradient(90deg, #a855f7 0%, #8b5cf6 100%);
+    color: white;
+    border: none;
+    padding: 0.8rem 1.6rem;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.4s ease;
+    box-shadow: 0 4px 15px rgba(168, 85, 247, 0.25);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    margin-top: auto;
+    position: relative;
+    z-index: 2;
+    overflow: hidden;
+}
+
+.card-action::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.7s ease;
+}
+
+.card-action:hover {
+    background: var(--primary-hover);
+    transform: translateY(-3px);
+    color: white;
+    box-shadow: 0 8px 25px rgba(168, 85, 247, 0.4);
+}
+
+.card-action:hover::before {
+    left: 100%;
+}
+
+.card-action i {
+    margin-left: 10px;
+    font-size: 1rem;
+    color: white;
+    transition: transform 0.3s ease;
+}
+
+.card-action:hover i {
+    transform: translateX(6px);
+}
+
+/* Profile Section */
+.profile-section {
+    background: rgba(15, 12, 24, 0.8);
+    backdrop-filter: blur(15px);
+    border: 1px solid var(--card-border);
+    border-radius: 24px;
+    padding: 2.5rem;
+    margin-bottom: 3rem;
+    box-shadow: 0 15px 35px rgba(31, 38, 135, 0.15);
+    position: relative;
+    overflow: hidden;
+}
+
+.profile-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 5px;
+    background: linear-gradient(90deg, #a855f7, #8b5cf6);
+}
+
+.profile-section h2 {
+    color: var(--primary);
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 2rem;
+    border-bottom: 1px solid rgba(168, 85, 247, 0.2);
+    padding-bottom: 1rem;
+    position: relative;
+}
+
+.profile-section h2::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    width: 80px;
+    height: 3px;
+    background: linear-gradient(90deg, #a855f7, #8b5cf6);
+    border-radius: 3px;
+}
+
+.profile-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 2rem;
+}
+
+.profile-item {
+    margin-bottom: 0.5rem;
+    transition: transform 0.3s ease;
+    padding: 0.8rem;
+    border-radius: 12px;
+    border: 1px solid transparent;
+}
+
+.profile-item:hover {
+    transform: translateY(-5px);
+    background: rgba(139, 92, 246, 0.05);
+    border-color: rgba(139, 92, 246, 0.1);
+}
+
+.profile-label {
+    color: var(--primary);
+    font-size: 0.9rem;
+    margin-bottom: 0.4rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
+.profile-value {
+    color: var(--text-light);
+    font-size: 1.1rem;
+    font-weight: 500;
+}
+
+/* Alerts */
+.alert-messages {
+    margin-bottom: 3rem;
+}
+
+.alert {
+    background-color: rgba(15, 12, 24, 0.8);
+    border: 1px solid;
+    border-radius: 12px;
+    padding: 1.2rem 1.8rem;
+    margin-bottom: 1rem;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+    display: flex;
+    align-items: center;
+}
+
+.alert::before {
+    font-family: 'Font Awesome 5 Free';
+    font-weight: 900;
+    margin-right: 15px;
+    font-size: 1.3rem;
+}
+
+.alert-success {
+    border-color: rgba(25, 135, 84, 0.3);
+    color: #5ae6a8;
+}
+
+.alert-success::before {
+    content: '\f058'; /* check-circle */
+    color: #5ae6a8;
+}
+
+.alert-danger {
+    border-color: rgba(220, 53, 69, 0.3);
+    color: #ff6b6b;
+}
+
+.alert-danger::before {
+    content: '\f057'; /* times-circle */
+    color: #ff6b6b;
+}
+
+.alert-info {
+    border-color: rgba(13, 202, 240, 0.3);
+    color: #6edff6;
+}
+
+.alert-info::before {
+    content: '\f05a'; /* info-circle */
+    color: #6edff6;
+}
+
+/* Project Assessments Card */
+.card {
+    background: rgba(15, 12, 24, 0.8);
+    backdrop-filter: blur(15px);
+    border: 1px solid var(--card-border);
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(31, 38, 135, 0.15);
+    transition: all 0.4s ease;
+    height: 100%;
+    color: var(--text-light);
+    margin-bottom: 2rem;
+}
+
+.card:hover {
+    transform: translateY(-8px);
+    border-color: var(--primary);
+    box-shadow: 0 15px 40px rgba(139, 92, 246, 0.25);
+}
+
+.card-body {
+    padding: 2rem;
+}
+
+.avatar-sm {
+    width: 60px;
+    height: 60px;
+    border-radius: 16px;
+    background: linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(139, 92, 246, 0.4));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.4s ease;
+}
+
+.card:hover .avatar-sm {
+    background: linear-gradient(135deg, var(--primary), #a855f7);
+}
+
+.avatar-title {
+    font-size: 1.5rem;
+    color: var(--primary);
+    transition: color 0.4s ease;
+}
+
+.card:hover .avatar-title {
+    color: white;
+}
+
+.font-size-16 {
+    font-size: 1.3rem;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    color: white;
+}
+
+.text-muted {
+    color: var(--text-secondary) !important;
+}
+
+.btn-primary {
+    background: linear-gradient(90deg, #a855f7 0%, #8b5cf6 100%);
+    color: white;
+    border: none;
+    padding: 0.6rem 1.2rem;
+    border-radius: 10px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.4s ease;
+    box-shadow: 0 4px 15px rgba(168, 85, 247, 0.25);
+    margin-top: 1rem;
+}
+
+.btn-primary:hover {
+    background: var(--primary-hover);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(168, 85, 247, 0.4);
+}
+
+/* Ripple animation */
+@keyframes ripple {
+    to {
+        transform: translate(-50%, -50%) scale(15);
+        opacity: 0;
+    }
+}
+
+.ripple {
+    position: absolute;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    animation: ripple 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+    pointer-events: none;
+    width: 20px;
+    height: 20px;
+    z-index: 1;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 992px) {
     .welcome-section h1 {
         font-size: 2.5rem;
-        font-weight: 800;
-        letter-spacing: -0.5px;
-        line-height: 1.2;
-        margin-bottom: 1rem;
-        color: white;
     }
-
-    .welcome-section h1 span {
-        color: var(--primary);
-        position: relative;
-        display: inline-block;
-    }
-
-    .welcome-section h1 span::after {
-        content: "";
-        position: absolute;
-        bottom: 5px;
-        left: 0;
-        width: 100%;
-        height: 8px;
-        background-color: var(--primary-light);
-        z-index: -1;
-        border-radius: 4px;
-    }
-
-    .welcome-section p {
-        color: var(--text-secondary);
-        font-size: 1.1rem;
-        line-height: 1.6;
-        max-width: 700px;
-        margin: 0 auto;
-    }
-
-    /* Cards Grid */
-    .cards-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-        gap: 2rem;
-        margin-bottom: 3rem;
-    }
-
+    
     .dashboard-card {
-        background: rgba(12, 10, 20, 0.7);
-        backdrop-filter: blur(10px);
-        border: 1px solid var(--card-border);
-        border-radius: 16px;
-        padding: 2rem;
-        transition: transform 0.3s ease, border-color 0.3s ease;
-        position: relative;
-        overflow: hidden;
-        box-shadow: 0 8px 32px rgba(31, 38, 135, 0.15);
-        min-height: 280px;
-        display: flex;
-        flex-direction: column;
+        padding: 1.6rem;
+        min-height: 230px;
     }
-
-    .dashboard-card:hover {
-        transform: translateY(-10px);
-        border-color: var(--primary);
-    }
-
+    
     .card-icon-wrapper {
-        width: 70px;
-        height: 70px;
-        background: linear-gradient(135deg, var(--primary-light), rgba(139, 92, 246, 0.3));
-        border-radius: 16px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin-bottom: 1.5rem;
-        position: relative;
-        z-index: 2;
-        transition: transform 0.3s ease;
+        width: 65px;
+        height: 65px;
     }
+}
 
-    .dashboard-card:hover .card-icon-wrapper {
-        transform: scale(1.1);
-    }
-
-    .card-icon-wrapper i {
+@media (max-width: 768px) {
+    .welcome-section h1 {
         font-size: 2rem;
-        color: var(--primary);
-        transition: color 0.3s ease;
     }
-
-    .dashboard-card:hover .card-icon-wrapper i {
-        color: white;
-    }
-
-    .dashboard-card h3 {
-        color: white;
-        margin-bottom: 1rem;
-        font-size: 1.5rem;
-        font-weight: 600;
-        transition: color 0.3s ease;
-    }
-
-    .dashboard-card:hover h3 {
-        color: var(--primary);
-    }
-
-    .dashboard-card p {
-        color: var(--text-secondary);
-        margin-bottom: 1.5rem;
+    
+    .welcome-section p {
         font-size: 1rem;
-        line-height: 1.6;
-        flex-grow: 1;
     }
-
-    .card-action {
-        background: linear-gradient(90deg, #a855f7 0%, #8b5cf6 100%);
-        color: white;
-        border: none;
-        padding: 0.8rem 1.5rem;
-        border-radius: 8px;
-        font-size: 1rem;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        box-shadow: 0 4px 12px rgba(168, 85, 247, 0.25);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        text-decoration: none;
-        margin-top: auto;
-    }
-
-    .card-action:hover {
-        background: var(--primary-hover);
-        transform: translateY(-3px);
-        color: white;
-    }
-
-    .card-action i {
-        margin-left: 8px;
-        font-size: 1rem;
-        color: white;
-        transition: transform 0.2s ease;
-    }
-
-    .card-action:hover i {
-        transform: translateX(4px);
-    }
-
-    /* Profile Section */
-    .profile-section {
-        background: rgba(12, 10, 20, 0.7);
-        backdrop-filter: blur(10px);
-        border: 1px solid var(--card-border);
-        border-radius: 16px;
-        padding: 2rem;
-        margin-bottom: 3rem;
-        box-shadow: 0 8px 32px rgba(31, 38, 135, 0.15);
-    }
-
-    .profile-section h2 {
-        color: var(--primary);
-        font-size: 1.8rem;
-        font-weight: 700;
-        margin-bottom: 1.5rem;
-        border-bottom: 1px solid rgba(168, 85, 247, 0.3);
-        padding-bottom: 0.8rem;
-    }
-
+    
     .profile-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-        gap: 1.5rem;
+        grid-template-columns: 1fr;
     }
+    
+    .dashboard-card {
+        padding: 1.5rem;
+        min-height: 210px;
+    }
+    
+    .cards-grid {
+        grid-template-columns: 1fr;
+    }
+}
 
-    .profile-item {
-        margin-bottom: 1rem;
-    }
-
-    .profile-label {
-        color: var(--primary);
-        font-size: 0.9rem;
-        margin-bottom: 0.3rem;
-        font-weight: 500;
-    }
-
-    .profile-value {
-        color: var(--text-light);
-        font-size: 1.1rem;
-        font-weight: 400;
-    }
-
-    /* Alerts */
-    .alert-messages {
-        margin-bottom: 3rem;
-    }
-
-    .alert {
-        background-color: rgba(30, 30, 30, 0.8);
-        border: 1px solid;
-        border-radius: 8px;
-        padding: 1rem 1.5rem;
-        margin-bottom: 1rem;
-        backdrop-filter: blur(5px);
-    }
-
-    .alert-success {
-        border-color: rgba(25, 135, 84, 0.3);
-        color: #5ae6a8;
-    }
-
-    .alert-danger {
-        border-color: rgba(220, 53, 69, 0.3);
-        color: #ff6b6b;
-    }
-
-    .alert-info {
-        border-color: rgba(13, 202, 240, 0.3);
-        color: #6edff6;
-    }
-
-    /* Responsive Adjustments */
-    @media (max-width: 768px) {
-        .welcome-section h1 {
-            font-size: 2rem;
-        }
-        
-        .welcome-section p {
-            font-size: 1rem;
-        }
-        
-        .profile-grid {
-            grid-template-columns: 1fr;
-        }
-    }
+/* Add smooth scrolling */
+html {
+    scroll-behavior: smooth;
+}
 </style>
 {% endblock %}
 
@@ -342,7 +660,7 @@
     </div>
     {% endif %}
 
-    <!-- Quick Actions Grid -->
+    <!-- Main Actions Grid -->
     <div class="cards-grid">
         <a href="{% url 'list_mentors' %}" class="dashboard-card">
             <div class="card-icon-wrapper">
@@ -392,30 +710,15 @@
             </div>
             <span class="card-action">View Requests <i class="fas fa-arrow-right"></i></span>
         </a>
-    </div>
 
-    <!-- Project Assessments Card -->
-    <div class="col-md-6 col-xl-4 mb-4">
-        <div class="card h-100">
-            <div class="card-body">
-                <div class="d-flex align-items-center">
-                    <div class="flex-shrink-0 me-3">
-                        <div class="avatar-sm">
-                            <span class="avatar-title bg-primary-subtle text-primary rounded">
-                                <i class="fas fa-tasks fa-lg"></i>
-                            </span>
-                        </div>
-                    </div>
-                    <div class="flex-grow-1">
-                        <h5 class="font-size-16 mb-1">Project Assessments</h5>
-                        <p class="text-muted mb-0">View assessments from your college</p>
-                    </div>
-                </div>
-                <div class="mt-3">
-                    <a href="{% url 'student_view_assessments' %}" class="btn btn-primary btn-sm">View Assessments</a>
-                </div>
+        <a href="{% url 'student_view_assessments' %}" class="dashboard-card">
+            <div class="card-icon-wrapper">
+                <i class="fas fa-tasks"></i>
             </div>
-        </div>
+            <h3>Project Assessments</h3>
+            <p>View and track your project assessments from your college</p>
+            <span class="card-action">View Assessments <i class="fas fa-arrow-right"></i></span>
+        </a>
     </div>
 
     <!-- Profile Section -->
@@ -473,7 +776,7 @@
         </div>
     </div>
 
-    <!-- Additional Actions Row -->
+    <!-- Additional Actions Grid -->
     <div class="cards-grid">
         <a href="{% url 'student_profile' %}?mode=update" class="dashboard-card">
             <div class="card-icon-wrapper">
@@ -553,5 +856,4 @@
     `;
     document.head.appendChild(style);
 </script>
-{% endblock %}
-{% endblock %}
+{% endblock %}{% endblock %}

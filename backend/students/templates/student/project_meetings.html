@@ -3,31 +3,396 @@
 
 {% block title %}Project Meetings - {{ project.title }}{% endblock %}
 
+{% block extra_css %}
+<style>
+    /* Core Styles */
+    .container {
+        padding: 2.5rem 0;
+        position: relative;
+        z-index: 2;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    /* Background Elements */
+    .bg-elements {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -1;
+        overflow: hidden;
+    }
+
+    .bg-gradient {
+        position: absolute;
+        width: 35rem;
+        height: 35rem;
+        border-radius: 50%;
+        filter: blur(8rem);
+        z-index: -1;
+        opacity: 0.5;
+        animation: pulse 15s infinite alternate ease-in-out;
+    }
+
+    @keyframes pulse {
+        0% { transform: scale(1); opacity: 0.5; }
+        50% { transform: scale(1.05); opacity: 0.6; }
+        100% { transform: scale(1); opacity: 0.5; }
+    }
+
+    .bg-gradient:nth-child(1) {
+        top: -10%;
+        right: 5%;
+        background: rgba(168, 85, 247, 0.3);
+        animation-delay: -5s;
+    }
+
+    .bg-gradient:nth-child(2) {
+        bottom: -5%;
+        left: 10%;
+        background: rgba(124, 58, 237, 0.2);
+        animation-delay: -10s;
+    }
+
+    /* Header Section */
+    .header-section {
+        margin-bottom: 3rem;
+        padding: 2rem;
+        background: rgba(15, 15, 15, 0.8);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(157, 78, 221, 0.3);
+        border-radius: 20px;
+        box-shadow: 0 8px 32px rgba(157, 78, 221, 0.15);
+    }
+
+    .header-section h1 {
+        font-size: 2.5rem;
+        font-weight: 800;
+        background: linear-gradient(135deg, #a855f7, #8b5cf6);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 1rem;
+    }
+
+    /* Schedule Button */
+    .schedule-btn {
+        background: linear-gradient(90deg, #a855f7 0%, #8b5cf6 100%);
+        color: white;
+        padding: 0.75rem 1.5rem;
+        border-radius: 12px;
+        border: none;
+        font-size: 0.95rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.4s ease;
+        box-shadow: 0 4px 15px rgba(168, 85, 247, 0.25);
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        text-decoration: none;
+    }
+
+    .schedule-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(168, 85, 247, 0.4);
+        background: linear-gradient(90deg, #9d4edd 0%, #7c3aed 100%);
+        color: white;
+    }
+
+    /* Meeting Card */
+    .meeting-card {
+        background: rgba(15, 12, 24, 0.7);
+        backdrop-filter: blur(15px);
+        border: 1px solid rgba(157, 78, 221, 0.2);
+        border-radius: 20px;
+        margin-bottom: 1.5rem;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .meeting-card::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        height: 100%;
+        width: 4px;
+    }
+
+    .meeting-card.status-scheduled::before {
+        background: linear-gradient(to bottom, #a855f7, #8b5cf6);
+    }
+
+    .meeting-card.status-completed::before {
+        background: linear-gradient(to bottom, #22c55e, #16a34a);
+    }
+
+    .meeting-card:hover {
+        transform: translateY(-5px);
+        border-color: rgba(157, 78, 221, 0.4);
+        box-shadow: 0 15px 50px rgba(31, 38, 135, 0.2);
+    }
+
+    .meeting-content {
+        padding: 2rem;
+    }
+
+    .meeting-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 1.5rem;
+    }
+
+    .meeting-title {
+        color: white;
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+
+    .meeting-status {
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 500;
+    }
+
+    .status-badge-scheduled {
+        background: rgba(168, 85, 247, 0.1);
+        color: #a855f7;
+        border: 1px solid rgba(168, 85, 247, 0.2);
+    }
+
+    .status-badge-completed {
+        background: rgba(34, 197, 94, 0.1);
+        color: #22c55e;
+        border: 1px solid rgba(34, 197, 94, 0.2);
+    }
+
+    .meeting-description {
+        color: rgba(255, 255, 255, 0.7);
+        margin-bottom: 1.5rem;
+        line-height: 1.6;
+    }
+
+    .meeting-meta {
+        margin-bottom: 1.5rem;
+    }
+
+    .meta-item {
+        color: rgba(255, 255, 255, 0.7);
+        margin-bottom: 0.5rem;
+    }
+
+    .meta-item strong {
+        color: #9d4edd;
+        font-weight: 500;
+        margin-right: 0.5rem;
+    }
+
+    /* Meeting Details Box */
+    .meeting-details {
+        background: rgba(59, 130, 246, 0.1);
+        border: 1px solid rgba(59, 130, 246, 0.2);
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .meeting-details h4 {
+        color: #3b82f6;
+        font-size: 1rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+    }
+
+    .meeting-details p {
+        color: rgba(255, 255, 255, 0.8);
+        margin-bottom: 0.5rem;
+    }
+
+    /* Action Buttons */
+    .action-buttons {
+        display: flex;
+        gap: 1rem;
+        margin-top: 1.5rem;
+    }
+
+    .btn {
+        flex: 1;
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        font-size: 0.95rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+
+    .btn-join {
+        background: rgba(59, 130, 246, 0.1);
+        color: #3b82f6;
+        border: 1px solid rgba(59, 130, 246, 0.2);
+    }
+
+    .btn-join:hover {
+        background: rgba(59, 130, 246, 0.2);
+        transform: translateY(-2px);
+    }
+
+    .btn-update {
+        background: rgba(168, 85, 247, 0.1);
+        color: #a855f7;
+        border: 1px solid rgba(168, 85, 247, 0.2);
+    }
+
+    .btn-update:hover {
+        background: rgba(168, 85, 247, 0.2);
+        transform: translateY(-2px);
+    }
+
+    /* Footer */
+    .meeting-footer {
+        padding: 1rem 2rem;
+        background: rgba(15, 12, 24, 0.5);
+        color: rgba(255, 255, 255, 0.5);
+        font-size: 0.9rem;
+        border-top: 1px solid rgba(157, 78, 221, 0.1);
+    }
+
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        background: rgba(15, 12, 24, 0.7);
+        backdrop-filter: blur(15px);
+        border: 1px solid rgba(157, 78, 221, 0.2);
+        border-radius: 20px;
+        margin-top: 2rem;
+    }
+
+    .empty-state p {
+        color: rgba(255, 255, 255, 0.6);
+        font-size: 1.2rem;
+        margin-bottom: 1rem;
+    }
+
+    .empty-state p.subtitle {
+        font-size: 1rem;
+        opacity: 0.7;
+    }
+
+    /* Alert Messages */
+    .alert {
+        background: rgba(15, 12, 24, 0.8);
+        backdrop-filter: blur(10px);
+        border: 1px solid;
+        border-radius: 12px;
+        padding: 1.2rem 1.8rem;
+        margin-bottom: 1rem;
+        color: white;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .alert-success {
+        border-color: rgba(34, 197, 94, 0.3);
+        background: rgba(34, 197, 94, 0.1);
+    }
+
+    .alert-error {
+        border-color: rgba(239, 68, 68, 0.3);
+        background: rgba(239, 68, 68, 0.1);
+    }
+
+    .close-btn {
+        background: none;
+        border: none;
+        color: rgba(255, 255, 255, 0.6);
+        cursor: pointer;
+        padding: 0.25rem;
+        transition: color 0.3s ease;
+    }
+
+    .close-btn:hover {
+        color: rgba(255, 255, 255, 0.8);
+    }
+
+    /* Responsive Adjustments */
+    @media (max-width: 768px) {
+        .container {
+            padding: 1.5rem;
+        }
+
+        .header-section {
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .header-section h1 {
+            font-size: 2rem;
+        }
+
+        .schedule-buttons {
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .schedule-btn {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .action-buttons {
+            flex-direction: column;
+        }
+
+        .btn {
+            width: 100%;
+        }
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="container py-4">
-    <div class="flex justify-between items-center mb-6">
-        <h2 class="text-2xl font-bold text-gray-900">Meetings for {{ project.title }}</h2>
-        <div class="flex space-x-4">
-            {% for request in project.collaborationrequest_set.all %}
-                {% if request.status == 'accepted' %}
-                <a href="{% url 'student_schedule_meeting' project.id request.collaborator.id %}" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700">
-                    <i class="fas fa-plus mr-2"></i> Schedule Meeting with {{ request.collaborator.full_name }}
-                </a>
-                {% endif %}
-            {% endfor %}
+<div class="bg-elements">
+    <div class="bg-gradient"></div>
+    <div class="bg-gradient"></div>
+</div>
+
+<div class="container">
+    <div class="header-section">
+        <div class="flex justify-between items-center flex-wrap gap-4">
+            <h1>Meetings for {{ project.title }}</h1>
+            <div class="schedule-buttons flex flex-wrap gap-4">
+                {% for request in project.collaborationrequest_set.all %}
+                    {% if request.status == 'accepted' %}
+                    <a href="{% url 'student_schedule_meeting' project.id request.collaborator.id %}" class="schedule-btn">
+                        <i class="fas fa-plus"></i>
+                        Schedule with {{ request.collaborator.full_name }}
+                    </a>
+                    {% endif %}
+                {% endfor %}
+            </div>
         </div>
     </div>
 
     {% if messages %}
     <div class="mb-6">
         {% for message in messages %}
-        <div class="p-4 rounded-md {% if message.tags == 'success' %}bg-green-100 text-green-700{% elif message.tags == 'error' %}bg-red-100 text-red-700{% else %}bg-blue-100 text-blue-700{% endif %} flex justify-between items-center">
+        <div class="alert {% if message.tags == 'success' %}alert-success{% elif message.tags == 'error' %}alert-error{% endif %}">
             <p>{{ message }}</p>
-            <button type="button" class="text-gray-400 hover:text-gray-500" onclick="this.parentElement.remove()">
-                <span class="sr-only">Close</span>
-                <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                    <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
-                </svg>
+            <button type="button" class="close-btn" onclick="this.parentElement.remove()">
+                <i class="fas fa-times"></i>
             </button>
         </div>
         {% endfor %}
@@ -37,62 +402,56 @@
     {% if meetings %}
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         {% for meeting in meetings %}
-        <div class="bg-white rounded-lg shadow-md overflow-hidden">
-            <div class="border-l-4 {% if meeting.status == 'scheduled' %}border-indigo-500{% elif meeting.status == 'completed' %}border-green-500{% else %}border-gray-500{% endif %}">
-                <div class="p-4">
-                    <div class="flex justify-between items-start">
-                        <h3 class="text-lg font-semibold text-gray-900">{{ meeting.meeting_title }}</h3>
-                        <span class="px-2 py-1 text-xs font-medium rounded-full {% if meeting.status == 'scheduled' %}bg-indigo-100 text-indigo-800{% elif meeting.status == 'completed' %}bg-green-100 text-green-800{% else %}bg-gray-100 text-gray-800{% endif %}">
-                            {{ meeting.status|title }}
-                        </span>
-                    </div>
-                    
-                    <p class="mt-2 text-gray-600">{{ meeting.meeting_description }}</p>
-                    
-                    <div class="mt-4 space-y-2">
-                        <p class="text-sm text-gray-600">
-                            <strong>Date & Time:</strong> {{ meeting.scheduled_time|date:"F j, Y, g:i a" }}
-                        </p>
-                        <p class="text-sm text-gray-600">
-                            <strong>Duration:</strong> {{ meeting.duration }} minutes
-                        </p>
-                        <p class="text-sm text-gray-600">
-                            <strong>Collaborator:</strong> {{ meeting.collaborator.full_name }}
-                        </p>
-                    </div>
-                    
-                    {% if meeting.status == 'scheduled' %}
-                    <div class="mt-4 p-4 bg-blue-50 rounded-md">
-                        <h4 class="text-sm font-medium text-blue-800 mb-2">Meeting Details</h4>
-                        <p class="text-sm text-blue-700">
-                            <strong>Meeting ID:</strong> {{ meeting.zoom_meeting_id }}
-                        </p>
-                        <p class="text-sm text-blue-700">
-                            <strong>Password:</strong> {{ meeting.zoom_password }}
-                        </p>
-                    </div>
-                    
-                    <div class="mt-4 flex space-x-4">
-                        <a href="{{ meeting.zoom_link }}" target="_blank" class="flex-1 inline-flex justify-center items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700">
-                            <i class="fas fa-video mr-2"></i> Join Meeting
-                        </a>
-                        <a href="{% url 'student_update_meeting' meeting.id %}" class="flex-1 inline-flex justify-center items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
-                            <i class="fas fa-edit mr-2"></i> Update Meeting
-                        </a>
-                    </div>
-                    {% endif %}
+        <div class="meeting-card status-{{ meeting.status }}">
+            <div class="meeting-content">
+                <div class="meeting-header">
+                    <h3 class="meeting-title">{{ meeting.meeting_title }}</h3>
+                    <span class="meeting-status status-badge-{{ meeting.status }}">
+                        {{ meeting.status|title }}
+                    </span>
                 </div>
-                <div class="bg-gray-50 px-4 py-3 text-sm text-gray-500">
-                    Created: {{ meeting.created_at|date:"F j, Y" }}
+                
+                <p class="meeting-description">{{ meeting.meeting_description }}</p>
+                
+                <div class="meeting-meta">
+                    <p class="meta-item">
+                        <strong>Date & Time:</strong> {{ meeting.scheduled_time|date:"F j, Y, g:i a" }}
+                    </p>
+                    <p class="meta-item">
+                        <strong>Duration:</strong> {{ meeting.duration }} minutes
+                    </p>
+                    <p class="meta-item">
+                        <strong>Collaborator:</strong> {{ meeting.collaborator.full_name }}
+                    </p>
                 </div>
+                
+                {% if meeting.status == 'scheduled' %}
+                <div class="meeting-details">
+                    <h4><i class="fas fa-info-circle"></i> Meeting Details</h4>
+                    <p><strong>Meeting ID:</strong> {{ meeting.zoom_meeting_id }}</p>
+                    <p><strong>Password:</strong> {{ meeting.zoom_password }}</p>
+                </div>
+                
+                <div class="action-buttons">
+                    <a href="{{ meeting.zoom_link }}" target="_blank" class="btn btn-join">
+                        <i class="fas fa-video"></i> Join Meeting
+                    </a>
+                    <a href="{% url 'student_update_meeting' meeting.id %}" class="btn btn-update">
+                        <i class="fas fa-edit"></i> Update Meeting
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+            <div class="meeting-footer">
+                Created: {{ meeting.created_at|date:"F j, Y" }}
             </div>
         </div>
         {% endfor %}
     </div>
     {% else %}
-    <div class="text-center py-12 bg-gray-50 rounded-lg">
-        <p class="text-gray-500 text-lg">No meetings scheduled yet.</p>
-        <p class="text-gray-400 mt-2">Schedule a meeting with your collaborators using the button above.</p>
+    <div class="empty-state">
+        <p>No meetings scheduled yet.</p>
+        <p class="subtitle">Schedule a meeting with your collaborators using the button above.</p>
     </div>
     {% endif %}
 </div>

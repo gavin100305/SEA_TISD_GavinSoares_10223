@@ -2,80 +2,772 @@
 
 {% block title %}{{ project.title }} | {{ group.name }} | TISD{% endblock %}
 
+{% block extra_css %}
+<style>
+    :root {
+        --primary: #8B5CF6;
+        --primary-hover: #7C3AED;
+        --primary-light: rgba(139, 92, 246, 0.1);
+        --text-light: #F3F4F6;
+        --text-secondary: #D1D5DB;
+        --card-bg: rgba(15, 12, 24, 0.8);
+        --card-border: rgba(157, 78, 221, 0.3);
+        --card-shadow: rgba(0, 0, 0, 0.4);
+    }
+
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem;
+        position: relative;
+        z-index: 2;
+    }
+
+    .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.75rem;
+        color: var(--text-secondary);
+        text-decoration: none;
+        padding: 0.75rem 1.5rem;
+        border-radius: 12px;
+        background: linear-gradient(135deg, rgba(15, 12, 24, 0.8), rgba(30, 24, 48, 0.8));
+        border: 1px solid var(--card-border);
+        transition: all 0.3s ease;
+        margin-bottom: 1.5rem;
+    }
+
+    .back-link:hover {
+        color: white;
+        border-color: var(--primary);
+        transform: translateX(-5px);
+    }
+
+    .back-link i {
+        transition: transform 0.3s ease;
+    }
+
+    .back-link:hover i {
+        transform: translateX(-5px);
+    }
+
+    .project-card {
+        background: linear-gradient(135deg, rgba(15, 12, 24, 0.8), rgba(30, 24, 48, 0.8));
+        backdrop-filter: blur(10px);
+        border: 1px solid var(--card-border);
+        border-radius: 20px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        transition: all 0.3s ease;
+    }
+
+    .project-card:hover {
+        border-color: var(--primary);
+        transform: translateY(-2px);
+    }
+
+    .project-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: start;
+        margin-bottom: 1rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid rgba(157, 78, 221, 0.2);
+    }
+
+    .project-title {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: white;
+        margin: 0;
+        background: linear-gradient(135deg, #8B5CF6, #A855F7);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .edit-btn {
+        color: var(--primary);
+        padding: 0.5rem;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+        background: var(--primary-light);
+    }
+
+    .edit-btn:hover {
+        color: white;
+        background: var(--primary);
+        transform: translateY(-2px);
+    }
+
+    .tag-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .tag {
+        background: var(--primary-light);
+        color: var(--primary);
+        padding: 0.4rem 0.8rem;
+        border-radius: 9999px;
+        font-size: 0.875rem;
+        font-weight: 500;
+        border: 1px solid rgba(139, 92, 246, 0.2);
+        transition: all 0.3s ease;
+    }
+
+    .tag:hover {
+        border-color: var(--primary);
+        transform: translateY(-2px);
+    }
+
+    .project-description {
+        color: var(--text-secondary);
+        line-height: 1.6;
+        margin-bottom: 1rem;
+        padding: 1rem;
+        background: rgba(0, 0, 0, 0.2);
+        border-radius: 12px;
+        font-size: 0.95rem;
+    }
+
+    .github-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.75rem;
+        color: var(--primary);
+        text-decoration: none;
+        padding: 0.75rem 1.5rem;
+        border-radius: 12px;
+        background: var(--primary-light);
+        border: 1px solid rgba(139, 92, 246, 0.2);
+        transition: all 0.3s ease;
+        font-weight: 500;
+    }
+
+    .github-link:hover {
+        background: var(--primary);
+        color: white;
+        transform: translateY(-2px);
+    }
+
+    .image-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+
+    .project-image {
+        border-radius: 12px;
+        height: 150px;
+        width: 100%;
+        object-fit: cover;
+        border: 1px solid var(--card-border);
+        transition: all 0.3s ease;
+    }
+
+    .project-image:hover {
+        transform: scale(1.05);
+        border-color: var(--primary);
+    }
+
+    .meetings-section {
+        background: linear-gradient(135deg, rgba(15, 12, 24, 0.8), rgba(30, 24, 48, 0.8));
+        backdrop-filter: blur(10px);
+        border: 1px solid var(--card-border);
+        border-radius: 20px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid rgba(157, 78, 221, 0.2);
+    }
+
+    .section-title {
+        font-size: 1.3rem;
+        font-weight: 600;
+        color: white;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin: 0;
+    }
+
+    .section-title i {
+        color: var(--primary);
+        background: var(--primary-light);
+        padding: 0.5rem;
+        border-radius: 8px;
+        font-size: 1rem;
+    }
+
+    .schedule-btn {
+        background: linear-gradient(135deg, var(--primary), #A855F7);
+        color: white;
+        padding: 0.6rem 1.2rem;
+        border-radius: 8px;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        font-size: 0.9rem;
+    }
+
+    .schedule-btn:hover {
+        background: linear-gradient(135deg, #7C3AED, #9333EA);
+        transform: translateY(-2px);
+    }
+
+    .meeting-card {
+        background: rgba(0, 0, 0, 0.2);
+        border: 1px solid var(--card-border);
+        border-radius: 12px;
+        padding: 1.2rem;
+        margin-bottom: 1rem;
+        transition: all 0.3s ease;
+    }
+
+    .meeting-card:hover {
+        border-color: var(--primary);
+        transform: translateY(-2px);
+    }
+
+    .meeting-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: white;
+        margin-bottom: 0.5rem;
+    }
+
+    .meeting-description {
+        color: var(--text-secondary);
+        margin-bottom: 1rem;
+        font-size: 0.9rem;
+    }
+
+    .meeting-meta {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        color: var(--text-secondary);
+        font-size: 0.875rem;
+    }
+
+    .meeting-meta i {
+        color: var(--primary);
+    }
+
+    .status-badge {
+        padding: 0.4rem 0.8rem;
+        border-radius: 9999px;
+        font-size: 0.75rem;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .status-badge.scheduled {
+        background: rgba(59, 130, 246, 0.1);
+        color: #60A5FA;
+        border: 1px solid rgba(59, 130, 246, 0.2);
+    }
+
+    .status-badge.completed {
+        background: rgba(34, 197, 94, 0.1);
+        color: #4ADE80;
+        border: 1px solid rgba(34, 197, 94, 0.2);
+    }
+
+    .status-badge.cancelled {
+        background: rgba(239, 68, 68, 0.1);
+        color: #EF4444;
+        border: 1px solid rgba(239, 68, 68, 0.2);
+    }
+
+    .zoom-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--primary);
+        text-decoration: none;
+        padding: 0.4rem 0.8rem;
+        border-radius: 8px;
+        background: var(--primary-light);
+        margin-top: 0.8rem;
+        transition: all 0.3s ease;
+        font-size: 0.9rem;
+    }
+
+    .zoom-link:hover {
+        background: var(--primary);
+        color: white;
+        transform: translateY(-2px);
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 2rem;
+    }
+
+    .empty-state i {
+        font-size: 2.5rem;
+        color: var(--text-secondary);
+        margin-bottom: 0.8rem;
+    }
+
+    .empty-state h3 {
+        color: white;
+        font-size: 1.2rem;
+        margin-bottom: 0.4rem;
+    }
+
+    .empty-state p {
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+    }
+
+    /* Comments Section Styles */
+    .comment-card {
+        border-bottom: 1px solid var(--card-border);
+        padding-bottom: 1.2rem;
+        margin-bottom: 1.2rem;
+    }
+
+    .comment-card:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+    }
+
+    .profile-image, .reply-profile-image {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 2px solid var(--primary);
+    }
+
+    .reply-profile-image {
+        width: 28px;
+        height: 28px;
+    }
+
+    .profile-placeholder, .reply-profile-placeholder {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background: var(--primary-light);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--primary);
+    }
+
+    .reply-profile-placeholder {
+        width: 28px;
+        height: 28px;
+        font-size: 0.8rem;
+    }
+
+    .comment-author {
+        color: white;
+        font-weight: 600;
+        font-size: 0.95rem;
+    }
+
+    .comment-time {
+        color: var(--text-secondary);
+        font-size: 0.8rem;
+    }
+
+    .comment-content {
+        color: var(--text-secondary);
+        margin: 0.4rem 0;
+        line-height: 1.5;
+        font-size: 0.9rem;
+    }
+
+    .reply-btn {
+        color: var(--primary);
+        font-size: 0.85rem;
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        transition: all 0.3s ease;
+    }
+
+    .reply-btn:hover {
+        color: var(--primary-hover);
+    }
+
+    .reply-form {
+        margin-top: 0.8rem;
+    }
+
+    .reply-input {
+        flex: 1;
+        background: rgba(0, 0, 0, 0.2);
+        border: 1px solid var(--card-border);
+        color: white;
+        padding: 0.6rem;
+        border-radius: 8px;
+        resize: none;
+        transition: all 0.3s ease;
+        font-size: 0.9rem;
+    }
+
+    .reply-input:focus {
+        outline: none;
+        border-color: var(--primary);
+    }
+
+    .reply-submit {
+        background: var(--primary);
+        color: white;
+        border: none;
+        padding: 0.6rem;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .reply-submit:hover {
+        background: var(--primary-hover);
+        transform: translateY(-2px);
+    }
+
+    .replies-section {
+        margin-left: 2.5rem;
+        padding-left: 1rem;
+        border-left: 2px solid var(--card-border);
+        margin-top: 0.8rem;
+    }
+
+    .reply-card {
+        display: flex;
+        gap: 0.8rem;
+        margin-bottom: 0.8rem;
+    }
+
+    .reply-card:last-child {
+        margin-bottom: 0;
+    }
+
+    .reply-author {
+        color: white;
+        font-size: 0.85rem;
+        font-weight: 600;
+    }
+
+    .reply-time {
+        color: var(--text-secondary);
+        font-size: 0.75rem;
+    }
+
+    .reply-content {
+        color: var(--text-secondary);
+        font-size: 0.85rem;
+        margin-top: 0.25rem;
+    }
+
+    /* Sidebar Styles */
+    .sidebar-card {
+        background: linear-gradient(135deg, rgba(15, 12, 24, 0.8), rgba(30, 24, 48, 0.8));
+        backdrop-filter: blur(10px);
+        border: 1px solid var(--card-border);
+        border-radius: 16px;
+        padding: 1.2rem;
+        margin-bottom: 1.2rem;
+        transition: all 0.3s ease;
+    }
+
+    .sidebar-card:hover {
+        border-color: var(--primary);
+        transform: translateY(-2px);
+    }
+
+    .sidebar-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: white;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding-bottom: 0.8rem;
+        border-bottom: 1px solid rgba(157, 78, 221, 0.2);
+    }
+
+    .sidebar-title i {
+        color: var(--primary);
+        background: var(--primary-light);
+        padding: 0.4rem;
+        border-radius: 6px;
+        font-size: 0.9rem;
+    }
+
+    .info-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.8rem;
+    }
+
+    .info-item {
+        padding: 0.6rem;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+    }
+
+    .info-item:hover {
+        background: rgba(139, 92, 246, 0.05);
+    }
+
+    .info-label {
+        color: var(--text-secondary);
+        font-size: 0.85rem;
+        margin-bottom: 0.2rem;
+    }
+
+    .info-value {
+        color: white;
+        font-weight: 500;
+        font-size: 0.9rem;
+    }
+
+    .info-value.feedback {
+        font-size: 0.85rem;
+        line-height: 1.5;
+    }
+
+    .info-value.grade {
+        color: var(--primary);
+        font-size: 1.1rem;
+        font-weight: 600;
+    }
+
+    .member-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.8rem;
+    }
+
+    .member-item {
+        display: flex;
+        align-items: center;
+        gap: 0.8rem;
+        padding: 0.6rem;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+    }
+
+    .member-item:hover {
+        background: rgba(139, 92, 246, 0.05);
+    }
+
+    .member-image {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 2px solid var(--primary);
+    }
+
+    .member-placeholder {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background: var(--primary-light);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--primary);
+    }
+
+    .member-name {
+        color: white;
+        font-weight: 500;
+        font-size: 0.9rem;
+        margin-bottom: 0.2rem;
+    }
+
+    .member-role {
+        color: var(--text-secondary);
+        font-size: 0.8rem;
+    }
+
+    .collab-status {
+        padding: 0.8rem;
+        border-radius: 8px;
+        background: rgba(0, 0, 0, 0.2);
+    }
+
+    .status-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.8rem;
+    }
+
+    .status-label {
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+    }
+
+    .status-badge.open {
+        background: rgba(34, 197, 94, 0.1);
+        color: #4ADE80;
+        border: 1px solid rgba(34, 197, 94, 0.2);
+    }
+
+    .status-badge.closed {
+        background: rgba(239, 68, 68, 0.1);
+        color: #EF4444;
+        border: 1px solid rgba(239, 68, 68, 0.2);
+    }
+
+    .collab-toggle-btn {
+        width: 100%;
+        padding: 0.6rem;
+        border-radius: 8px;
+        border: none;
+        color: white;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-size: 0.9rem;
+    }
+
+    .collab-toggle-btn.open {
+        background: linear-gradient(135deg, #22C55E, #16A34A);
+    }
+
+    .collab-toggle-btn.close {
+        background: linear-gradient(135deg, #EAB308, #CA8A04);
+    }
+
+    .collab-toggle-btn:hover {
+        transform: translateY(-2px);
+    }
+
+    @media (max-width: 768px) {
+        .container {
+            padding: 1rem;
+        }
+
+        .project-title {
+            font-size: 1.5rem;
+        }
+
+        .image-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .replies-section {
+            margin-left: 1rem;
+            padding-left: 0.8rem;
+        }
+
+        .section-header {
+            flex-direction: column;
+            gap: 1rem;
+            align-items: flex-start;
+        }
+
+        .schedule-btn {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="container mx-auto px-4 py-8">
-    <div class="mb-8">
-        <a href="{% url 'group_detail' group.id %}" class="text-text-secondary hover:text-white flex items-center gap-2">
-            <i class="fas fa-arrow-left"></i>
-            Back to Group
-        </a>
-    </div>
+<div class="container">
+    <a href="{% url 'group_detail' group.id %}" class="back-link">
+        <i class="fas fa-arrow-left"></i>
+        Back to Group
+    </a>
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <!-- Project Info -->
         <div class="lg:col-span-2 space-y-6">
             <!-- Project Header -->
-            <div class="bg-card border border-card-border rounded-xl p-6">
-                <div class="flex justify-between items-start mb-4">
-                    <h1 class="text-2xl font-bold text-white">{{ project.title }}</h1>
+            <div class="project-card">
+                <div class="project-header">
+                    <h1 class="project-title">{{ project.title }}</h1>
                     {% if is_leader %}
                     <div class="flex gap-2">
-                        <a href="{% url 'edit_group_project' group.id project.id %}" class="text-primary hover:text-primary-hover">
+                        <a href="{% url 'edit_group_project' group.id project.id %}" class="edit-btn">
                             <i class="fas fa-edit"></i>
                         </a>
                     </div>
                     {% endif %}
                 </div>
                 
-                <div class="flex flex-wrap gap-2 mb-4">
+                <div class="tag-container">
                     {% if project.tech_stack %}
-                    <span class="bg-primary-light text-primary text-sm px-3 py-1 rounded-full">{{ project.tech_stack }}</span>
+                    <span class="tag">{{ project.tech_stack }}</span>
                     {% endif %}
                     {% if project.sdgs %}
-                    <span class="bg-primary-light text-primary text-sm px-3 py-1 rounded-full">SDGs: {{ project.sdgs }}</span>
+                    <span class="tag">SDGs: {{ project.sdgs }}</span>
                     {% endif %}
-                    <span class="bg-primary-light text-primary text-sm px-3 py-1 rounded-full">{{ project.status|title }}</span>
+                    <span class="tag">{{ project.status|title }}</span>
                 </div>
                 
-                <p class="text-text-secondary mb-6">{{ project.description }}</p>
+                <p class="project-description">{{ project.description }}</p>
                 
                 {% if project.github_link %}
                 <div class="mb-4">
-                    <a href="{{ project.github_link }}" target="_blank" class="text-primary hover:text-primary-hover flex items-center gap-2">
+                    <a href="{{ project.github_link }}" target="_blank" class="github-link">
                         <i class="fab fa-github"></i>
                         View on GitHub
                     </a>
                 </div>
                 {% endif %}
                 
-                <!-- Project Images -->
                 {% if project.project_image1 or project.project_image2 or project.project_image3 or project.project_image4 or project.project_image5 %}
-                <div class="grid grid-cols-2 md:grid-cols-3 gap-4 mt-6">
+                <div class="image-grid">
                     {% if project.project_image1 %}
-                    <img src="{{ project.project_image1.url }}" alt="Project Image 1" class="rounded-lg h-40 w-full object-cover">
+                    <img src="{{ project.project_image1.url }}" alt="Project Image 1" class="project-image">
                     {% endif %}
                     {% if project.project_image2 %}
-                    <img src="{{ project.project_image2.url }}" alt="Project Image 2" class="rounded-lg h-40 w-full object-cover">
+                    <img src="{{ project.project_image2.url }}" alt="Project Image 2" class="project-image">
                     {% endif %}
                     {% if project.project_image3 %}
-                    <img src="{{ project.project_image3.url }}" alt="Project Image 3" class="rounded-lg h-40 w-full object-cover">
+                    <img src="{{ project.project_image3.url }}" alt="Project Image 3" class="project-image">
                     {% endif %}
                     {% if project.project_image4 %}
-                    <img src="{{ project.project_image4.url }}" alt="Project Image 4" class="rounded-lg h-40 w-full object-cover">
+                    <img src="{{ project.project_image4.url }}" alt="Project Image 4" class="project-image">
                     {% endif %}
                     {% if project.project_image5 %}
-                    <img src="{{ project.project_image5.url }}" alt="Project Image 5" class="rounded-lg h-40 w-full object-cover">
+                    <img src="{{ project.project_image5.url }}" alt="Project Image 5" class="project-image">
                     {% endif %}
                 </div>
                 {% endif %}
             </div>
             
             <!-- Meetings Section -->
-            <div class="bg-card border border-card-border rounded-xl p-6">
-                <div class="flex justify-between items-center mb-4">
-                    <h2 class="text-xl font-semibold text-white">Meetings</h2>
+            <div class="meetings-section">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <i class="fas fa-calendar-alt"></i>
+                        Meetings
+                    </h2>
                     {% if project.is_open_for_collaboration and collaborators %}
-                    <a href="{% url 'student_schedule_meeting' project.id collaborators.0.collaborator.id %}" class="bg-primary hover:bg-primary-hover text-white px-4 py-2 rounded-lg flex items-center gap-2">
+                    <a href="{% url 'student_schedule_meeting' project.id collaborators.0.collaborator.id %}" class="schedule-btn">
                         <i class="fas fa-plus"></i>
                         Schedule Meeting
                     </a>
@@ -85,30 +777,25 @@
                 {% if meetings %}
                 <div class="space-y-4">
                     {% for meeting in meetings %}
-                    <div class="bg-black bg-opacity-30 border border-card-border rounded-lg p-4 hover:border-primary transition-all">
+                    <div class="meeting-card">
                         <div class="flex justify-between items-start">
                             <div>
-                                <h3 class="text-lg font-medium text-white mb-1">{{ meeting.meeting_title }}</h3>
-                                <p class="text-text-secondary mb-2">{{ meeting.meeting_description }}</p>
-                                <div class="flex items-center gap-2 text-text-secondary text-sm">
-                                    <i class="fas fa-calendar-alt"></i>
-                                    {{ meeting.scheduled_time|date:"M d, Y H:i" }}
-                                    <i class="fas fa-clock ml-2"></i>
-                                    {{ meeting.duration }} mins
+                                <h3 class="meeting-title">{{ meeting.meeting_title }}</h3>
+                                <p class="meeting-description">{{ meeting.meeting_description }}</p>
+                                <div class="meeting-meta">
+                                    <span><i class="fas fa-calendar-alt"></i> {{ meeting.scheduled_time|date:"M d, Y H:i" }}</span>
+                                    <span><i class="fas fa-clock"></i> {{ meeting.duration }} mins</span>
                                 </div>
                             </div>
                             <div>
-                                <span class="px-3 py-1 rounded-full text-sm 
-                                    {% if meeting.status == 'scheduled' %}bg-blue-500 text-white
-                                    {% elif meeting.status == 'completed' %}bg-green-500 text-white
-                                    {% else %}bg-red-500 text-white{% endif %}">
+                                <span class="status-badge {{ meeting.status }}">
                                     {{ meeting.status|title }}
                                 </span>
                             </div>
                         </div>
                         {% if meeting.zoom_link %}
-                        <div class="mt-3">
-                            <a href="{{ meeting.zoom_link }}" target="_blank" class="text-primary hover:text-primary-hover flex items-center gap-2">
+                        <div>
+                            <a href="{{ meeting.zoom_link }}" target="_blank" class="zoom-link">
                                 <i class="fas fa-video"></i>
                                 Join Zoom Meeting
                             </a>
@@ -118,27 +805,31 @@
                     {% endfor %}
                 </div>
                 {% else %}
-                <div class="text-center py-8">
-                    <div class="text-6xl mb-4 text-text-secondary">
-                        <i class="fas fa-calendar-times"></i>
-                    </div>
-                    <h3 class="text-xl font-semibold text-white mb-2">No Meetings Scheduled</h3>
-                    <p class="text-text-secondary">Schedule a meeting with your collaborators to discuss the project.</p>
+                <div class="empty-state">
+                    <i class="fas fa-calendar-times"></i>
+                    <h3>No Meetings Scheduled</h3>
+                    <p>Schedule a meeting with your collaborators to discuss the project.</p>
                 </div>
                 {% endif %}
             </div>
             
             <!-- Comments Section -->
-            <div class="bg-card border border-card-border rounded-xl p-6">
-                <h2 class="text-xl font-semibold text-white mb-4">Discussion</h2>
+            <div class="project-card">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <i class="fas fa-comments"></i>
+                        Discussion
+                    </h2>
+                </div>
                 
                 <!-- Comment Form -->
                 <form method="post" action="{% url 'add_project_comment' project.id %}" class="mb-6">
                     {% csrf_token %}
                     <div class="mb-3">
-                        <textarea name="content" rows="3" class="w-full bg-black bg-opacity-30 border border-card-border text-white rounded-lg px-4 py-3 focus:outline-none focus:border-primary" placeholder="Add a comment..."></textarea>
+                        <textarea name="content" rows="3" class="w-full bg-black bg-opacity-30 border border-card-border text-white rounded-lg px-4 py-3 focus:outline-none focus:border-primary resize-none" placeholder="Add a comment..."></textarea>
                     </div>
-                    <button type="submit" class="bg-primary hover:bg-primary-hover text-white px-4 py-2 rounded-lg">
+                    <button type="submit" class="schedule-btn">
+                        <i class="fas fa-paper-plane"></i>
                         Post Comment
                     </button>
                 </form>
@@ -146,43 +837,42 @@
                 <!-- Comments List -->
                 <div class="space-y-6">
                     {% for comment in comments %}
-                    <div class="border-b border-card-border pb-6 last:border-0 last:pb-0">
+                    <div class="comment-card">
                         <div class="flex items-start gap-3 mb-3">
                             {% if comment.author_student %}
                                 {% if comment.author_student.profile_picture %}
-                                <img src="{{ comment.author_student.profile_picture.url }}" alt="{{ comment.author_student.full_name }}" class="w-10 h-10 rounded-full">
+                                <img src="{{ comment.author_student.profile_picture.url }}" alt="{{ comment.author_student.full_name }}" class="profile-image">
                                 {% else %}
-                                <div class="w-10 h-10 rounded-full bg-primary-light flex items-center justify-center">
-                                    <i class="fas fa-user text-primary"></i>
+                                <div class="profile-placeholder">
+                                    <i class="fas fa-user"></i>
                                 </div>
                                 {% endif %}
                             {% else %}
                                 {% if comment.author_collaborator.profile_picture %}
-                                <img src="{{ comment.author_collaborator.profile_picture.url }}" alt="{{ comment.author_collaborator.full_name }}" class="w-10 h-10 rounded-full">
+                                <img src="{{ comment.author_collaborator.profile_picture.url }}" alt="{{ comment.author_collaborator.full_name }}" class="profile-image">
                                 {% else %}
-                                <div class="w-10 h-10 rounded-full bg-primary-light flex items-center justify-center">
-                                    <i class="fas fa-user text-primary"></i>
+                                <div class="profile-placeholder">
+                                    <i class="fas fa-user"></i>
                                 </div>
                                 {% endif %}
                             {% endif %}
                             <div class="flex-1">
                                 <div class="flex items-center gap-2">
-                                    <h4 class="font-medium text-white">{{ comment.get_author_name }}</h4>
-                                    <span class="text-xs text-text-secondary">{{ comment.created_at|timesince }} ago</span>
+                                    <h4 class="comment-author">{{ comment.get_author_name }}</h4>
+                                    <span class="comment-time">{{ comment.created_at|timesince }} ago</span>
                                 </div>
-                                <p class="text-text-secondary mt-1">{{ comment.content }}</p>
+                                <p class="comment-content">{{ comment.content }}</p>
                                 
-                                <!-- Reply Form (toggle with button) -->
-                                <button onclick="toggleReplyForm('reply-form-{{ comment.id }}')" class="text-sm text-primary hover:text-primary-hover mt-2">
+                                <button onclick="toggleReplyForm('reply-form-{{ comment.id }}')" class="reply-btn">
                                     <i class="fas fa-reply"></i> Reply
                                 </button>
                                 
-                                <form id="reply-form-{{ comment.id }}" method="post" action="{% url 'add_project_comment' project.id %}" class="hidden mt-3">
+                                <form id="reply-form-{{ comment.id }}" method="post" action="{% url 'add_project_comment' project.id %}" class="reply-form hidden">
                                     {% csrf_token %}
                                     <input type="hidden" name="parent_comment" value="{{ comment.id }}">
                                     <div class="flex gap-2">
-                                        <textarea name="content" rows="2" class="flex-1 bg-black bg-opacity-30 border border-card-border text-white rounded-lg px-4 py-2 focus:outline-none focus:border-primary" placeholder="Write a reply..."></textarea>
-                                        <button type="submit" class="bg-primary hover:bg-primary-hover text-white px-3 py-2 rounded-lg h-fit">
+                                        <textarea name="content" rows="2" class="reply-input" placeholder="Write a reply..."></textarea>
+                                        <button type="submit" class="reply-submit">
                                             <i class="fas fa-paper-plane"></i>
                                         </button>
                                     </div>
@@ -192,32 +882,32 @@
                         
                         <!-- Replies -->
                         {% if comment.replies.all %}
-                        <div class="ml-12 mt-4 space-y-4 border-l-2 border-card-border pl-4">
+                        <div class="replies-section">
                             {% for reply in comment.replies.all %}
-                            <div class="flex items-start gap-3">
+                            <div class="reply-card">
                                 {% if reply.author_student %}
                                     {% if reply.author_student.profile_picture %}
-                                    <img src="{{ reply.author_student.profile_picture.url }}" alt="{{ reply.author_student.full_name }}" class="w-8 h-8 rounded-full">
+                                    <img src="{{ reply.author_student.profile_picture.url }}" alt="{{ reply.author_student.full_name }}" class="reply-profile-image">
                                     {% else %}
-                                    <div class="w-8 h-8 rounded-full bg-primary-light flex items-center justify-center">
-                                        <i class="fas fa-user text-primary text-sm"></i>
+                                    <div class="reply-profile-placeholder">
+                                        <i class="fas fa-user"></i>
                                     </div>
                                     {% endif %}
                                 {% else %}
                                     {% if reply.author_collaborator.profile_picture %}
-                                    <img src="{{ reply.author_collaborator.profile_picture.url }}" alt="{{ reply.author_collaborator.full_name }}" class="w-8 h-8 rounded-full">
+                                    <img src="{{ reply.author_collaborator.profile_picture.url }}" alt="{{ reply.author_collaborator.full_name }}" class="reply-profile-image">
                                     {% else %}
-                                    <div class="w-8 h-8 rounded-full bg-primary-light flex items-center justify-center">
-                                        <i class="fas fa-user text-primary text-sm"></i>
+                                    <div class="reply-profile-placeholder">
+                                        <i class="fas fa-user"></i>
                                     </div>
                                     {% endif %}
                                 {% endif %}
                                 <div>
                                     <div class="flex items-center gap-2">
-                                        <h4 class="text-sm font-medium text-white">{{ reply.get_author_name }}</h4>
-                                        <span class="text-xs text-text-secondary">{{ reply.created_at|timesince }} ago</span>
+                                        <h4 class="reply-author">{{ reply.get_author_name }}</h4>
+                                        <span class="reply-time">{{ reply.created_at|timesince }} ago</span>
                                     </div>
-                                    <p class="text-sm text-text-secondary mt-1">{{ reply.content }}</p>
+                                    <p class="reply-content">{{ reply.content }}</p>
                                 </div>
                             </div>
                             {% endfor %}
@@ -225,12 +915,10 @@
                         {% endif %}
                     </div>
                     {% empty %}
-                    <div class="text-center py-8">
-                        <div class="text-6xl mb-4 text-text-secondary">
-                            <i class="fas fa-comments"></i>
-                        </div>
-                        <h3 class="text-xl font-semibold text-white mb-2">No Comments Yet</h3>
-                        <p class="text-text-secondary">Start the discussion by adding the first comment.</p>
+                    <div class="empty-state">
+                        <i class="fas fa-comments"></i>
+                        <h3>No Comments Yet</h3>
+                        <p>Start the discussion by adding the first comment.</p>
                     </div>
                     {% endfor %}
                 </div>
@@ -240,29 +928,32 @@
         <!-- Sidebar -->
         <div class="lg:col-span-1 space-y-6">
             <!-- Project Status -->
-            <div class="bg-card border border-card-border rounded-xl p-6">
-                <h2 class="text-xl font-semibold text-white mb-4">Project Status</h2>
-                <div class="space-y-3">
-                    <div>
-                        <p class="text-text-secondary text-sm">Current Phase</p>
-                        <p class="text-white font-medium">{{ project.status|title }}</p>
+            <div class="sidebar-card">
+                <h2 class="sidebar-title">
+                    <i class="fas fa-info-circle"></i>
+                    Project Status
+                </h2>
+                <div class="info-list">
+                    <div class="info-item">
+                        <p class="info-label">Current Phase</p>
+                        <p class="info-value">{{ project.status|title }}</p>
                     </div>
                     {% if project.mentor %}
-                    <div>
-                        <p class="text-text-secondary text-sm">Mentor</p>
-                        <p class="text-white font-medium">{{ project.mentor.full_name }}</p>
+                    <div class="info-item">
+                        <p class="info-label">Mentor</p>
+                        <p class="info-value">{{ project.mentor.full_name }}</p>
                     </div>
                     {% endif %}
                     {% if project.mentor_feedback %}
-                    <div>
-                        <p class="text-text-secondary text-sm">Mentor Feedback</p>
-                        <p class="text-white">{{ project.mentor_feedback }}</p>
+                    <div class="info-item">
+                        <p class="info-label">Mentor Feedback</p>
+                        <p class="info-value feedback">{{ project.mentor_feedback }}</p>
                     </div>
                     {% endif %}
                     {% if project.mentor_grade %}
-                    <div>
-                        <p class="text-text-secondary text-sm">Grade</p>
-                        <p class="text-white font-medium">{{ project.mentor_grade }}/100</p>
+                    <div class="info-item">
+                        <p class="info-label">Grade</p>
+                        <p class="info-value grade">{{ project.mentor_grade }}/100</p>
                     </div>
                     {% endif %}
                 </div>
@@ -270,21 +961,24 @@
             
             <!-- Mentors -->
             {% if mentors %}
-            <div class="bg-card border border-card-border rounded-xl p-6">
-                <h2 class="text-xl font-semibold text-white mb-4">Your Mentors</h2>
-                <div class="space-y-4">
+            <div class="sidebar-card">
+                <h2 class="sidebar-title">
+                    <i class="fas fa-user-tie"></i>
+                    Your Mentors
+                </h2>
+                <div class="member-list">
                     {% for mentor in mentors %}
-                    <div class="flex items-center gap-3">
+                    <div class="member-item">
                         {% if mentor.mentor.profile_picture %}
-                        <img src="{{ mentor.mentor.profile_picture.url }}" alt="{{ mentor.mentor.full_name }}" class="w-10 h-10 rounded-full">
+                        <img src="{{ mentor.mentor.profile_picture.url }}" alt="{{ mentor.mentor.full_name }}" class="member-image">
                         {% else %}
-                        <div class="w-10 h-10 rounded-full bg-primary-light flex items-center justify-center">
-                            <i class="fas fa-user-tie text-primary"></i>
+                        <div class="member-placeholder">
+                            <i class="fas fa-user-tie"></i>
                         </div>
                         {% endif %}
                         <div>
-                            <p class="text-white font-medium">{{ mentor.mentor.full_name }}</p>
-                            <p class="text-text-secondary text-sm">Mentor</p>
+                            <p class="member-name">{{ mentor.mentor.full_name }}</p>
+                            <p class="member-role">Mentor</p>
                         </div>
                     </div>
                     {% endfor %}
@@ -294,21 +988,24 @@
             
             <!-- Collaborators -->
             {% if collaborators %}
-            <div class="bg-card border border-card-border rounded-xl p-6">
-                <h2 class="text-xl font-semibold text-white mb-4">Collaborators</h2>
-                <div class="space-y-4">
+            <div class="sidebar-card">
+                <h2 class="sidebar-title">
+                    <i class="fas fa-user-shield"></i>
+                    Collaborators
+                </h2>
+                <div class="member-list">
                     {% for collab in collaborators %}
-                    <div class="flex items-center gap-3">
+                    <div class="member-item">
                         {% if collab.collaborator.profile_picture %}
-                        <img src="{{ collab.collaborator.profile_picture.url }}" alt="{{ collab.collaborator.full_name }}" class="w-10 h-10 rounded-full">
+                        <img src="{{ collab.collaborator.profile_picture.url }}" alt="{{ collab.collaborator.full_name }}" class="member-image">
                         {% else %}
-                        <div class="w-10 h-10 rounded-full bg-primary-light flex items-center justify-center">
-                            <i class="fas fa-user-shield text-primary"></i>
+                        <div class="member-placeholder">
+                            <i class="fas fa-user-shield"></i>
                         </div>
                         {% endif %}
                         <div>
-                            <p class="text-white font-medium">{{ collab.collaborator.full_name }}</p>
-                            <p class="text-text-secondary text-sm">Collaborator</p>
+                            <p class="member-name">{{ collab.collaborator.full_name }}</p>
+                            <p class="member-role">Collaborator</p>
                         </div>
                     </div>
                     {% endfor %}
@@ -317,26 +1014,31 @@
             {% endif %}
             
             <!-- Collaboration Status -->
-            <div class="bg-card border border-card-border rounded-xl p-6">
-                <h2 class="text-xl font-semibold text-white mb-4">Collaboration</h2>
-                <div class="flex items-center justify-between mb-3">
-                    <span class="text-text-secondary">Status</span>
-                    <span class="px-3 py-1 rounded-full text-sm {% if project.is_open_for_collaboration %}bg-green-500 text-white{% else %}bg-red-500 text-white{% endif %}">
-                        {% if project.is_open_for_collaboration %}Open{% else %}Closed{% endif %}
-                    </span>
+            <div class="sidebar-card">
+                <h2 class="sidebar-title">
+                    <i class="fas fa-handshake"></i>
+                    Collaboration
+                </h2>
+                <div class="collab-status">
+                    <div class="status-header">
+                        <span class="status-label">Status</span>
+                        <span class="status-badge {{ project.is_open_for_collaboration|yesno:'open,closed' }}">
+                            {% if project.is_open_for_collaboration %}Open{% else %}Closed{% endif %}
+                        </span>
+                    </div>
+                    {% if is_leader %}
+                    <form method="post" action="{% url 'toggle_project_collaboration' project.id %}" class="mt-4">
+                        {% csrf_token %}
+                        <button type="submit" class="collab-toggle-btn {% if project.is_open_for_collaboration %}close{% else %}open{% endif %}">
+                            {% if project.is_open_for_collaboration %}
+                                Close Collaboration
+                            {% else %}
+                                Open for Collaboration
+                            {% endif %}
+                        </button>
+                    </form>
+                    {% endif %}
                 </div>
-                {% if is_leader %}
-                <form method="post" action="{% url 'toggle_project_collaboration' project.id %}">
-                    {% csrf_token %}
-                    <button type="submit" class="w-full text-center {% if project.is_open_for_collaboration %}bg-yellow-500 hover:bg-yellow-600{% else %}bg-green-500 hover:bg-green-600{% endif %} text-white px-4 py-2 rounded-lg transition-colors">
-                        {% if project.is_open_for_collaboration %}
-                            Close Collaboration
-                        {% else %}
-                            Open for Collaboration
-                        {% endif %}
-                    </button>
-                </form>
-                {% endif %}
             </div>
         </div>
     </div>

@@ -3,9 +3,344 @@
 
 {% block title %}Add Group Project | TISD{% endblock %}
 
+{% block extra_css %}
+<style>
+    /* Core Styles */
+    .container {
+        padding: 2.5rem 0;
+        position: relative;
+        z-index: 2;
+        max-width: 1000px;
+    }
+
+    /* Background Elements */
+    .bg-elements {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -1;
+        overflow: hidden;
+    }
+
+    .bg-gradient {
+        position: absolute;
+        width: 35rem;
+        height: 35rem;
+        border-radius: 50%;
+        filter: blur(8rem);
+        z-index: -1;
+        opacity: 0.5;
+        animation: pulse 15s infinite alternate ease-in-out;
+    }
+
+    @keyframes pulse {
+        0% { transform: scale(1); opacity: 0.5; }
+        50% { transform: scale(1.05); opacity: 0.6; }
+        100% { transform: scale(1); opacity: 0.5; }
+    }
+
+    .bg-gradient:nth-child(1) {
+        top: -10%;
+        right: 5%;
+        background: rgba(168, 85, 247, 0.3);
+        animation-delay: -5s;
+    }
+
+    .bg-gradient:nth-child(2) {
+        bottom: -5%;
+        left: 10%;
+        background: rgba(124, 58, 237, 0.2);
+        animation-delay: -10s;
+    }
+
+    /* Header Section */
+    .header-section {
+        text-align: center;
+        margin-bottom: 3rem;
+        padding: 2rem;
+        background: rgba(15, 15, 15, 0.8);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(157, 78, 221, 0.3);
+        border-radius: 20px;
+        box-shadow: 0 8px 32px rgba(157, 78, 221, 0.15);
+    }
+
+    .header-section h2 {
+        font-size: 2.5rem;
+        font-weight: 800;
+        background: linear-gradient(135deg, #a855f7, #8b5cf6);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 1rem;
+    }
+
+    .header-section p {
+        color: #c77dff;
+        font-size: 1.1rem;
+        opacity: 0.9;
+    }
+
+    /* Card Styles */
+    .card {
+        background: rgba(15, 12, 24, 0.7);
+        backdrop-filter: blur(15px);
+        border: 1px solid rgba(157, 78, 221, 0.2);
+        border-radius: 20px;
+        box-shadow: 0 10px 40px rgba(31, 38, 135, 0.15);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 5px;
+        background: linear-gradient(90deg, #a855f7, #8b5cf6);
+    }
+
+    .card-body {
+        padding: 2.5rem;
+    }
+
+    /* Form Elements */
+    .form-group {
+        margin-bottom: 2rem;
+        position: relative;
+    }
+
+    .form-group label {
+        color: #9d4edd;
+        margin-bottom: 0.8rem;
+        font-weight: 600;
+        font-size: 1rem;
+        display: block;
+    }
+
+    .form-control {
+        background: rgba(15, 12, 24, 0.7);
+        border: 1px solid rgba(157, 78, 221, 0.3);
+        border-radius: 12px;
+        padding: 1rem;
+        color: white;
+        width: 100%;
+        transition: all 0.3s ease;
+    }
+
+    .form-control:focus {
+        outline: none;
+        border-color: rgba(157, 78, 221, 0.6);
+        box-shadow: 0 0 0 2px rgba(157, 78, 221, 0.1);
+        background: rgba(15, 12, 24, 0.8);
+    }
+
+    .form-control::placeholder {
+        color: rgba(255, 255, 255, 0.5);
+    }
+
+    textarea.form-control {
+        min-height: 150px;
+        resize: vertical;
+    }
+
+    .form-text {
+        color: rgba(199, 125, 255, 0.8);
+        font-size: 0.9rem;
+        margin-top: 0.5rem;
+    }
+
+    /* Custom Switch */
+    .custom-control {
+        position: relative;
+        padding-left: 3rem;
+        cursor: pointer;
+        user-select: none;
+    }
+
+    .custom-control-input {
+        position: absolute;
+        left: -9999px;
+    }
+
+    .custom-control-label {
+        position: relative;
+        margin-bottom: 0;
+        vertical-align: top;
+        color: white;
+    }
+
+    .custom-control-label::before {
+        content: '';
+        position: absolute;
+        left: -3rem;
+        top: 0.25rem;
+        display: block;
+        width: 2rem;
+        height: 1rem;
+        background: rgba(157, 78, 221, 0.2);
+        border-radius: 1rem;
+        transition: all 0.3s ease;
+    }
+
+    .custom-control-label::after {
+        content: '';
+        position: absolute;
+        left: -2.85rem;
+        top: 0.35rem;
+        width: 0.8rem;
+        height: 0.8rem;
+        background: white;
+        border-radius: 50%;
+        transition: all 0.3s ease;
+    }
+
+    .custom-control-input:checked ~ .custom-control-label::before {
+        background: linear-gradient(90deg, #a855f7, #8b5cf6);
+    }
+
+    .custom-control-input:checked ~ .custom-control-label::after {
+        transform: translateX(1rem);
+        background: white;
+    }
+
+    /* File Upload */
+    .form-control-file {
+        background: rgba(15, 12, 24, 0.7);
+        border: 1px solid rgba(157, 78, 221, 0.3);
+        border-radius: 12px;
+        padding: 0.8rem;
+        color: white;
+        width: 100%;
+        cursor: pointer;
+    }
+
+    .form-control-file::file-selector-button {
+        background: linear-gradient(90deg, #a855f7 0%, #8b5cf6 100%);
+        color: white;
+        padding: 0.6rem 1.2rem;
+        border: none;
+        border-radius: 8px;
+        margin-right: 1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .form-control-file::file-selector-button:hover {
+        background: linear-gradient(90deg, #9d4edd 0%, #7c3aed 100%);
+        transform: translateY(-1px);
+    }
+
+    /* Buttons */
+    .btn {
+        padding: 1rem 2rem;
+        border-radius: 12px;
+        font-size: 1rem;
+        font-weight: 600;
+        transition: all 0.4s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .btn-primary {
+        background: linear-gradient(90deg, #a855f7 0%, #8b5cf6 100%);
+        border: none;
+        color: white;
+        box-shadow: 0 4px 15px rgba(168, 85, 247, 0.25);
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(168, 85, 247, 0.4);
+        background: linear-gradient(90deg, #9d4edd 0%, #7c3aed 100%);
+    }
+
+    .btn-secondary {
+        background: linear-gradient(90deg, #4b5563 0%, #374151 100%);
+        border: none;
+        color: white;
+    }
+
+    .btn-secondary:hover {
+        background: linear-gradient(90deg, #374151 0%, #1f2937 100%);
+        transform: translateY(-3px);
+    }
+
+    /* Alert Messages */
+    .alert {
+        background: rgba(15, 12, 24, 0.8);
+        backdrop-filter: blur(10px);
+        border: 1px solid;
+        border-radius: 12px;
+        padding: 1.2rem 1.8rem;
+        margin-bottom: 1rem;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        display: flex;
+        align-items: center;
+    }
+
+    .alert::before {
+        font-family: 'Font Awesome 5 Free';
+        font-weight: 900;
+        margin-right: 15px;
+        font-size: 1.3rem;
+    }
+
+    .alert-success {
+        border-color: rgba(25, 135, 84, 0.3);
+        color: #5ae6a8;
+    }
+
+    .alert-success::before {
+        content: '\f058';
+    }
+
+    .alert-danger {
+        border-color: rgba(220, 53, 69, 0.3);
+        color: #ff6b6b;
+    }
+
+    .alert-danger::before {
+        content: '\f057';
+    }
+
+    /* Responsive Adjustments */
+    @media (max-width: 768px) {
+        .container {
+            padding: 1.5rem;
+        }
+
+        .card-body {
+            padding: 1.5rem;
+        }
+
+        .header-section h2 {
+            font-size: 2rem;
+        }
+
+        .btn {
+            width: 100%;
+            margin-bottom: 1rem;
+        }
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="container mt-4">
-    <h2>Add Group Project</h2>
+<div class="bg-elements">
+    <div class="bg-gradient"></div>
+    <div class="bg-gradient"></div>
+</div>
+
+<div class="container">
+    <div class="header-section">
+        <h2>Add Group Project</h2>
+        <p>Create a new project for your group and start collaborating</p>
+    </div>
     
     {% if messages %}
     <div class="messages">
@@ -59,17 +394,14 @@
                 </div>
                 {% endif %}
 
-                <!-- Collaboration Option -->
                 <div class="form-group">
                     <div class="custom-control custom-switch">
                         <input type="checkbox" class="custom-control-input" id="is_open_for_collaboration" name="is_open_for_collaboration">
                         <label class="custom-control-label" for="is_open_for_collaboration">Open for Collaboration</label>
                     </div>
-                    <small class="form-text text-muted">Enable this to allow others to view and request to join this project.</small>
+                    <small class="form-text">Enable this to allow others to view and request to join this project.</small>
                 </div>
 
-
-                <!-- Project Status -->
                 <div class="form-group">
                     <label for="status">Project Status</label>
                     <select class="form-control" id="status" name="status">
@@ -79,46 +411,44 @@
                     </select>
                 </div>
 
-                <!-- File Upload -->
                 <div class="form-group">
                     <label for="project_file">Project File</label>
                     <input type="file" class="form-control-file" id="project_file" name="project_file">
-                    <small class="form-text text-muted">Upload project documentation or other relevant files.</small>
+                    <small class="form-text">Upload project documentation or other relevant files.</small>
                 </div>
 
-                <!-- Image Uploads -->
                 <div class="form-group">
                     <label>Project Images (Optional)</label>
                     <div class="row">
                         <div class="col-md-4 mb-3">
-                            <label for="image1">Image 1</label>
                             <input type="file" class="form-control-file" id="image1" name="image1" accept="image/*">
                         </div>
                         <div class="col-md-4 mb-3">
-                            <label for="image2">Image 2</label>
                             <input type="file" class="form-control-file" id="image2" name="image2" accept="image/*">
                         </div>
                         <div class="col-md-4 mb-3">
-                            <label for="image3">Image 3</label>
                             <input type="file" class="form-control-file" id="image3" name="image3" accept="image/*">
                         </div>
                         <div class="col-md-4 mb-3">
-                            <label for="image4">Image 4</label>
                             <input type="file" class="form-control-file" id="image4" name="image4" accept="image/*">
                         </div>
                         <div class="col-md-4 mb-3">
-                            <label for="image5">Image 5</label>
                             <input type="file" class="form-control-file" id="image5" name="image5" accept="image/*">
                         </div>
                         <div class="col-md-4 mb-3">
-                            <label for="image6">Image 6</label>
                             <input type="file" class="form-control-file" id="image6" name="image6" accept="image/*">
                         </div>
                     </div>
                 </div>
 
-                <button type="submit" class="btn btn-primary">Create Project</button>
-                <a href="{% url 'group_detail' group.id %}" class="btn btn-secondary">Cancel</a>
+                <div class="mt-4">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Create Project
+                    </button>
+                    <a href="{% url 'group_detail' group.id %}" class="btn btn-secondary ms-2">
+                        <i class="fas fa-times"></i> Cancel
+                    </a>
+                </div>
             </form>
         </div>
     </div>

@@ -5,162 +5,355 @@
 
 {% block extra_css %}
 <style>
-    .meetings-container {
+    /* Core Styles */
+    .container {
+        padding: 2.5rem 0;
+        position: relative;
+        z-index: 2;
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+
+    /* Background Elements */
+    .bg-elements {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -1;
+        overflow: hidden;
+    }
+
+    .bg-gradient {
+        position: absolute;
+        width: 35rem;
+        height: 35rem;
+        border-radius: 50%;
+        filter: blur(8rem);
+        z-index: -1;
+        opacity: 0.5;
+        animation: pulse 15s infinite alternate ease-in-out;
+    }
+
+    @keyframes pulse {
+        0% { transform: scale(1); opacity: 0.5; }
+        50% { transform: scale(1.05); opacity: 0.6; }
+        100% { transform: scale(1); opacity: 0.5; }
+    }
+
+    .bg-gradient:nth-child(1) {
+        top: -10%;
+        right: 5%;
+        background: rgba(168, 85, 247, 0.3);
+        animation-delay: -5s;
+    }
+
+    .bg-gradient:nth-child(2) {
+        bottom: -5%;
+        left: 10%;
+        background: rgba(124, 58, 237, 0.2);
+        animation-delay: -10s;
+    }
+
+    /* Header Section */
+    .header-section {
+        margin-bottom: 3rem;
+        padding: 2rem;
+        background: rgba(15, 15, 15, 0.8);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(157, 78, 221, 0.3);
+        border-radius: 20px;
+        box-shadow: 0 8px 32px rgba(157, 78, 221, 0.15);
+    }
+
+    .header-section h2 {
+        font-size: 2.5rem;
+        font-weight: 800;
+        background: linear-gradient(135deg, #a855f7, #8b5cf6);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 1rem;
+    }
+
+    /* Schedule Meeting Card */
+    .schedule-card {
+        background: rgba(15, 12, 24, 0.7);
+        backdrop-filter: blur(15px);
+        border: 1px solid rgba(157, 78, 221, 0.2);
+        border-radius: 20px;
+        overflow: hidden;
+        transition: all 0.3s ease;
+        box-shadow: 0 15px 35px rgba(31, 38, 135, 0.15);
+        margin-bottom: 2rem;
+    }
+
+    .schedule-card:hover {
+        border-color: rgba(157, 78, 221, 0.4);
+        box-shadow: 0 20px 45px rgba(31, 38, 135, 0.2);
+    }
+
+    .card-header {
+        background: rgba(15, 12, 24, 0.8);
+        border-bottom: 1px solid rgba(157, 78, 221, 0.2);
+        padding: 1.5rem 2rem;
+    }
+
+    .card-header h4 {
+        font-size: 1.8rem;
+        font-weight: 700;
+        background: linear-gradient(135deg, #a855f7, #8b5cf6);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin: 0;
+    }
+
+    .card-body {
         padding: 2rem;
     }
 
-    .meeting-card {
-        background: rgba(157, 78, 221, 0.1);
-        border: 1px solid #9d4edd;
-        border-radius: 10px;
-        padding: 1.5rem;
+    /* Form Elements */
+    .form-group {
         margin-bottom: 1.5rem;
+    }
+
+    .form-label {
+        display: block;
+        color: rgba(255, 255, 255, 0.9);
+        font-size: 0.95rem;
+        font-weight: 500;
+        margin-bottom: 0.5rem;
+    }
+
+    .form-control {
+        width: 100%;
+        background: rgba(15, 15, 15, 0.3);
+        border: 1px solid rgba(157, 78, 221, 0.2);
+        border-radius: 12px;
+        padding: 0.8rem 1rem;
+        color: white;
+        transition: all 0.3s ease;
+    }
+
+    .form-control:focus {
+        outline: none;
+        border-color: rgba(157, 78, 221, 0.4);
+        box-shadow: 0 0 0 2px rgba(157, 78, 221, 0.1);
+    }
+
+    .form-control::placeholder {
+        color: rgba(255, 255, 255, 0.4);
+    }
+
+    /* Filter Buttons */
+    .filter-group {
+        display: flex;
+        gap: 0.5rem;
+        margin-bottom: 2rem;
+        flex-wrap: wrap;
+    }
+
+    .filter-btn {
+        background: rgba(15, 15, 15, 0.3);
+        border: 1px solid rgba(157, 78, 221, 0.2);
+        color: rgba(255, 255, 255, 0.7);
+        padding: 0.6rem 1.2rem;
+        border-radius: 12px;
+        font-size: 0.95rem;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+
+    .filter-btn:hover {
+        background: rgba(157, 78, 221, 0.1);
+        border-color: rgba(157, 78, 221, 0.4);
+        color: white;
+    }
+
+    .filter-btn.active {
+        background: linear-gradient(90deg, #a855f7 0%, #8b5cf6 100%);
+        border-color: transparent;
+        color: white;
+    }
+
+    /* Meeting Cards */
+    .meeting-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .meeting-card {
+        background: rgba(15, 12, 24, 0.7);
+        backdrop-filter: blur(15px);
+        border: 1px solid rgba(157, 78, 221, 0.2);
+        border-radius: 20px;
+        padding: 1.5rem;
         transition: all 0.3s ease;
     }
 
     .meeting-card:hover {
         transform: translateY(-5px);
-        box-shadow: 0 5px 15px rgba(157, 78, 221, 0.2);
-    }
-
-    .meeting-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-start;
-        margin-bottom: 1rem;
+        border-color: rgba(157, 78, 221, 0.4);
+        box-shadow: 0 15px 35px rgba(31, 38, 135, 0.15);
     }
 
     .meeting-title {
-        color: #9d4edd;
+        color: white;
+        font-size: 1.2rem;
+        font-weight: 600;
         margin-bottom: 0.5rem;
+    }
+
+    .meeting-subtitle {
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 0.95rem;
+        margin-bottom: 1rem;
+    }
+
+    .meeting-info {
+        color: rgba(255, 255, 255, 0.6);
+        font-size: 0.9rem;
+        margin-bottom: 0.3rem;
     }
 
     .meeting-status {
         display: inline-block;
-        padding: 0.25rem 1rem;
-        border-radius: 15px;
-        font-size: 0.9rem;
-    }
-
-    .status-scheduled {
-        background: rgba(13, 110, 253, 0.2);
-        color: #0d6efd;
-        border: 1px solid #0d6efd;
-    }
-
-    .status-completed {
-        background: rgba(40, 167, 69, 0.2);
-        color: #28a745;
-        border: 1px solid #28a745;
-    }
-
-    .status-cancelled {
-        background: rgba(220, 53, 69, 0.2);
-        color: #dc3545;
-        border: 1px solid #dc3545;
-    }
-
-    .meeting-details {
-        color: #fff;
-    }
-
-    .meeting-time {
-        color: #c77dff;
-        font-size: 1.1rem;
-        margin: 1rem 0;
-    }
-
-    .meeting-actions {
-        margin-top: 1rem;
-    }
-
-    .btn-custom {
-        background: #9d4edd;
-        color: white;
-        border: none;
-        padding: 0.5rem 1.5rem;
-        border-radius: 25px;
-        text-decoration: none;
-        transition: all 0.3s ease;
-        display: inline-block;
-    }
-
-    .btn-custom:hover {
-        background: #c77dff;
-        color: white;
-        transform: scale(1.05);
-    }
-
-    .filters {
-        margin-bottom: 2rem;
-        display: flex;
-        gap: 1rem;
-    }
-
-    .filter-btn {
-        padding: 0.5rem 1.5rem;
-        border-radius: 25px;
-        border: 1px solid #9d4edd;
-        background: transparent;
-        color: #9d4edd;
-        cursor: pointer;
-        transition: all 0.3s ease;
-    }
-
-    .filter-btn.active {
-        background: #9d4edd;
-        color: white;
-    }
-
-    .filter-btn:hover {
-        background: rgba(157, 78, 221, 0.2);
-    }
-
-    .mentor-info {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
+        padding: 0.3rem 0.8rem;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 500;
         margin-bottom: 1rem;
     }
 
-    .mentor-avatar {
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        object-fit: cover;
-        border: 2px solid #9d4edd;
+    .status-scheduled {
+        background: rgba(59, 130, 246, 0.1);
+        color: #3b82f6;
+        border: 1px solid rgba(59, 130, 246, 0.2);
     }
 
-    .upcoming-meeting {
-        border: 2px solid #0d6efd;
-        background: rgba(13, 110, 253, 0.1);
+    .status-completed {
+        background: rgba(34, 197, 94, 0.1);
+        color: #22c55e;
+        border: 1px solid rgba(34, 197, 94, 0.2);
     }
 
-    .time-badge {
-        background: rgba(13, 110, 253, 0.2);
-        color: #0d6efd;
-        padding: 0.25rem 0.75rem;
-        border-radius: 15px;
+    .status-cancelled {
+        background: rgba(239, 68, 68, 0.1);
+        color: #ef4444;
+        border: 1px solid rgba(239, 68, 68, 0.2);
+    }
+
+    /* Buttons */
+    .btn {
+        padding: 0.8rem 1.5rem;
+        border-radius: 12px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        text-decoration: none;
+    }
+
+    .btn-primary {
+        background: linear-gradient(90deg, #a855f7 0%, #8b5cf6 100%);
+        color: white;
+        border: none;
+        box-shadow: 0 4px 15px rgba(168, 85, 247, 0.25);
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(168, 85, 247, 0.4);
+    }
+
+    .btn-join {
+        background: rgba(59, 130, 246, 0.1);
+        color: #3b82f6;
+        border: 1px solid rgba(59, 130, 246, 0.2);
+        padding: 0.5rem 1rem;
         font-size: 0.9rem;
-        margin-left: 1rem;
+    }
+
+    .btn-join:hover {
+        background: rgba(59, 130, 246, 0.2);
+        transform: translateY(-2px);
+    }
+
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: 3rem 2rem;
+        background: rgba(15, 12, 24, 0.7);
+        backdrop-filter: blur(15px);
+        border: 1px solid rgba(157, 78, 221, 0.2);
+        border-radius: 20px;
+    }
+
+    .empty-state i {
+        font-size: 3rem;
+        color: rgba(255, 255, 255, 0.3);
+        margin-bottom: 1rem;
+    }
+
+    .empty-state p {
+        color: rgba(255, 255, 255, 0.6);
+        font-size: 1.1rem;
+    }
+
+    /* Responsive Adjustments */
+    @media (max-width: 768px) {
+        .container {
+            padding: 1.5rem;
+        }
+
+        .header-section {
+            padding: 1.5rem;
+        }
+
+        .header-section h2 {
+            font-size: 2rem;
+        }
+
+        .filter-group {
+            flex-direction: column;
+        }
+
+        .filter-btn {
+            width: 100%;
+            text-align: center;
+        }
+
+        .meeting-grid {
+            grid-template-columns: 1fr;
+        }
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-    <h2>My Meetings</h2>
+<div class="bg-elements">
+    <div class="bg-gradient"></div>
+    <div class="bg-gradient"></div>
+</div>
+
+<div class="container">
+    <div class="header-section">
+        <h2>My Meetings</h2>
+    </div>
     
     <!-- Schedule Meeting Form -->
-    <div class="card mb-4">
+    <div class="schedule-card">
         <div class="card-header">
             <h4>Schedule a New Meeting</h4>
         </div>
         <div class="card-body">
             <form method="POST">
                 {% csrf_token %}
-                <div class="form-group mb-3">
-                    <label for="mentor">Select Mentor</label>
+                <div class="form-group">
+                    <label class="form-label" for="mentor">Select Mentor</label>
                     <select class="form-control" id="mentor" name="mentor" required>
                         <option value="">Choose a mentor...</option>
                         {% for connection in connected_mentors %}
@@ -168,100 +361,73 @@
                         {% endfor %}
                     </select>
                 </div>
-                <div class="form-group mb-3">
-                    <label for="title">Meeting Title</label>
+                <div class="form-group">
+                    <label class="form-label" for="title">Meeting Title</label>
                     <input type="text" class="form-control" id="title" name="title" required>
                 </div>
-                <div class="form-group mb-3">
-                    <label for="description">Description</label>
+                <div class="form-group">
+                    <label class="form-label" for="description">Description</label>
                     <textarea class="form-control" id="description" name="description" rows="3"></textarea>
                 </div>
-                <div class="form-group mb-3">
-                    <label for="meeting_link">Meeting Link</label>
+                <div class="form-group">
+                    <label class="form-label" for="meeting_link">Meeting Link</label>
                     <input type="url" class="form-control" id="meeting_link" name="meeting_link" required>
                 </div>
-                <div class="form-group mb-3">
-                    <label for="meeting_time">Meeting Time</label>
+                <div class="form-group">
+                    <label class="form-label" for="meeting_time">Meeting Time</label>
                     <input type="datetime-local" class="form-control" id="meeting_time" name="meeting_time" required>
                 </div>
-                <div class="form-group mb-3">
-                    <label for="duration">Duration (minutes)</label>
+                <div class="form-group">
+                    <label class="form-label" for="duration">Duration (minutes)</label>
                     <input type="number" class="form-control" id="duration" name="duration" required>
                 </div>
-                <button type="submit" class="btn btn-primary">Schedule Meeting</button>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-calendar-plus"></i> Schedule Meeting
+                </button>
             </form>
         </div>
     </div>
 
     <!-- Filter Meetings -->
-    <div class="mb-3">
-        <div class="btn-group" role="group">
-            <a href="{% url 'student_meetings' %}" class="btn btn-outline-primary {% if not request.GET.status %}active{% endif %}">All</a>
-            <a href="?status=scheduled" class="btn btn-outline-primary {% if request.GET.status == 'scheduled' %}active{% endif %}">Scheduled</a>
-            <a href="?status=completed" class="btn btn-outline-primary {% if request.GET.status == 'completed' %}active{% endif %}">Completed</a>
-            <a href="?status=cancelled" class="btn btn-outline-primary {% if request.GET.status == 'cancelled' %}active{% endif %}">Cancelled</a>
-        </div>
+    <div class="filter-group">
+        <a href="{% url 'student_meetings' %}" class="filter-btn {% if not request.GET.status %}active{% endif %}">All</a>
+        <a href="?status=scheduled" class="filter-btn {% if request.GET.status == 'scheduled' %}active{% endif %}">Scheduled</a>
+        <a href="?status=completed" class="filter-btn {% if request.GET.status == 'completed' %}active{% endif %}">Completed</a>
+        <a href="?status=cancelled" class="filter-btn {% if request.GET.status == 'cancelled' %}active{% endif %}">Cancelled</a>
     </div>
 
     <!-- Meetings List -->
-    <div class="row">
+    {% if meetings %}
+    <div class="meeting-grid">
         {% for meeting in meetings %}
-        <div class="col-md-6 mb-3">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">{{ meeting.title }}</h5>
-                    <h6 class="card-subtitle mb-2 text-muted">With {{ meeting.mentor.user.get_full_name }}</h6>
-                    <p class="card-text">{{ meeting.description }}</p>
-                    <p><strong>Time:</strong> {{ meeting.meeting_time|date:"F j, Y, g:i a" }}</p>
-                    <p><strong>Duration:</strong> {{ meeting.duration }} minutes</p>
-                    <p><strong>Status:</strong> 
-                        <span class="badge {% if meeting.status == 'scheduled' %}bg-primary
-                                         {% elif meeting.status == 'completed' %}bg-success
-                                         {% else %}bg-secondary{% endif %}">
-                            {{ meeting.status|title }}
-                        </span>
-                    </p>
-                    {% if meeting.status == 'scheduled' and meeting.meeting_link %}
-                        <a href="{{ meeting.meeting_link }}" target="_blank" class="btn btn-success">Join Meeting</a>
-                    {% endif %}
-                </div>
+        <div class="meeting-card">
+            <div class="meeting-title">{{ meeting.title }}</div>
+            <div class="meeting-subtitle">With {{ meeting.mentor.user.get_full_name }}</div>
+            <div class="meeting-status status-{{ meeting.status }}">{{ meeting.status|title }}</div>
+            <div class="meeting-info">
+                <i class="fas fa-clock"></i> {{ meeting.meeting_time|date:"F j, Y, g:i a" }}
             </div>
-        </div>
-        {% empty %}
-        <div class="col-12">
-            <div class="alert alert-info">
-                No meetings found.
+            <div class="meeting-info">
+                <i class="fas fa-hourglass-half"></i> {{ meeting.duration }} minutes
             </div>
+            {% if meeting.description %}
+            <div class="meeting-info">{{ meeting.description }}</div>
+            {% endif %}
+            {% if meeting.status == 'scheduled' and meeting.meeting_link %}
+            <div style="margin-top: 1rem;">
+                <a href="{{ meeting.meeting_link }}" target="_blank" class="btn btn-join">
+                    <i class="fas fa-video"></i> Join Meeting
+                </a>
+            </div>
+            {% endif %}
         </div>
         {% endfor %}
     </div>
+    {% else %}
+    <div class="empty-state">
+        <i class="fas fa-calendar-alt"></i>
+        <p>No meetings found.</p>
+    </div>
+    {% endif %}
 </div>
-
-<style>
-    .card {
-        border-radius: 10px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
-    .card-header {
-        background-color: #f8f9fa;
-        border-bottom: 1px solid #dee2e6;
-    }
-    .badge {
-        padding: 0.5em 0.8em;
-    }
-    .btn-group {
-        margin-bottom: 1rem;
-    }
-    .btn-group .btn {
-        border-radius: 0;
-    }
-    .btn-group .btn:first-child {
-        border-top-left-radius: 4px;
-        border-bottom-left-radius: 4px;
-    }
-    .btn-group .btn:last-child {
-        border-top-right-radius: 4px;
-        border-bottom-right-radius: 4px;
-    }
-</style>
-{% endblock %} 
+{% endblock %}
