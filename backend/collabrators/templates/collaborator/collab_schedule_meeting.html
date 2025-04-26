@@ -3,63 +3,262 @@
 
 {% block title %}Schedule Meeting - {{ project.title }}{% endblock %}
 
+{% block extra_css %}
+<style>
+    .meeting-form-container {
+        padding: 2rem 0;
+        position: relative;
+        z-index: 2;
+        max-width: 900px;
+        margin: 0 auto;
+    }
+
+    .meeting-card {
+        background: rgba(10, 10, 10, 0.8);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(30, 30, 30, 0.8);
+        border-radius: 16px;
+        padding: 0;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+        position: relative;
+        overflow: hidden;
+        animation: fadeInDown 0.8s ease-out forwards;
+    }
+
+    .meeting-header {
+        background: var(--primary);
+        padding: 1.5rem 2rem;
+        border-radius: 16px 16px 0 0;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .meeting-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(45deg, rgba(0, 0, 0, 0.2), transparent);
+        z-index: 1;
+    }
+
+    .meeting-header h3 {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: white;
+        margin-bottom: 0;
+        position: relative;
+        z-index: 2;
+    }
+
+    .meeting-body {
+        padding: 2rem;
+    }
+
+    .project-info {
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 12px;
+        padding: 1.25rem;
+        margin-bottom: 2rem;
+        border-left: 3px solid var(--primary);
+    }
+
+    .project-info h5 {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: white;
+        margin-bottom: 0.5rem;
+    }
+
+    .project-info p {
+        color: var(--text-secondary);
+        margin-bottom: 0;
+        font-size: 1rem;
+    }
+
+    .form-label {
+        color: var(--text-secondary);
+        font-weight: 500;
+        margin-bottom: 0.5rem;
+        font-size: 0.95rem;
+    }
+
+    .form-control {
+        background: rgba(30, 30, 30, 0.9);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 8px;
+        color: #ffffff;
+        padding: 0.75rem 1rem;
+        transition: all 0.3s ease;
+    }
+
+    .form-control:focus {
+        background: rgba(40, 40, 40, 0.95);
+        border-color: var(--primary);
+        box-shadow: 0 0 0 0.25rem rgba(var(--primary-rgb), 0.25);
+        color: #ffffff;
+    }
+
+    .form-control::placeholder {
+        color: rgba(255, 255, 255, 0.5);
+    }
+
+    .input-group {
+        position: relative;
+        margin-bottom: 1.5rem;
+    }
+
+    .form-button-group {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 2rem;
+    }
+
+    .btn {
+        padding: 0.75rem 1.5rem;
+        font-weight: 600;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+    }
+
+    .btn-secondary {
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: var(--text-secondary);
+    }
+
+    .btn-secondary:hover {
+        background: rgba(255, 255, 255, 0.15);
+        transform: translateY(-3px);
+    }
+
+    .btn-primary {
+        background: var(--primary);
+        border: 1px solid var(--primary);
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background: var(--primary-hover);
+        transform: translateY(-3px);
+        box-shadow: 0 4px 12px rgba(var(--primary-rgb), 0.25);
+    }
+
+    /* Form row styling */
+    .form-row {
+        margin-bottom: 1.5rem;
+    }
+
+    /* Animation Keyframes */
+    @keyframes fadeInDown {
+        from {
+            opacity: 0;
+            transform: translateY(-30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .meeting-header h3 {
+            font-size: 1.5rem;
+        }
+        
+        .meeting-body {
+            padding: 1.5rem;
+        }
+        
+        .form-button-group {
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .btn {
+            width: 100%;
+        }
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="container py-4">
-    <div class="card bg-dark text-light border-primary">
-        <div class="card-header bg-primary text-white">
-            <h3 class="mb-0">Schedule Zoom Meeting</h3>
+<div class="meeting-form-container">
+    <div class="meeting-card">
+        <div class="meeting-header">
+            <h3>Schedule Zoom Meeting</h3>
         </div>
-        <div class="card-body">
-            <div class="mb-4">
+        <div class="meeting-body">
+            <div class="project-info">
                 <h5>Project: {{ project.title }}</h5>
-                <p>Student: {{ project.student.full_name }}</p>
+                <p><i class="fas fa-user"></i> Student: {{ project.student.full_name }}</p>
             </div>
 
             <form method="POST" action="{% url 'collab_schedule_meeting' project.id %}" class="needs-validation" novalidate>
                 {% csrf_token %}
                 
-                <div class="mb-3">
+                <div class="form-row">
                     <label for="meeting_title" class="form-label">Meeting Title</label>
-                    <input type="text" class="form-control" id="meeting_title" name="meeting_title" required>
+                    <input type="text" class="form-control" id="meeting_title" name="meeting_title" required 
+                           placeholder="Enter meeting title">
                 </div>
 
-                <div class="mb-3">
+                <div class="form-row">
                     <label for="meeting_description" class="form-label">Meeting Description</label>
-                    <textarea class="form-control" id="meeting_description" name="meeting_description" rows="3"></textarea>
+                    <textarea class="form-control" id="meeting_description" name="meeting_description" rows="3"
+                              placeholder="Enter meeting description"></textarea>
                 </div>
 
                 <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <label for="scheduled_time" class="form-label">Date and Time</label>
-                        <input type="datetime-local" class="form-control" id="scheduled_time" name="scheduled_time" required>
+                    <div class="col-md-6">
+                        <div class="form-row">
+                            <label for="scheduled_time" class="form-label">Date and Time</label>
+                            <input type="datetime-local" class="form-control" id="scheduled_time" name="scheduled_time" required>
+                        </div>
                     </div>
 
-                    <div class="col-md-6 mb-3">
-                        <label for="duration" class="form-label">Duration (minutes)</label>
-                        <input type="number" class="form-control" id="duration" name="duration" min="15" step="15" value="30" required>
+                    <div class="col-md-6">
+                        <div class="form-row">
+                            <label for="duration" class="form-label">Duration (minutes)</label>
+                            <input type="number" class="form-control" id="duration" name="duration" min="15" step="15" value="30" required>
+                        </div>
                     </div>
                 </div>
 
-                <div class="mb-3">
+                <div class="form-row">
                     <label for="zoom_link" class="form-label">Zoom Meeting Link</label>
-                    <input type="url" class="form-control" id="zoom_link" name="zoom_link" required>
+                    <input type="url" class="form-control" id="zoom_link" name="zoom_link" required
+                           placeholder="Enter Zoom meeting URL">
                 </div>
 
                 <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <label for="zoom_meeting_id" class="form-label">Meeting ID</label>
-                        <input type="text" class="form-control" id="zoom_meeting_id" name="zoom_meeting_id" required>
+                    <div class="col-md-6">
+                        <div class="form-row">
+                            <label for="zoom_meeting_id" class="form-label">Meeting ID</label>
+                            <input type="text" class="form-control" id="zoom_meeting_id" name="zoom_meeting_id" required
+                                   placeholder="Enter Zoom meeting ID">
+                        </div>
                     </div>
 
-                    <div class="col-md-6 mb-3">
-                        <label for="zoom_password" class="form-label">Meeting Password</label>
-                        <input type="text" class="form-control" id="zoom_password" name="zoom_password" required>
+                    <div class="col-md-6">
+                        <div class="form-row">
+                            <label for="zoom_password" class="form-label">Meeting Password</label>
+                            <input type="text" class="form-control" id="zoom_password" name="zoom_password" required
+                                   placeholder="Enter Zoom password">
+                        </div>
                     </div>
                 </div>
 
-                <div class="d-flex justify-content-between">
-                    <a href="{% url 'view_meetings' project.id %}" class="btn btn-secondary">Cancel</a>
-                    <button type="submit" class="btn btn-primary">Schedule Meeting</button>
+                <div class="form-button-group">
+                    <a href="{% url 'view_meetings' project.id %}" class="btn btn-secondary">
+                        <i class="fas fa-times"></i> Cancel
+                    </a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-calendar-plus"></i> Schedule Meeting
+                    </button>
                 </div>
             </form>
         </div>
@@ -91,4 +290,4 @@
     });
 </script>
 {% endblock %}
-{% endblock %} 
+{% endblock %}

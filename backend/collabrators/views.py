@@ -70,46 +70,127 @@ def collaborator_profile(request):
 
     if request.method == 'POST':
         # Update profile data
-        profile.full_name = request.POST.get('full_name', '').strip()
-        profile.expertise = request.POST.get('expertise', '').strip()
-        profile.company = request.POST.get('company', '').strip()
-        profile.position = request.POST.get('position', '').strip()
+        profile.full_name = request.POST.get('full_name', '').strip() or None
+        profile.expertise = request.POST.get('expertise', '').strip() or None
+        profile.company = request.POST.get('company', '').strip() or None
+        profile.position = request.POST.get('position', '').strip() or None
         
         try:
             profile.experience_years = int(request.POST.get('experience_years', '0'))
         except ValueError:
             profile.experience_years = 0
             
-        profile.linkedin_url = request.POST.get('linkedin_url', '').strip()
-        profile.github_url = request.POST.get('github_url', '').strip()
-        profile.portfolio_url = request.POST.get('portfolio_url', '').strip()
-        profile.bio = request.POST.get('bio', '').strip() or None  # Convert empty string to None
-        profile.phone = request.POST.get('phone', '').strip()
+        profile.linkedin_url = request.POST.get('linkedin_url', '').strip() or None
+        profile.github_url = request.POST.get('github_url', '').strip() or None
+        profile.portfolio_url = request.POST.get('portfolio_url', '').strip() or None
+        profile.bio = request.POST.get('bio', '').strip() or None
+        profile.phone = request.POST.get('phone', '').strip() or None
         
         # Handle profile picture upload
         if 'profile_picture' in request.FILES:
+            # Delete old picture if it exists
+            if profile.profile_picture:
+                profile.profile_picture.delete(save=False)
             profile.profile_picture = request.FILES['profile_picture']
+        # Handle profile picture removal if checkbox is checked
+        elif request.POST.get('profile_picture-clear') == 'on':
+            if profile.profile_picture:
+                profile.profile_picture.delete(save=False)
+            profile.profile_picture = None
         
-        # Save will automatically check if profile is complete
         profile.save()
         
         if profile.is_profile_complete:
             messages.success(request, 'Profile updated successfully!')
             return redirect('collaborator_dashboard')
         else:
-            messages.warning(request, 'Please fill in all required fields (Full Name, Expertise, Position, and Bio) to complete your profile.')
+            # Find which required fields are missing
+            missing_fields = []
+            if not profile.full_name:
+                missing_fields.append("Full Name")
+            if not profile.expertise:
+                missing_fields.append("Areas of Expertise")
+            if not profile.position:
+                missing_fields.append("Position")
+            if not profile.bio:
+                missing_fields.append("Professional Bio")
+            
+            messages.warning(
+                request, 
+                f'Please fill in all required fields to complete your profile. Missing: {", ".join(missing_fields)}'
+            )
+            return redirect('collaborator_profile')
+
+    # Get the profile picture URL safely
+    try:
+        profile_picture_url = profile.profile_picture.url if profile.profile_picture else None
+    except ValueError:
+        profile_picture_url = None
 
     context = {
-        'profile': profile
+        'profile': profile,
+        'profile_picture_url': profile_picture_url
     }
     return render(request, 'collaborator/collaborator_profile.html', context)
 
 @login_required
 def collaborator_dashboard(request):
     profile = request.user.collaborator_profile
+    
+    # Get active projects (projects with accepted collaboration requests)
+    active_projects = CollaborationRequest.objects.filter(
+        collaborator=profile,
+        status='accepted'
+    ).count()
+    
+    # Get team members (distinct students/groups the collaborator is working with)
+    team_members_count = 0
+    collab_requests = CollaborationRequest.objects.filter(
+        collaborator=profile,
+        status='accepted'
+    )
+    
+    # Count unique students and groups
+    unique_students = set()
+    unique_groups = set()
+    
+    for collab in collab_requests:
+        project = collab.project
+        if project.student:
+            unique_students.add(project.student.id)
+        elif project.group:
+            unique_groups.add(project.group.id)
+    
+    team_members_count = len(unique_students) + len(unique_groups)
+    
+    # Get scheduled meetings (active tasks)
+    upcoming_meetings = CollabZoomMeeting.objects.filter(
+        collaborator=profile,
+        status='scheduled',
+        scheduled_time__gte=timezone.now()
+    ).count()
+    
+    # Get recent collaboration requests
+    recent_requests = CollaborationRequest.objects.filter(
+        collaborator=profile
+    ).order_by('-created_at')[:5]
+    
+    # Get upcoming meetings
+    upcoming_meetings_list = CollabZoomMeeting.objects.filter(
+        collaborator=profile,
+        status='scheduled',
+        scheduled_time__gte=timezone.now()
+    ).order_by('scheduled_time')[:5]
+    
     context = {
-        'profile': profile
+        'profile': profile,
+        'active_projects': active_projects,
+        'team_members_count': team_members_count,
+        'upcoming_meetings': upcoming_meetings,
+        'recent_requests': recent_requests,
+        'upcoming_meetings_list': upcoming_meetings_list
     }
+    
     return render(request, 'collaborator/collaborator_dashboard.html', context)
 
 @login_required
@@ -117,8 +198,6 @@ def view_shared_projects(request):
     """View all projects open for collaboration with intelligent recommendation functionality"""
     try:
         collaborator = request.user.collaborator_profile
-        
-        # Base query for projects open for collaboration
         projects = Project.objects.filter(is_open_for_collaboration=True)
         
         # Handle search filters
@@ -141,6 +220,7 @@ def view_shared_projects(request):
         if status:
             projects = projects.filter(status=status)
         
+        collaborator = request.user.collaborator_profile
         # Get existing collaboration requests for this collaborator
         collaboration_requests = CollaborationRequest.objects.filter(collaborator=collaborator)
         request_status = {req.project_id: req.status for req in collaboration_requests}
@@ -180,11 +260,15 @@ def view_shared_projects(request):
             threshold = 20
             projects = [p for p in projects_with_scores if p.recommendation_score >= threshold]
         
-        # Add request status to each project
+        # Add request status and format tech_stack and sdgs for each project
         for project in projects:
             project.request_status = request_status.get(project.id)
             project.owner_name = project.group.name if project.group else project.student.full_name
             project.owner_type = 'Group' if project.group else 'Student'
+            
+            # Format tech stack and SDGs as lists
+            project.tech_stack_list = [tech.strip() for tech in project.tech_stack.split(',') if tech.strip()]
+            project.sdgs_list = [sdg.strip() for sdg in project.sdgs.split(',') if sdg.strip()]
         
         # Get unique tech stacks and SDGs for filters
         all_tech_stacks = Project.objects.filter(is_open_for_collaboration=True).values_list('tech_stack', flat=True).distinct()
@@ -225,8 +309,12 @@ def shared_project_details(request, project_id):
     try:
         collaborator = request.user.collaborator_profile
         
-        # Get the project
-        project = get_object_or_404(Project, id=project_id, is_open_for_collaboration=True)
+        # Get the project with related data
+        project = get_object_or_404(
+            Project.objects.select_related('group', 'student', 'mentor'),
+            id=project_id, 
+            is_open_for_collaboration=True
+        )
         
         # Get collaboration request status if exists
         try:
@@ -239,8 +327,37 @@ def shared_project_details(request, project_id):
             project.request_status = None
         
         # Add owner info
-        project.owner_name = project.group.name if project.group else project.student.full_name
-        project.owner_type = 'Group' if project.group else 'Student'
+        if project.group:
+            project.owner_name = project.group.name
+            project.owner_type = 'Group'
+            # Get group members with their emails
+            group_members = project.group.members.select_related('user').all()
+            project.team_members = [
+                {
+                    'name': member.full_name,
+                    'email': member.user.email,
+                    'role': 'Leader' if member == project.group.leader else 'Member'
+                }
+                for member in group_members
+            ]
+        else:
+            project.owner_name = project.student.full_name
+            project.owner_type = 'Student'
+            project.team_members = [
+                {
+                    'name': project.student.full_name,
+                    'email': project.student.user.email,
+                    'role': 'Owner'
+                }
+            ]
+        
+        # Add mentor info if exists
+        if project.mentor:
+            project.mentor_info = {
+                'name': project.mentor.full_name,
+                'email': project.mentor.user.email,
+                'role': 'Mentor'
+            }
         
         # Format tech stack and SDGs as lists for display
         project.tech_stack_list = [tech.strip() for tech in project.tech_stack.split(',')]

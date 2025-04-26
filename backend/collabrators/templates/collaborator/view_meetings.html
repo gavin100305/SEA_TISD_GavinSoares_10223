@@ -1,14 +1,409 @@
-
 {% extends 'collaborator/base.html' %}
-{% load static %}
+
+{% block title %}Meetings | {{ project.title }} | TISD Collaborator{% endblock %}
+
+{% block extra_css %}
+<style>
+    .meetings-container {
+        padding: 2rem 0;
+        position: relative;
+        z-index: 2;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .header-section {
+        background: rgba(10, 10, 10, 0.8);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(30, 30, 30, 0.8);
+        border-radius: 16px;
+        padding: 2.5rem;
+        margin-bottom: 3rem;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+        position: relative;
+        overflow: hidden;
+        animation: fadeInDown 0.8s ease-out forwards;
+    }
+
+    .header-section::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(45deg, rgba(20, 20, 20, 0.3), transparent);
+        z-index: -1;
+    }
+
+    .header-section h2 {
+        font-size: 2.2rem;
+        font-weight: 800;
+        letter-spacing: -0.5px;
+        line-height: 1.2;
+        margin-bottom: 1rem;
+        color: white;
+        opacity: 0;
+        animation: fadeIn 0.6s ease-out 0.4s forwards;
+    }
+
+    .header-section h2 span {
+        color: var(--primary);
+        position: relative;
+        display: inline-block;
+    }
+
+    .header-section h2 span::after {
+        content: "";
+        position: absolute;
+        bottom: 5px;
+        left: 0;
+        width: 0;
+        height: 8px;
+        background-color: rgba(var(--primary-rgb), 0.15);
+        z-index: -1;
+        border-radius: 4px;
+        animation: lineGrow 0.6s ease-out 1s forwards;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 1rem;
+        margin-top: 1.5rem;
+        opacity: 0;
+        animation: fadeIn 0.6s ease-out 0.6s forwards;
+    }
+
+    .btn-primary, .btn-secondary {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        border-radius: 8px;
+        padding: 0.8rem 1.8rem;
+        font-size: 1rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        text-decoration: none;
+    }
+
+    .btn-primary {
+        background: var(--primary);
+        color: white;
+        border: 1px solid var(--primary);
+    }
+
+    .btn-secondary {
+        background: rgba(255, 255, 255, 0.1);
+        color: white;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .btn-primary:hover, .btn-secondary:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+    }
+
+    .btn-primary:hover {
+        background: rgba(var(--primary-rgb), 0.8);
+    }
+
+    .btn-secondary:hover {
+        background: rgba(255, 255, 255, 0.15);
+    }
+
+    .meeting-cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+        gap: 1.5rem;
+        opacity: 0;
+        animation: fadeIn 0.8s ease-out 0.8s forwards;
+    }
+
+    .meeting-card {
+        background: rgba(10, 10, 10, 0.8);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(30, 30, 30, 0.8);
+        border-radius: 16px;
+        padding: 1.5rem;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+        opacity: 0;
+        transform: translateY(30px);
+        display: flex;
+        flex-direction: column;
+    }
+
+    .meeting-card:nth-child(3n+1) {
+        animation: fadeInUp 0.6s ease-out 1.0s forwards;
+    }
+    
+    .meeting-card:nth-child(3n+2) {
+        animation: fadeInUp 0.6s ease-out 1.2s forwards;
+    }
+    
+    .meeting-card:nth-child(3n+3) {
+        animation: fadeInUp 0.6s ease-out 1.4s forwards;
+    }
+
+    .meeting-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 3px;
+        height: 0;
+        background: var(--primary);
+        transition: height 0.3s ease;
+    }
+
+    .meeting-card:hover::before {
+        height: 100%;
+    }
+
+    .meeting-card:hover {
+        transform: translateY(-10px);
+        border-color: rgba(var(--primary-rgb), 0.3);
+    }
+
+    .meeting-card h3 {
+        font-size: 1.4rem;
+        font-weight: 700;
+        color: white;
+        margin-bottom: 1rem;
+    }
+
+    .meeting-info {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .meeting-info-item {
+        display: flex;
+        gap: 0.5rem;
+        align-items: center;
+        color: var(--text-secondary);
+        font-size: 0.95rem;
+    }
+
+    .meeting-info-item i {
+        color: var(--primary);
+        opacity: 0.8;
+        width: 20px;
+        text-align: center;
+    }
+
+    .meeting-description {
+        color: var(--text-secondary);
+        font-size: 0.95rem;
+        margin-bottom: 1.5rem;
+        line-height: 1.5;
+        flex-grow: 1;
+    }
+
+    .meeting-status {
+        display: inline-block;
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        margin-bottom: 1.5rem;
+        text-align: center;
+    }
+
+    .meeting-status.scheduled {
+        background: rgba(255, 190, 0, 0.2);
+        color: #ffbe00;
+    }
+
+    .meeting-status.completed {
+        background: rgba(0, 200, 83, 0.2);
+        color: #00c853;
+    }
+
+    .meeting-status.cancelled {
+        background: rgba(255, 70, 70, 0.2);
+        color: #ff4646;
+    }
+
+    .meeting-actions {
+        display: flex;
+        gap: 0.75rem;
+        margin-top: auto;
+    }
+
+    .btn-sm {
+        padding: 0.5rem 1rem;
+        font-size: 0.9rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        border-radius: 8px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        flex: 1;
+        justify-content: center;
+    }
+
+    .btn-primary.btn-sm {
+        background: rgba(var(--primary-rgb), 0.1);
+        color: var(--primary);
+        border: 1px solid var(--primary);
+    }
+
+    .btn-danger.btn-sm {
+        background: rgba(255, 70, 70, 0.1);
+        color: #ff4646;
+        border: 1px solid #ff4646;
+    }
+
+    .btn-primary.btn-sm:hover {
+        background: var(--primary);
+        color: white;
+    }
+
+    .btn-danger.btn-sm:hover {
+        background: #ff4646;
+        color: white;
+    }
+
+    .no-meetings {
+        background: rgba(10, 10, 10, 0.8);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(30, 30, 30, 0.8);
+        border-radius: 16px;
+        padding: 3rem 2rem;
+        text-align: center;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+        animation: fadeIn 0.8s ease-out 0.8s forwards;
+        opacity: 0;
+    }
+
+    .no-meetings i {
+        font-size: 3rem;
+        color: var(--primary);
+        margin-bottom: 1.5rem;
+        opacity: 0.7;
+    }
+
+    .no-meetings h3 {
+        font-size: 1.5rem;
+        color: white;
+        margin-bottom: 1rem;
+    }
+
+    .no-meetings p {
+        color: var(--text-secondary);
+        margin-bottom: 1.5rem;
+        font-size: 1.1rem;
+    }
+
+    /* Messages styling */
+    .messages {
+        margin-bottom: 2rem;
+    }
+    
+    .alert {
+        background: rgba(10, 10, 10, 0.8);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(30, 30, 30, 0.8);
+        border-radius: 12px;
+        padding: 1rem 1.5rem;
+        color: white;
+        animation: fadeInDown 0.6s ease-out forwards;
+        margin-bottom: 1rem;
+    }
+    
+    .alert-success {
+        border-left: 4px solid #00c853;
+    }
+    
+    .alert-danger {
+        border-left: 4px solid #ff4646;
+    }
+    
+    .alert-warning {
+        border-left: 4px solid #ffbe00;
+    }
+    
+    .alert-info {
+        border-left: 4px solid #03a9f4;
+    }
+
+    /* Animation Keyframes */
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+        to {
+            opacity: 1;
+        }
+    }
+    
+    @keyframes fadeInDown {
+        from {
+            opacity: 0;
+            transform: translateY(-30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    @keyframes lineGrow {
+        from {
+            width: 0;
+        }
+        to {
+            width: 100%;
+        }
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .meeting-cards {
+            grid-template-columns: 1fr;
+        }
+        
+        .action-buttons {
+            flex-direction: column;
+        }
+        
+        .header-section h2 {
+            font-size: 1.8rem;
+        }
+    }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-    <h2>Meetings for Project: {{ project.title }}</h2>
-    
-    <div class="mb-3">
-        <a href="{% url 'collab_schedule_meeting' project.id %}" class="btn btn-primary">Schedule New Meeting</a>
-        <a href="{% url 'project_detail' project.id %}" class="btn btn-secondary">Back to Project</a>
+<div class="meetings-container">
+    <div class="header-section">
+        <h2>Meetings for Project: <span>{{ project.title }}</span></h2>
+        
+        <div class="action-buttons">
+            <a href="{% url 'collab_schedule_meeting' project.id %}" class="btn-primary">
+                <i class="fas fa-calendar-plus"></i> Schedule New Meeting
+            </a>
+            <a href="{% url 'shared_project_details' project.id %}" class="btn-secondary">
+                <i class="fas fa-arrow-left"></i> Back to Project
+            </a>
+        </div>
     </div>
     
     {% if messages %}
@@ -22,46 +417,55 @@
     {% endif %}
     
     {% if meetings %}
-    <div class="table-responsive">
-        <table class="table table-striped">
-            <thead>
-                <tr>
-                    <th>Title</th>
-                    <th>Description</th>
-                    <th>Scheduled Time</th>
-                    <th>Duration</th>
-                    <th>Status</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for meeting in meetings %}
-                <tr>
-                    <td>{{ meeting.meeting_title }}</td>
-                    <td>{{ meeting.meeting_description|truncatechars:50 }}</td>
-                    <td>{{ meeting.scheduled_time|date:"M d, Y - H:i" }}</td>
-                    <td>{{ meeting.duration }} minutes</td>
-                    <td>
-                        {% if meeting.status == 'scheduled' %}
-                        <span class="badge bg-warning">Scheduled</span>
-                        {% elif meeting.status == 'completed' %}
-                        <span class="badge bg-success">Completed</span>
-                        {% elif meeting.status == 'cancelled' %}
-                        <span class="badge bg-danger">Cancelled</span>
-                        {% endif %}
-                    </td>
-                    <td>
-                        <a href="{% url 'update_meeting' meeting.id %}" class="btn btn-sm btn-primary">Edit</a>
-                        <a href="{% url 'delete_meeting' meeting.id %}" class="btn btn-sm btn-danger">Delete</a>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+    <div class="meeting-cards">
+        {% for meeting in meetings %}
+        <div class="meeting-card">
+            <h3>{{ meeting.meeting_title }}</h3>
+            
+            <div class="meeting-info">
+                <div class="meeting-info-item">
+                    <i class="fas fa-calendar-alt"></i>
+                    <span>{{ meeting.scheduled_time|date:"M d, Y" }}</span>
+                </div>
+                <div class="meeting-info-item">
+                    <i class="fas fa-clock"></i>
+                    <span>{{ meeting.scheduled_time|date:"H:i" }} ({{ meeting.duration }} minutes)</span>
+                </div>
+            </div>
+            
+            <div class="meeting-description">
+                {{ meeting.meeting_description|truncatechars:100 }}
+            </div>
+            
+            <div class="meeting-status {{ meeting.status }}">
+                {% if meeting.status == 'scheduled' %}
+                <i class="fas fa-calendar-check"></i> Scheduled
+                {% elif meeting.status == 'completed' %}
+                <i class="fas fa-check-circle"></i> Completed
+                {% elif meeting.status == 'cancelled' %}
+                <i class="fas fa-ban"></i> Cancelled
+                {% endif %}
+            </div>
+            
+            <div class="meeting-actions">
+                <a href="{% url 'update_meeting' meeting.id %}" class="btn-primary btn-sm">
+                    <i class="fas fa-edit"></i> Edit
+                </a>
+                <a href="{% url 'delete_meeting' meeting.id %}" class="btn-danger btn-sm">
+                    <i class="fas fa-trash-alt"></i> Delete
+                </a>
+            </div>
+        </div>
+        {% endfor %}
     </div>
     {% else %}
-    <div class="alert alert-info">
-        No meetings scheduled yet. Click "Schedule New Meeting" to create one.
+    <div class="no-meetings">
+        <i class="fas fa-calendar-times"></i>
+        <h3>No Meetings Scheduled</h3>
+        <p>There are no meetings scheduled for this project yet.</p>
+        <a href="{% url 'collab_schedule_meeting' project.id %}" class="btn-primary">
+            <i class="fas fa-calendar-plus"></i> Schedule Your First Meeting
+        </a>
     </div>
     {% endif %}
 </div>

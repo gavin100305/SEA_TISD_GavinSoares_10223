@@ -2,212 +2,196 @@
 {% load static %}
 
 {% block content %}
-<div class="content-section">
-    <h1 class="section-title">Shared Projects</h1>
-
-    <!-- New Search Section -->
-    <div class="search-section">
-        <form method="GET" action="{% url 'view_shared_projects' %}" class="search-form">
-            <div class="search-row">
-                <div class="search-field">
-                    <input type="text" name="search" placeholder="Search by project title" value="{{ search_query }}">
-                </div>
-                <div class="search-field">
-                    <select name="tech_stack">
-                        <option value="">-- Filter by Tech Stack --</option>
-                        {% for tech in tech_stack_options %}
-                            <option value="{{ tech }}" {% if tech == tech_stack %}selected{% endif %}>{{ tech }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-                <div class="search-field">
-                    <select name="sdgs">
-                        <option value="">-- Filter by SDGs --</option>
-                        {% for sdg in sdg_options %}
-                            <option value="{{ sdg }}" {% if sdg == sdgs %}selected{% endif %}>{{ sdg }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-                <div class="search-field">
-                    <select name="status">
-                        <option value="">-- Filter by Status --</option>
-                        {% for status_code, status_name in status_choices %}
-                            <option value="{{ status_code }}" {% if status_code == status %}selected{% endif %}>{{ status_name }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-                <div class="search-buttons">
-                    <button type="submit" class="btn btn-primary">Search</button>
-                    <a href="{% url 'view_shared_projects' %}" class="btn btn-secondary">Clear</a>
-                    <!-- New Recommend Button -->
-                    <button type="submit" name="recommend" value="true" class="btn btn-accent {% if recommend == 'true' %}active{% endif %}">
-                        <i class="fas fa-magic"></i> Recommend Projects
-                    </button>
-                </div>
-            </div>
-        </form>
-    </div>
-    <!-- End New Search Section -->
-
-    {% if messages %}
-    <div class="messages">
-        {% for message in messages %}
-        <div class="message {{ message.tags }}">
-            {{ message }}
-        </div>
-        {% endfor %}
-    </div>
-    {% endif %}
-
-    {% if recommend == 'true' %}
-    <div class="recommendation-info">
-        <p><i class="fas fa-info-circle"></i> Showing projects that match your expertise profile. Projects are ranked by match score.</p>
-    </div>
-    {% endif %}
-
-    {% if projects %}
-    <div class="projects-grid">
-        {% for project in projects %}
-        <div class="project-card {% if project.recommendation_score %}recommended{% endif %}">
-            {% if project.recommendation_score %}
-            <div class="recommendation-badge">
-                <span class="score">{{ project.recommendation_score }}% Match</span>
-            </div>
-            {% endif %}
-            
-            <div class="project-header">
-                <h3>
-                    <a href="{% url 'shared_project_details' project.id %}" class="project-title-link">
-                        {{ project.title }}
-                    </a>
-                </h3>
-                <span class="status-badge {{ project.status }}">{{ project.get_status_display }}</span>
-            </div>
-            
-            <div class="project-description">
-                {{ project.description|truncatewords:30 }}
-            </div>
-
-            {% if project.recommendation_explanation %}
-            <div class="recommendation-explanation">
-                <p><strong>Why this matches you:</strong> {{ project.recommendation_explanation }}</p>
-            </div>
-            {% endif %}
-
-            <div class="project-details">
-                <p><strong>Owner:</strong> {{ project.owner_name }} ({{ project.owner_type }})</p>
-                <p><strong>Tech Stack:</strong> {{ project.tech_stack }}</p>
-                <p><strong>SDGs:</strong> {{ project.sdgs }}</p>
-            </div>
-
-            {% if project.request_status %}
-            <div class="request-status">
-                <span class="status-badge {{ project.request_status }}">
-                    Request Status: {{ project.request_status|title }}
-                </span>
-            </div>
-            {% else %}
-            <div class="project-actions">
-                <button onclick="openCollaborationModal('{{ project.id }}')" class="btn btn-primary">
-                    Request to Collaborate
-                </button>
-            </div>
-            {% endif %}
-
-            {% if project.request_status == 'accepted' %}
-<div class="meeting-actions">
-    <a href="{% url 'view_meetings' project.id %}" class="btn btn-primary">
-        <i class="fas fa-video"></i> View Meetings
-    </a>
-    <a href="{% url 'collab_schedule_meeting' project.id %}" class="btn btn-secondary">
-        <i class="fas fa-plus"></i> Schedule Meeting
-    </a>
-</div>
-{% endif %}
-            <!-- Comments Section -->
-            <div class="comments-section">
-                <h4 class="comments-title">Comments</h4>
+<div class="content-container">
+    <div class="main-content-grid">
+        <!-- Main Content Area -->
+        <div class="project-main-content">
+            <div class="content-header">
+                <h1 class="page-title">Shared Projects</h1>
                 
-                <!-- Comment Form -->
-                <form method="POST" action="{% url 'collaborator_add_comment' project.id %}" class="comment-form">
-                    {% csrf_token %}
-                    <div class="form-group">
-                        <textarea name="content" rows="2" placeholder="Write a comment..." class="comment-input"></textarea>
+                <!-- Search and Filter Section -->
+                <div class="search-section">
+                    <form method="GET" action="{% url 'view_shared_projects' %}" class="search-form">
+                        <div class="search-row">
+                            <div class="search-field">
+                                <input type="text" name="search" placeholder="Search projects..." value="{{ search_query }}">
+                                <i class="fas fa-search"></i>
+                            </div>
+                            <div class="search-field">
+                                <select name="tech_stack">
+                                    <option value="">All Tech Stacks</option>
+                                    {% for tech in tech_stack_options %}
+                                        <option value="{{ tech }}" {% if tech == tech_stack %}selected{% endif %}>{{ tech }}</option>
+                                    {% endfor %}
+                                </select>
+                                <i class="fas fa-code"></i>
+                            </div>
+                            <div class="search-field">
+                                <select name="sdgs">
+                                    <option value="">All SDGs</option>
+                                    {% for sdg in sdg_options %}
+                                        <option value="{{ sdg }}" {% if sdg == sdgs %}selected{% endif %}>{{ sdg }}</option>
+                                    {% endfor %}
+                                </select>
+                                <i class="fas fa-globe"></i>
+                            </div>
+                            <div class="search-buttons">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-filter"></i> Filter
+                                </button>
+                                <a href="{% url 'view_shared_projects' %}" class="btn btn-secondary">
+                                    <i class="fas fa-times"></i> Clear
+                                </a>
+                                <button type="submit" name="recommend" value="true" class="btn btn-accent {% if recommend == 'true' %}active{% endif %}">
+                                    <i class="fas fa-magic"></i> Recommended
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            {% if messages %}
+            <div class="messages">
+                {% for message in messages %}
+                <div class="message {{ message.tags }}">
+                    {{ message }}
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            {% if recommend == 'true' %}
+            <div class="recommendation-info">
+                <i class="fas fa-info-circle"></i>
+                <p>Showing projects that match your expertise profile. Projects are ranked by match score.</p>
+            </div>
+            {% endif %}
+
+            {% if projects %}
+            <div class="projects-grid">
+                {% for project in projects %}
+                <div class="project-card {% if project.recommendation_score %}recommended{% endif %}">
+                    {% if project.recommendation_score %}
+                    <div class="recommendation-badge">
+                        <span class="score">{{ project.recommendation_score }}% Match</span>
                     </div>
-                    <button type="submit" class="btn btn-primary btn-sm">Post Comment</button>
-                </form>
+                    {% endif %}
+                    
+                    <div class="project-header">
+                        <div>
+                            <h3 class="project-title">
+                                <a href="{% url 'shared_project_details' project.id %}">{{ project.title }}</a>
+                            </h3>
+                            <div class="project-meta">
+                                <span>By {{ project.owner_name }}</span>
+                                <span>•</span>
+                                <span>{{ project.created_at|date:"M d, Y" }}</span>
+                            </div>
+                        </div>
+                        <span class="status-badge {{ project.status }}">{{ project.get_status_display }}</span>
+                    </div>
+                    
+                    <div class="project-description">
+                        {{ project.description|truncatewords:30 }}
+                    </div>
 
-                <!-- Comments List -->
-                <div class="comments-list">
-                    {% for comment in project.comments.all %}
-                        {% if not comment.parent_comment %}
-                            <div class="comment" id="comment-{{ comment.id }}">
-                                <div class="comment-header">
-                                    <span class="comment-author">{{ comment.get_author_name }}</span>
-                                    <span class="comment-time">{{ comment.created_at|timesince }} ago</span>
-                                </div>
-                                <div class="comment-content">{{ comment.content }}</div>
-                                <div class="comment-actions">
-                                    <button onclick="showReplyForm('{{ comment.id }}')" class="btn btn-link">Reply</button>
-                                    {% if comment.author_type == 'collaborator' and comment.author_collaborator.user == request.user %}
-                                        <form method="POST" action="{% url 'collaborator_delete_comment' comment.id %}" class="inline-form">
-                                            {% csrf_token %}
-                                            <button type="submit" class="btn btn-link text-danger" onclick="return confirm('Delete this comment?')">Delete</button>
-                                        </form>
-                                    {% endif %}
-                                </div>
+                    {% if project.recommendation_explanation %}
+                    <div class="recommendation-explanation">
+                        <p><strong>Why this matches you:</strong> {{ project.recommendation_explanation }}</p>
+                    </div>
+                    {% endif %}
 
-                                <!-- Reply Form -->
-                                <div id="reply-form-{{ comment.id }}" class="reply-form" style="display: none;">
-                                    <form method="POST" action="{% url 'collaborator_add_comment' project.id %}">
-                                        {% csrf_token %}
-                                        <input type="hidden" name="parent_id" value="{{ comment.id }}">
-                                        <div class="form-group">
-                                            <textarea name="content" rows="2" placeholder="Write a reply..." class="comment-input"></textarea>
-                                        </div>
-                                        <div class="form-actions">
-                                            <button type="submit" class="btn btn-primary btn-sm">Reply</button>
-                                            <button type="button" onclick="hideReplyForm('{{ comment.id }}')" class="btn btn-secondary btn-sm">Cancel</button>
-                                        </div>
-                                    </form>
-                                </div>
-
-                                <!-- Replies -->
-                                {% for reply in comment.replies.all %}
-                                    <div class="reply">
-                                        <div class="comment-header">
-                                            <span class="comment-author">{{ reply.get_author_name }}</span>
-                                            <span class="comment-time">{{ reply.created_at|timesince }} ago</span>
-                                        </div>
-                                        <div class="comment-content">{{ reply.content }}</div>
-                                        {% if reply.author_type == 'collaborator' and reply.author_collaborator.user == request.user %}
-                                            <div class="comment-actions">
-                                                <form method="POST" action="{% url 'collaborator_delete_comment' reply.id %}" class="inline-form">
-                                                    {% csrf_token %}
-                                                    <button type="submit" class="btn btn-link text-danger" onclick="return confirm('Delete this reply?')">Delete</button>
-                                                </form>
-                                            </div>
-                                        {% endif %}
-                                    </div>
+                    <div class="project-tags">
+                        <div class="tag-group">
+                            <span class="tag-label">Tech:</span>
+                            <div class="tags">
+                                {% for tech in project.tech_stack_list %}
+                                    <span class="tag tech-tag">{{ tech }}</span>
                                 {% endfor %}
                             </div>
+                        </div>
+                        <div class="tag-group">
+                            <span class="tag-label">SDGs:</span>
+                            <div class="tags">
+                                {% for sdg in project.sdgs_list %}
+                                    <span class="tag sdg-tag">{{ sdg }}</span>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+
+                    {% if project.request_status %}
+                    <div class="request-status">
+                        <span class="status-badge {{ project.request_status }}">
+                            Request Status: {{ project.request_status|title }}
+                        </span>
+                    </div>
+                    {% else %}
+                    <div class="project-actions">
+                        <button onclick="openCollaborationModal('{{ project.id }}')" class="btn btn-primary">
+                            <i class="fas fa-handshake"></i> Request to Collaborate
+                        </button>
+                    </div>
+                    {% endif %}
+
+                    {% if project.request_status == 'accepted' %}
+                    <div class="meeting-actions">
+                        <a href="{% url 'view_meetings' project.id %}" class="btn btn-primary">
+                            <i class="fas fa-video"></i> Meetings
+                        </a>
+                        <a href="{% url 'collab_schedule_meeting' project.id %}" class="btn btn-secondary">
+                            <i class="fas fa-plus"></i> Schedule
+                        </a>
+                    </div>
+                    {% endif %}
+
+                    <!-- Comments Preview -->
+                    <div class="comments-preview">
+                        <div class="comments-header">
+                            <i class="fas fa-comments"></i>
+                            <span>Recent Comments</span>
+                        </div>
+                        {% if project.comments.all %}
+                            {% for comment in project.comments.all|slice:":2" %}
+                                <div class="comment-preview">
+                                    <div class="comment-meta">
+                                        <span class="comment-author">{{ comment.get_author_name }}</span>
+                                        <span class="comment-time">{{ comment.created_at|timesince }} ago</span>
+                                    </div>
+                                    <p class="comment-content">{{ comment.content|truncatewords:15 }}</p>
+                                </div>
+                            {% endfor %}
+                            {% if project.comments.count > 2 %}
+                                <a href="{% url 'shared_project_details' project.id %}#comments" class="view-all-comments">
+                                    View all {{ project.comments.count }} comments
+                                </a>
+                            {% endif %}
+                        {% else %}
+                            <p class="no-comments">No comments yet</p>
                         {% endif %}
-                    {% endfor %}
+                    </div>
                 </div>
+                {% endfor %}
             </div>
+            {% else %}
+            <div class="empty-state">
+                {% if search_query or tech_stack or sdgs or status or recommend == 'true' %}
+                    <img src="{% static 'images/no-results.svg' %}" alt="No results" class="empty-image">
+                    <h3>No projects found</h3>
+                    <p>Try adjusting your search or filters</p>
+                    <a href="{% url 'view_shared_projects' %}" class="btn btn-primary">
+                        <i class="fas fa-undo"></i> Reset Filters
+                    </a>
+                {% else %}
+                    <img src="{% static 'images/no-projects.svg' %}" alt="No projects" class="empty-image">
+                    <h3>No shared projects available</h3>
+                    <p>Check back later or explore other sections</p>
+                {% endif %}
+            </div>
+            {% endif %}
         </div>
-        {% endfor %}
     </div>
-    {% else %}
-    <div class="empty-state">
-        {% if search_query or tech_stack or sdgs or status or recommend == 'true' %}
-            <p>No projects found matching your search criteria.</p>
-            <a href="{% url 'view_shared_projects' %}" class="btn btn-primary">Clear Search</a>
-        {% else %}
-            <p>No shared projects available at the moment.</p>
-        {% endif %}
-    </div>
-    {% endif %}
 </div>
 
 <!-- Collaboration Request Modal -->
@@ -215,6 +199,7 @@
     <div class="modal-content">
         <div class="modal-header">
             <h3>Request to Collaborate</h3>
+            <button onclick="closeCollaborationModal()" class="close-btn">&times;</button>
         </div>
         <form id="collaborationForm" method="POST">
             {% csrf_token %}
@@ -236,25 +221,41 @@
     </div>
 </div>
 
-{% block extra_css %}
 <style>
-    .content-section {
+    /* Base Styles */
+    .content-container {
+        max-width: 1200px;
+        margin: 0 auto;
         padding: 2rem;
+        color: #e0e0e0;
     }
 
-    .section-title {
-        color: #c77dff;
+    .main-content-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 2rem;
+    }
+
+    .content-header {
+        margin-bottom: 2rem;
+    }
+
+    .page-title {
         font-size: 2rem;
-        margin-bottom: 2rem;
+        font-weight: 700;
+        color: #fff;
+        margin-bottom: 1.5rem;
     }
 
-    /* New Search Section Styles */
+    /* Search Section */
     .search-section {
-        margin-bottom: 2rem;
-        background: rgba(157, 78, 221, 0.05);
-        border-radius: 10px;
+        background: rgba(10, 10, 10, 0.8);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(30, 30, 30, 0.8);
+        border-radius: 12px;
         padding: 1.5rem;
-        border: 1px solid rgba(157, 78, 221, 0.3);
+        margin-bottom: 2rem;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
     }
 
     .search-form {
@@ -265,56 +266,77 @@
         display: flex;
         flex-wrap: wrap;
         gap: 1rem;
-        align-items: flex-end;
+        align-items: center;
     }
 
     .search-field {
         flex: 1;
         min-width: 200px;
+        position: relative;
     }
 
     .search-field input,
     .search-field select {
         width: 100%;
-        padding: 0.5rem;
-        border-radius: 5px;
-        background: rgba(157, 78, 221, 0.1);
-        border: 1px solid #9d4edd;
+        padding: 0.75rem 1rem 0.75rem 2.5rem;
+        border-radius: 8px;
+        background: rgba(20, 20, 20, 0.8);
+        border: 1px solid rgba(157, 78, 221, 0.3);
         color: #fff;
+        font-size: 0.95rem;
+    }
+
+    .search-field i {
+        position: absolute;
+        left: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #9d4edd;
     }
 
     .search-field select {
         appearance: none;
         background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%239d4edd' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
         background-repeat: no-repeat;
-        background-position: right 0.7rem center;
+        background-position: right 1rem center;
         background-size: 1em;
     }
 
     .search-buttons {
         display: flex;
-        gap: 0.5rem;
+        gap: 0.75rem;
         flex-wrap: wrap;
     }
 
-    /* New styles for recommend button */
-    .btn-accent {
-        background: #7209b7;
-        color: #fff;
-        border: 1px solid #7209b7;
+    /* Messages */
+    .messages {
+        margin-bottom: 2rem;
     }
 
-    .btn-accent:hover {
-        background: #9d4edd;
-        border-color: #9d4edd;
+    .message {
+        padding: 1rem;
+        border-radius: 8px;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
     }
 
-    .btn-accent.active {
-        background: #c77dff;
-        border-color: #c77dff;
-        position: relative;
+    .message.success {
+        background: rgba(40, 167, 69, 0.2);
+        border-left: 4px solid #28a745;
     }
 
+    .message.error {
+        background: rgba(220, 53, 69, 0.2);
+        border-left: 4px solid #dc3545;
+    }
+
+    .message.info {
+        background: rgba(23, 162, 184, 0.2);
+        border-left: 4px solid #17a2b8;
+    }
+
+    /* Recommendation Info */
     .recommendation-info {
         background: rgba(114, 9, 183, 0.1);
         border: 1px solid rgba(114, 9, 183, 0.3);
@@ -322,124 +344,116 @@
         padding: 1rem;
         margin-bottom: 2rem;
         color: #c77dff;
+        display: flex;
+        align-items: flex-start;
+        gap: 0.75rem;
+    }
+
+    .recommendation-info i {
+        margin-top: 0.2rem;
+    }
+
+    .recommendation-info p {
+        margin: 0;
+    }
+
+    /* Projects Grid */
+    .projects-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+        gap: 2rem;
+    }
+
+    /* Project Card */
+    .project-card {
+        background: rgba(10, 10, 10, 0.8);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(30, 30, 30, 0.8);
+        border-radius: 12px;
+        padding: 1.5rem;
+        transition: all 0.3s ease;
+        position: relative;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+    }
+
+    .project-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
+    }
+
+    .project-card.recommended {
+        border: 1px solid #7209b7;
+        box-shadow: 0 8px 32px rgba(114, 9, 183, 0.15);
     }
 
     .recommendation-badge {
         position: absolute;
         top: -10px;
-        right: -10px;
-        background: #7209b7;
+        right: 20px;
+        background: linear-gradient(135deg, #7209b7, #9d4edd);
         color: #fff;
         border-radius: 20px;
-        padding: 0.25rem 0.75rem;
+        padding: 0.35rem 1rem;
         font-size: 0.875rem;
-        font-weight: bold;
-        box-shadow: 0 3px 5px rgba(0, 0, 0, 0.2);
+        font-weight: 600;
+        box-shadow: 0 3px 10px rgba(114, 9, 183, 0.3);
+        z-index: 1;
     }
 
-    .project-card.recommended {
-        border: 2px solid #7209b7;
-        position: relative;
-        box-shadow: 0 0 15px rgba(114, 9, 183, 0.2);
+    /* Project Header */
+    .project-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 1rem;
     }
 
-    .recommendation-explanation {
-        background: rgba(114, 9, 183, 0.05);
-        border-left: 3px solid #7209b7;
-        padding: 0.75rem;
-        margin: 1rem 0;
-        font-style: italic;
+    .project-title {
+        font-size: 1.25rem;
+        font-weight: 600;
         color: #fff;
-        opacity: 0.9;
+        margin: 0 0 0.5rem 0;
     }
 
-    /* For mobile responsiveness */
-    @media (max-width: 768px) {
-        .search-row {
-            flex-direction: column;
-        }
-        
-        .search-field {
-            width: 100%;
-        }
-        
-        .search-buttons {
-            width: 100%;
-            margin-top: 0.5rem;
-        }
-        
-        .search-buttons .btn {
-            flex: 1;
-        }
-    }
-    /* End Search Section Styles */
-
-    .projects-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-        gap: 2rem;
-    }
-
-    .project-card {
-        background: rgba(157, 78, 221, 0.1);
-        border: 1px solid #9d4edd;
-        border-radius: 10px;
-        padding: 1.5rem;
-        transition: transform 0.3s ease;
-    }
-
-    .project-card:hover {
-        transform: translateY(-5px);
-    }
-
-    /* New styles for clickable project title */
-    .project-title-link {
-        color: #c77dff;
+    .project-title a {
+        color: inherit;
         text-decoration: none;
         transition: color 0.3s ease;
     }
 
-    .project-title-link:hover {
-        color: #fff;
-        text-decoration: underline;
+    .project-title a:hover {
+        color: #c77dff;
     }
 
-    .project-header {
+    .project-meta {
         display: flex;
-        justify-content: space-between;
-        align-items: start;
-        margin-bottom: 1rem;
-    }
-
-    .project-header h3 {
-        color: #c77dff;
-        font-size: 1.25rem;
-        margin: 0;
-    }
-
-    .project-description {
-        color: #fff;
-        opacity: 0.8;
-        margin-bottom: 1rem;
-    }
-
-    .project-details {
-        margin: 1rem 0;
-    }
-
-    .project-details p {
-        color: #fff;
-        margin: 0.5rem 0;
-    }
-
-    .project-details strong {
-        color: #c77dff;
+        align-items: center;
+        gap: 0.5rem;
+        color: #9d9d9d;
+        font-size: 0.875rem;
     }
 
     .status-badge {
-        padding: 0.25rem 0.75rem;
-        border-radius: 15px;
-        font-size: 0.875rem;
+        padding: 0.35rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+
+    .status-badge.in_progress {
+        background: rgba(0, 123, 255, 0.2);
+        color: #0d6efd;
+    }
+
+    .status-badge.completed {
+        background: rgba(40, 167, 69, 0.2);
+        color: #28a745;
+    }
+
+    .status-badge.under_review {
+        background: rgba(108, 117, 125, 0.2);
+        color: #6c757d;
     }
 
     .status-badge.pending {
@@ -457,165 +471,120 @@
         color: #dc3545;
     }
 
-    .project-actions {
-        margin-top: 1rem;
+    /* Project Description */
+    .project-description {
+        color: #e0e0e0;
+        opacity: 0.9;
+        margin-bottom: 1.5rem;
+        line-height: 1.5;
     }
 
-    .btn {
-        padding: 0.5rem 1rem;
-        border-radius: 5px;
-        border: none;
-        cursor: pointer;
+    /* Recommendation Explanation */
+    .recommendation-explanation {
+        background: rgba(114, 9, 183, 0.1);
+        border-left: 3px solid #7209b7;
+        padding: 0.75rem;
+        margin: 1rem 0;
         font-size: 0.875rem;
-        transition: all 0.3s ease;
-        text-decoration: none;
-        display: inline-block;
+        color: #e0e0e0;
+        border-radius: 0 4px 4px 0;
     }
 
-    .btn-primary {
-        background: #9d4edd;
-        color: #fff;
-    }
-
-    .btn-primary:hover {
-        background: #c77dff;
-    }
-
-    .btn-secondary {
-        background: transparent;
-        border: 1px solid #9d4edd;
-        color: #9d4edd;
-    }
-
-    .btn-secondary:hover {
-        background: rgba(157, 78, 221, 0.1);
-    }
-
-    .modal {
-        display: none;
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.5);
-        z-index: 1000;
-    }
-
-    .modal.show {
-        display: block;
-    }
-
-    .modal-content {
-        background: #1a1a2e;
-        border: 1px solid #9d4edd;
-        border-radius: 10px;
-        width: 90%;
-        max-width: 500px;
-        margin: 2rem auto;
-        position: relative;
-        top: 50%;
-        transform: translateY(-50%);
-    }
-
-    .modal-header {
-        padding: 1rem 1.5rem;
-        border-bottom: 1px solid #9d4edd;
-    }
-
-    .modal-header h3 {
+    .recommendation-explanation strong {
         color: #c77dff;
-        margin: 0;
     }
 
-    .modal-body {
-        padding: 1.5rem;
-    }
-
-    .form-group {
-        margin-bottom: 1rem;
-    }
-
-    .form-group label {
-        display: block;
-        color: #c77dff;
-        margin-bottom: 0.5rem;
-    }
-
-    .form-group textarea {
-        width: 100%;
-        padding: 0.5rem;
-        border-radius: 5px;
-        border: 1px solid #9d4edd;
-        background: rgba(157, 78, 221, 0.1);
-        color: #fff;
-        resize: vertical;
-    }
-
-    .modal-footer {
-        padding: 1rem 1.5rem;
-        border-top: 1px solid #9d4edd;
+    /* Project Tags */
+    .project-tags {
         display: flex;
-        justify-content: flex-end;
-        gap: 1rem;
+        flex-direction: column;
+        gap: 0.75rem;
+        margin-bottom: 1.5rem;
     }
 
-    .empty-state {
-        text-align: center;
-        padding: 3rem;
-        color: #fff;
-        opacity: 0.6;
+    .tag-group {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+
+    .tag-label {
+        font-size: 0.875rem;
+        color: #ffffff;
+        font-weight: 600;
+        white-space: nowrap;
+        padding-top: 0.25rem;
+    }
+
+    .tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+
+    .tag {
+        padding: 0.35rem 0.75rem;
+        border-radius: 15px;
+        font-size: 0.75rem;
+        font-weight: 500;
+    }
+
+    .tech-tag {
+        background: rgba(157, 78, 221, 0.15);
+        color: #ffffff;
+        border: 1px solid rgba(157, 78, 221, 0.5);
+        font-weight: 600;
+    }
+
+    .sdg-tag {
+        background: rgba(114, 9, 183, 0.15);
+        color: #ffffff;
+        border: 1px solid rgba(114, 9, 183, 0.5);
+        font-weight: 600;
+    }
+
+    /* Request Status */
+    .request-status {
+        margin: 1rem 0;
+    }
+
+    /* Project Actions */
+    .project-actions {
+        margin: 1.5rem 0;
     }
 
     .meeting-actions {
         display: flex;
-        gap: 1rem;
-        margin-top: 1rem;
+        gap: 0.75rem;
+        margin: 1.5rem 0;
     }
 
-    /* Add new styles for comments */
-    .comments-section {
-        margin-top: 2rem;
-        padding-top: 1rem;
-        border-top: 1px solid rgba(157, 78, 221, 0.2);
+    /* Comments Preview */
+    .comments-preview {
+        margin-top: 1.5rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid rgba(157, 78, 221, 0.1);
     }
 
-    .comments-title {
+    .comments-header {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
         color: #c77dff;
-        font-size: 1.1rem;
+        margin-bottom: 1rem;
+        font-weight: 500;
+    }
+
+    .comment-preview {
         margin-bottom: 1rem;
     }
 
-    .comment-form {
-        margin-bottom: 1.5rem;
-    }
-
-    .comment-input {
-        width: 100%;
-        padding: 0.5rem;
-        border-radius: 5px;
-        border: 1px solid #9d4edd;
-        background: rgba(157, 78, 221, 0.1);
-        color: #fff;
-        resize: vertical;
-        margin-bottom: 0.5rem;
-    }
-
-    .comments-list {
-        margin-top: 1rem;
-    }
-
-    .comment {
-        margin-bottom: 1.5rem;
-        padding-bottom: 1rem;
-        border-bottom: 1px solid rgba(157, 78, 221, 0.1);
-    }
-
-    .comment-header {
+    .comment-meta {
         display: flex;
-        justify-content: space-between;
         align-items: center;
-        margin-bottom: 0.5rem;
+        gap: 0.5rem;
+        font-size: 0.875rem;
+        margin-bottom: 0.25rem;
     }
 
     .comment-author {
@@ -624,70 +593,264 @@
     }
 
     .comment-time {
-        color: rgba(255, 255, 255, 0.5);
-        font-size: 0.875rem;
+        color: #9d9d9d;
     }
 
     .comment-content {
-        color: #fff;
-        margin-bottom: 0.5rem;
-    }
-
-    .comment-actions {
-        display: flex;
-        gap: 1rem;
-    }
-
-    .btn-link {
-        background: none;
-        border: none;
-        padding: 0;
-        color: #9d4edd;
-        cursor: pointer;
+        color: #e0e0e0;
         font-size: 0.875rem;
+        line-height: 1.4;
+        margin-left: 1.5rem;
     }
 
-    .btn-link:hover {
+    .view-all-comments {
+        display: inline-block;
+        color: #9d4edd;
+        font-size: 0.875rem;
+        text-decoration: none;
+        margin-top: 0.5rem;
+        transition: color 0.3s ease;
+    }
+
+    .view-all-comments:hover {
         color: #c77dff;
         text-decoration: underline;
     }
 
-    .text-danger {
-        color: #dc3545;
+    .no-comments {
+        color: #9d9d9d;
+        font-style: italic;
+        font-size: 0.875rem;
     }
 
-    .text-danger:hover {
-        color: #ff4757;
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: 3rem 2rem;
+        background: rgba(10, 10, 10, 0.8);
+        border: 1px dashed rgba(157, 78, 221, 0.3);
+        border-radius: 12px;
     }
 
-    .reply-form {
-        margin: 1rem 0;
-        padding-left: 1.5rem;
+    .empty-image {
+        width: 150px;
+        height: auto;
+        margin-bottom: 1.5rem;
+        opacity: 0.7;
     }
 
-    .form-actions {
-        display: flex;
+    .empty-state h3 {
+        color: #fff;
+        margin-bottom: 0.5rem;
+    }
+
+    .empty-state p {
+        color: #9d9d9d;
+        margin-bottom: 1.5rem;
+    }
+
+    /* Buttons */
+    .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0.75rem 1.25rem;
+        border-radius: 8px;
+        font-weight: 500;
+        font-size: 0.875rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        border: none;
         gap: 0.5rem;
     }
 
-    .reply {
-        margin: 1rem 0;
-        padding-left: 1.5rem;
-        border-left: 2px solid rgba(157, 78, 221, 0.2);
+    .btn i {
+        font-size: 0.9em;
     }
 
-    .inline-form {
-        display: inline;
+    .btn-primary {
+        background: #9d4edd;
+        color: white;
     }
 
-    .btn-sm {
-        padding: 0.25rem 0.5rem;
-        font-size: 0.875rem;
+    .btn-primary:hover {
+        background: #c77dff;
     }
+
+    .btn-secondary {
+        background: transparent;
+        color: #9d4edd;
+        border: 1px solid #9d4edd;
+    }
+
+    .btn-secondary:hover {
+        background: rgba(157, 78, 221, 0.1);
+    }
+
+    .btn-accent {
+        background: rgba(114, 9, 183, 0.2);
+        color: #c77dff;
+        border: 1px solid rgba(114, 9, 183, 0.3);
+    }
+
+    .btn-accent:hover {
+        background: rgba(114, 9, 183, 0.3);
+    }
+
+    .btn-accent.active {
+        background: #7209b7;
+        color: white;
+        border-color: #7209b7;
+    }
+
+    /* Modal */
+    .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.7);
+        z-index: 1000;
+        backdrop-filter: blur(5px);
+    }
+
+    .modal.show {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .modal-content {
+        background: #121212;
+        border: 1px solid #9d4edd;
+        border-radius: 12px;
+        width: 90%;
+        max-width: 500px;
+        box-shadow: 0 15px 50px rgba(0, 0, 0, 0.3);
+        overflow: hidden;
+    }
+
+    .modal-header {
+        padding: 1.25rem 1.5rem;
+        background: rgba(157, 78, 221, 0.1);
+        border-bottom: 1px solid rgba(157, 78, 221, 0.3);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .modal-header h3 {
+        color: #c77dff;
+        margin: 0;
+        font-size: 1.25rem;
+    }
+
+    .close-btn {
+        background: none;
+        border: none;
+        color: #9d9d9d;
+        font-size: 1.5rem;
+        cursor: pointer;
+        transition: color 0.3s ease;
+    }
+
+    .close-btn:hover {
+        color: #e0e0e0;
+    }
+
+    .modal-body {
+        padding: 1.5rem;
+    }
+
+    .form-group {
+        margin-bottom: 1.25rem;
+    }
+
+    .form-group label {
+        display: block;
+        color: #c77dff;
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+    }
+
+    .form-group textarea {
+        width: 100%;
+        padding: 0.75rem;
+        border-radius: 6px;
+        border: 1px solid rgba(157, 78, 221, 0.3);
+        background: rgba(20, 20, 20, 0.8);
+        color: #e0e0e0;
+        resize: vertical;
+        min-height: 100px;
+    }
+
+    .form-group textarea:focus {
+        outline: none;
+        border-color: #9d4edd;
+        box-shadow: 0 0 0 2px rgba(157, 78, 221, 0.2);
+    }
+
+    .modal-footer {
+        padding: 1rem 1.5rem;
+        background: rgba(20, 20, 20, 0.8);
+        border-top: 1px solid rgba(157, 78, 221, 0.2);
+        display: flex;
+        justify-content: flex-end;
+        gap: 0.75rem;
+    }
+
+    /* Responsive Adjustments */
+    @media (max-width: 992px) {
+        .projects-grid {
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        }
+    }
+
+    @media (max-width: 768px) {
+        .content-container {
+            padding: 1.5rem;
+        }
+
+        .search-row {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .search-field {
+            min-width: 100%;
+        }
+
+        .search-buttons {
+            width: 100%;
+        }
+
+        .search-buttons .btn {
+            flex: 1;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .project-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0.75rem;
+        }
+
+        .meeting-actions {
+            flex-direction: column;
+        }
+
+        .meeting-actions .btn {
+            width: 100%;
+        }
+    }
+
+    
 </style>
-{% endblock %}
 
-{% block extra_js %}
 <script>
 function openCollaborationModal(projectId) {
     const modal = document.getElementById('collaborationModal');
@@ -700,14 +863,5 @@ function closeCollaborationModal() {
     const modal = document.getElementById('collaborationModal');
     modal.classList.remove('show');
 }
-
-function showReplyForm(commentId) {
-    document.getElementById(`reply-form-${commentId}`).style.display = 'block';
-}
-
-function hideReplyForm(commentId) {
-    document.getElementById(`reply-form-${commentId}`).style.display = 'none';
-}
 </script>
-{% endblock %}
 {% endblock %}
