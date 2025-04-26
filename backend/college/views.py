@@ -27,6 +27,163 @@ from django.db.models import Count, Sum, Avg, F, Case, When, IntegerField, Value
 from django.db.models.functions import TruncMonth, TruncYear
 from django.http import JsonResponse
 from students.models import Project
+from django.http import HttpResponse
+from django.template.loader import get_template
+from xhtml2pdf import pisa
+import io
+from google.generativeai import GenerativeModel
+import google.generativeai as genai
+from django.conf import settings
+import os
+import markdown
+from django.utils.safestring import mark_safe
+import re
+
+
+@login_required
+def generate_project_report(request):
+    """Generate a PDF report of all projects"""
+    try:
+        college = CollegeProfile.objects.get(user=request.user)
+        projects = Project.objects.filter(college=college)
+        
+        # Basic statistics
+        total_projects = projects.count()
+        completed_projects = projects.filter(status='completed').count()
+        in_progress_projects = projects.filter(status='in_progress').count()
+        under_review_projects = projects.filter(status='under_review').count()
+        
+        # Generate AI summary using Gemini
+        genai.configure(api_key=settings.GEMINI_API_KEY)
+        model = GenerativeModel('gemini-2.0-flash')
+        
+        # Prepare project summaries for AI
+        project_summaries = []
+        for project in projects:
+            summary = f"Project: {project.title}, Status: {project.get_status_display()}, "
+            if project.group:
+                summary += f"Group: {project.group.name}, "
+            else:
+                summary += f"Student: {project.student.full_name}, "
+            summary += f"SDGs: {project.sdgs}, Tech: {project.tech_stack}"
+            project_summaries.append(summary)
+        
+        # Generate AI analysis
+        prompt = f"""
+        Analyze these college projects and provide a comprehensive summary with insights in MARKDOWN format:
+
+        dont add the word markdown in the output
+
+        **Projects Overview:**
+        {', '.join(project_summaries)}
+
+        **Statistics:**
+        - Total projects: {total_projects}
+        - Completed: {completed_projects}
+        - In Progress: {in_progress_projects} 
+        - Under Review: {under_review_projects}
+
+        Provide the analysis in well-structured markdown with:
+
+        ## Overall Performance
+        - Key achievements
+        - Completion rate analysis
+        - Notable patterns
+
+        ## Technology Trends  
+        - Most used technologies
+        - Emerging tech patterns
+        - Skill development insights
+
+        ## SDG Focus Areas
+        - Primary SDGs addressed
+        - Impact potential
+        - Alignment with global goals
+
+        ## Recommendations
+        - Areas for improvement
+        - Potential collaborations  
+        - Resource allocation suggestions
+
+        ## Observations
+        - General noteworthy points
+        - Unique project highlights
+        - Future opportunities
+
+        Use markdown formatting:
+        - Headers (##, ###) for sections
+        - Bullet points for lists
+        - **Bold** for important terms
+        - *Italics* for emphasis
+        - `code` formatting for tech terms
+        """
+        
+        ai_response = model.generate_content(prompt)
+        ai_markdown = ai_response.text if ai_response else "Could not generate AI analysis"
+        ai_html = markdown.markdown(ai_markdown)
+
+         # Remove markdown formatting while preserving structure
+        def clean_markdown(text):
+            # Remove headers (##, ###)
+            text = re.sub(r'^#+\s*', '', text, flags=re.MULTILINE)
+            # Remove bold (**)
+            text = text.replace('**', '')
+            # Remove italics (*)
+            text = text.replace('*', '')
+            # Remove code backticks (`)
+            text = text.replace('`', '')
+            # Remove markdown links
+            text = re.sub(r'\[([^\]]+)\]\([^\)]+\)', r'\1', text)
+            return text.strip()
+
+        clean_ai_text = clean_markdown(ai_markdown)
+
+        # Convert line breaks to HTML paragraphs
+        ai_html = ''.join(f'<p>{paragraph}</p>' 
+                         for paragraph in clean_ai_text.split('\n') if paragraph.strip())
+        
+        # If preview mode, return JSON
+        if request.GET.get('preview'):
+            return JsonResponse({
+                'ai_html': ai_html,  # Now sending HTML instead of raw markdown
+                'total_projects': total_projects,
+                'completed_projects': completed_projects,
+                'in_progress_projects': in_progress_projects,
+                'under_review_projects': under_review_projects
+            })
+        
+        # Prepare context for PDF
+        context = {
+            'college': college,
+            'projects': projects,
+            'total_projects': total_projects,
+            'completed_projects': completed_projects,
+            'in_progress_projects': in_progress_projects,
+            'under_review_projects': under_review_projects,
+            'ai_html': mark_safe(ai_html),  # Mark as safe for template rendering
+            'request': request
+        }
+        
+        # Render PDF
+        template = get_template('college/project_report_pdf.html')
+        html = template.render(context)
+        
+        response = HttpResponse(content_type='application/pdf')
+        response['Content-Disposition'] = 'attachment; filename="project_report.pdf"'
+        
+        # Create PDF
+        pisa_status = pisa.CreatePDF(html, dest=response)
+        
+        if pisa_status.err:
+            return HttpResponse('Error generating PDF')
+        return response
+        
+    except Exception as e:
+        if request.GET.get('preview'):
+            return JsonResponse({'error': str(e)}, status=400)
+        messages.error(request, f'Error generating report: {str(e)}')
+        return redirect('project_statistics')
+    
 
 @login_required
 def project_statistics(request):

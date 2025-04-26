@@ -29,5 +29,7 @@ urlpatterns = [
     path('project-statistics/', views.project_statistics, name='project_statistics'),
     path('api/project-charts-data/', views.project_charts_data, name='project_charts_data'),
     path('ngo/<int:ngo_id>/', views.ngo_detail, name='ngo_detail'),
+    path('project-report/', views.generate_project_report, name='generate_project_report'),
+
 
 ]

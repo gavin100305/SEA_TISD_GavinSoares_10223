@@ -449,6 +449,52 @@
             </div>
         </div>
     </div>
+    <!-- Report Generation Section -->
+<div class="stats-section" style="text-align: center; margin-top: 2rem;">
+    <button id="generateReportBtn" class="btn btn-primary" 
+            style="background: linear-gradient(135deg, #9d4edd 0%, #5a189a 100%); 
+                   border: none;
+                   padding: 12px 24px;
+                   font-size: 1.1rem;
+                   border-radius: 50px;
+                   color: white;
+                   cursor: pointer;
+                   transition: all 0.3s ease;
+                   box-shadow: 0 4px 15px rgba(157, 78, 221, 0.3);">
+        Generate Project Report (PDF)
+    </button>
+    
+    <div id="reportPreview" style="display: none; margin-top: 2rem; 
+                                 background: rgba(10, 10, 10, 0.8);
+                                 border-radius: 16px;
+                                 padding: 2rem;
+                                 text-align: left;">
+        <h3 style="color: #e0e0e0; margin-top: 0;">Report Preview</h3>
+        <div id="previewContent" style="color: #b0b0b0;"></div>
+        <div style="margin-top: 1.5rem;">
+            <a id="downloadReportBtn" href="#" class="btn btn-success" 
+               style="background: linear-gradient(135deg, #198754 0%, #0d5c3e 100%);
+                      border: none;
+                      padding: 10px 20px;
+                      border-radius: 50px;
+                      color: white;
+                      text-decoration: none;
+                      display: inline-block;
+                      margin-right: 10px;">
+                Download Full Report
+            </a>
+            <button id="closePreviewBtn" class="btn btn-secondary"
+                    style="background: rgba(30, 30, 30, 0.8);
+                           border: 1px solid rgba(70, 70, 70, 0.8);
+                           padding: 10px 20px;
+                           border-radius: 50px;
+                           color: #e0e0e0;
+                           cursor: pointer;">
+                Close Preview
+            </button>
+        </div>
+    </div>
+</div>
 </div>
 
 <!-- Include Chart.js -->
@@ -652,6 +698,63 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
     });
+});
+
+// Report generation functionality
+document.getElementById('generateReportBtn').addEventListener('click', function() {
+    const btn = this;
+    const previewDiv = document.getElementById('reportPreview');
+    const previewContent = document.getElementById('previewContent');
+    
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Generating Report...';
+    
+    // Show loading message in preview
+    previewContent.innerHTML = '<p>Generating report preview... This may take a moment.</p>';
+    previewDiv.style.display = 'block';
+    
+    // Scroll to preview
+    previewDiv.scrollIntoView({ behavior: 'smooth' });
+    
+    // Fetch AI summary preview
+    fetch('{% url "generate_project_report" %}?preview=true')
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                previewContent.innerHTML = `<p class="text-danger">Error: ${data.error}</p>`;
+                btn.disabled = false;
+                btn.innerHTML = 'Try Again';
+                return;
+            }
+            
+            // Display preview
+            previewContent.innerHTML = `
+                <h4 style="color: #e0e0e0; border-bottom: 1px solid rgba(30, 30, 30, 0.8); padding-bottom: 8px;">
+                    AI Analysis Summary
+                </h4>
+                <div style="color: #b0b0b0;">${data.ai_html}</div>
+                <p><strong>Total Projects:</strong> ${data.total_projects}</p>
+                <p><strong>Completed:</strong> ${data.completed_projects}</p>
+                <p><strong>In Progress:</strong> ${data.in_progress_projects}</p>
+                <p><strong>Under Review:</strong> ${data.under_review_projects}</p>
+            `;
+            
+            // Set download link
+            document.getElementById('downloadReportBtn').href = '{% url "generate_project_report" %}';
+            
+            btn.disabled = false;
+            btn.innerHTML = 'Generate Project Report (PDF)';
+        })
+        .catch(error => {
+            previewContent.innerHTML = `<p class="text-danger">Error: ${error.message}</p>`;
+            btn.disabled = false;
+            btn.innerHTML = 'Try Again';
+        });
+});
+
+// Close preview
+document.getElementById('closePreviewBtn').addEventListener('click', function() {
+    document.getElementById('reportPreview').style.display = 'none';
 });
 </script>
 {% endblock %}

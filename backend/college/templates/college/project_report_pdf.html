@@ -1,0 +1,214 @@
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>{{ college.name }} - Projects Report</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 1.5cm;
+        }
+        body {
+            font-family: 'Helvetica', 'Arial', sans-serif;
+            line-height: 1.5;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 25px;
+            border-bottom: 2px solid #2c3e50;
+            padding-bottom: 15px;
+        }
+        .header h1 {
+            color: #2c3e50;
+            margin-bottom: 5px;
+            font-size: 24px;
+        }
+        .summary-section {
+            margin-bottom: 30px;
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 4px;
+            border-left: 4px solid #2c3e50;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        .stat-card {
+            border: 1px solid #e0e0e0;
+            padding: 15px;
+            text-align: center;
+            border-radius: 4px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        .stat-card h3 {
+            margin-top: 0;
+            color: #555;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .stat-number {
+            font-size: 28px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        .ai-summary {
+            background: #f8f9fa;
+            padding: 20px;
+            border-left: 4px solid #2c3e50;
+            margin-bottom: 30px;
+        }
+        .projects-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 25px;
+            font-size: 13px;
+        }
+        .projects-table th, .projects-table td {
+            border: 1px solid #e0e0e0;
+            padding: 10px;
+            text-align: left;
+        }
+        .projects-table th {
+            background-color: #2c3e50;
+            color: white;
+            font-weight: 500;
+        }
+        .projects-table tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 15px;
+            border-top: 1px solid #e0e0e0;
+            font-size: 11px;
+            color: #777;
+        }
+        h2 {
+            color: #2c3e50;
+            font-size: 18px;
+            margin-top: 30px;
+            margin-bottom: 15px;
+            padding-bottom: 5px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        /* Markdown styling */
+        .ai-summary h2 {
+            color: #2c3e50;
+            border-bottom: 1px solid #e0e0e0;
+            padding-bottom: 5px;
+            margin-top: 20px;
+            font-size: 17px;
+        }
+        .ai-summary h3 {
+            color: #34495e;
+            margin-top: 15px;
+            font-size: 15px;
+        }
+        .ai-summary ul, .ai-summary ol {
+            padding-left: 20px;
+        }
+        .ai-summary li {
+            margin-bottom: 5px;
+        }
+        .ai-summary strong {
+            color: #2c3e50;
+            font-weight: bold;
+        }
+        .ai-summary em {
+            font-style: italic;
+        }
+        .ai-summary code {
+            background: #f0f0f0;
+            padding: 2px 4px;
+            border-radius: 3px;
+            font-family: monospace;
+        }
+        .ai-summary p {
+            margin-bottom: 10px;
+            line-height: 1.5;
+        }
+        .ai-summary ul {
+            margin-top: 5px;
+            margin-bottom: 15px;
+            padding-left: 20px;
+        }
+        .ai-summary li {
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>{{ college.name }} - Projects Report</h1>
+        <p>Generated on {% now "F j, Y" %}</p>
+    </div>
+    
+    <div class="summary-section">
+        <h2>Project Statistics Summary</h2>
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3>Total Projects</h3>
+                <div class="stat-number">{{ total_projects }}</div>
+            </div>
+            <div class="stat-card">
+                <h3>Completed</h3>
+                <div class="stat-number">{{ completed_projects }}</div>
+            </div>
+            <div class="stat-card">
+                <h3>In Progress</h3>
+                <div class="stat-number">{{ in_progress_projects }}</div>
+            </div>
+            <div class="stat-card">
+                <h3>Under Review</h3>
+                <div class="stat-number">{{ under_review_projects }}</div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="ai-summary">
+        <h2>Analysis Summary</h2>
+        <p>{{ ai_html|safe }}</p>
+    </div>
+    
+    <h2>All Projects</h2>
+    <table class="projects-table">
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Team</th>
+                <th>Status</th>
+                <th>SDGs</th>
+                <th>Tech Stack</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for project in projects %}
+            <tr>
+                <td>{{ project.title }}</td>
+                <td>
+                    {% if project.group %}
+                        {{ project.group.name }}
+                    {% else %}
+                        {{ project.student.full_name }}
+                    {% endif %}
+                </td>
+                <td>{{ project.get_status_display }}</td>
+                <td>{{ project.sdgs }}</td>
+                <td>{{ project.tech_stack }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    
+    <div class="footer">
+        <p>Report generated by {{ college.name }} - © {% now "Y" %}</p>
+    </div>
+</body>
+</html>
