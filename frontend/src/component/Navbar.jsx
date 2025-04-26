@@ -31,8 +31,8 @@ function Navbar() {
                 Mentors
               </Link>
               
-              <Link to="/about" className="text-white/80 px-4 py-2 rounded-full hover:bg-white/10 transition-all">
-                About
+              <Link to="/ngos" className="text-white/80 px-4 py-2 rounded-full hover:bg-white/10 transition-all">
+                NGOs
               </Link>
             </div>
           </div>

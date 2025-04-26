@@ -26,6 +26,7 @@ import GroupDetail from './student/GroupDetail';
 import GroupProjectDetail from './student/GroupProjectDetail';
 import MyProjects from './student/MyProjects';
 import ProjectMeetings from './student/ProjectMeetings';
+import NGOs from './component/NGOs';
 
 const App = () => {
   return (
@@ -45,6 +46,7 @@ const App = () => {
         <Route path="/admin-dashboard" element={<AdminDashboard />} />
         <Route path="/mentor-dashboard" element={<TeacherDashboard />} />
         <Route path="/projects" element={<Projects />} />
+        <Route path="/ngos" element={<NGOs />} />
         <Route path="/projects/:id" element={<ProjectDetail />} />
         <Route path="/mentors" element={<Mentors />} />
         <Route path="/add-group-project" element={<AddGroupProject />} />
