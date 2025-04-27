@@ -596,32 +596,6 @@ const ProjectDetail = () => {
               )}
             </motion.div>
 
-            {/* Collaboration */}
-            <motion.div 
-              className="bg-gradient-to-br from-purple-900/10 to-black/30 backdrop-blur-sm rounded-xl p-6 border border-purple-900/20"
-              variants={itemVariants}
-              whileHover={{ y: -5 }}
-            >
-              <h3 className="text-xl font-bold text-white mb-4">Collaboration</h3>
-              <div className="flex items-center justify-between">
-                <span className="text-gray-300">Open for collaboration:</span>
-                <span className={`px-2 py-1 text-xs rounded-full ${
-                  project.is_open_for_collaboration ? 'bg-green-900/30 text-green-300' : 'bg-red-900/30 text-red-300'
-                }`}>
-                  {project.is_open_for_collaboration ? 'Yes' : 'No'}
-                </span>
-              </div>
-              {project.is_open_for_collaboration && (
-                <motion.button 
-                  className="w-full mt-4 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors"
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                >
-                  Request Collaboration
-                </motion.button>
-              )}
-            </motion.div>
-
             {/* Created At */}
             <motion.div 
               className="bg-gradient-to-br from-purple-900/10 to-black/30 backdrop-blur-sm rounded-xl p-6 border border-purple-900/20"

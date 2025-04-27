@@ -408,7 +408,7 @@
             <div class="nav-container">
                 <!-- Main Navigation -->
                 <ul class="nav-links">
-                    <li><a href="{% url 'dashboard' %}" {% if request.resolver_match.url_name == 'dashboard' %}class="active"{% endif %}>
+                    <li><a href="{% url 'student_dashboard' %}" {% if request.resolver_match.url_name == 'dashboard' %}class="active"{% endif %}>
                         <i class="fas fa-home"></i> Dashboard
                     </a></li>
                     <li><a href="{% url 'student_profile' %}" {% if request.resolver_match.url_name == 'student_profile' %}class="active"{% endif %}>

@@ -53,6 +53,10 @@ def generate_project_report(request):
         in_progress_projects = projects.filter(status='in_progress').count()
         under_review_projects = projects.filter(status='under_review').count()
         
+        # Group vs Individual project counts
+        group_projects_count = projects.filter(group__isnull=False).count()
+        individual_projects_count = projects.filter(student__isnull=False).count()
+        
         # Generate AI summary using Gemini
         genai.configure(api_key=settings.GEMINI_API_KEY)
         model = GenerativeModel('gemini-2.0-flash')
@@ -160,9 +164,12 @@ def generate_project_report(request):
             'completed_projects': completed_projects,
             'in_progress_projects': in_progress_projects,
             'under_review_projects': under_review_projects,
+            'group_projects_count': group_projects_count,
+            'individual_projects_count': individual_projects_count,
             'ai_html': mark_safe(ai_html),  # Mark as safe for template rendering
             'request': request
         }
+
         
         # Render PDF
         template = get_template('college/project_report_pdf.html')
