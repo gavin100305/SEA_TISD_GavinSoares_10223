@@ -1,205 +1,153 @@
-<!DOCTYPE html>
 <html>
 <head>
     <meta charset="UTF-8">
     <title>{{ college.name }} - Projects Report</title>
     <style>
-        /* Global Styles */
+        @page {
+            size: A4;
+            margin: 1.5cm;
+        }
         body {
-            font-family: 'Helvetica Neue', Arial, sans-serif;
-            color: #333;
+            font-family: 'Helvetica', 'Arial', sans-serif;
             line-height: 1.5;
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 40px 20px;
-            background-color: #fff;
+            color: #333;
+            margin: 0;
+            padding: 0;
         }
-
-        /* Header Styles */
         .header {
+            text-align: center;
+            margin-bottom: 25px;
             border-bottom: 2px solid #2c3e50;
-            padding-bottom: 20px;
-            margin-bottom: 30px;
+            padding-bottom: 15px;
         }
-
         .header h1 {
             color: #2c3e50;
-            font-size: 28px;
             margin-bottom: 5px;
+            font-size: 24px;
         }
-
-        .header p {
-            color: #7f8c8d;
-            font-size: 14px;
-            margin-top: 0;
-        }
-
-        /* Summary Section */
         .summary-section {
-            background-color: #f9f9f9;
-            border-radius: 8px;
-            padding: 20px;
             margin-bottom: 30px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 4px;
+            border-left: 4px solid #2c3e50;
         }
-
-        .summary-section h2 {
-            color: #2c3e50;
-            font-size: 22px;
-            margin-top: 0;
-            margin-bottom: 20px;
-        }
-
-        /* Stats Grid */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 20px;
+            gap: 15px;
+            margin-bottom: 25px;
         }
-
         .stat-card {
-            background-color: #fff;
-            border-radius: 6px;
+            border: 1px solid #e0e0e0;
             padding: 15px;
             text-align: center;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-            transition: transform 0.2s;
+            border-radius: 4px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
         }
-
-        .stat-card:hover {
-            transform: translateY(-3px);
-        }
-
         .stat-card h3 {
-            color: #7f8c8d;
-            font-size: 14px;
             margin-top: 0;
-            margin-bottom: 10px;
-            font-weight: 500;
+            color: #555;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
-
         .stat-number {
-            color: #2c3e50;
             font-size: 28px;
             font-weight: bold;
+            color: #2c3e50;
         }
-
-        /* AI Summary */
         .ai-summary {
-            background-color: #f0f7ff;
-            border-radius: 8px;
+            background: #f8f9fa;
             padding: 20px;
+            border-left: 4px solid #2c3e50;
             margin-bottom: 30px;
-            border-left: 4px solid #3498db;
         }
-
-        .ai-summary h2 {
-            color: #2980b9;
-            font-size: 22px;
-            margin-top: 0;
-            margin-bottom: 15px;
-        }
-
-        .ai-summary p {
-            margin: 0;
-            line-height: 1.6;
-        }
-
-        /* Section Titles */
-        .section-title {
-            background-color: #2c3e50;
-            color: white;
-            padding: 12px 20px;
-            font-size: 18px;
-            font-weight: 500;
-            border-radius: 6px 6px 0 0;
-            margin-top: 40px;
-        }
-
-        /* Tables */
         .projects-table {
             width: 100%;
             border-collapse: collapse;
-            margin-bottom: 40px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 25px;
+            font-size: 13px;
         }
-
-        .projects-table thead {
-            background-color: #f2f6f9;
-        }
-
-        .projects-table th {
-            padding: 12px 15px;
+        .projects-table th, .projects-table td {
+            border: 1px solid #e0e0e0;
+            padding: 10px;
             text-align: left;
-            font-weight: 600;
-            color: #34495e;
-            border-bottom: 2px solid #ddd;
         }
-
-        .projects-table td {
-            padding: 12px 15px;
-            border-bottom: 1px solid #eee;
-        }
-
-        .projects-table tbody tr:hover {
-            background-color: #f9f9f9;
-        }
-
-        /* Status Colors */
-        .status-completed {
-            color: #27ae60;
+        .projects-table th {
+            background-color: #2c3e50;
+            color: white;
             font-weight: 500;
         }
-
-        .status-in-progress {
-            color: #e67e22;
-            font-weight: 500;
+        .projects-table tr:nth-child(even) {
+            background-color: #f8f9fa;
         }
-
-        .status-review {
-            color: #3498db;
-            font-weight: 500;
-        }
-
-        /* SDGs and Tech Stack Styling */
-        .tag {
-            display: inline-block;
-            background-color: #eee;
-            border-radius: 4px;
-            padding: 3px 8px;
-            margin: 2px;
-            font-size: 12px;
-        }
-
-        /* Footer */
         .footer {
-            margin-top: 40px;
-            padding-top: 20px;
-            border-top: 1px solid #eee;
             text-align: center;
-            color: #7f8c8d;
-            font-size: 12px;
+            margin-top: 40px;
+            padding-top: 15px;
+            border-top: 1px solid #e0e0e0;
+            font-size: 11px;
+            color: #777;
         }
-
-        /* Print Styling */
-        @media print {
-            body {
-                padding: 0;
-                background-color: white;
-            }
-            
-            .stat-card:hover {
-                transform: none;
-            }
-            
-            .projects-table {
-                page-break-inside: avoid;
-            }
-            
-            .section-title {
-                background-color: #eee;
-                color: #2c3e50;
-            }
+        h2 {
+            color: #2c3e50;
+            font-size: 18px;
+            margin-top: 30px;
+            margin-bottom: 15px;
+            padding-bottom: 5px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        /* Markdown styling */
+        .ai-summary h2 {
+            color: #2c3e50;
+            border-bottom: 1px solid #e0e0e0;
+            padding-bottom: 5px;
+            margin-top: 20px;
+            font-size: 17px;
+        }
+        .ai-summary h3 {
+            color: #34495e;
+            margin-top: 15px;
+            font-size: 15px;
+        }
+        .ai-summary ul, .ai-summary ol {
+            padding-left: 20px;
+        }
+        .ai-summary li {
+            margin-bottom: 5px;
+        }
+        .ai-summary strong {
+            color: #2c3e50;
+            font-weight: bold;
+        }
+        .ai-summary em {
+            font-style: italic;
+        }
+        .ai-summary code {
+            background: #f0f0f0;
+            padding: 2px 4px;
+            border-radius: 3px;
+            font-family: monospace;
+        }
+        .ai-summary p {
+            margin-bottom: 10px;
+            line-height: 1.5;
+        }
+        .ai-summary ul {
+            margin-top: 5px;
+            margin-bottom: 15px;
+            padding-left: 20px;
+        }
+        .ai-summary li {
+            margin-bottom: 5px;
+        }
+        .section-title {
+            background-color: #f0f0f0;
+            padding: 8px 15px;
+            margin: 25px 0 10px 0;
+            border-left: 4px solid #2c3e50;
+            font-weight: bold;
         }
     </style>
 </head>
@@ -260,25 +208,15 @@
                             {{ member.full_name }}{% if not forloop.last %}, {% endif %}
                         {% endfor %}
                     </td>
-                    <td class="status-{% if project.status == 'completed' %}completed{% elif project.status == 'in_progress' %}in-progress{% else %}review{% endif %}">
-                        {{ project.get_status_display }}
-                    </td>
-                    <td>
-                        {% for sdg in project.sdgs.all %}
-                            <span class="tag">{{ sdg.name }}</span>
-                        {% endfor %}
-                    </td>
-                    <td>
-                        {% for tech in project.tech_stack.all %}
-                            <span class="tag">{{ tech.name }}</span>
-                        {% endfor %}
-                    </td>
+                    <td>{{ project.get_status_display }}</td>
+                    <td>{{ project.sdgs }}</td>
+                    <td>{{ project.tech_stack }}</td>
                 </tr>
                 {% endif %}
             {% endfor %}
         </tbody>
     </table>
-
+    
     <!-- Individual Projects Section -->
     <div class="section-title">Individual Projects ({{ individual_projects_count }})</div>
     <table class="projects-table">
@@ -297,19 +235,9 @@
                 <tr>
                     <td>{{ project.title }}</td>
                     <td>{{ project.student.full_name }}</td>
-                    <td class="status-{% if project.status == 'completed' %}completed{% elif project.status == 'in_progress' %}in-progress{% else %}review{% endif %}">
-                        {{ project.get_status_display }}
-                    </td>
-                    <td>
-                        {% for sdg in project.sdgs.all %}
-                            <span class="tag">{{ sdg.name }}</span>
-                        {% endfor %}
-                    </td>
-                    <td>
-                        {% for tech in project.tech_stack.all %}
-                            <span class="tag">{{ tech.name }}</span>
-                        {% endfor %}
-                    </td>
+                    <td>{{ project.get_status_display }}</td>
+                    <td>{{ project.sdgs }}</td>
+                    <td>{{ project.tech_stack }}</td>
                 </tr>
                 {% endif %}
             {% endfor %}

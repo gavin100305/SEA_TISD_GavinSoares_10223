@@ -596,18 +596,7 @@
             </div>
 
             <div class="action-buttons">
-                <a href="{% url 'send_message' connection.mentor.user.id %}" class="btn btn-message">
-                    <i class="fas fa-comment"></i> Message
-                </a>
-                <a href="{% url 'schedule_meeting' connection.mentor.id %}" class="btn btn-schedule">
-                    <i class="fas fa-calendar-alt"></i> Schedule Meeting
-                </a>
-                <form method="POST" action="{% url 'cancel_connection' connection.id %}" class="inline" onsubmit="return confirm('Are you sure you want to cancel this mentor connection?');">
-                    {% csrf_token %}
-                    <button type="submit" class="btn btn-cancel">
-                        <i class="fas fa-times"></i> Cancel Connection
-                    </button>
-                </form>
+                {% comment %}Removed the schedule meeting link and cancel connection form that were causing errors{% endcomment %}
             </div>
 
             <div class="connection-date">
@@ -621,12 +610,7 @@
             
             {% if connection.status == 'pending' %}
             <div class="action-buttons">
-                <form method="POST" action="{% url 'cancel_request' connection.id %}" class="inline" onsubmit="return confirm('Are you sure you want to cancel this request?');">
-                    {% csrf_token %}
-                    <button type="submit" class="btn btn-cancel">
-                        <i class="fas fa-times"></i> Cancel Request
-                    </button>
-                </form>
+                {% comment %}Removed the cancel request form that was causing the error{% endcomment %}
             </div>
             {% endif %}
             {% endif %}

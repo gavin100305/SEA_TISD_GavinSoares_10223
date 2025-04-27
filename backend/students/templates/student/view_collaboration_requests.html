@@ -510,14 +510,7 @@
                         </form>
                     </div>
                     {% elif request.status == 'accepted' %}
-                    <div class="request-actions">
-                        <a href="{% url 'student_view_meetings' request.project.id %}" class="btn btn-meeting">
-                            <i class="fas fa-video"></i> View Meetings
-                        </a>
-                        <a href="{% url 'student_schedule_meeting' request.project.id request.collaborator.id %}" class="btn btn-schedule">
-                            <i class="fas fa-plus"></i> Schedule Meeting
-                        </a>
-                    </div>
+
                     {% endif %}
                 </div>
                 {% endfor %}
@@ -566,14 +559,6 @@
                         </form>
                     </div>
                     {% elif request.status == 'accepted' %}
-                    <div class="request-actions">
-                        <a href="{% url 'student_view_meetings' request.project.id %}" class="btn btn-meeting">
-                            <i class="fas fa-video"></i> View Meetings
-                        </a>
-                        <a href="{% url 'student_schedule_meeting' request.project.id request.collaborator.id %}" class="btn btn-schedule">
-                            <i class="fas fa-plus"></i> Schedule Meeting
-                        </a>
-                    </div>
                     {% endif %}
                 </div>
                 {% endfor %}

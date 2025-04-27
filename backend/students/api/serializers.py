@@ -1,6 +1,6 @@
 # students/api/serializers.py
 from rest_framework import serializers
-from students.models import Project
+from students.models import Project, StudentProfile, StudentGroup, GroupMembership
 from college.models import CollegeProfile,NGO
 from mentor.models import MentorProfile
 from college.serializers import CollegeProfileSerializer
@@ -23,7 +23,34 @@ class MentorProfileSerializer(serializers.ModelSerializer):
             'verification_status', 'created_at'
         ]
 
+class StudentProfileSerializer(serializers.ModelSerializer):
+    user_email = serializers.EmailField(source='user.email', read_only=True)
+    
+    class Meta:
+        model = StudentProfile
+        fields = [
+            'id', 'full_name', 'profile_picture', 'roll_number', 
+            'branch', 'section', 'semester', 'user_email'
+        ]
+
+class GroupMembershipSerializer(serializers.ModelSerializer):
+    student = StudentProfileSerializer(read_only=True)
+    
+    class Meta:
+        model = GroupMembership
+        fields = ['student', 'status', 'joined_at']
+
+class StudentGroupSerializer(serializers.ModelSerializer):
+    leader = StudentProfileSerializer(read_only=True)
+    members = GroupMembershipSerializer(source='groupmembership_set', many=True, read_only=True)
+    
+    class Meta:
+        model = StudentGroup
+        fields = ['id', 'name', 'description', 'leader', 'members', 'created_at']
+
 class ProjectSerializer(serializers.ModelSerializer):
+    student = StudentProfileSerializer(read_only=True)
+    group = StudentGroupSerializer(read_only=True)
     mentor = MentorProfileSerializer(read_only=True)
     college = CollegeProfileSerializer(read_only=True)
     
@@ -31,10 +58,10 @@ class ProjectSerializer(serializers.ModelSerializer):
         model = Project
         fields = [
             'id', 'title', 'description', 'sdgs', 'tech_stack',
-            'github_link', 'status', 'mentor', 'college',
-            'is_open_for_collaboration', 'created_at', 'updated_at',
-            'project_image1', 'project_image2', 'project_image3',
-            'project_image4', 'project_image5'
+            'github_link', 'status', 'student', 'group', 'mentor', 
+            'college', 'is_open_for_collaboration', 'created_at', 
+            'updated_at', 'project_image1', 'project_image2', 
+            'project_image3', 'project_image4', 'project_image5'
         ]
     
     def to_representation(self, instance):

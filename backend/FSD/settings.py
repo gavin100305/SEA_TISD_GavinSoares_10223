@@ -102,8 +102,8 @@ EMAIL_HOST_USER = 'crce.secea.10223@gmail.com'
 EMAIL_HOST_PASSWORD = 'jjemypvijseqiyyp'
 DEFAULT_FROM_EMAIL = 'crce.secea.10223@gmail.com'
 
-GITHUB_API_TOKEN = ''
-GEMINI_API_KEY = 'AIzaSyBuDRho2MAkDOSj_PkolmuJee7hBma30yg'
+GITHUB_API_TOKEN = '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'
+GEMINI_API_KEY = 'AIzaSyD3VUcZ5tS-caAUnJtx3Rr-5s71juqVvNg'
 
 # Database
 DATABASES = {

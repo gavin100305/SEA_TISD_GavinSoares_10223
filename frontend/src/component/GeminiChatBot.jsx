@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 const GeminiChatbot = () => {
   // Replace this with your actual Gemini API key
-  const GEMINI_API_KEY = "";
+  const GEMINI_API_KEY = "AIzaSyBy89ptIYnCsju-nbzRudp3l2AluFw4cpg";
   
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([]);
