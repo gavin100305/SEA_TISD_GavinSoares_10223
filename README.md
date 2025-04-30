@@ -260,10 +260,12 @@ cd tis­d-
 
 cd backend
 # Create & activate virtual environment
+sh
 python -m venv venv
 source venv/bin/activate      # Linux/Mac
 venv\Scripts\activate         # Windows
 
+sh
 pip install -r requirements.txt
 python manage.py migrate
 python manage.py collectstatic
