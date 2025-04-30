@@ -255,21 +255,23 @@ cd tis­d-
 
 --- 
 
-2. Backend (Django)
+### 2. Backend (Django)
 ---
 
+```bash
 cd backend
+
 # Create & activate virtual environment
-sh
 python -m venv venv
 source venv/bin/activate      # Linux/Mac
 venv\Scripts\activate         # Windows
 
-sh
+# Install dependencies and run the server
 pip install -r requirements.txt
 python manage.py migrate
 python manage.py collectstatic
 python manage.py runserver
+```
 
 
 
