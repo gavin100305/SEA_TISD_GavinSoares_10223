@@ -22,7 +22,7 @@ The TISD (Tracking Innovation & Sustainable Development) Website is a web-based 
 
 🎥 Demo and PPT
 ---
-👉 [Video](https://drive.google.com/file/d/1o5ImbNLncLn5QnEmz6RTGGksLdejhNtM/view?usp=drive_link))
+👉 [Video](https://drive.google.com/file/d/1o5ImbNLncLn5QnEmz6RTGGksLdejhNtM/view?usp=drive_link)
 
 👉 [PPT Presentation](https://drive.google.com/file/d/1m1CsQIu3UkefCNPSk1NJn_JBPbWSdz6P/view?usp=drive_link)
 
