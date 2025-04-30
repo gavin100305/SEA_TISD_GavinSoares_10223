@@ -249,10 +249,9 @@ Technology Stack
 1. Clone the Repository
 ---
 
-
-git clone https://github.com/yourorg/tisd-website.git
-cd tis­d- 
-
+```bash
+git clone https://github.com/gavin100305/SEA_TISD_GavinSoares_10223.git
+```
 --- 
 
 ### 2. Backend (Django)
