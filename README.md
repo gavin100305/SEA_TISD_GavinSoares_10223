@@ -251,6 +251,7 @@ Technology Stack
 
 ```bash
 git clone https://github.com/gavin100305/SEA_TISD_GavinSoares_10223.git
+cd SEA_TISD_GavinSoares_10223
 ```
 --- 
 
