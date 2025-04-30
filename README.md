@@ -265,12 +265,23 @@ cd backend
 python -m venv venv
 source venv/bin/activate      # Linux/Mac
 venv\Scripts\activate         # Windows
+```
 
 # Install dependencies and run the server
+```bash
 pip install -r requirements.txt
 python manage.py migrate
 python manage.py collectstatic
 python manage.py runserver
+```
+
+### 3. Frontend (React)
+---
+
+```bash
+cd frontend
+npm i
+npm run dev
 ```
 
 
